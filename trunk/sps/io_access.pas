@@ -1,6 +1,6 @@
 unit io_access;
 
-{ $Id$ }
+{ $Id$ 		}
 
 { the functions in this file decide depending on the config switches		}
 { which hardware must be accessed. herein are all the funcs neccessary		}	
@@ -25,17 +25,17 @@ const  	max_marker  = 512;
 	{ these values depend on the maximum values for the io lines - see above }
 	{ and must be calculated because the io lines are byte *not* bit aligned }
 	{ must be refactored because calculations like this are bad on changes   }
-	max_input_loop   	= 8; { word = int(max_ioline/8);}
-	max_output_loop	 	= 8; {: word = int(max_ioline/8);}
-	max_counter_loop 	= 8; {: word = int(max_counter/8);}
+	max_input_loop   	= 8; { word = int(max_ioline/8);		 }
+	max_output_loop	 	= 8; {: word = int(max_ioline/8);		 }
+	max_counter_loop 	= 8; {: word = int(max_counter/8);		 }
 	
-	{ these are addresses for the DIL/NETPC - must be refactored }
-	CSCIR=$22;	{ chip setup and control index register }
-	CSCDR=$23;	{ chip setup and control data register  }
-	PAMR=$a5;	{ PIO port A Mode Register }
-	PADR=$a9;	{ PIO port A data register }
-	PBMR=$a4;	{ PIO port B Mode register }
-	PBDR=$a8;	{ PIO port B data register }
+	{ these are addresses for the DIL/NETPC - must be refactored 		 }
+	CSCIR=$22;	{ chip setup and control index register 		 }
+	CSCDR=$23;	{ chip setup and control data register  		 }
+bhgh	PAMR=$a5;	{ PIO port A Mode Register 				 }
+	PADR=$a9;	{ PIO port A data register 				 }
+	PBMR=$a4;	{ PIO port B Mode register 				 }
+	PBDR=$a8;	{ PIO port B data register 				 }
 	
 	
 type 	ioline_type		= array [1..max_ioline]   of boolean;
@@ -69,19 +69,19 @@ var
 	{ all values from the config file are stored in these variables				}
 	{ currently 128 Inputs and 128 Outputs are supported - they are byte aligned 		}
 	{ so we have 128 / 8 = 16 possible ports which have to read/written 			}
-	input_port 		: array [1..max_input_loop] of longint;	{ portadresses of the inputs 	}
-	input_mask		: array [1..max_input_loop] of byte;	{ masks to mask out unused bits }
-	input_devicetype	: array [1..max_input_loop] of char;	{ depending on this value the app. procedure is called }
-	output_port		: array [1..max_output_loop] of longint;	{ portadresses of the outputs 	}
-	output_mask		: array [1..max_output_loop] of byte;	{ masks to mask out unused bits }
+	input_port 		: array [1..max_input_loop] of longint;	{ portadresses of the inputs 				}
+	input_mask		: array [1..max_input_loop] of byte;	{ masks to mask out unused bits 			}
+	input_devicetype	: array [1..max_input_loop] of char;	{ depending on this value the app. procedure is called  }
+	output_port		: array [1..max_output_loop] of longint;{ portadresses of the outputs 				}
+	output_mask		: array [1..max_output_loop] of byte;	{ masks to mask out unused bits 			}
 	output_var		: array [1..max_output_loop] of LongInt;
-	output_devicetype	: array [1..max_output_loop] of char;	{ depending on this string the app procedure is called }
+	output_devicetype	: array [1..max_output_loop] of char;	{ depending on this string the app procedure is called 	}
 	
 	{ currently 16 counters are supported - with byte alignment we need to 			}
 	{ read or write 2 ports 								}
 	{ currently only softcounters are supported 						}
 	counter_ports		: array [1..max_counter_loop]  of longint;	{ portadresses of the counters 	}
-	counter_masks		: array [1..max_counter_loop]  of byte;	{ masks to mask out unused bits }
+	counter_masks		: array [1..max_counter_loop]  of byte;		{ masks to mask out unused bits }
 	counter_devicetype	: array [1..max_counter_loop]  of char;
 	
 	{ the marker of the sps }
@@ -94,29 +94,29 @@ var
 	t			: array [1..max_timer] of LongInt;
 	z			: array [1..max_counter] of LongInt;
 
-	{ this var stores the value of the softcounter in order to allow recognition of low high changes at the app. input line }	
-	old_cnt			: array [1..max_counter] of boolean; 	{ hier wird jeweils der alte eingangswert gespeichert  um positive }
-									{ flanken erkennen zu können ( softcounter, positiv flankengetriggert }	
+	{ this var stores the value of the softcounter in order to allow recognition of low high changes at the app. input line 		}	
+	old_cnt			: array [1..max_counter] of boolean; 	{ hier wird jeweils der alte eingangswert gespeichert  um positive 	}
+									{ flanken erkennen zu können ( softcounter, positiv flankengetriggert 	}	
 	{ counter for initialization }
 	i			: LongInt;
 
 
 
-{****************************************************************************}
+{***************************************************************************************}
 { non puplic functions and stuff }
 
-{****************************************************************************}
-{ hardware specific stuff }
-{ for every  supported hardware device the following routines have to be implemented }
-{ a read function to read the data, a write function to write out data and a init }
+{***************************************************************************************}
+{ hardware specific stuff 								}
+{ for every  supported hardware device the following routines have to be implemented 	}
+{ a read function to read the data, a write function to write out data and a init 	}
 { mechanism ( depending on the type of device one or more of the above mentioned	}
-{ functions may not be neccessary) }
+{ functions may not be neccessary) 							}
 
-{******************************************************************************}
-{ normal read of ports as with a 8255 io controller }
+{***************************************************************************************}
+{ normal read of ports as with a 8255 io controller 					}
 			
-{ read a port, returns an array of booleans}
-function read_8255_port(io_port:longint):byte;       { ließt eingangswerte von IO Port ein }
+{ read a port, returns an array of booleans						}
+function read_8255_port(io_port:longint):byte;    { ließt eingangswerte von IO Port ein }
 
 begin
      read_8255_port:=port[io_port];
@@ -135,7 +135,7 @@ begin
 	{ including iopermissions ! }
 end;
 
-{******************************************************************************}
+{***************************************************************************************}
 { joystick port }
 function read_joystick_buttons(io_port:longint):byte; { reads the state of the joystick buttons }
 begin
@@ -150,7 +150,7 @@ begin
 end;
 
 
-{******************************************************************************}
+{***************************************************************************************}
 { printer port }
 function read_lp_port(io_port:longint):byte;
 var byte_value : byte;
@@ -178,21 +178,21 @@ begin
 	ioperm(io_port,$02,$FF);
 end;
 
-{**************************************************************************}
+{****************************************************************************************}
 { DIL/NetPC }
 
 procedure init_DIL_hardware;
 begin
-	{ read_config; }
-	{ init of DIL/NetP }
-	{ set the permission to access the ports }
+	{ read_config; 									}
+	{ init of DIL/NetP 								}
+	{ set the permission to access the ports 					}
 	{ sets the iopermission starting from Adress $22 for the next $aa bytes to true }
-	{ this must be double checked, because it is a really large area }
+	{ this must be double checked, because it is a really large area 		}
 	error:=IOperm($22,$aa,$ff);
-	{ set port a of dil pc to output }
+	{ set port a of dil pc to output 						}
 	port[CSCIR]:=PAMR;
 	port[CSCDR]:=$ff;
-	{ set port b of dil pc to input }
+	{ set port b of dil pc to input 						}
 	port[CSCIR]:=PBMR;
 	port[CSCDR]:=$00;
 
@@ -216,50 +216,50 @@ begin
 end;
 
 
-{***********************************************************************************}
+{******************************************************************************************}
 
-procedure count_down;                    	{ zählt timer und counter herunter }
+procedure count_down;                    	{ zählt timer und counter herunter 						}
 
-{ hier werden die timer und counter "heruntergezaehlt" }
-{ alle zähler und timer in einer sps sind rückwärtslaufende Zähler, die mit einem wert vorgeladen werden, }
-{ ist dieser wert durch ein externen Takt oder zeitimpulse auf null heruntergezaehlt wird ein eintsprechendes }
-{ Flag innerhalb der SPS auf high gesetzt. dieses flag wird in einem sps programm ausgwertet. }
-{ die timer werden dabei nicht wirklich von der zeit beeinflusst, sondern bei jedem durchlauf des programmes einfach }
-{ decrementiert. alle zeiten innerhalb eines sps programmes sind also von der ablaufgeschwindigkeit des sps interpreters }
-{ also direkt von der prozessorgeschwindigkeit abhängig. }
-{ die counter sind als sog. softcounter ausgelegt. d. h. es gibt keine hardwarezaehler, sondern der eingangswert eines }
-{ ganz normalen io eingangs wird per software abgefragt und bei positiver flanke wird ein softwarezaehler heruntergezaehlt }
-{ daraus folgt auch, das die zaehler ebenfalls von der ablaufgeschwindigkeit abhaengig sind. wenn ich aus dem physikuntericht }
-{ das noch richtig in erinnerung habe, heisst das, das der zaehler nur richtig zaehlt wenn sein takt kleiner als die halbe }
-{ ablaufgeschwindigkeit ist . }
-{ echte timer sind angedacht, werden irgendwann folgen, die vorhandenen Timer sollten jedoch erhalten bleiben, da sie }
-{ kürzeste verzögerungen für die sps bedeuten }
+{ hier werden die timer und counter "heruntergezaehlt" 										}
+{ alle zähler und timer in einer sps sind rückwärtslaufende Zähler, die mit einem wert vorgeladen werden, 			}
+{ ist dieser wert durch ein externen Takt oder zeitimpulse auf null heruntergezaehlt wird ein eintsprechendes 			}
+{ Flag innerhalb der SPS auf high gesetzt. dieses flag wird in einem sps programm ausgwertet. 					}
+{ die timer werden dabei nicht wirklich von der zeit beeinflusst, sondern bei jedem durchlauf des programmes einfach 		}
+{ decrementiert. alle zeiten innerhalb eines sps programmes sind also von der ablaufgeschwindigkeit des sps interpreters 	}	
+{ also direkt von der prozessorgeschwindigkeit abhängig. 									}
+{ die counter sind als sog. softcounter ausgelegt. d. h. es gibt keine hardwarezaehler, sondern der eingangswert eines 		}
+{ ganz normalen io eingangs wird per software abgefragt und bei positiver flanke wird ein softwarezaehler heruntergezaehlt 	}
+{ daraus folgt auch, das die zaehler ebenfalls von der ablaufgeschwindigkeit abhaengig sind. wenn ich aus dem physikuntericht 	}
+{ das noch richtig in erinnerung habe, heisst das, das der zaehler nur richtig zaehlt wenn sein takt kleiner als die halbe 	}
+{ ablaufgeschwindigkeit ist . 													}
+{ echte timer sind angedacht, werden irgendwann folgen, die vorhandenen Timer sollten jedoch erhalten bleiben, da sie 		}
+{ kürzeste verzögerungen für die sps bedeuten 											}
 
 var 	c,wert          : byte;
 	i		: LongInt;
 
 begin
      	for c:=1 to max_timer do begin
-	        if t[c] > 0 then t[c]:=t[c]-1; 	{ Zeitzähler decrementieren  }
-        	if t[c]=0 then timer[c]:=true  	{ zeitzähler = 0? ja ==> TIMER auf 1}
+	        if t[c] > 0 then t[c]:=t[c]-1; 	{ Zeitzähler decrementieren  		}
+        	if t[c]=0 then timer[c]:=true  	{ zeitzähler = 0? ja ==> TIMER auf 1	}
      	end;
 	
 	for i:=1 to max_counter_loop do begin
-		{ je nach hardware die entsprechende routine zum einlesen des ports aufrufen }
+		{ je nach hardware die entsprechende routine zum einlesen des ports aufrufen 			}
 		case  counter_devicetype[i] of 
-		    'l'	:	wert:= input_mask[i] and read_lp_port(input_port[i]); { mit der inputmask }    
-		    'D'	:	wert:= input_mask[i] and read_DIL_port(input_port[i]); {"verundet" werden }
+		    'l'	:	wert:= input_mask[i] and read_lp_port(input_port[i]);   { mit der inputmask 	}    
+		    'D'	:	wert:= input_mask[i] and read_DIL_port(input_port[i]);  { "verundet" werden 	}
 		    'p'	:	wert:= input_mask[i] and read_8255_port(input_port[i]); {unerwünschte bits ausgeblendet }
 		    'j'	:	wert:= input_mask[i] and read_joystick_buttons(input_port[i]);
 		end;
 		
 		for c:=1 to 8 do begin
-        		if wert mod 2 = 0 then old_cnt[c*i]:=false 	{ wenn low am eingang dann 0 speichern   }
-        		else						{ wenn 1 am eingang => positive flanke testen }
+        		if wert mod 2 = 0 then old_cnt[c*i]:=false 		{ wenn low am eingang dann 0 speichern   	}
+        		else							{ wenn 1 am eingang => positive flanke testen 	}
         			if not(old_cnt[c*i]) then begin          	{ der wert vom letzten programmdurchlauf ist 0, => pos. Flanke am Eingang }
-        				old_cnt[c*i]:=true;                    	{ dann 1 speichern            }
-            				if z[c*i]>0 then z[c*i]:=z[c*i]-1;      { und ISTwert herunterzälen   } 
-            				if z[c*i]=0 then counter[c*i]:=true;   	{ wenn ISTwert 0 dann ZAHLER  auf 1 setzen }
+        				old_cnt[c*i]:=true;                    	{ dann 1 speichern            			}
+            				if z[c*i]>0 then z[c*i]:=z[c*i]-1;      { und ISTwert herunterzälen   			} 
+            				if z[c*i]=0 then counter[c*i]:=true;   	{ wenn ISTwert 0 dann ZAHLER  auf 1 setzen 	}
           			end;
         		wert := wert div 2
      		end
@@ -275,14 +275,14 @@ procedure get_digital_values 	(var inputs   : ioline_type;outputs:ioline_type;ma
 	var IO_val 		: byte;
 begin
 	{ get all input lines and compose the byte array }
-	for i:=1 to max_input_loop do begin 	{ da jeweils 8 werte gelesen werden muss ich 16 mal lesen ( 8 * 16 = 128 ) }
-		case input_devicetype[i] of 	{ je nach hardware die entsprechende routine zum einlesen des ports aufrufen }
-			'l' 		:	IO_val:= input_mask[i] and read_lp_port(input_port[i]); { mit der inputmask }
-			'D'		:	IO_val:= input_mask[i] and read_DIL_port(input_port[i]); {"verundet"werden }
-			'p'		:	IO_val:= input_mask[i] and read_8255_port(input_port[i]); {unerwünschte bits ausgeblendet }
+	for i:=1 to max_input_loop do begin 	{ da jeweils 8 werte gelesen werden muss ich 16 mal lesen ( 8 * 16 = 128 ) 			}
+		case input_devicetype[i] of 	{ je nach hardware die entsprechende routine zum einlesen des ports aufrufen 			}
+			'l' 		:	IO_val:= input_mask[i] and read_lp_port(input_port[i]); 	{ mit der inputmask 		}
+			'D'		:	IO_val:= input_mask[i] and read_DIL_port(input_port[i]); 	{"verundet"werden 		}
+			'p'		:	IO_val:= input_mask[i] and read_8255_port(input_port[i]); 	{unerwünschte bits ausgeblendet }
 			'j'		:	IO_val:= input_mask[i] and read_joystick_buttons(input_port[i]);
 		end;
-		for j:=7 downto 0 do begin	{ den int wert mit der tabelle schnell in ein array of boolean wandeln }
+		for j:=7 downto 0 do begin	{ den int wert mit der tabelle schnell in ein array of boolean wandeln 				}
          		if IO_val>=power[j] then begin
             			eingang[i*8-j]:=true;
 				IO_val:=IO_val-power[j]
