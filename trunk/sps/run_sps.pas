@@ -1,6 +1,7 @@
 program runsps;
 {$M 16000,0,0}                   { 16000 Bytes STACK , kein HEAP }
 
+{ $Id$ }
 
 uses dos,crt,linux,popmenu;
 { porting to linux startet at 27.05.99 				}
