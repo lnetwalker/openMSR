@@ -12,7 +12,7 @@ unit io_access;
 { (c) 2001 by Hartmut Eilers <hartmut@eilers.net>, released under the GPL 	}
 { see LICENSE file 								}
 
-
+{ 13.01.2004 continue working with cvs						}
 { For the configuartion of the hardware devices we need to use shortcuts	}
 { l = lp ; D = DILpc ; p = pio ; j= joystick					}
 
@@ -32,10 +32,13 @@ const  	max_marker  = 512;
 	{ these are addresses for the DIL/NETPC - must be refactored 		 }
 	CSCIR=$22;	{ chip setup and control index register 		 }
 	CSCDR=$23;	{ chip setup and control data register  		 }
-bhgh	PAMR=$a5;	{ PIO port A Mode Register 				 }
+	PAMR=$a5;	{ PIO port A Mode Register 				 }
 	PADR=$a9;	{ PIO port A data register 				 }
 	PBMR=$a4;	{ PIO port B Mode register 				 }
 	PBDR=$a8;	{ PIO port B data register 				 }
+        IOW_WRITE = 1074053121; { ioctl handles for the iowarrior 40 	         }
+        IOW_READ  = 1074053122; { This must be improved, it's bad style to use the constants }
+	
 	
 	
 type 	ioline_type		= array [1..max_ioline]   of boolean;
@@ -110,7 +113,8 @@ var
 { for every  supported hardware device the following routines have to be implemented 	}
 { a read function to read the data, a write function to write out data and a init 	}
 { mechanism ( depending on the type of device one or more of the above mentioned	}
-{ functions may not be neccessary) 							}
+{ functions may not be neccessary)                                                      }
+{ we have port_a, port_b, port_c and ctrl_port                                          }
 
 {***************************************************************************************}
 { normal read of ports as with a 8255 io controller 					}
@@ -133,10 +137,13 @@ procedure init_8255_hardware;
 begin
 	{ configuration of the hardware }
 	{ including iopermissions ! }
+        { set port_a to input , port_b to output and port_c to input }
+        port[control_port]:=$99;
 end;
 
 {***************************************************************************************}
 { joystick port }
+{ added docu in doc/joystick-spec.txt }
 function read_joystick_buttons(io_port:longint):byte; { reads the state of the joystick buttons }
 begin
 end;
@@ -215,6 +222,34 @@ begin
 	write_DIL_port:=byte_value;
 end;
 
+
+
+{ *****************************************************************************************}
+{ Code Mercanaries IO-Warrior 40 }
+{ first raw sketch - stuff taken from test prog; must be improved to work }
+
+procedure init_ioWarrior;
+var
+        f       : LongInt;
+
+begin
+        f:=fdOpen('/dev/usb/iowarrior0',Open_RdWr); 
+	{ this filehandle needs to be exportet to the read and write functions !! }
+end;
+
+function read_ioWarrior(device:byte):cardinal;
+
+begin
+        ioctl (f,IOW_READ,pvalue);
+        ivalue:=pvalue^;
+end;
+
+function write_ioWarrior(device:byte;out_value:Cardinal):Cardinal;
+
+begin
+        ovalue:=$F0F0F0F0;pvalue^:=ovalue;
+        ioctl (f,IOW_WRITE,pvalue);
+end;
 
 {******************************************************************************************}
 
@@ -302,6 +337,7 @@ begin
 end;
 
 
+{ ***************************************************************************************************}
 procedure set_output   		(var outputs  : ioline_type);
 
 { takes the boolean array of outputs as parameter 				}
@@ -356,6 +392,7 @@ begin
 	
 	{ here every hardware initializing must be done }
 
+	{ initialize the internal structures like counters markers etc; }
 	{ reset all markers }
 	for i:=1 to max_marker do 
 		marker[i]:=false;
