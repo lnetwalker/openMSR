@@ -1,5 +1,7 @@
 unit io_access;
 
+{ $Id$ }
+
 { the functions in this file decide depending on the config switches		}
 { which hardware must be accessed. herein are all the funcs neccessary		}	
 { to access the hardware including init ,writing/reading values, distri-	}
