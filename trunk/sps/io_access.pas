@@ -17,17 +17,17 @@ const  	max_marker := 512;
 	max_counter:= 16;
 	max_analog := 64;
 
-	max_input_loop := max_ioline/8;
+	max_input_loop  := max_ioline/8;
 	max_output_loop	:= max_ioline/8;
 	max_cnt_loop	:= max_counter/8;
 	
-type 	ioline_type		: array [1..max_ioline] of boolean;
+type 	ioline_type		: array [1..max_ioline]   of boolean;
 	counter_type		: array [1..max_counter]  of longint;
-	timer_type		: array [1..max_timer]  of longint;
+	timer_type		: array [1..max_timer]    of longint;
 	logic_counter_type 	: array [1..max_counter]  of boolean;
-	logic_timer_type   	: array [1..max_timer]  of boolean;
-	analog_type		: array [1..max_analog]  of longint;
-	marker_type		: array [1..max_marker] of boolean;
+	logic_timer_type   	: array [1..max_timer]    of boolean;
+	analog_type		: array [1..max_analog]   of longint;
+	marker_type		: array [1..max_marker]   of boolean;
 
 
 procedure get_digital_values 	(var inputs   : ioline_type;outputs:ioline_type;marker:ioline_type;counters:logic_counter_type;timers:logic_timer_type); 
@@ -77,27 +77,6 @@ var	{ all values from the config file are stored in these variables				}
 	old_cnt			: array [1..maxcounters] of boolean; 	{ hier wird jeweils der alte eingangswert gespeichert  um positive }
 									{ flanken erkennen zu können ( softcounter, positiv flankengetriggert }
 	
-procedure set_output   		(var outputs  : ioline_type);
-{ takes the boolean array of outputs as parameter }
-{ is used to write the calculated output values to the real devices }
-{ depending on the type of hardware which is assigned to the logic output }
-{ a special function is called to access the real hardware }
-{ see the hardware section below for the possible devices }
-var i,j		: LongInt;
- 	wert	: byte;
-	
-begin
-for i:= 1 to max_output_loop do begin
-	wert:=0;
-	for j:= 7 downto 0 do 
-		if outputs[output_var[i]*8-j] then wert:=wert+npower[j];
-	case output_device[i] of 
-		"lp"		:	write_lp_port(output_port[i],wert);
-		"DILPC"		:	write_DIL_port(output_port[i],wert);
-		"pio8255"	:	write_8255_port(output_port[i],wert);
-	end;			
-end;
-
 	
 procedure get_digital_values 	(var inputs   : ioline_type;outputs:ioline_type;markers:marker_type;counters:logic_counter_type;timers:logic_timer_type); 
 var i, j	: longint;
@@ -130,6 +109,35 @@ begin
 	timers  :=timer;
 end;
 
+
+procedure set_output   		(var outputs  : ioline_type);
+{ takes the boolean array of outputs as parameter }
+{ is used to write the calculated output values to the real devices }
+{ depending on the type of hardware which is assigned to the logic output }
+{ a special function is called to access the real hardware }
+{ see the hardware section below for the possible devices }
+var i,j		: LongInt;
+ 	wert	: byte;
+	
+begin
+for i:= 1 to max_output_loop do begin
+	wert:=0;
+	for j:= 7 downto 0 do 
+		if outputs[output_var[i]*8-j] then wert:=wert+npower[j];
+	case output_device[i] of 
+		"lp"		:	write_lp_port(output_port[i],wert);
+		"DILPC"		:	write_DIL_port(output_port[i],wert);
+		"pio8255"	:	write_8255_port(output_port[i],wert);
+	end;			
+end;
+
+
+procedure set_marker   		(var marker   : marker_type);
+begin
+	{ needs to be evaluated what has to be done here }
+end;
+
+
 procedure set_counter  		(cnt_idx: LongInt ; var counter_value:LongInt);
 begin
 	z[cnt_idx]:=counter_value;
@@ -140,8 +148,11 @@ procedure set_timer    		(tmr_idx: LongInt ; var timer_value:LongInt);
 begin
 	t[tmr_idx]:=timer_value;
 end;
-
-
+n
+procedure get_analog_values 	(var analog_in : analog_type );
+begin
+	{ this is a dummy for the routines to read analog values from the Game Port }
+end;
 
 
 { init everything needed }
@@ -240,6 +251,8 @@ end;                               { **** ENDE SET_OUTPUT **** }
 
 procedure init_8255_hardware;
 begin
+	{ configuration of the hardware }
+	{ including iopermissions ! }
 end;
 
 {******************************************************************************}
