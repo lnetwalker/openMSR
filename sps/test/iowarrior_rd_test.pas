@@ -1,5 +1,6 @@
 program iowarrior_rd_test;
 
+(* testproggi reading IO-Warrior 40 *)
 uses dos,linux,crt;
 
 var
