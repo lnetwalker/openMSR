@@ -1,7 +1,7 @@
 program runsps;
 {$M 16000,0,0}                   { 16000 Bytes STACK , kein HEAP }
 
-uses dos,crt,dil_io_access,linux,systemlog;
+uses dos,crt,lp_io_access,linux;
 
 { porting to linux startet at 27.05.99 				}
 { don't blame me for "bad" code					}
@@ -9,8 +9,8 @@ uses dos,crt,dil_io_access,linux,systemlog;
 { and some of my least steps after years where I coded not	}
 { one simple line in pascal :) If you have improvements		}
 { please contact me at hartmut@eilers.net			}
-{ all code is copyright by Hartmut Eilers and released under	}
-{ the GNU GPL see www.gnu.org for license details		}
+{ all code is copyright by Hartmut Eilers			}
+{ you may use it in any free code, not in commercial code !	}
 
 
 type  string12=string[12];
@@ -18,12 +18,12 @@ type  string12=string[12];
 
 
 const awl_max     =500;
-      control_port=$ff;		{ all port adresses are dummy values 			}
-      port_a      =$ff;		{ you only have the outport for the out signal 1-8 	}
-      port_b      =$ff;		{ and the inport with the signals in 3 to 8		}
-      port_c      =$ff;		{ counters are not available with the printer port	}
-      ProgNamVer  =' RUN_SPS           V 1.7.0 for DIL/NetPC Linux ';
-      Copyright   ='      (c)  1990-2001 by H.EILERS ';
+      control_port=$378;	{ this should be LPT1 					}
+      port_a      =$379;	{ you only have the outport for the out signal 1-8 	}
+      port_b      =$378;	{ and the inport with the signals in 3 to 8		}
+      port_c      =$378;	{ counters are not available with the printer port	}
+      ProgNamVer  =' RUN_SPS           V 1.2 alpha 1 for Linux ';
+      Copyright   ='      (c)  27.05.99 by H.EILERS ';
       power       : array[0..7] of byte =(1,2,4,8,16,32,64,128);
       anweisung   : array[1..20] of string3
                   = ('O  ','ON ','O( ','ON(','U  ',
@@ -33,21 +33,19 @@ const awl_max     =500;
 
 
 var
-     x                 	: word;
-     y                 	: byte;
-     t,z               	: array[1..8]  of word;
-     marker            	: array[1..64] of boolean;
+     x                 : word;
+     y                 : byte;
+     t,z               : array[1..8]  of word;
+     marker            : array[1..64] of boolean;
      eingang,ausgang,
-     timer,zahler,zust 	: array[1..8]  of boolean;
-     lastakku          	: array[1..16] of boolean;
-     token             	: array[1..awl_max] of byte;
-     znr               	: array[1..awl_max] of integer;
-     operation         	: array[1..awl_max] of string3;
-     operand           	: array[1..awl_max] of char;
-     par               	: array[1..awl_max] of word;
-     comment           	: array[1..awl_max] of string[22];
-     { prefix for logging via syslog }
-     logprefix		: ansistring;
+     timer,zahler,zust : array[1..8]  of boolean;
+     lastakku          : array[1..16] of boolean;
+     token             : array[1..awl_max] of byte;
+     znr               : array[1..awl_max] of integer;
+     operation         : array[1..awl_max] of string3;
+     operand           : array[1..awl_max] of char;
+     par               : array[1..awl_max] of word;
+     comment           : array[1..awl_max] of string[22];
 
 procedure sps_laden;
 
@@ -73,7 +71,6 @@ begin
           name:=paramstr(1);
           if pos('.',name)=0 then name:=name+'.sps';
      end;
-     syslog(log_info,'loading program %s',name);
      assign (f,name);
      {$I-} reset (f); {$I+}
      if ioresult <> 0 then
@@ -382,9 +379,6 @@ begin                              { SPS_SIMULATION           }
       { and at least there should be something done with the load			}
       { set a very nice priority }
       nice(20);
-      prefix:=format('run_sps[%d] ',[i]);
-      openlog(pchar(prefix),LOG_NOWAIT,LOG_DEBUG);
-      syslog(log_info,'started run_sps');
       writeln(ProgNamVer);
       writeln(copyright);
       sps_laden;

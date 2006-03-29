@@ -1,0 +1,1459 @@
+
+
+
+############################### run_awl.h #################################################
+{ these are the global vars and constants needed to run an awl }
+
+const  power             : array[0..7] of byte =(1,2,4,8,16,32,64,128);
+
+var
+{$IFDEF SPS}       
+        extern,grafik,
+       hard_copy         : boolean;
+       std,min,sec,ms    : word;
+       tasten,
+       maxaus            : byte;
+       ein_alt,aus_alt,
+       e,a               : array[1..128] of boolean;
+       zeit              : string[5];
+       time1             : real;
+{$ENDIF}       
+       x                 : word;
+       watchdog          : word;
+       t,z               : array[1..8]  of word;
+       marker            : array[1..512] of boolean;
+       eingang,ausgang   : array[1..128] of boolean;
+       timer,zahler,
+       lastakku          : array[1..16] of boolean;
+       analog_in	 : array[1..16] of word;     
+       zust              : array[1..8]  of boolean;
+       time2             : real;
+
+
+
+############################### sps.h #################################################
+{ global variables and constant definitions of the sps project 	}
+{ all global values should be defined here, if you see any	}
+{ ugly constant values in the code, please replace them with	}
+{ symbolic names and define the names in this file		}
+{ and please remember: the project is running since the early	}
+{ 90's ! there is code of all my Pascal programming states	}
+{ included beginner to "rebeginner" after years of no single	}
+{ line written in pascal! thanks for not blaming me ;)		}
+
+
+
+type  string3 =string[3];
+      string12=string[12];
+      string15 =string[15];
+      string80=string[80];
+      doc_pointer = ^doc_record;
+      doc_record = record
+                     zeil : string[76];
+                     nach,
+                     vor  : doc_pointer;
+                   end;
+
+   
+
+const 
+      debug       = false;
+      awl_max     =500;
+      anweismax	  = 24;
+      minScreenX  = 80;
+      minScreenY  = 25;
+      { include the SPS Version and build date }
+      version     ={$I %SPSVERSION% };
+      datum       ={$I %DATE%};
+                   { attention, it is important to keep the order of	}
+		   { the sps commands, because the bytecode interpreter }	
+		   { relies on the order! (the editor formatter too!)	}
+		   { write new commands without blanks, they will be 	}
+		   { added where needed	     				}
+		   { only append new commands !!			}
+		   { check procedure formatiere in edit.pas and the 	}
+		   { interpreter in awl_interpreter.pas	and run_sps.pas	}
+      anweis      : array [1..anweismax] of string3 =(
+                          'UN(','ON(','UN','ON','U(','O(','=N','JI','TE',
+                          'ZR','EN','U','O',')','=','S','R','J','K','NOP',
+			  'EQ','LT','GT','$');
+      	     
+
+
+var  
+{$IFDEF SPS}
+{ these variables are only used from sps.pas }	
+     programm,sicher   : boolean;
+     graphdriver,
+     graphmode,
+     grapherror        : integer;
+     taste             : char;
+     i                 : Word;
+     name              : string;
+     pio_use,pio       : boolean;
+     zeilenvorschub,
+     Grosschrift,
+     seitenlaenge,
+     formfeed          : byte;
+     balken_pkte       : balken_choice;
+     copy_right        : string15;
+     start_pfad        : string80;
+     doc_start         : doc_pointer;
+     erfolg            : byte;
+     dummy_string      : string;
+     screenx,screeny   : word;
+{$ENDIF}
+
+{ these variables are used by sps.pas and run_sps.pas }
+     operand           : array[1..awl_max] of char;
+     par               : array[1..awl_max] of longint;
+     operation         : array[1..awl_max] of string3;
+     anweisung	       : array[1..anweismax] of string3;
+     znr               : array[1..awl_max] of integer;
+     comment           : array[1..awl_max] of string[22];
+
+
+
+############################### awl_interpreter.pas #################################################
+{ this is the interpreter for sps files }
+
+procedure toggle_internal_clock (var m1,m2,m3 : boolean);   { toggelt die internen clock-marker }
+
+begin
+    m3:=not(m3);
+    if m3 then m2:=not(m2);
+    if m2 and m3 then m1:=not(m1);
+end;                               { **** ENDE TOGGLE_INTERNAL_CLOCK **** }
+
+
+
+procedure interpret;               { interpretiert einen durchlauf der awl }
+
+var    akku,help         : boolean;
+       k                 : word;
+       klammer,token     : byte;
+       klammerakku       : array[1..255] of boolean;
+       klammeroper       : array[1..255] of string3;
+       aktuell,anweis    : string3;
+       analog_akku       : longint;
+       timestring	 : string;
+
+
+procedure verkn;                   { verknüpft akku mit hilfsregister }
+
+procedure zerleg;                  {negiert ggf den zustand eines operanden}
+
+var    inv               : boolean;{und weist ihn dem Hilfsregister zu }
+
+begin
+     inv:=false;
+     if (aktuell='ON ') or (aktuell='UN ') then
+        inv:=true;
+     case operand[k] of
+          'E':  if inv then
+                   help:=not(eingang[par[k]])
+                else
+                   help:=eingang[par[k]];
+          'A':  if inv then
+                   help:=not(ausgang[par[k]])
+                else
+                   help:=ausgang[par[k]];
+          'M':  if inv then
+                   help:=not(marker[par[k]])
+                else
+                   help:=marker[par[k]];
+          'T':  if inv then
+                   help:=not(timer[par[k]])
+                else
+                   help:=timer[par[k]];
+          'Z':  if inv then
+                   help:=not(zahler[par[k]])
+                else
+                   help:=zahler[par[k]];
+          {else}
+          { für spätere errorabfrage }
+          end;
+     inv:=false;
+end;                               { **** ENDE ZERLEG *****       }
+
+begin
+     case token of
+          1,2,5,6   : begin
+                           inc(klammer);
+                           klammerakku[klammer]:=akku;
+                           akku:=true;
+                           klammeroper[klammer]:=aktuell;
+                      end
+     else
+          zerleg;
+     end;
+     case token of
+          3         : akku:=akku and help;
+          4         : akku:=akku or help;		      
+          12        : if (operand[k]='J') then 
+			  analog_akku:=analog_in[par[k]]			
+		      else
+			  akku:=akku and help;
+          13        : akku:=akku or help;		      			
+     end
+end;                               { **** ENDE VERKN ****}
+
+
+function mehrfach (z:word):boolean;
+
+begin
+     mehrfach:=true;
+     repeat
+       inc(z);
+     until operation[z]<>anweisung[19];
+     if (operation[z]=anweisung[5]) or
+        (operation[z]=anweisung[6]) or
+        (operation[z]=anweisung[7]) or
+        (operation[z]=anweisung[8]) then mehrfach:=false
+end;
+
+
+procedure zuweisen;                { weist den akkuinhalt einem ausg. od merker}
+begin
+     if token=7 then akku:=not(akku);
+     case operand[k] of
+          'A'      : ausgang[par[k]]:=akku;
+          'M'      : marker[par[k]]:=akku;
+     {else}
+     {für spätere errorabfrage }
+     end;
+     if not(mehrfach(k)) then akku:=true
+end;                               { **** ENDE ZUWEISEN **** }
+
+procedure setzen;                  { setzt einen ausg. od. merker auf log 1}
+begin
+    if akku then begin
+       case operand[k] of
+            'A' : ausgang[par[k]]:=true;
+            'M' : marker [par[k]]:=true;
+       {else}
+       { für spätere Fehlermeldung }
+       end
+    end;
+    if not(mehrfach(k)) then akku:=true
+end;                               { **** ENDE SETZEN **** }
+
+procedure rucksetzen;              { setzt einen ausg. od. merker auf log 0 }
+begin
+    if akku then begin
+       case operand[k] of
+            'A' : ausgang[par[k]]:=false;
+            'M' : marker [par[k]]:=false;
+       {else}
+       { für spätere Fehlermeldung }
+       end
+    end;
+    if not(mehrfach(k)) then akku:=true
+end;                               { **** ENDE RUCKSETZEN **** }
+
+procedure klammer_zu;              { beendet letzte klammer und verknüpft }
+var helper : boolean ;
+begin
+     if (klammeroper[klammer]='ON(')  or (klammeroper[klammer]='UN(') then begin{ ON( bzw UN( }
+     
+     	 helper:=not(klammerakku[klammer]);
+         klammerakku[klammer]:=helper;
+     end;	 
+     if (klammeroper[klammer]='O( ') or (klammeroper[klammer]='ON(') then
+        akku:=akku or klammerakku[klammer];
+     if (klammeroper[klammer]='U( ') or (klammeroper[klammer]='UN(') then
+        akku:=akku and klammerakku[klammer];
+     klammer:=klammer-1;
+end;                               { **** ENDE KLAMMER_ZU **** }
+
+procedure set_timer;               {timer auf startwert setzen}
+
+begin
+     if akku and not(lastakku[par[k]]) then begin
+        t[par[k]]:=par[k+1];
+        timer[par[k]]:=false;
+        lastakku[par[k]]:=true;
+     end
+     else if not(akku) then begin
+        t[par[k]]:=65535;
+        timer[par[k]]:=false;
+        lastakku[par[k]]:=false
+     end;
+     akku:=true
+end;                               { **** ENDE SET_TIMER ****}
+
+procedure set_counter;             { counter auf startwert setzen }
+
+begin
+     if akku and not(lastakku[par[k]+8]) then begin
+        z[par[k]]:=par[k+1];
+        zahler[par[k]]:=false;
+        lastakku[par[k]+8]:=true
+     end
+     else if not(akku) then begin
+             z[par[k]]:=65535;
+             zahler[par[k]]:=false;
+             lastakku[par[k]+8]:=false
+          end;
+     akku:=true
+end;                               { **** ENDE SET_COUNTER ****}
+
+
+procedure analog_equal;			{ check for anaologig equal  	}
+
+begin
+	akku:=false;
+	if (par[k] = analog_akku) then akku:=true;	
+end;					{ **** ENDE ANALOG_EQUAL	}
+
+procedure analog_less;			{ check for anaologig less than }
+
+begin
+	akku:=false;
+	if (analog_akku < par[k]) then akku:=true;
+end;					{ **** ENDE ANALOG_less	}
+
+procedure analog_great;			{ check for anaologig greater than }
+
+begin
+	akku:=false;
+	if (analog_akku > par[k]) then akku:=true;
+end;					{ **** ENDE ANALOG_great	}
+
+procedure execute;			{ executes an external program 	}
+
+begin
+	{ an external program should be launched if the akku is true	}
+	{ the returncode of that programm is stored in the ANALOG_AKKU	}
+	{ because it could be a 8 Bit value. the best effort is, that	}
+	{ one can act on different return values with EQ,GT and LT	}
+	{ you have to ensure, that output of the program is redirected	}
+	if ( akku ) then begin
+		analog_akku := shell (comment[k]);
+	end;
+end;
+	
+begin
+     K:=1;
+     watchdog:=1;
+     akku:=true;
+     analog_akku:=0;
+     help:=false;
+     klammer:=0;
+     aktuell:=operation[k];
+     while aktuell <> 'EN ' do
+     begin
+          token:=0;
+          repeat
+             inc(token);
+             anweis:=anweisung[token];
+          until (aktuell=anweis) or (token>anweismax);
+	  if ( debug ) then writeln ('Nr ',k,' aktuell ',aktuell,'  Token: ',token);
+          case token of
+               1..6    : verkn;			{ UN( .. O(	}
+	       7       : zuweisen;              { =      	}
+               8       : if akku then begin	{ JI 		}
+                            k:=par[k]-1;
+                            akku:=true
+                         end
+                         else akku:=true;
+               9       : set_timer;		{ TE 		}
+               10      : set_counter;		{ ZR 		}
+               11      : ;			{ EN 		}
+	       12,13   : verkn;			{ U O		}
+               14      : klammer_zu;		{ ) 		}
+               15      : zuweisen;		{ =N 		}
+               16      : setzen;		{ S 		}
+               17      : rucksetzen;		{ R 		}
+               18      : begin			{ J 		}
+                              K:=par[k]-1;
+                              akku:=true
+                         end;
+               19      : ;			{ K 		}
+               20      : ;			{ NOP 		}
+	       21      : analog_equal;	     	{ EQ 		}
+	       22      : analog_less;        	{ LT 		}
+	       23      : analog_great;        	{ GT 		}
+	       24      : execute                { $		}
+	       	       
+          {else}
+          { für spätere Fehlerabfrage }
+          end;
+          inc(k);
+          inc(watchdog);
+          aktuell:=operation[k];
+          if watchdog > awl_max then aktuell:='EN ';
+     end;
+     Str(time2:5:2,timestring);
+     if aktuell='EN ' then comment[k]:='Zykluszeit Tz='+timestring+' ms';
+     if ( debug ) then begin
+     	writeln ('interpreter: E1 ',eingang[1]);
+     	writeln ('interpreter: A1 ',ausgang[1]);
+     end;		
+end;                               { **** ENDE INTERPRET **** }
+
+
+
+############################### dil_io_access.pas #################################################
+Unit dil_io_access;
+
+{ diese Unit stellt Funktionen zum I/O Access auf		} 
+{ die Ports des DIL/Net PC zur Verfügung 			}	
+{ eigentlich war das die Unit zum Zugriff auf den Printer	}
+{ port der 1.7.0 Version. Um einen schnellen Test zu machen	}
+{ habe ich die allernötigsten Änderungen zum Zugriff auf die	}
+{ ports eines DIL/NetPC gemacht!!!				}
+{ Attention: its just a raw hack - not finished			}
+{ If you have improvements please contact me at 		}
+{ hartmut@eilers.net						}
+{ all code is copyright by Hartmut Eilers and released under	}
+{ the GNU GPL see www.gnu.org for license details		}
+
+INTERFACE
+
+function read_ports(io_port:longint):byte;
+function write_ports(io_port:longint;byte_value:byte):byte;
+
+
+implementation
+uses oldlinux;
+
+const	CSCIR=$22;	{ chip setup and control index register }
+	CSCDR=$23;	{ chip setup and control data register  }
+	PAMR=$a5;	{ PIO port A Mode Register }
+	PADR=$a9;	{ PIO port A data register }
+	PBMR=$a4;	{ PIO port B Mode register }
+	PBDR=$a8;	{ PIO port B data register }
+	
+
+function read_ports(io_port:longint):byte;
+{ IN THIS DIRTY HACK THE PARAMETERS ARE UNUSED DUMMIES }
+var	byte_value : byte;
+begin
+	{ read Data from DIP switch }
+	WritePort(CSCIR,PBDR);
+	ReadPort(CSCDR,byte_value);
+	read_ports:=byte_value;
+end;
+	
+function write_ports(io_port:longint;byte_value:byte):byte;	
+{ in this dirty hack the port parameter is ignored! }
+begin
+	{ write data to LED }
+	WritePort(CSCIR,PADR);
+	WritePort(CSCDR,byte_value);
+end;
+
+
+
+begin
+	{ set the permission to access the ports }
+	IOperm($22,$ff,$ff);
+	{ set port a of dil pc to output }
+	WritePort(CSCIR,PAMR);
+	WritePort(CSCDR,$ff);
+	{ set port b of dil pc to input }
+	WritePort(CSCIR,PBMR);
+	WritePort(CSCDR,$00);
+end.
+
+
+
+############################### iow_io_access.pas #################################################
+Unit iow_io_access;
+
+{ diese Unit stellt Funktionen zum I/O Access auf			} 
+{ die Ports des IO Warriors 40 von Code Mercanaries zur Verfügung  	}	
+{ If you have improvements please contact me at 			}
+{ hartmut@eilers.net							}
+{ all code is copyright by Hartmut Eilers and released under		}
+{ the GNU GPL see www.gnu.org for license details			}
+{ History:								}
+{		10.09.2005 first raw hack				}
+
+INTERFACE
+
+function read_ports(io_port:longint):byte;
+function write_ports(io_port:longint;byte_value:byte):byte;
+
+
+implementation
+uses oldlinux;
+
+const	
+(* These values are from the Sample program iow40_wr_if0.c *)
+(*  IOW_WRITE=1074053121 *)
+(*  IOW_READ =1074053122 *)
+(* This must be improved, it's bad style to use the constants *)
+
+        IOW_WRITE = 1074053121;
+        IOW_READ  = 1074053122;
+	
+	debug     = false;
+	
+var	
+        f       : LongInt;
+        pvalue  : ^Cardinal;
+
+
+function read_ports(io_port:longint):byte;
+{ IN THIS DIRTY HACK THE PARAMETERS ARE UNUSED DUMMIES }
+var
+	ivalue  : Cardinal;
+begin
+	(* read the warrior *)
+	f:=fdOpen('/dev/usb/iowarrior0',Open_RdOnly);
+        ioctl (f,IOW_READ,pvalue);
+        ivalue:=pvalue^;
+	fdclose(f);
+	if ( debug ) then writeln ('*',ivalue,'*');
+	{ return only lowest 8 Bit }
+	read_ports:=ivalue;
+end;
+	
+function write_ports(io_port:longint;byte_value:byte):byte;	
+{ in this dirty hack the port parameter is ignored! }
+var
+	ovalue  : Cardinal;
+	
+begin
+	f:=fdOpen('/dev/usb/iowarrior0',Open_WrOnly);
+	{ shift the outvalue to the LEDs (Port 3) }
+	if (debug) then writeln ('b',byte_value);
+        ovalue:=(byte_value shl 24) or $00FFFFFF;
+	if (debug) then writeln ('#',ovalue,'#');
+	{ write out }
+	pvalue^:=ovalue;
+        ioctl (f,IOW_WRITE,pvalue);
+        fdclose(f);
+end;
+
+
+
+begin
+ 	new (pvalue);
+end.
+
+
+
+############################### joy_io_access.pas #################################################
+Unit iow_io_access;
+
+{ diese Unit stellt Funktionen zum I/O Access auf			} 
+{ den Joystick zur Verfügung                                    	}	
+{ If you have improvements please contact me at 			}
+{ hartmut@eilers.net							}
+{ all code is copyright by Hartmut Eilers and released under		}
+{ the GNU GPL see www.gnu.org for license details			}
+{ History:								}
+{		13.09.2005 first raw hack				}
+
+INTERFACE
+
+function read_ports(io_port:longint):byte;
+function write_ports(io_port:longint;byte_value:byte):byte;
+
+
+implementation
+uses oldlinux;
+
+const	
+	debug     = false;
+	
+
+function read_ports(io_port:longint):byte;
+{ IN THIS DIRTY HACK THE PARAMETERS ARE UNUSED DUMMIES }
+begin
+end;
+	
+function write_ports(io_port:longint;byte_value:byte):byte;	
+{ in this dirty hack the port parameter is ignored! }
+	
+begin
+end;
+
+
+
+begin
+end.
+
+
+
+############################### lp_io_access.pas #################################################
+Unit lp_io_access;
+
+{ diese Unit stellt Funktionen zum I/O Access auf den LPT Port zur Verfügung 	}
+{ Attention: its just a raw hack - not finished					}
+{ all code is copyright by Hartmut Eilers and released under	}
+{ the GNU GPL see www.gnu.org for license details		}
+
+INTERFACE
+
+function read_ports(io_port:longint):byte;
+function write_ports(io_port:longint;byte_value:byte):byte;
+
+
+implementation
+
+const IOFile='/dev/port';
+
+function read_ports(io_port:longint):byte;
+var byte_value : byte;
+    F     : file;
+begin
+	assign(F,IOFile);
+	reset(F,Sizeof(byte_value));
+	seek(F,io_port);
+	blockread(F,byte_value,1);
+	close(F);
+	{ invert the MSB  }
+	if byte_value >= 128 then 
+		byte_value:=byte_value - 128
+	else 	
+		byte_value:=byte_value + 128;		
+	read_ports:=byte_value;
+end;
+	
+function write_ports(io_port:longint;byte_value:byte):byte;	
+var F     : file of byte;
+begin
+	assign(F,IOFile);
+	reset(F,Sizeof(byte_value));
+	seek(F,io_port);
+	blockwrite(F,byte_value,1);
+	close(F);
+	write_ports:=byte_value;
+end;
+
+
+
+begin
+
+end.
+
+
+
+############################### pio_io_access.pas #################################################
+Unit pio_io_access;
+
+{ diese Unit stellt Funktionen zum I/O Access auf			} 
+{ die Ports einer 8255 PIO zur Verfügung  	}	
+{ If you have improvements please contact me at 			}
+{ hartmut@eilers.net							}
+{ all code is copyright by Hartmut Eilers and released under		}
+{ the GNU GPL see www.gnu.org for license details			}
+{ History:								}
+{		12.09.2005 first raw hack				}
+
+INTERFACE
+
+function read_ports(io_port:longint):byte;
+function write_ports(io_port:longint;byte_value:byte):byte;
+
+
+implementation
+uses oldlinux,ports;
+
+const	
+      control_port=$307;	{ this should be PIO1 assuming base adr hex 3FC }
+
+
+
+function read_ports(io_port:longint):byte;
+
+var	byte_value : byte;
+
+begin
+	ReadPort(io_port,byte_value);
+	read_ports:=byte_value;
+end;
+	
+function write_ports(io_port:longint;byte_value:byte):byte;	
+begin
+	WritePort(io_port,byte_value);
+end;
+
+
+
+begin
+	IOperm($300,$FF,$ff);
+	WritePort(control_port,$99);      { und ports programmieren  A=Input=eingaenge, B=output=aushaenge, C=input=zaehler }
+end.
+
+
+
+############################### run_sps-1.7.0.pas #################################################
+program runsps;
+{$M 16000,0,0}                   { 16000 Bytes STACK , kein HEAP }
+
+uses dos,crt,lp_io_access,linux;
+
+{ porting to linux startet at 27.05.99 				}
+{ don't blame me for "bad" code					}
+{ some of the code inside is from my earliest steps in pascal 	}
+{ and some of my least steps after years where I coded not	}
+{ one simple line in pascal :) If you have improvements		}
+{ please contact me at hartmut@eilers.net			}
+{ all code is copyright by Hartmut Eilers			}
+{ you may use it in any free code, not in commercial code !	}
+
+
+type  string12=string[12];
+      string3 =string[3];
+
+
+const awl_max     =500;
+      control_port=$378;	{ this should be LPT1 					}
+      port_a      =$379;	{ you only have the outport for the out signal 1-8 	}
+      port_b      =$378;	{ and the inport with the signals in 3 to 8		}
+      port_c      =$378;	{ counters are not available with the printer port	}
+      ProgNamVer  =' RUN_SPS           V 1.2 alpha 1 for Linux ';
+      Copyright   ='      (c)  27.05.99 by H.EILERS ';
+      power       : array[0..7] of byte =(1,2,4,8,16,32,64,128);
+      anweisung   : array[1..20] of string3
+                  = ('O  ','ON ','O( ','ON(','U  ',
+                     'UN ','U( ','UN(',')  ','=  ',
+                     '=N ','S  ','R  ','J  ','JI ',
+                     'K  ','TE ','ZR ','NOP','EN ');
+
+
+var
+     x                 : word;
+     y                 : byte;
+     t,z               : array[1..8]  of word;
+     marker            : array[1..64] of boolean;
+     eingang,ausgang,
+     timer,zahler,zust : array[1..8]  of boolean;
+     lastakku          : array[1..16] of boolean;
+     token             : array[1..awl_max] of byte;
+     znr               : array[1..awl_max] of integer;
+     operation         : array[1..awl_max] of string3;
+     operand           : array[1..awl_max] of char;
+     par               : array[1..awl_max] of word;
+     comment           : array[1..awl_max] of string[22];
+
+procedure sps_laden;
+
+var  f              :text;
+     zeile          :string[48];
+     i,code         :integer;
+     name           :string;
+
+procedure get_file_name;           { namen des awl-files einlesen   }
+
+begin
+     write (' Filename : ');
+     readln (name);
+     if pos('.',name)=0 then name:=name+'.sps';
+end;                               { **** ENDE GET_FILE_NAME **** }
+
+
+
+begin
+     i:=0;
+     if paramcount=0 then get_file_name  { keine Aufrufparameter }
+     else begin
+          name:=paramstr(1);
+          if pos('.',name)=0 then name:=name+'.sps';
+     end;
+     assign (f,name);
+     {$I-} reset (f); {$I+}
+     if ioresult <> 0 then
+     begin
+          sound(220);delay(200);nosound;
+          writeln (' SPS-File nicht gefunden');
+          halt(1);
+     end;
+     writeln(' Lade Programm ',name);
+     while not(eof(f)) do
+     begin
+          inc(i);
+          readln (f,zeile);
+          val (copy(zeile,1,3),znr[i],code);
+          operation[i] := copy(zeile,5,3);
+          operand[i] := zeile[9];
+          val (copy(zeile,11,5),par[i],code);
+          comment[i] := copy (zeile,17,22);
+     end;
+     close (F);
+     doserror:=0;
+end;                               {**** ENDE SPS_LADEN **** }
+
+
+
+procedure init;                    { initialisieren aller Variablen }
+
+begin
+     for x:=1 to 64 do Marker[x]:=false;
+     for x:=1 to 16 do lastakku[x]:=false;
+     for x:=1 to  8 do begin
+         ausgang[x]:=false;
+         eingang[x]:=false;
+         zahler[x]:=false;
+         timer[x]:=false;
+         t[x]:=0;
+         z[x]:=0;
+         zust[x]:=false;
+     end;
+     for x:=1 to awl_max do begin  { pseudo compilierung }
+         y:=0;
+         repeat
+            inc(y);
+         until (operation[x]=anweisung[y]) or (y>20);
+         if operation[x]=anweisung[y] then token[x]:=y
+         else token[x]:=0;
+     end;
+end;                               { ****ENDE INIT ****}
+
+
+
+
+procedure run_awl;
+{interrupt; }
+
+procedure toggle_internal_clock;   { toggelt die internen clock-marker }
+
+begin
+    marker[64]:=not(marker[64]);
+    if marker[64] then marker[63]:=not(marker[63]);
+    if marker[63] and marker [64] then marker[62]:=not(marker[62]);
+end;                               { **** ENDE TOGGLE_INTERNAL_CLOCK **** }
+
+
+
+procedure get_input;               { ließt eingangswerte ein }
+
+var  wert,i           :byte;
+
+begin
+     wert:=read_ports(port_a);
+     for i:=7 downto 0 do begin
+         if wert>=power[i] then begin
+            eingang[i+1]:=true;
+            wert:=wert-power[i]
+         end
+         else eingang[i+1]:=false;
+     end
+end;                               {****  ENDE GET_INPUT ****}
+
+procedure interpret;               { interpretiert eine zeile der awl }
+
+var    akku,help         : boolean;
+       k,param           : word;
+       klammer,akt_token : byte;
+       klammerakku       : array[1..255] of boolean;
+       klammeroper       : array[1..255] of byte;
+
+
+procedure verkn;                   { verknüpft akku mit hilfsregister }
+
+procedure zerleg;                  {negiert ggf den zustand eines operanden}
+
+var    inv               : boolean;{und weist ihn dem Hilfsregister zu }
+
+begin
+     inv:=false;
+     if (akt_token=2) or (akt_token=6) then  { 'ON ' bzw. 'UN ' }
+        inv:=true;
+     case operand[k] of
+          'E':  if inv then
+                   help:=not(eingang[param])
+                else
+                   help:=eingang[param];
+          'A':  if inv then
+                   help:=not(ausgang[param])
+                else
+                   help:=ausgang[param];
+          'M':  if inv then
+                   help:=not(marker[param])
+                else
+                   help:=marker[param];
+          'T':  if inv then
+                   help:=not(timer[param])
+                else
+                   help:=timer[param];
+          'Z':  if inv then
+                   help:=not(zahler[param])
+                else
+                   help:=zahler[param];
+     end;
+     inv:=false;
+end;                               { **** ENDE ZERLEG *****       }
+
+begin
+     case akt_token of
+          3,4,7,8   : begin
+                           inc(klammer);
+                           klammerakku[klammer]:=akku;
+                           akku:=true;
+                           klammeroper[klammer]:=akt_token;
+                      end
+     else
+          zerleg;
+     end;
+     case akt_token of
+          1,2       : akku:=akku or help;
+          5,6       : akku:=akku and help;
+     end
+end;                               { **** ENDE VERKN ****}
+
+
+function mehrfach (z:word):boolean;{ testet auf mehrfachzuweisungen }
+
+begin
+     mehrfach:=true;
+     if (token[z+1]=5) or          { 'U  '}
+        (token[z+1]=6) or          { 'UN '}
+        (token[z+1]=7) or          { 'U( '}
+        (token[z+1]=8) then mehrfach:=false { 'UN('}
+end;
+
+
+procedure zuweisen;                { weist den akkuinhalt einem ausg. od merker}
+begin
+     if akt_token=11 then akku:=not(akku); { anweisung ist '=N '}
+     case operand[k] of
+          'A'      : ausgang[param]:=akku; {akkuwert dem entspr. Param. zuweis}
+          'M'      : marker[param]:=akku;
+     end;
+     if not(mehrfach(k)) then akku:=true
+end;                               { **** ENDE ZUWEISEN **** }
+
+procedure setzen;                  { setzt einen ausg. od. merker auf log 1}
+begin
+    if akku then begin             { wenn akku wahr }
+       case operand[k] of          { dann entspr. param. auf log. 1 setzen }
+            'A' : Ausgang[param]:=true;
+            'M' : marker [param]:=true;
+       end
+    end;
+    if not(mehrfach(k)) then akku:=true
+end;                               { **** ENDE SETZEN **** }
+
+procedure rucksetzen;              { setzt einen ausg. od. merker auf log 0 }
+begin
+    if akku then begin
+       case operand[k] of          { wie bei setzen, jedoch auf log. 0 }
+            'A' : Ausgang[param]:=false;
+            'M' : marker [param]:=false;
+       end
+    end;
+    if not(mehrfach(k)) then akku:=true
+end;                               { **** ENDE RUCKSETZEN **** }
+
+procedure klammer_zu;              { beendet letzte klammer und verknüpft }
+var helper : boolean ;
+begin
+     if (klammeroper[klammer]=4)or(klammeroper[klammer]=8) then begin {'ON('bzw 'UN('}
+        helper:=not(klammerakku[klammer]);
+        klammerakku[klammer]:=helper;
+     end;	
+     if (klammeroper[klammer]=3)or(klammeroper[klammer]=4) then {'O(' bzw 'ON('}
+        akku:=akku or klammerakku[klammer];
+     if (klammeroper[klammer]=7)or(klammeroper[klammer]=8) then {'U(' bzw 'UN('}
+        akku:=akku and klammerakku[klammer];
+     klammer:=klammer-1;           { eine klammer abgearbeitet }
+end;                               { **** ENDE KLAMMER_ZU **** }
+
+procedure set_timer;               {timer auf startwert setzen}
+
+begin
+     if akku and not(lastakku[param]) then begin
+        t[param]:=par[k+1];
+        timer[param]:=false;
+        lastakku[param]:=true;
+     end
+     else if not(akku) then begin
+        t[param]:=0;
+        timer[param]:=false;
+        lastakku[param]:=false
+     end;
+     akku:=true
+end;                               { **** ENDE SET_TIMER ****}
+
+procedure set_counter;             { counter auf startwert setzen }
+
+begin
+     if akku and not(lastakku[param+8]) then begin { pos Flanke im akku ? }
+        z[param]:=par[k+1];        { ja => sollwert aus K konstante nehmen}
+        zahler[param]:=false;      { ZAHLER auf log 0 setzen   }
+        lastakku[param+8]:=true    { akku = true speichern     }
+     end
+     else if not(akku) then begin  { nein => akku = log 0 ?    }
+             z[param]:=0;          { ja => sollwert=0          }
+             zahler[param]:=false; { ZAHLER auf log 0 setzen   }
+             lastakku[param+8]:=false { akku=falsch speichern  }
+          end;
+     akku:=true                    { neuen satzbeginn erwarten }
+end;                               { **** ENDE SET_COUNTER ****}
+
+begin
+     K:=1;
+     akku:=true;
+     help:=false;
+     klammer:=0;
+     while token[k] <> 20 do
+     begin
+          akt_token:=token[k];
+          param:=par[k];
+          case akt_token of
+               1..8    : verkn;              { 'O' .. 'UN('}
+               9       : klammer_zu;         { ')' }
+               10,11   : zuweisen;           { '='; '=N' }
+               12      : setzen;             { 'S' }
+               13      : rucksetzen;         { 'R' }
+               14      : begin               { 'J' }
+                              K:=param-1;
+                              akku:=true
+                         end;
+               15      : if akku then begin  { 'JI'}
+                            k:=param-1;
+			    akku:=true
+                         end
+                         else akku:=true;
+               16      : ;                   { 'K' }
+               17      : set_timer;          { 'TE'}
+               18      : set_counter         { 'ZR'}
+          end;
+          inc(k);
+     end;
+end;                               { **** ENDE INTERPRET **** }
+
+procedure set_output;              { gibt Ausg.werte an I/O Port B}
+var       k,wert      : byte;
+begin
+     wert:=0;
+     for  k:=7 downto 0 do wert:=wert+power[k]*ord(ausgang[k+1]);
+     write_ports(port_b,wert);
+end;                               { **** ENDE SET_OUTPUT **** }
+
+procedure count_down;                    { zählt timer und counter herunter }
+
+var c,wert              : byte;
+
+begin
+     for c:=1 to 8 do begin
+         if t[c] > 0 then t[c]:=t[c]-1;       { Zeitzähler decrementieren  }
+         if t[c]=0 then timer[c]:=true  { zeitzähler = 0? ja ==> TIMER auf 1}
+     end;
+     wert:=read_ports(port_c);                      { ZÄHLEReingänge lesen  }
+     for c:=1 to 8 do begin
+        if wert mod 2 = 0 then zust[c]:=false { wenn low dann 0 speichern   }
+        else
+          if not(zust[c]) then begin          { wenn pos. Flanke am Eingang }
+            zust[c]:=true;                    { dann 1 speichern            }
+            if z[c]>0 then z[c]:=z[c]-1;      {und ISTwert herunterzälen } 
+            if z[c]=0 then zahler[c]:=true;   { wenn ISTwert 0 dann ZAHLER 1}
+          end;
+        wert := wert div 2
+     end
+end;                               { **** ENDE COUNT_DOWN ****       }
+
+
+begin                              { hp run_awl                      }
+      get_input;                      { INPUTS lesen                    }
+      interpret;                      { einen AWLdurchlauf abarbeiten   }
+      set_output;                     { OUTPUTS ausgeben                }
+      count_down;                     { TIMER / ZAHLER aktualisieren    }
+      toggle_internal_clock;          { interne TAKTE M62-M64 toggeln   }
+end;                               { **** ENDE RUN_AWL ****          }
+
+
+begin                              { SPS_SIMULATION           }
+      { signal handling is needed here, also the program should go in background 	}
+      { and at least there should be something done with the load			}
+      { set a very nice priority }
+      nice(20);
+      writeln(ProgNamVer);
+      writeln(copyright);
+      sps_laden;
+      writeln('AWL gestartet');
+      init;
+      repeat
+	 run_awl;
+      until false;	     	
+end.                               { **** SPS_SIMULATION **** }
+
+
+
+############################### run_sps-1.7.2.pas #################################################
+program runsps;
+{$M 16000,0,0}                   { 16000 Bytes STACK , kein HEAP }
+
+{ $Id$ }
+
+uses dos,crt,linux,popmenu,io_access;
+{ porting to linux startet at 27.05.99 				}
+{ don't blame me for "bad" code					}
+{ some of the code inside is from my earliest steps in pascal 	}
+{ and some of my least steps after years where I coded not	}
+{ one simple line in pascal :) If you have improvements		}
+{ please contact me at hartmut@eilers.net			}
+{ all code is copyright by Hartmut Eilers			}
+{ the code is distributed under the GNU general public license	}
+{ history 							}
+{	27.05.1999 start of Linux Port				}
+{ 	03.10.2000 start of Version 1.7.1			}
+{	11.10.2000 installed fpc 1.0				}
+{	11.10.2000 start analog processing EQ,LT,GT		}
+
+{$i ./sps.h}
+{$i ./run_awl.h }
+{$i ./awl_interpreter.pas}
+
+procedure sps_laden;
+
+var  f              :text;
+     zeile          :string[48];
+     i,code         :integer;
+     name           :string;
+
+procedure get_file_name;           { namen des awl-files einlesen   }
+
+begin
+     write (' Filename : ');
+     readln (name);
+     if pos('.',name)=0 then name:=name+'.sps';
+end;                               { **** ENDE GET_FILE_NAME **** }
+
+
+
+begin
+     i:=0;
+     if paramcount=0 then get_file_name  { keine Aufrufparameter }
+     else begin
+          name:=paramstr(1);
+          if pos('.',name)=0 then name:=name+'.sps';
+     end;
+     assign (f,name);
+     {$I-} reset (f); {$I+}
+     if ioresult <> 0 then
+     begin
+          sound(220);delay(200);nosound;
+          writeln (' SPS-File nicht gefunden');
+          halt(1);
+     end;
+     writeln(' Lade Programm ',name);
+     while not(eof(f)) do
+     begin
+          inc(i);
+	  writeln ('try to read line ',i);
+          readln (f,zeile);
+          val (copy(zeile,1,3),znr[i],code);
+          operation[i] := copy(zeile,5,3);
+          operand[i] := zeile[9];
+          val (copy(zeile,11,5),par[i],code);
+          comment[i] := copy (zeile,17,22);
+     end;
+     close (F);
+     doserror:=0;
+end;                               {**** ENDE SPS_LADEN **** }
+
+
+
+procedure init;                    { initialisieren aller Variablen }
+var y,x	: word;
+begin
+     for x:=1 to 64 do Marker[x]:=false;
+     for x:=1 to 16 do lastakku[x]:=false;
+     for x:=1 to  8 do begin
+         ausgang[x]:=false;
+         eingang[x]:=false;
+         zahler[x]:=false;
+         timer[x]:=false;
+         t[x]:=0;
+         z[x]:=0;
+         zust[x]:=false;
+     end;
+     for x:=1 to awl_max do begin  { pseudo compilierung }
+         y:=0;
+         repeat
+            inc(y);
+         until (operation[x]=anweisung[y]) or (y>anweismax);
+         if operation[x]=anweisung[y] then token[x]:=y
+         else token[x]:=0;
+     end;
+     writeln(' INIT ended');
+end;                               { ****ENDE INIT ****}
+
+
+
+
+procedure run_awl;
+
+begin                              { hp run_awl                      }
+      get_input;                      { INPUTS lesen                    }
+      interpret;                      { einen AWLdurchlauf abarbeiten   }
+      set_output;                     { OUTPUTS ausgeben                }
+      count_down;                     { TIMER / ZAHLER aktualisieren    }
+                                      { interne TAKTE M62-M64 toggeln   }
+      toggle_internal_clock(marker[62],marker[63],marker[64]);          
+end;                               { **** ENDE RUN_AWL ****          }
+
+
+begin                              { SPS_SIMULATION           }
+      { signal handling is needed here, also the program should  	}
+      { go in background and at least there should be something 	}
+      { done with the load						}
+      { set a very nice priority 					}
+      nice(20);
+      writeln(version,' run_sps daemon');
+      writeln(datum);
+      sps_laden;
+      writeln('AWL gestartet');
+      init;
+      repeat
+	 run_awl;
+      until KeyPressed;	     	
+end.                               { **** SPS_SIMULATION **** }
+
+
+
+############################### run_sps.pas #################################################
+program runsps;
+{$M 16000,0,0}                   { 16000 Bytes STACK , kein HEAP }
+
+{ define the hardware platform for compilation }
+{ possible values are LP_IO, DIL_IO, IOW_IO or  }
+{ PIO_IO }
+{$DEFINE DIL_IO}
+
+{$IFDEF LP_IO}
+uses dos,crt,lp_io_access,oldlinux;
+{$ENDIF}
+
+{$IFDEF DIL_IO}
+uses dos,crt,dil_io_access,oldlinux;
+{$ENDIF} 
+
+{$IFDEF IOW_IO}
+uses dos,crt,iow_io_access,oldlinux;
+{$ENDIF} 
+
+{$IFDEF PIO_IO}
+uses dos,crt,pio_io_access,oldlinux;
+{$ENDIF} 
+
+{ porting to linux startet at 27.05.99 				}
+{ don't blame me for "bad" code					}
+{ some of the code inside is from my earliest steps in pascal 	}
+{ and some of my least steps after years where I coded not	}
+{ one simple line in pascal :) If you have improvements		}
+{ please contact me at hartmut@eilers.net			}
+{ all code is copyright by Hartmut Eilers			}
+{ the code is distributed under the GNU general public license	}
+{ history 							}
+{	27.05.1999 start of Linux Port				}
+{ 	03.10.2000 start of Version 1.7.1			}
+{	11.10.2000 installed fpc 1.0				}
+{	11.10.2000 start analog processing EQ,LT,GT		}
+{	10.09.2005 restructure code to support different hardware }
+
+{$i ./sps.h}
+{$i ./run_awl.h }
+{$i ./awl_interpreter.pas}
+
+
+const 
+{ the following conditionals are really ugly - must be replaced by a configuration }
+{$IFDEF LP_IO}
+      HwIn        =$379;	{ you only have the outport for the out signal 1-8 	}
+      HwOut       =$378;	{ and the inport with the signals in 3 to 8		}
+      HwCnt       =$378;	{ counters are not available with the printer port	}
+      HWPlatform  ='Printer Port';
+{$ENDIF} 
+
+{$IFDEF PIO_IO}
+      HwIn        =$304;	{ you only have the outport for the out signal 1-8 	}
+      HwOut       =$305;	{ and the inport with the signals in 3 to 8		}
+      HwCnt       =$306;	{ counters are not available with the printer port	}
+      HWPlatform  ='8255 PIO';
+{$ENDIF} 
+
+{$IFDEF DIL_IO}
+      HwIn        =$379;	{ dummies - currently not used with dil Net/PC          }  
+      HwOut       =$378;	
+      HwCnt       =$378;
+      HWPlatform  ='DIL Net/PC';
+{$ENDIF}
+
+{$IFDEF IOW_IO}
+      HwIn        =$379;	{ dummies - currently not used with IO Warrior          }  
+      HwOut       =$378;	
+      HwCnt       =$378;	
+      HWPlatform  ='IO Warrior 40';
+{$ENDIF}
+
+      ProgNamVer  =' RUN_SPS  for Linux '+version+' '+datum+' '+HWPlatform;
+      Copyright   ='      (c)  27.05.99 by H.EILERS ';
+
+
+ 
+
+procedure sps_laden;
+
+var  f              :text;
+     zeile          :string[48];
+     i,code         :integer; 	{ code is currentöy a dummy maybe used for error detection }
+     name           :string;
+
+procedure get_file_name;           { namen des awl-files einlesen   }
+
+begin
+     write (' Filename : ');
+     readln (name);
+     if pos('.',name)=0 then name:=name+'.sps';
+end;                               { **** ENDE GET_FILE_NAME **** }
+
+
+
+begin
+     i:=0;
+     if paramcount=0 then get_file_name  { keine Aufrufparameter }
+     else begin
+          name:=paramstr(1);
+          if pos('.',name)=0 then name:=name+'.sps';
+     end;
+     assign (f,name);
+     {$I-} reset (f); {$I+}
+     if ioresult <> 0 then
+     begin
+          sound(220);delay(200);nosound;
+          writeln (' SPS-File nicht gefunden');
+          halt(1);
+     end;
+     writeln(' Lade Programm ',name);
+     while not(eof(f)) do
+     begin
+          inc(i);
+          readln (f,zeile);
+          val (copy(zeile,1,3),znr[i],code);
+          operation[i] := copy(zeile,5,3);
+          operand[i] := zeile[9];
+          val (copy(zeile,11,5),par[i],code);
+          comment[i] := copy (zeile,17,22);
+     end;
+     for i := 1 to anweismax do begin
+           anweisung[i]:=anweis[i];
+           if (length(anweis[i]) < 3) then begin
+	        repeat
+	            anweisung[i]:=concat(anweisung[i],' ');
+		until (length(anweisung[i]) = 3);
+	   end;
+     end;
+     
+     close (F);
+     doserror:=0;
+end;                               {**** ENDE SPS_LADEN **** }
+
+
+
+procedure init;                    { initialisieren aller Variablen }
+
+begin
+     for x:=1 to 64 do Marker[x]:=false;
+     for x:=1 to 16 do lastakku[x]:=false;
+     for x:=1 to  8 do begin
+         ausgang[x]:=false;
+         eingang[x]:=false;
+         zahler[x]:=false;
+         timer[x]:=false;
+         t[x]:=0;
+         z[x]:=0;
+         zust[x]:=false;
+     end;
+     (**
+     for x:=1 to awl_max do begin  { pseudo compilierung }
+         y:=0;
+         repeat
+            inc(y);
+         until (operation[x]=anweis[y]) or (y>anweismax);
+         if operation[x]=anweis[y] then token[x]:=y
+         else token[x]:=0;
+     end;
+     **);
+end;                               { ****ENDE INIT ****}
+
+
+
+
+procedure run_awl;
+{interrupt; }
+
+
+
+procedure get_input;               { ließt eingangswerte ein }
+
+var  wert,i           :byte;
+
+begin
+     wert:=read_ports(HwIn);
+     if (debug) then writeln(wert);
+     for i:=7 downto 0 do begin
+         if wert>=power[i] then begin
+            eingang[i+1]:=true;
+            wert:=wert-power[i]
+         end
+         else eingang[i+1]:=false;
+     end;
+     if (debug ) then writeln ('E',eingang[1]);
+end;                               {****  ENDE GET_INPUT ****}
+
+
+procedure set_output;              { gibt Ausg.werte an I/O Port B}
+var       k,wert      : byte;
+begin
+     wert:=0;
+     for  k:=7 downto 0 do wert:=wert+power[k]*ord(ausgang[k+1]);
+     if (debug ) then writeln ('A',ausgang[1]);
+     write_ports(HwOut,wert);
+end;                               { **** ENDE SET_OUTPUT **** }
+
+procedure count_down;                    { zählt timer und counter herunter }
+
+var c,wert              : byte;
+
+begin
+     for c:=1 to 8 do begin
+         if t[c] > 0 then t[c]:=t[c]-1;       { Zeitzähler decrementieren  }
+         if t[c]=0 then timer[c]:=true  { zeitzähler = 0? ja ==> TIMER auf 1}
+     end;
+     wert:=read_ports(HwCnt);                      { ZÄHLEReingänge lesen  }
+     for c:=1 to 8 do begin
+        if wert mod 2 = 0 then zust[c]:=false { wenn low dann 0 speichern   }
+        else
+          if not(zust[c]) then begin          { wenn pos. Flanke am Eingang }
+            zust[c]:=true;                    { dann 1 speichern            }
+            if z[c]>0 then z[c]:=z[c]-1;      {und ISTwert herunterzälen } 
+            if z[c]=0 then zahler[c]:=true;   { wenn ISTwert 0 dann ZAHLER 1}
+          end;
+        wert := wert div 2
+     end
+end;                               { **** ENDE COUNT_DOWN ****       }
+
+
+begin                              { hp run_awl                      }
+      get_input;                      { INPUTS lesen                    }
+      interpret;                      { einen AWLdurchlauf abarbeiten   }
+      set_output;                     { OUTPUTS ausgeben                }
+      count_down;                     { TIMER / ZAHLER aktualisieren    }
+      toggle_internal_clock(marker[62],marker[63],marker[64]);          { interne TAKTE M62-M64 toggeln   }
+end;                               { **** ENDE RUN_AWL ****          }
+
+
+begin                              { SPS_SIMULATION           }
+      { signal handling is needed here, also the program should go in background 	}
+      { and at least there should be something done with the load			}
+      { set a very nice priority }
+      
+      
+      nice(20);
+      writeln(ProgNamVer);
+      writeln(copyright);
+      sps_laden;
+      writeln('AWL gestartet');
+      init;
+      repeat
+	 run_awl;
+      until keypressed;	     	
+end.                               { **** SPS_SIMULATION **** }

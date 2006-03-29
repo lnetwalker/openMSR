@@ -14,50 +14,59 @@ Unit dil_io_access;
 
 INTERFACE
 
-function read_ports(io_port:longint):byte;
-function write_ports(io_port:longint;byte_value:byte):byte;
-
+function dil_read_ports(io_port:longint):byte;
+function dil_write_ports(io_port:longint;byte_value:byte):byte;
+function dil_hwinit(initdata:string):boolean;
 
 implementation
-uses linux,ports;
+uses oldlinux;
 
-const	CSCIR=$22;	{ chip setup and control index register }
+const	
+	CSCIR=$22;	{ chip setup and control index register }
 	CSCDR=$23;	{ chip setup and control data register  }
 	PAMR=$a5;	{ PIO port A Mode Register }
 	PADR=$a9;	{ PIO port A data register }
 	PBMR=$a4;	{ PIO port B Mode register }
 	PBDR=$a8;	{ PIO port B data register }
-	
-var	error: boolean;
+	debug=false;	
 
-
-
-function read_ports(io_port:longint):byte;
+function dil_read_ports(io_port:longint):byte;
 { IN THIS DIRTY HACK THE PARAMETERS ARE UNUSED DUMMIES }
+var	byte_value : byte;
 begin
 	{ read Data from DIP switch }
-	port[CSCIR]:=PBDR;
-	read_ports:=port[CSCDR];
+	WritePort(CSCIR,PBDR);
+	ReadPort(CSCDR,byte_value);
+	if (debug) then writeln ('DIL: r ',io_port,' -> ',byte_value);
+	dil_read_ports:=byte_value;
 end;
 	
-function write_ports(io_port:longint;byte_value:byte):byte;	
+
+function dil_write_ports(io_port:longint;byte_value:byte):byte;	
 { in this dirty hack the port parameter is ignored! }
 begin
 	{ write data to LED }
-	port[CSCIR]:=PADR;
-	port[CSCDR]:=byte_value;
-	write_ports:=byte_value;
+	WritePort(CSCIR,PADR);
+	WritePort(CSCDR,byte_value);
+	if (debug) then writeln ('DIL: w ',io_port,' -> ',byte_value);
 end;
 
 
+function dil_hwinit(initdata:string):boolean;
+begin
+	if (debug) then writeln ('DIL: HWinit ',initdata);
+	{ initstring is a dummy !}
+	{ set the permission to access the ports }
+	IOperm($22,$ff,$ff);
+	{ set port a of dil pc to output }
+	WritePort(CSCIR,PAMR);
+	WritePort(CSCDR,$ff);
+	{ set port b of dil pc to input }
+	WritePort(CSCIR,PBMR);
+	WritePort(CSCDR,$00);
+end;
+
 
 begin
-	{ set the permission to access the ports }
-	error:=IOperm($22,$aa,$ff);
-	{ set port a of dil pc to output }
-	port[CSCIR]:=PAMR;
-	port[CSCDR]:=$ff;
-	{ set port b of dil pc to input }
-	port[CSCIR]:=PBMR;
-	port[CSCDR]:=$00;
+
 end.
