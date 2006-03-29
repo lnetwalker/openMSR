@@ -1,30 +1,23 @@
 
 
 
-                        S P S - SIMULATOR V 1.7.1
-                                SPS4Linux
+                        S P S - SIMULATOR V 1.7.3
+                                SPS4Linux ( i386 )
 
-                     (c) 1990-2001 by Hartmut Eilers
+                     (c) 1990-2005 by Hartmut Eilers
 
               News und Info unter: http://www.eilers.net/sps/
       
       English Documentation may be found in sps-e.doc. Rename
       that file to sps.doc to read the docs in the IDE!
 
-      ACHTUNG Linux !! dieses ist die erste Version, die native
-                       unter Linux läuft. Alles was eventuell
-                       noch nicht funktioniert hat ** vorangestellt.
-
-                       Besonderheiten, Anmerkungen haben !! vorangestellt
 
       Ab Version 1.7.1  unterliegt SPS4Linux der GNU General Public Licence;
       siehe http://www.gnu.org/ fuer Details.
       
-!!    Weil SPS -unüblicher Art und Weise- in Pascal entwickelt wurde, gibt
-!!    es  im Moment  ein binary ( die wenigsten Anwender haben wohl
-!!    FPK Pascal installiert, oder ? wenn ja, in src ist alles was
-!!   der PASCAL Programmierer braucht )
-
+      Neben dem Binary ist der komplette Source enthalten. Mit dem FPC
+	  Compiler kann der source compiliert werden.
+	  
       Wer Lust hat an SPS mitzuarbeiten ( egal in welcher Form ) melde
       sich bitte via E-Mail bei Hartmut@eilers.net
 
@@ -44,16 +37,25 @@
 
          ( AWL = Anweisungsliste, enpricht quasi dem SPS Programm)
 
-**         Verfügt man über eine handelsübliche PIO - Karte ist es
-**         möglich eine Steuerung mit dem PC aufzubauen.
+		 Verfügt man über eine handelsübliche 8255 PIO - Karte, den IO 
+		 Warrior 40, einen DIL/NetPC oder einen Drucker Port ist es
+		 möglich eine Steuerung mit dem PC aufzubauen.
 
-**         Dank dem Daemon run_sps können Sie mit Ihrem PC
-**         wie gewohnt arbeiten, während im Hintergrund Ihre Steuerung
-**         läuft. Über RUN_SPS erfahren sie weitere Details in der
-**         Documentation RUN_SPS.DOC. ( Diese muß noch erstellt werden)
+		 Dank dem Daemon run_sps können Sie mit Ihrem PC
+		 wie gewohnt arbeiten, während im Hintergrund Ihre Steuerung
+		 läuft. Über RUN_SPS erfahren sie weitere Details in der
+		 Documentation RUN_SPS.DOC. ( Diese muß noch erstellt werden)
          
          Diese Dokumentation können Sie natürlich auch ausdrucken.
          ( sps.doc )
+		 
+		 Eine sehr gute Einführung sind die im HÜTHIG Verlag 
+		 erschienenen Bücher von A. Auer "SPS Aufbau und Programmierung"
+		 und "SPS Programmierung Beispiele und Aufgaben".
+		 
+		 An dieser Stelle mein Dank an A. Auer, meinen Prof Ende der
+		 achtziger Jahre in Isny, der mich dazu motivierte das
+		 Programm zu schreiben.
          
       2) Bedienung
 
@@ -63,13 +65,9 @@
          wird nach kurzer Zeit gelöscht und es erscheint in der
          1.Zeile des Bildschirms das Hauptmenü.
 
-!!         Ich habe noch ein paar Probleme mit der Emulation
-!!         und Farben, daher das komische blau als Schriftfarbe!
-!!         Es ist möglich, dass nach dem beenden des Progs ein
-!!         leerer Bildschirm zu sehen ist, einfach einen Befehl
-!!         wie ls eingeben und die Anzeige ist wieder ok.
-!!         Am besten funktioniert die Darstellung in einem xterm.
-
+         Mit den Shell Variablen LINES und COLUMNS können Sie die
+		 Größe des Terminals einstellen ( default 24 Lines und 80
+		 COLUMNS )
          Durch Eingabe der farbig abgesezten Anfangsbuchstaben
          oder der Pfeiltasten und RETURN   
          kann der Anwender zwischen folgenden Punkten wählen:
@@ -79,7 +77,6 @@
                               - löschen
                               - laden
                               - speichern
-**                              - ausdrucken
                           sowie:
                               - Directory anzeigen
                               - Standardverzeichnis wechseln
@@ -114,7 +111,7 @@
 
                S - Sichern der aktuellen AWL auf Disk/Platte
 
-**               P - Ausdruck der im Speicher befindlichen AWL
+               P - Ausdruck der im Speicher befindlichen AWL
 
 
                D - Directory anzeigen
@@ -214,15 +211,15 @@
                - COUNTER
                - EINGÄNGE
                - AUSGÄNGE 
-	       - Analoge Eingaenge (Joystick) angezeigt wird,
-**          sowie die Information ob die Steuerung INTERN oder EXTERN
+	           - Analoge Eingaenge (Joystick) angezeigt wird,
+          sowie die Information ob die Steuerung INTERN oder EXTERN
           arbeitet sowie die sog. Zykluszeit. Diese gibt an, wie lange
           ein AWL Durchlauf durchschnittlich dauert.
-**          Die Zykluszeit wird auch als Kommentar in die letzte Zeile der
+          Die Zykluszeit wird auch als Kommentar in die letzte Zeile der
           AWL eingesezt. An Hand der Zykluszeit kann die Verzögerungs-
           zeit der Timer berechnet werden.
-!!        Die Zykluszeit unter Linux stimmt nur sehr, sehr grob
-!!        nicht drauf verlassen!
+          Die Zykluszeit unter Linux stimmt nur sehr, sehr grob
+          nicht drauf verlassen!
 
           Eine AWL wird solange immer wieder abgearbeitet bis ESC be-
           tätigt wird.
@@ -232,20 +229,6 @@
           1-8 Bei Interner Steuerung wird mit jedem Tastendruck der
                 Zustand des jeweiligen Einganges getoggelt.
 
-**          f9  Umschaltung INTERN /EXTERN
-**                Bei Externer Betriebsart wird über eine angeschlossene
-**                PIO gearbeitet.
-
-**          f10   Durch f10 wird in den Grafikmodus geschaltet und der
-**                Zustand der Ein- und Ausgänge im Zeitdiagramm dargestellt.
-**                Zusätzlich wird eine Zeitachse eingezeichnet, bei der jeder
-**                senkrechte Strich einem AWL Durchlauf entspricht d. h.
-**                der Zykluszeit. Mit der Taste <P> kann eine Hardcopy auf
-**                einem Grafikfähigen Drucker ausgegeben werden, mit F10
-**                wird wieder in die Normaldarsdtellung umgeschaltet.
-**                Für die Darstellung im Grafikmodus muß eine CGA , EGA
-**                oder HERCULES Grafikkarte installiert sein.
-!!                hat noch jemand einen solchen Rechner :)
 
       2.1.5 Menupunkt DOCU
 
@@ -260,9 +243,6 @@
           zum Ende hin fortgesetzt. Falls die Suche erfolgreich war koennen
           Sie ueber ESC die Suche beenden oder mit einer beliebigen Taste
           fortsetzen.
-!!        Unter Linux habe ich ein pointer problem, wenn die Suche an das
-!!        Ende der Dokumentation gelangt. Folge: "segmentation fault"
-!!        Dringender Hinweis: Sichere deine AWL, bevor Du in Docu gehst!!
           Die Dokumentations-Datei heisst SPS.DOC und muss sich
           in dem Verzeichnis befinden aus dem SPS.EXE gestartet wurde.
           Da es sich bei der DOC Datei um eine reine ASCII - Datei handelt
@@ -270,7 +250,7 @@
           Sie lediglich einen Editor der ASCII Dateien erzeugen kann.
           (z.B.: vi, emacs, ... ). Dabei muessen Sie jedoch die Zeilen-
           laenge von max. 76 Zeichen beachten !!!! Auch keine Tabs verwen-
-	  den, sondern schoen mit blanks formatieren :)
+          den, sondern schoen mit blanks formatieren :)
 
       2.1.6 Menüpunkt QUIT
 
@@ -282,69 +262,121 @@
 
       3. Die Befehle der AWL:
 
-           U    der Akkuinhalt wird mit angeg. Oper. UND verknüpft
+          Die Befehle der AWL können sowohl in Ihrer deutschen Schreibweise
+		  als auch mit dem englischen Pendant geschrieben werden.
+		  Das gilt auch für die Bezeichnung der In- Outputs, Merker oder
+		  Zähler. Der Interpreter kann mit einer beliebigen Mischung korrekt
+		  umgehen. Sie sollten sich jedoch eine einheitliche Schreibweise
+		  angewöhnen. Alle Beispiele benutzen jeweils die erstgenannte
+		  Schreibweise. Wenn es verschiedene Alternativen gibt, sind sie 
+		  jeweils mit (de) für deutsch oder (en) für englisch gekennzeichnet.
+		  
+           U    der Akkuinhalt wird mit angeg. Oper. UND verknüpft.
+                Englische Schreibweise A
            UN   der negierte Akkuinhalt wird mit dem angegeb. Oper.
+                Englische Schreibweise AN
                 verknüpft.
            U(   der Akkuinkalt wird mit dem log. Ergebnis des Klammer-
-                ausdruckes und verkn.
+                ausdruckes und verkn.  Englische Schreibweise A(
            UN(  der neg. Akkkuinhalt wird mit Ergebnis des Klammeraus-
-                druckes UND verknüpft.
+                druckes UND verknüpft.  Englische Schreibweise AN(
 
            O    der Akkuinhalt wird mit Oper. ODER verk.
            ON   Siehe oben jedoch ODER Verknüpfung.
            O(
            ON(
-           =    Zuweisung, damit kann einem Marker oder Timer der Akku-
-                inhalt zugewiesen werden.
+           =    Zuweisung, damit kann einem Marker, Timer oder  Ausgang
+		        der Akkuinhalt zugewiesen werden. mehrfach Zuweisungen
+                sind erlaubt !
            =N   wie oben, jedoch der negierte Akkuinhalt.
            S    damit kann ein Ausgang oder Merker auf 1 gesetzt werden
            R    damit kann ein Ausgang oder Merker auf 0 rückgesetzt werden
            J    unbedingter Sprung. Es wird immer an die Stelle gespprungen
-                die als Parameter angegeben ist.
+                die als Parameter angegeben ist. Alternativ SP (de) und 
+                JP (en)
            JI   jump if- begingter Sprung der nur ausgeführt wird wenn
-                akkuinhalt 1 ist.
-           TE   Timer einschaltverzögert.
-           ZR   Zähler rückwärts.
+                akkuinhalt 1 ist. Ebenso können Sie alternativ auch JC (en)
+                oder SPB (de) verwenden.
+                Bei allen Sprungbefehlen beachten: Rücksprünge sind nicht 
+                erlaubt!
+           TE   Timer einschaltverzögert. Bsp: zahler.sps
+           ZR   Zähler rückwärts.         Bsp: timer.sps
            K    Konstante für Zähler oder Timer
            NOP  No Operation
-           EN   Ende der AWL.
-           LT   Less than ( analog Verarbeitung )
-           GT   Greater than ( analog Verarbeitung )
-           EQ   Equal ( analog Verarbeitung )
-	   $    execute (ausfuehren externer Programme )
+           EN   oder auch PE (de) oder EP (en)  = Ende der AWL.
+           LT   Less than - kleiner als ( analog Verarbeitung ) 
+           GT   Greater than - größer als ( analog Verarbeitung )
+           EQ   Equal - gleich ( analog Verarbeitung )
+		        Beispiel zur Analogverarbeitung siehe Punkt 4.4
+           $    execute (ausfuehren externer Programme ) 
+		        Bsp: flankenlogger.sps 
 	   
 
            Siehe  Beispiele!
+		   
+		   
+      3.1 die Bezeichner der AWL
+	  
+	       Die AWL Unterstützt digitale Ein- und Ausgänge, Softwarezähler, 
+		   Timer und Merker sowie analoge Eingänge.
+		   Folgende Bezeichner unterstützt die AWL
+		   
+           deutsch     englisch      Bedeutung
+              E            I           Eingang
+			  A            O           Ausgang
+			  Z            C           Zähler
+			  T            T           Timer
+			  M            M           Merker
+			  K            K           Konstante
+			  
+		   In der AWL können die Bezeichner beliebig gemischt verwendet werden,
+		   um der Lesbarkeit Willen sollten Sie jedoch eine Schreibweise 
+		   einhallten.
+			  
+      3.2 Technische Daten des SPS Simulators
 
-      3.1 Technische Daten des SPS Simulators
-
-           AWL Länge max 500 Zeilen
-           8 Ausgänge ( A1 - A8 ) (Port B der PIO)
-           8 Eingänge ( E1 - E8 ) (Port A der PIO)
-           8 Zähler   ( Z1 - Z8 ) (Port C der PIO)
-           8 Timer    ( T1 - T8 ) *
+           AWL Länge max 2000 Zeilen
+           128 Ausgänge ( A1 - A128 oder O1-O128 )
+           128 Eingänge ( E1 - E128 oder I1-I128 )
+           16 Zähler   ( Z1 - Z16 oder C1-C16 ) 
+           16 Timer    ( T1 - T16 ) *
            4 Analog Eingänge ( J1 - J4 )
-           64 Marker  ( M1 - M64) davon M64 = Takt mit 2*Tz
-                                        M63 = Takt mit 4*Tz
-                                        M62 = Takt mit 8*Tz
+           255 Marker  ( M1 - M255) davon M64 = Takt mit 2*Tz
+                                          M63 = Takt mit 4*Tz
+                                          M62 = Takt mit 8*Tz
 
-**           Die Pio muß mit einem 8255 aufgebaut sein und
-**           die Adressen 300h-303h haben.
-**           Derartige PIO's wurden schon in vielen Fachzeit-
-**           schriften zum Selbstbau vorgestellt.
-**           (z.B. ELEKTOR 7/8 1989)
+           SPS4Linux ist NICHT Echtzeitfähig!
+           Die Pio muß mit einem 8255 aufgebaut sein und
+           im Addressbereich 300h-3FFh liegen.
+           Derartige PIO's wurden schon in vielen Fachzeit-
+           schriften zum Selbstbau vorgestellt. Fertige Karten
+		   gibt es unter anderem bei Decision Computer
+           
+		   Neben der PIO funktioniert ausserdem der Printerport sowie
+		   die IO Warrior Serie von Code Mercanaries als Ein-Ausgabe Einheit.
+		  
+           Bei Verwendung des Dil/NetPC ist Port 0 Eingang und Port1
+           Ausgang, Port 0 wird auch fuer die Softcounter genommen.
+		   
+           Alle Ein- und Ausgänge haben TTL Pegel.
+           
+		   Die Timer haben unterschiedliche Zeitbasen:
+		   T1-T4	Basis 1 Sekunde
+		   T5-12	Basis 100 ms
+		   T13-T16  Basis Zykluszeit 
+		   
+		   Damit stehen Verzögerungen von 100 ms bis 65535 sec,
+		   was etwa 18 h entspricht.
+		   Die Timer sind Softwaretimer, wie exakt sie sind kann ich noch
+		   nicht sagen.
+		   Daher empfehle ich bei Verzögerungen im Sekundenbereich die
+		   100ms Timer T5-T12.
+		   
+		   Falls die Zykluszeit die Timebasis überschreitet, laufen die
+		   Timer zu langsam !
 
-**           Alle Ein- und Ausgänge haben TTL Pegel.
-           Berechnung der Verzögerung der Timer mit der Formel:
-           t= K * Tz
-           Die Zykluszeit Tz kann auch genauer bestimmt werden,
-           wenn man M64 auf einen Ausgang legt und die Frequenz
-           mit einem Oszi mißt.
-           die Zykluszeit ist dann Tz=2/f.
 
-
-
-      3.2 Konfiguration
+      3.3 Konfiguration
 
 	   Zur Konfiguration editieren Sie die Datei /etc/sps.cfg
 	   mit dem Editor Ihrer Wahl.
@@ -419,8 +451,8 @@
                   In Zeile 1 steckt der Fehler, denn wie weiter
                   oben erläutert wird bei jedem Durchlauf der
                   AWL zu Beginn der Akku mit dem Wert 1 geladen.
-		  ( Uebrigens auch nach der jeweils letzten Zuweisung
-		  mit = =N S oder R)
+                  ( Uebrigens auch nach der jeweils letzten Zuweisung
+                  mit = =N S oder R)
                   Aus der Boolschen Algebra ergibt sich aber
                   E1 + 1 = 1
                   Daher haben wir jetzt folgendes Ergebnis:
@@ -511,7 +543,10 @@
 	    der entsprechende Eingang um 1 erhöht. Bei Überlauf der 8Bit wird
 	    der Eingang wieder auf 0 zurückgesetzt.
 	    
-
+	4.5 Execute
+		Ist der Akkuinhalt 1 wird das Progamm aufgerufen, welches im Comment
+		steht. Der Returncode des programmes wird in den analog akku geschrieben.
+		
             Vor allem eines beachten :
                   Diese Ausführungen sollen Ihnen nur erläutern wie
                   dieser Simulator arbeitet. Mehr über SPS und
@@ -521,26 +556,24 @@
 
  5. Disclaimer
 
- Der Programmierer weisst Ausdruecklich darauf hin, dass er weder
- fuer direkte oder indirekte Schaeden, die aus oder durch die 
- Benutzung der Software enstanden sind Haftbar gemacht werden kann.
+    Der Programmierer weisst Ausdruecklich darauf hin, dass er weder
+    fuer direkte oder indirekte Schaeden, die aus oder durch die 
+    Benutzung der Software enstanden sind Haftbar gemacht werden kann.
 
 
- ACHTUNG: Benutzung des SPS Simulators unter LINUX!!!
-          Der SPS Simulator funktioniert natuerlich auch unter
-          LINUX ( Dank an alle die FPK Pascal kodieren !! ).
-          Sie muessen jedoch beachten, dass unter LINUX
-              die Zykluszeit nicht konstant ist (Multitasking!!!)
+    ACHTUNG: Benutzung des SPS Simulators unter LINUX!!!
+          Sie muessen  beachten, dass unter LINUX
+          die Zykluszeit nicht konstant ist (Multitasking!!!)
 
           Steuerungen im allgemeinen: Bitte immer Vorsorge treffen
           was eine Steuerung "macht" wenn der Rechner, das Programm
           oder wer sonst auch immer verueckt spielt.
 
- Wie immer: Der Programmierer übernimmt für nichts eine Verantwortung
+    Wie immer: Der Programmierer übernimmt für nichts eine Verantwortung
             vor allem nicht für das was Ihr damit steuert; bzw die
             Umgebung Eurer Steuerung.
 
- Vorschläge, Kritik etc an: hartmut@eilers.net
+    Vorschläge, Kritik etc an: hartmut@eilers.net
 
 
  6.History
@@ -576,22 +609,31 @@
           Zeitanzeige in der Menüleiste sowie meine Fummeleien mit MSDOS
           Funtionsaufrufen für Mouse und Screen etc nicht portieren.
           
-	  Momentan Okt. 2000 ist meine Entwicklungsumgebung ein alter 
-	  Pentium 100MHz Notebook mit 32 MB RAM und 800 MB HDD unter 
-	  Red Hat Linux 6.2.
-	  Als Compiler verwende ich fpc 1.00, als Editor kommt nedit
-	  zum Einsatz.
-	   
+	      Okt. 2000 ist meine Entwicklungsumgebung ein alter 
+	      Pentium 100MHz Notebook mit 32 MB RAM und 800 MB HDD unter 
+	      Red Hat Linux 6.2.
+	      Als Compiler verwende ich fpc 1.00, als Editor kommt nedit
+	      zum Einsatz.
+          Okt. 2005 : Pentuim III 1GHz, 512 MB RAM, DEBIAN Sarge.
+          FPC 1.9.4
+	  	   
           Wie gehts weiter?
-          Es geht nur noch unter Linux weiter, die DOS Version wird
-          nicht mehr weiterentwickelt. Wer mitarbeiten will ist herzlich
-          eingeladen!!!! -> Mail an hartmut@eilers.net
+          Es geht unter Linux weiter, die DOS Version wird
+          nicht mehr weiterentwickelt. Allerdings möchte ich die Urversion
+		  als GPL Code unter DOS rausbringen.
+		  
+		  Geplant ist ein Port auf Windows, die Atmel Mikrocontroller
+		  sind in arbeit.
+		  
+7. Einladung
+		  
+	  Wer mitarbeiten will ist herzlich eingeladen!!!! -> 
+	  Mail an hartmut@eilers.net
 	  Bitte meldet Euch auch, wenn Ihr eine Version fuer andere OS
 	  bauen wollt. ( Ich bin sehr zuversichtlich, dass zumindest 
 	  grosse Teile des Codes ohne Änderungen funktionieren. Die IO
-	  Zugriffe jedoch sind im Moment noch NICHT portabel. Ausserdem
-	  fehlt ein gutes Treibermodell zur Unterstuetzung der unter-
-	  schiedlichen Hardware ( A/D Karten, PIO, Printer und Joystick ! )
+	  Zugriffe jedoch sind im Moment noch NICHT portabel. 
+	  
 	  Ein grosses weiteres Betaetigungsfeld ist der Docubereich.
 	  Hier waere eine angepasste Einführung in die hier verwendeten
 	  Techniken richtig toll. Ebenso gut erlaeuterte Beispiele,
@@ -599,10 +641,9 @@
 	  Alles in allem freue ich mich ueber jeden, der Lust hat mit-
 	  zuwirken. Egal in welcher Funktion.
 
-          Ich werde auf jeden Fall den PIO Support einbauen. Alles
-          andere hängt von den Usern ab. Also gebt mir Feedback.
-          Ansonsten ist das ganze nach wie vor ein Hobbyprojekt
-          und wird es wohl auch bleiben.
+      Alles hängt von den Usern ab. Also gebt mir Feedback.
+      Ansonsten ist das ganze nach wie vor ein Hobbyprojekt
+      und wird es wohl auch bleiben.
 
           Viel Spaß damit
           Hucky

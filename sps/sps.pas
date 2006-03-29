@@ -1,17 +1,15 @@
 program sps_simulator;
- 
-uses dos,porting,mouse,linux,crt,printer,popmenu,ports;
-{,lp_io_access;}
 
-{ Linux Portierung							}
-
-{ unit environ entfernt			 				}
-
-{ graph,intzeit,getgraph,autograf  entfernt 				}
+{$ifdef LINUX} 
+uses dos,porting,oldlinux,crt,printer,popmenu,ports;
+{$else}
+uses dos,porting,windows,crt,printer,popmenu;
+{$endif}
 
 
 {$M 16384,0,100000} 
 
+{$DEFINE SPS}
 
 {$i ./sps.h}
 {$i ./fileserv.pas}
@@ -119,7 +117,7 @@ begin
      balken_pkte[5]:='Quit';
      copy_right:='(c) H. Eilers';
      repeat
-           BackGround:=lightgray;ForeGround:=blue;
+           BackGround:=lightgray;ForeGround:=Black;
 	   Highlighted:=red;
            balken(balken_pkte,5,copy_right,auswahl);
            case Auswahl of
@@ -177,23 +175,24 @@ begin                              { SPS_SIMULATION }
      end;
      cursor_off;
      clrscr;
-     textbackground(lightgray);textcolor(blue);
-     my_wwindow(trunc(screenx/2-20),trunc(screeny/2-2),trunc(screenx/2+20),trunc(screeny/2+2),'','',true);
+     textbackground(lightgray);textcolor(Black);
+     my_wwindow(trunc(screenx/2-25),trunc(screeny/2-2),trunc(screenx/2+25),trunc(screeny/2+2),'','',true);
      writeln(' SPS SIMULATOR V ',version);
      write(' Build on ',datum,' (c) by H. Eilers ');
      getdir(0,start_pfad);
      start_pfad:='.';
      configuration;
      directvideo:=false;
-{     graphdriver:=ord(graph_mode);}
+	 {graphmode:=m640x480;}
+     {graphdriver:=D8bit;}
      programm:=false;
      sicher:=false;
      name:='NONAME.SPS';
      delay(4000);
-     window(trunc(screenx/2-20),trunc(screeny/2-2),trunc(screenx/2+20),trunc(screeny/2+2));
+     window(trunc(screenx/2-25),trunc(screeny/2-2),trunc(screenx/2+25),trunc(screeny/2+2));
      textbackground(black);textcolor(black);clrscr;
      menu;
-{     closegraph;}
+     {closegraph;}
      window (1,1,screenx,screeny);
      textcolor(white);textbackground(black); clrscr;
      cursor_on;

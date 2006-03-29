@@ -1,5 +1,13 @@
 roadmap is as follows:
 
+
+new stuff 1.7.3
+- awl_interpreter : runtime calculations do not work due to getdate changes in compiler
+- fileserv : same getdate problem
+
+
+
+
 urgent : find people which will help in that project
 any help is welcome (programming, hardware/ interfacing, app examples, translation, howtos...)
 my big problem is, that I have only a very limitied timeframe to work on this project.

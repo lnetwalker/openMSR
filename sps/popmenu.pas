@@ -6,8 +6,13 @@ Unit PopMenu;
 
 INTERFACE
 
-uses crt,mouse,linux,dos;
-{ unit graph,getgraph entfernt, dos durch linux ersetzt  }
+{$ifdef LINUX}
+uses crt,linux,dos;
+{$endif}
+
+{$ifdef WIN32}
+uses crt,dos;
+{$endif}
 
 type string80=string[80];
      string20=string[20];
@@ -18,10 +23,13 @@ type string80=string[80];
      Popup_Choice = array [1..12] of string20;
      Balken_choice = array [1..6] of string9;
 
-const p_up = #73;
-      p_dw = #81;
+const p_up = #72;
+      p_dw = #80;
+	  p_le = #75;
+	  p_re = #77;
       esc  = #27;
       enter= #13;
+	  tab  = #9;
       	
 var BackGround,ForeGround,Highlighted : byte;
     startseg                          : word;
@@ -40,22 +48,24 @@ procedure dropdown(x,y:byte;uber:string12;Items:Popup_Choice;
                 NrOfItems:byte;var Choice:char);
 procedure Balken(Items:balken_choice;NrOfItems:byte;info:string15;
                  var choice:char);
-function filebrowser( path:string80):string80;
+function filebrowser( startpath:string80;titel:string;dialogtype:char):string80;
 
 
 IMPLEMENTATION
 
-type	doc_pointer = ^doc_record;	{ in this double linked list	}
+type	
+	doc_pointer = ^doc_record;	{ in this double linked list	}
 	doc_record = record		{ the text entries are stored }
 		entry : string[255];
 		nach,			{ zeiger auf den nachfolgenden Eintrag in Liste }
 		vor  : doc_pointer;	{ zeiger auf den vorherigen Eintrag }
 		selected : boolean;	{ true -> Eintrag ist angewählt }
-		screenpos : byte;
+		isDir	: boolean;
 	end;
 
 
-const 	screenx = 80;	{ this is the max screen width should be computed }
+const 	
+	screenx = 80;	{ this is the max screen width should be computed }
 	screeny = 25;	{ this is the max screen height should be computed }
 			{ these values are computed now, but screenx and }
 			{ screeny are used as fallbacks if the actual size }
@@ -68,42 +78,23 @@ var dummy,position     : byte;    { dummy fuer mausposition }
 function ShowTextList(zeiger:doc_pointer;zeilen:word):doc_pointer;
 var line_cnt	: word;
 begin
+	for line_cnt:=1 to zeilen do begin
+		gotoxy(1,line_cnt);
+		write('                                       ');
+	end;	
 	line_cnt:=0;
-	zeiger^.screenpos:=1;
-	gotoxy(1,1);clrscr;
+	gotoxy(1,1);
 	repeat
 		inc(line_cnt);
-		zeiger^.screenpos:=line_cnt;
-		if (zeiger^.selected) then begin
-			{if zeiger^.screenpos }
-			textcolor(red);
-			write(zeiger^.entry);
-			textcolor(white);
-		end
-		else write(zeiger^.entry);
-		zeiger:=zeiger^.nach;
+		textcolor(black);
+		if (zeiger^.selected) then textcolor(red);
+		write(zeiger^.entry);
+		if (zeiger^.isDir) then write('     <DIR>');
+		if ( zeiger^.nach <> nil ) then zeiger:=zeiger^.nach;
 		if (line_cnt < zeilen ) then writeln;
-	until (line_cnt = zeilen );
-	ShowTextList:=zeiger^.vor;
+	until (line_cnt = zeilen ) or ( zeiger^.nach=nil);
 end;
 
-
-function MoveTextList(zeiger:doc_pointer;taste : char; zeilen:word):doc_pointer;
-begin
-	case taste of
-		#73 : begin
-			if zeiger^.selected then begin
-				zeiger^.selected:=false;
-				zeiger:=zeiger^.vor;
-				zeiger^.selected:=true;
-			end;
-		      end;		
-	end;		
-	gotoxy(1,1);
-	write(taste);
-	zeiger:=ShowTextList(zeiger,zeilen);
-	MoveTextList:=zeiger; 
-end;
 
 
 function GetScreenMaxX:word;
@@ -234,14 +225,12 @@ end;
 procedure dropdown (x,y:byte;uber:string12;Items:Popup_Choice;
                 NrOfItems:byte;var Choice:char);
 
-var MaxLen,i,x2,y2,Pfeil,
+var MaxLen,i,x2,y2,
     Zeile,AlteZeile      : byte;
-    Taste                : char;
+    Taste,Pfeil          : char;
     Help                 : string1;
 
 begin
-     mouse_event:=false;
-     check_mouse(mouseinstalled);
      MaxLen := 0;
      textbackground(backGround);textcolor(foreground);
      for i:= 1 to NrOfItems do
@@ -256,39 +245,25 @@ begin
      Help:=copy(Items[1],1,1);
      Choice:=help[1];
      zeile:=1;
-     if mouseinstalled then begin
-        mouse_area(x,x2-4,y,y2-3);
-        mouse_on;
-     end;
      repeat
-           repeat
-             mouse_event:=false;
-             if mouseinstalled then begin
-                mouse_status(dummy,position,return,escape);
-                if (return or escape) then mouse_event:=true;
-             end;
-           until KeyPressed or mouse_event;
-           if KeyPressed then Taste := ReadKey
-           else taste:=' ';
+		   Taste := ReadKey;
            altezeile:=zeile;
            if ord(taste) = 0 then begin;
-              Pfeil:=ord(readkey);
+              Pfeil:=readkey;
               case pfeil of
-                 72 : if zeile <> 1 then dec(zeile)
+                 p_up : if zeile <> 1 then dec(zeile)
                       else Zeile:=NrOfItems;
-                 80 : if zeile <> NrOfItems then inc(zeile)
+                 p_dw : if zeile <> NrOfItems then inc(zeile)
                       else zeile:=1;
               end;
            end;
            if zeile <> altezeile then begin
-              if mouseinstalled then mouse_off;
               textbackground(backGround);textcolor(foreground);
               printLine(1,AlteZeile,Items[altezeile],maxlen);
               textbackground(foreground);textcolor(background);
               PrintLine(1,zeile,Items[zeile],MaxLen);
-              if mouseinstalled then mouse_on;
            end;
-           if taste=#13 then begin
+           if taste=enter then begin
               help:=copy(Items[zeile],1,1);
               choice:=help[1];
            end;
@@ -297,33 +272,23 @@ begin
                   choice:=upcase(taste);
                   taste:=chr(13);
                end;
-           if taste=#27 then begin
-              taste:=#13;
-              choice:=#27;
+           if taste=esc then begin
+              taste:=enter;
+              choice:=esc;
            end;
-           if mouse_event then begin
-              taste:=#13;
-              if escape then choice:=#27
-              else begin
-                   help:=copy(Items[position-1],1,1);
-                   choice:=help[1];
-              end;
-           end;
-     until taste =#13;
-     if mouseinstalled then mouse_off;
+     until taste =enter;
 end;
 
 procedure balken(Items:balken_choice;NrOfItems:byte;info:string15;
                  var choice:char);
 
-var i,Pfeil,
+var i,
     spalte,Altespalte    : byte;
-    Taste                : char;
+    Taste,Pfeil          : char;
     Help                 : string1;
 
 
 begin
-     mouse_event:=false;
      textbackground(backGround);textcolor(foreground);
      window (1,1,GetScreenMaxX,1);
      clrscr;
@@ -335,39 +300,25 @@ begin
      help:=copy(Items[1],1,1);
      choice:=help[1];
      spalte:=1;
-     if mouseinstalled then begin
-        mouse_area(0,79,0,0);
-        mouse_on;
-     end;
      repeat
-           repeat
-           mouse_event:=false;
-             if mouseinstalled then begin
-                mouse_status(position,dummy,return,escape);
-                if return then mouse_event:=true;
-             end;
-           until KeyPressed or mouse_event;
-           if KeyPressed then Taste := ReadKey
-           else taste:=' ';
+           Taste := ReadKey;
            altespalte:=spalte;
            if ord(taste) = 0 then begin;
-              Pfeil:=ord(readkey);
+              Pfeil:=readkey;
               case pfeil of
-                 75 : if spalte <> 1 then dec(spalte)
+                 p_le : if spalte <> 1 then dec(spalte)
                       else spalte:=NrOfItems;
-                 77 : if spalte <> NrOfItems then inc(spalte)
+                 p_re : if spalte <> NrOfItems then inc(spalte)
                       else spalte:=1;
               end;
            end;
            if spalte <> altespalte then begin
-              if mouseinstalled then mouse_off;
-              textbackground(backGround);textcolor(foreground);
+             textbackground(backGround);textcolor(foreground);
               printLine((altespalte-1)*10+1,1,Items[altespalte],9);
               textbackground(foreground);textcolor(background);
               PrintLine((spalte-1)*10+1,1,Items[spalte],9);
-              if mouseinstalled then mouse_on;
            end;
-           if taste=#13 then begin
+           if taste=enter then begin
               help:=copy(Items[spalte],1,1);
               choice:=help[1];
            end;
@@ -376,30 +327,23 @@ begin
                   choice:=upcase(taste);
                   taste:=chr(13);
                end;
-           if taste=#27 then begin
-              taste:=#13;
-              choice:=#27;
+           if taste=esc then begin
+              taste:=enter;
+              choice:=esc;
            end;
-           if mouse_event and (dummy=0) then begin
-              taste:=#13;
-              help:=copy(Items[trunc(position/10)+1],1,1);
-              choice:=help[1];
-           end;
-
-     until taste =#13;
+     until taste =enter;
      cursor_on;
-     if mouseinstalled then mouse_off;
 end;
 
 
 
-function filebrowser( path:string80):string80;
+function filebrowser( startpath:string80;titel:string;dialogtype:char):string80;
 
 { this function provides a filebrowser to browse through the	}
 { directory hirarchy, if enter is pressed on a directory its 	}
 { opened and browsed, if enter is pressed on a file, the	}
 { window is closed and the fqfn is returned. if you press	}
-{ ESC the window is closed and the returned filename is empty 	}
+{ ESC the window is closed and the returned filename is "esc" 	}
 
 var 	taste 	: char;
 	sr    	: searchrec;		{ structure needed for the directory access }
@@ -408,65 +352,97 @@ var 	taste 	: char;
 	d_start,
 	z_akt	: doc_pointer;		{ pointer to the start of the dir list }
 	zeilen_counter	: word;		{ counter for the number of dir entries }
-	screen_length	: byte;
+	screen_length,
+	spalte,c		: byte;
+	selected		: boolean;
+	searchpath,path,
+	filename		: string;
 
 begin
 	{ read the directory an build up the double linked list }
-	new(z1);
-	z1^.vor:=nil;				{ start setzten - nil zeigt Anfang }
-	d_start:=z1;
-	path:=path+'/*';
-	{write(path);
-	write('ready to biuld list');readln;}
-	{$I-}findfirst (path,anyfile,sr);{$I+}
-	while (doserror=0) do
-	begin
-		if sr.attr <> 39 then begin
-			unpacktime (sr.time,fz);
-			if (copy(sr.name,1,1) <>'.') or (length(sr.name)<3) then begin
-				{ its not a hidden file, its . , .. or a normal file }
-				{write('name=',sr.name);readln;}
-				z1^.entry := sr.name;
-				{ fill the name with blanks up to 15 chars }
-				if (length(z1^.entry)<15) then 
-					repeat
-						z1^.entry:=z1^.entry+ ' ';
-					until ( length (z1^.entry)>14)
-				else z1^.entry:=copy(z1^.entry,1,15);
-				{write('|');readln;			}
-				if sr.attr=$10 then z1^.entry := z1^.entry +' <DIR>';
-				new(z2);
-				z2^.vor:=z1;
-				z1^.nach:=z2;
-				z1^.selected:=false;
-				z1:=z2;				
-			end;	
-		end;
-		{$I-}findnext (sr);{$I+}
-	end;
-	z1^.nach:=nil; 		{ end of the linked list }
-	{write('list build, ready to open window');readln;}
-	{ open a window and print the dir list in it }
-	textbackground(blue);textcolor(white);
-	my_wwindow (trunc(GetScreenMaxX/2)-25,trunc(GetScreenMaxY/2)-10,trunc(GetScreenMaxX/2)+25,trunc(GetScreenMaxY/2)+10,path,'<ESC>/<ENTER>',true);	
+	selected:=false;
+	path:=startpath;
+	spalte:=3;
+	filename:='';
+	textbackground(lightgray);textcolor(black);
+	my_wwindow (trunc(GetScreenMaxX/2)-25,trunc(GetScreenMaxY/2)-10,trunc(GetScreenMaxX/2)+25,trunc(GetScreenMaxY/2)+10,titel,'<ESC/ENTER>',true);	
 	screen_length:=(trunc(GetScreenMaxY/2)+10)-(trunc(GetScreenMaxY/2)-10)-3;
-	z1:=d_start;
-	z1^.selected:=true;
-	zeilen_counter:=1;
-	z_akt:=ShowTextList(z1,screen_length);
+	if (dialogtype='S') then begin
+		screen_length:=screen_length-2;
+		textcolor(black);
+		gotoxy(1,screen_length+1);
+		for c:=1 to 48 do write ('-');
+	end;	
 	repeat
-		taste:=readkey;
-		case taste of
-			p_up : z_akt:=MoveTextList(z_akt,p_up,screen_length);
-			p_dw : z_akt:=MoveTextList(z_akt,p_dw,screen_length);
-			enter: begin
-				z_akt:=d_start;
-				while ((not(z_akt^.selected)) and (z_akt^.nach <> nil)) do z_akt:=z_akt^.nach
-			       end;
+		searchpath:=path+'/*';
+		new(z1);
+		z1^.vor:=nil;				{ start setzten - nil zeigt Anfang }
+		d_start:=z1;
+		{$I-}findfirst (searchpath,anyfile,sr);{$I+}
+		while (doserror=0) do
+		begin
+			if sr.attr <> 39 then begin
+				unpacktime (sr.time,fz);
+				if (copy(sr.name,1,1) <>'.') or (length(sr.name)<3) then begin
+					{ its not a hidden file, its . , .. or a normal file }
+					{write('name=',sr.name);readln;}
+					z1^.entry := sr.name;
+					if sr.attr=$10 then z1^.isDir := true
+					else z1^.isDir := false;
+					if (sr.name='.') or (sr.name='..') then z1^.isDir := true;
+					new(z2);
+					z2^.vor:=z1;
+					z1^.nach:=z2;
+					z1^.selected:=false;
+					z1:=z2;				
+				end;	
+			end;
+			{$I-}findnext (sr);{$I+}
+		end;
+		z1^.nach:=nil; 		{ end of the linked list }
+		{write('list build, ready to open window');readln;}
+		{ open a window and print the dir list in it }
+		z1:=d_start;
+		z1^.selected:=true;
+		zeilen_counter:=1;
+		ShowTextList(z1,screen_length);
+		repeat
+			taste:=readkey;
+			if (taste=#0) then taste:=readkey;
+			case taste of
+				p_up : begin
+					z1^.selected:=false;
+					if ( z1^.vor <> nil) then z1:=z1^.vor;
+					z1^.selected:=true;
+				   end;
+				p_dw : begin
+					z1^.selected:=false;
+					if ( z1^.nach <> nil ) then z1:=z1^.nach;
+					z1^.selected:=true;
+		    	   end;
+				enter: ;
+				esc	 :   
+				else if (DialogType='S') then begin
+					 filename:=filename+taste;
+					 inc(spalte);
+					 gotoxy(1,screen_length+2);
+					 clreol;
+					 write (filename,'#');
+				end
+			end;
+			ShowTextList(z1,screen_length);
+		until (taste=enter) or (taste=esc);
+		if (z1^.isDir) and (filename='') then path:=path+'/'+z1^.entry
+		else begin
+			selected:=true;
+			if (DialogType='S') and (filename<>'') then filebrowser:=path+'/'+filename
+			else filebrowser:=path+'/'+z1^.entry;
+		end;
+		if ( taste=esc ) then begin
+			selected:=true;
+			filebrowser:='esc';
 		end;	
-	until (taste=enter) or (taste=esc);
-	if ( taste=esc ) then filebrowser:=''  { ESC was pressed so close window and exit with empty string }
-	else filebrowser:=z_akt^.entry;	
+	until selected;
 	window(trunc(GetScreenMaxX/2)-25,trunc(GetScreenMaxY/2)-10,trunc(GetScreenMaxX/2)+25,trunc(GetScreenMaxY/2)+10);
 	textbackground(black);textcolor(black);clrscr;
 end;
@@ -475,5 +451,4 @@ end;
 begin
      startseg:=$b800;
 {     if Graph_mode=hga then startseg:=$b000;}
-     if mouseinstalled then mouse_cursor(0,$ffff,$ff00);
 end.
