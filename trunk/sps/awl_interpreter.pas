@@ -1,4 +1,5 @@
 { this is the interpreter for sps files }
+{ interpreter version 1.2}
 
 procedure toggle_internal_clock (var m1,m2,m3 : boolean);   { toggelt die internen clock-marker }
 
@@ -30,13 +31,22 @@ var    inv               : boolean;{und weist ihn dem Hilfsregister zu }
 
 begin
      inv:=false;
-     if (aktuell='ON ') or (aktuell='UN ') then
+     if (aktuell='ON ') or (aktuell='UN ') or (aktuell='AN ') then
         inv:=true;
      case operand[k] of
+	 	  'I':  if inv then
+                   help:=not(eingang[par[k]])
+                else
+                   help:=eingang[par[k]];
+
           'E':  if inv then
                    help:=not(eingang[par[k]])
                 else
                    help:=eingang[par[k]];
+	  	  'O':  if inv then
+                   help:=not(ausgang[par[k]])
+                else
+                   help:=ausgang[par[k]];
           'A':  if inv then
                    help:=not(ausgang[par[k]])
                 else
@@ -49,6 +59,10 @@ begin
                    help:=not(timer[par[k]])
                 else
                    help:=timer[par[k]];
+		  'C':  if inv then
+                   help:=not(zahler[par[k]])
+                else
+                   help:=zahler[par[k]];
           'Z':  if inv then
                    help:=not(zahler[par[k]])
                 else
@@ -61,7 +75,7 @@ end;                               { **** ENDE ZERLEG *****       }
 
 begin
      case token of
-          1,2,5,6   : begin
+          1,2,5,6,31,33   : begin                    { UN(,ON(,U(,O(,AN(,A( }
                            inc(klammer);
                            klammerakku[klammer]:=akku;
                            akku:=true;
@@ -71,13 +85,15 @@ begin
           zerleg;
      end;
      case token of
-          3         : akku:=akku and help;
-          4         : akku:=akku or help;		      
-          12        : if (operand[k]='J') then 
-			  analog_akku:=analog_in[par[k]]			
-		      else
-			  akku:=akku and help;
-          13        : akku:=akku or help;		      			
+          3         : akku:=akku and help;				{ UN	}
+          4         : akku:=akku or help;		      	{ ON	}
+          12        : if (operand[k]='J') then 			{ U		}
+			  			analog_akku:=analog_in[par[k]]			
+		      		  else
+			  			akku:=akku and help;
+          13        : akku:=akku or help;				{ O		}
+		  32		: akku:=akku and help;				{ AN	}
+		  34		: akku:=akku and help;				{ A		}
      end
 end;                               { **** ENDE VERKN ****}
 
@@ -86,13 +102,15 @@ function mehrfach (z:word):boolean;
 
 begin
      mehrfach:=true;
-     repeat
-       inc(z);
-     until operation[z]<>anweisung[19];
-     if (operation[z]=anweisung[5]) or
-        (operation[z]=anweisung[6]) or
-        (operation[z]=anweisung[7]) or
-        (operation[z]=anweisung[8]) then mehrfach:=false
+     if (operation[z+1]=anweisung[1]) or				{ UN(	}
+        (operation[z+1]=anweisung[3]) or				{ UN	}
+        (operation[z+1]=anweisung[5]) or				{ U(	}
+		(operation[z+1]=anweisung[31]) or				{ AN(	}
+		(operation[z+1]=anweisung[32]) or				{ AN	}
+		(operation[z+1]=anweisung[33]) or				{ A(	}
+		(operation[z+1]=anweisung[34]) or				{ A		}
+        (operation[z+1]=anweisung[12]) 					{ U		}
+	 then mehrfach:=false
 end;
 
 
@@ -100,6 +118,7 @@ procedure zuweisen;                { weist den akkuinhalt einem ausg. od merker}
 begin
      if token=7 then akku:=not(akku);
      case operand[k] of
+	 	  'O'      : ausgang[par[k]]:=akku;
           'A'      : ausgang[par[k]]:=akku;
           'M'      : marker[par[k]]:=akku;
      {else}
@@ -112,7 +131,8 @@ procedure setzen;                  { setzt einen ausg. od. merker auf log 1}
 begin
     if akku then begin
        case operand[k] of
-            'A' : Ausgang[par[k]]:=true;
+	   	  	'O' : ausgang[par[k]]:=true;
+            'A' : ausgang[par[k]]:=true;
             'M' : marker [par[k]]:=true;
        {else}
        { für spätere Fehlermeldung }
@@ -125,7 +145,8 @@ procedure rucksetzen;              { setzt einen ausg. od. merker auf log 0 }
 begin
     if akku then begin
        case operand[k] of
-            'A' : Ausgang[par[k]]:=false;
+	        'O' : ausgang[par[k]]:=false;
+            'A' : ausgang[par[k]]:=false;
             'M' : marker [par[k]]:=false;
        {else}
        { für spätere Fehlermeldung }
@@ -137,14 +158,16 @@ end;                               { **** ENDE RUCKSETZEN **** }
 procedure klammer_zu;              { beendet letzte klammer und verknüpft }
 var helper : boolean ;
 begin
-     if (klammeroper[klammer]='ON(')  or (klammeroper[klammer]='UN(') then begin{ ON( bzw UN( }
+     if (klammeroper[klammer]='ON(') or (klammeroper[klammer]='UN(') 
+	    or (klammeroper[klammer]='AN(') then begin{ ON( bzw UN(  bzw AN(}
      
-     	 helper:=not(klammerakku[klammer]);
-         klammerakku[klammer]:=helper;
+     	 helper:=not(akku);
+         akku:=helper;
      end;	 
      if (klammeroper[klammer]='O( ') or (klammeroper[klammer]='ON(') then
         akku:=akku or klammerakku[klammer];
-     if (klammeroper[klammer]='U( ') or (klammeroper[klammer]='UN(') then
+     if (klammeroper[klammer]='U( ') or (klammeroper[klammer]='UN(') 
+	    or (klammeroper[klammer]='AN(') or (klammeroper[klammer]='A( ')then
         akku:=akku and klammerakku[klammer];
      klammer:=klammer-1;
 end;                               { **** ENDE KLAMMER_ZU **** }
@@ -203,6 +226,12 @@ begin
 	if (analog_akku > par[k]) then akku:=true;
 end;					{ **** ENDE ANALOG_great	}
 
+procedure jump;
+begin						
+	 K:=par[k]-1;
+	 akku:=true
+end;
+
 procedure execute;			{ executes an external program 	}
 
 begin
@@ -212,60 +241,89 @@ begin
 	{ one can act on different return values with EQ,GT and LT	}
 	{ you have to ensure, that output of the program is redirected	}
 	if ( akku ) then begin
+		{$ifdef LINUX}
 		analog_akku := shell (comment[k]);
+		{$else}
+		exec(GetEnv('COMSPEC'),comment[k]);
+		analog_akku:=DosExitCode;
+		{$endif}
 	end;
 end;
+
+procedure cond_jump;
+begin
+	if akku then begin		
+       k:=par[k]-1;
+       akku:=true
+    end
+    else akku:=true;
+end;
+
 	
 begin
-     K:=1;
-     watchdog:=1;
+     k:=0;
+     watchdog:=0;
      akku:=true;
      analog_akku:=0;
      help:=false;
      klammer:=0;
-     aktuell:=operation[k];
-     while aktuell <> 'EN ' do
-     begin
+     repeat
+          inc(k);
+          inc(watchdog);
+          aktuell:=operation[k];
+          if watchdog > awl_max then aktuell:='EN ';
           token:=0;
           repeat
              inc(token);
              anweis:=anweisung[token];
           until (aktuell=anweis) or (token>anweismax);
+	  	  if ( debug ) then writeln ('Nr ',k,' aktuell ',aktuell,'  Token: ',token);
           case token of
-               1..6    : verkn;			{ UN( .. O(	}
-	       7       : zuweisen;              { =      	}
-               8       : if akku then begin	{ JI 		}
-                            k:=par[k]-1;
-                            akku:=true
-                         end
-                         else akku:=true;
-               9       : set_timer;		{ TE 		}
-               10      : set_counter;		{ ZR 		}
-               11      : ;			{ EN 		}
-	       12,13   : verkn;			{ U O		}
-               14      : klammer_zu;		{ ) 		}
-               15      : zuweisen;		{ =N 		}
-               16      : setzen;		{ S 		}
-               17      : rucksetzen;		{ R 		}
-               18      : begin			{ J 		}
-                              K:=par[k]-1;
-                              akku:=true
-                         end;
-               19      : ;			{ K 		}
-               20      : ;			{ NOP 		}
-	       21      : analog_equal;	     	{ EQ 		}
-	       22      : analog_less;        	{ LT 		}
-	       23      : analog_great;        	{ GT 		}
-	       24      : execute                { $		}
+               	1..6    : verkn;					{ UN( .. O(	}
+	       		7       : zuweisen;              	{ =      	}
+               	8       : cond_jump;				{ JI 		}
+               	9       : set_timer;				{ TE 		}
+               	10      : set_counter;				{ ZR 		}
+               	11    	: ;							{ EN   		}
+	       		12,13   : verkn;					{ U O		}
+               	14      : klammer_zu;				{ ) 		}
+               	15      : zuweisen;					{ =N 		}
+               	16      : setzen;					{ S 		}
+               	17      : rucksetzen;				{ R 		}
+               	18      : jump;						{ J 		}
+               	19      : ;							{ K 		}		
+               	20      : ;							{ NOP 		}
+	       		21      : analog_equal;	     		{ EQ 		}
+	       		22      : analog_less;        		{ LT 		}
+	       		23      : analog_great;        		{ GT 		}
+	       		24      : execute;                	{ $			}
+				25		: ;							{ PE		}
+				26,27	: jump;						{ JP,SP		}
+				28,29	: cond_jump;				{ JC,SPB	}
+				30		: ;							{ EP		}
+				31    	: verkn;					{ AN(		}
+				32    	: verkn;					{ AN		}
+				33    	: verkn;					{ A(		}
+				34    	: verkn;					{ A			}
 	       	       
           {else}
           { für spätere Fehlerabfrage }
           end;
-          inc(k);
-          inc(watchdog);
-          aktuell:=operation[k];
-          if watchdog > awl_max then aktuell:='EN ';
-     end;
+     until ( aktuell = 'EN ') or (aktuell = 'PE ') or (aktuell='EP ');
      Str(time2:5:2,timestring);
-     if aktuell='EN ' then comment[k]:='Zykluszeit Tz='+timestring+' ms';
+     if (aktuell='EN ') or (aktuell='PE ')  or (aktuell='EP ') then comment[k]:='Zykluszeit Tz='+timestring+' ms';
+     if ( debug ) then begin
+       for k:=8 downto 1 do
+         if (k=8) then
+     	    write ('interpreter: E 8-1 ',eingang[k],' ')
+         else
+            write (eingang[k],' ');
+       writeln;
+       for k:=8 downto 1 do 
+         if (k=8) then
+            write ('interpreter: A 8-1 ',ausgang[k],' ')
+         else   
+            write (ausgang[k],' ');
+       writeln
+     end;		
 end;                               { **** ENDE INTERPRET **** }

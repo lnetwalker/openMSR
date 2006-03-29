@@ -6,7 +6,7 @@
 # to remake a part do "make sps" for the ide
 # and a "make run_sps" for the runtime modules
 
-OBJECTS=sps run_sps
+OBJECTS=sps
 
 all: $(OBJECTS)
 
@@ -28,4 +28,4 @@ clean :
 	-rm *.a
 	-rm *.o
 	-rm *.s
-	-rm $(OBJECTS)
+#	-rm $(OBJECTS)
