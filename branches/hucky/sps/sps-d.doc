@@ -12,16 +12,16 @@
       that file to sps.doc to read the docs in the IDE!
 
 
-      Ab Version 1.7.1  unterliegt SPS4Linux der GNU General Public Licence;
-      siehe http://www.gnu.org/ fuer Details.
+      Ab Version 1.7.1  unterliegt SPS4Linux der GPL, GNU General Public Licence;
+      siehe http://www.gnu.org/ für Details.
       
       Neben dem Binary ist der komplette Source enthalten. Mit dem FPC
 	  Compiler kann der source compiliert werden.
 	  
       Wer Lust hat an SPS mitzuarbeiten ( egal in welcher Form ) melde
-      sich bitte via E-Mail bei Hartmut@eilers.net
+      sich bitte via E-Mail bei sps4linux@eilers.net
 
-      Bugs, Vorschläge an hartmut@eilers.net
+      Bugs, Vorschläge an sps4linux@eilers.net
       
       Flames to /dev/null
 
@@ -121,10 +121,9 @@
 
           Alle Pfad- und Dateiangaben im Menü FILE müssen in der
           DOS Syntax angegeben werden. ( z.B.: *.* nicht * )
-          Wird kein Pfad angegeben bezieht sich der Befehl auf das
-          aktuelle Laufwerk/ bzw. Pfad. ( Laufwerk ;-) ; es kommt halt
-          aus der DOS Welt )
-
+          Wird kein absoluter Pfad angegeben bezieht sich der Befehl
+          auf den aktuellen Pfad. 
+		  
           Wird keine Dateinamenserweiterung angegeben wird automatisch
           .SPS angehängt.
 
@@ -211,7 +210,7 @@
                - COUNTER
                - EINGÄNGE
                - AUSGÄNGE 
-	           - Analoge Eingaenge (Joystick) angezeigt wird,
+               - Analoge Eingänge (Joystick) angezeigt wird,
           sowie die Information ob die Steuerung INTERN oder EXTERN
           arbeitet sowie die sog. Zykluszeit. Diese gibt an, wie lange
           ein AWL Durchlauf durchschnittlich dauert.
@@ -226,31 +225,36 @@
 
           Folgende Tasten haben eine Bedeutung:
 
-          1-8 Bei Interner Steuerung wird mit jedem Tastendruck der
-                Zustand des jeweiligen Einganges getoggelt.
-
-
+          1-8         Bei Interner Steuerung wird mit jedem Tastendruck 
+                      der Zustand der Eingänge E1  - E8   getoggelt.
+          shift + 1-8 s.o. jedoch Eingänge     E9  - E16
+          alt   + 1-8 s.o. jedoch Eingänge     E17 - E24		
+          q-i         s.o. jedoch Counter      Z1  - Z8
+          shift + q-i s.o. jedoch Counter      Z9  - Z16
+          a-f         s.o. jedoch analoge Ein  J1  - J4
+		  
+		  
       2.1.5 Menupunkt DOCU
 
-          Durch D im Hauptmenu bzw. die Maus oder die Cursortasten wird
+          Durch D im Hauptmenu bzw. die Cursortasten wird
           die Online Dokumentation aufgerufen. Mit PAGE UP bzw. PAGE DOWN
-          koennen Sie nun durch die Dokumentation blaettern, oder ueber
+          können Sie nun durch die Dokumentation blättern, oder über
           die Taste s die Suchfunktion aktivieren. Mittels ESC verlassen
           Sie die Online Dokumentation und gelangen zuruck ins Hauptmenue.
-          Ueber die Suchfunktion koennen Sie nach beliebigen Woerten bzw.
+          über die Suchfunktion können Sie nach beliebigen Wörten bzw.
           Wortteilen suchen. Die Schreibweise (gross/klein) wird dabei
           ignoriert. Die Suche beginnt immer am Dokumentanfang und wird
-          zum Ende hin fortgesetzt. Falls die Suche erfolgreich war koennen
-          Sie ueber ESC die Suche beenden oder mit einer beliebigen Taste
+          zum Ende hin fortgesetzt. Falls die Suche erfolgreich war können
+          Sie über ESC die Suche beenden oder mit einer beliebigen Taste
           fortsetzen.
           Die Dokumentations-Datei heisst SPS.DOC und muss sich
           in dem Verzeichnis befinden aus dem SPS.EXE gestartet wurde.
           Da es sich bei der DOC Datei um eine reine ASCII - Datei handelt
-          koennen Sie selbst die Dokumentation erweitern. Dazu benoetigen
+          können Sie selbst die Dokumentation erweitern. Dazu benötigen
           Sie lediglich einen Editor der ASCII Dateien erzeugen kann.
-          (z.B.: vi, emacs, ... ). Dabei muessen Sie jedoch die Zeilen-
-          laenge von max. 76 Zeichen beachten !!!! Auch keine Tabs verwen-
-          den, sondern schoen mit blanks formatieren :)
+          (z.B.: vi, emacs, ... ). Dabei müssen Sie jedoch die Zeilen-
+          länge von max. 76 Zeichen beachten !!!! Auch keine Tabs verwen-
+          den, sondern schön mit blanks formatieren :)
 
       2.1.6 Menüpunkt QUIT
 
@@ -301,14 +305,14 @@
                 erlaubt!
            TE   Timer einschaltverzögert. Bsp: zahler.sps
            ZR   Zähler rückwärts.         Bsp: timer.sps
-           K    Konstante für Zähler oder Timer
+           K    Konstante für ZählerS oder Timer
            NOP  No Operation
            EN   oder auch PE (de) oder EP (en)  = Ende der AWL.
            LT   Less than - kleiner als ( analog Verarbeitung ) 
            GT   Greater than - größer als ( analog Verarbeitung )
            EQ   Equal - gleich ( analog Verarbeitung )
 		        Beispiel zur Analogverarbeitung siehe Punkt 4.4
-           $    execute (ausfuehren externer Programme ) 
+           $    execute (ausführen externer Programme ) 
 		        Bsp: flankenlogger.sps 
 	   
 
@@ -317,21 +321,22 @@
 		   
       3.1 die Bezeichner der AWL
 	  
-	       Die AWL Unterstützt digitale Ein- und Ausgänge, Softwarezähler, 
+	       Die AWL unterstützt digitale Ein- und Ausgänge, Softwarezähler, 
 		   Timer und Merker sowie analoge Eingänge.
 		   Folgende Bezeichner unterstützt die AWL
 		   
            deutsch     englisch      Bedeutung
               E            I           Eingang
-			  A            O           Ausgang
-			  Z            C           Zähler
-			  T            T           Timer
-			  M            M           Merker
-			  K            K           Konstante
-			  
+              A            O           Ausgang
+              Z            C           Zähler
+              T            T           Timer
+              M            M           Merker
+              K            K           Konstante
+              J            J           Joystick
+			   
 		   In der AWL können die Bezeichner beliebig gemischt verwendet werden,
 		   um der Lesbarkeit Willen sollten Sie jedoch eine Schreibweise 
-		   einhallten.
+		   einhalten.
 			  
       3.2 Technische Daten des SPS Simulators
 
@@ -356,7 +361,7 @@
 		   die IO Warrior Serie von Code Mercanaries als Ein-Ausgabe Einheit.
 		  
            Bei Verwendung des Dil/NetPC ist Port 0 Eingang und Port1
-           Ausgang, Port 0 wird auch fuer die Softcounter genommen.
+           Ausgang, Port 0 wird auch für die Softcounter genommen.
 		   
            Alle Ein- und Ausgänge haben TTL Pegel.
            
@@ -366,7 +371,7 @@
 		   T13-T16  Basis Zykluszeit 
 		   
 		   Damit stehen Verzögerungen von 100 ms bis 65535 sec,
-		   was etwa 18 h entspricht.
+		   was etwa 18 h entspricht, zur Verfügung.
 		   Die Timer sind Softwaretimer, wie exakt sie sind kann ich noch
 		   nicht sagen.
 		   Daher empfehle ich bei Verzögerungen im Sekundenbereich die
@@ -399,7 +404,7 @@
                   4 =   A  1
                   5 EN
 
-            Erlaeuterung:  Bei Start der AWL wird das in 3. als Akku
+            Erläuterung:  Bei Start der AWL wird das in 3. als Akku
                   bezeichnete Register mit einer log. 1 geladen.
                   Durch die Anweisung U E 1 wird dieser Akkuinhalt
                   mit dem Wert des  Einganges E 1  UND verknüpft.
@@ -451,7 +456,7 @@
                   In Zeile 1 steckt der Fehler, denn wie weiter
                   oben erläutert wird bei jedem Durchlauf der
                   AWL zu Beginn der Akku mit dem Wert 1 geladen.
-                  ( Uebrigens auch nach der jeweils letzten Zuweisung
+                  ( übrigens auch nach der jeweils letzten Zuweisung
                   mit = =N S oder R)
                   Aus der Boolschen Algebra ergibt sich aber
                   E1 + 1 = 1
@@ -468,7 +473,7 @@
 
                   Sie sollten sich daher merken, jeden Satzanfang
                   (Start der AWL oder 1.Zeile nach einer Zuweisung)
-                  muessen Sie mit U .. beginnen damit der AKKU 
+                  müssen Sie mit U .. beginnen damit der AKKU 
                   korrekt geladen wird.
 
                   Probieren Sie das ruhig alles mal aus.
@@ -553,27 +558,37 @@
                   die Programmierung erfahren Sie in der Literatur
                   rund um das Thema SPS und den Beispielen.
                   Beachten Sie die *.doc Dateien zu den Beispielen!!
+				  
+	4.6 Timer
+        ein Beispiel für die Verwendung von Timern finden Sie in timer.sps
+		
+	4.7 Zähler
+	    die Zähler sind als Softcounter ausgeführt. Das heisst, daß bei
+		jedem Durchlauf der AWL der jeweilige Countereingang auf eine
+		positive Flanke getestet wird, bei positiver Flanke wird der interne
+		Zähler heruntergezählt.
+		Ein Beispiel dazu ist zahler.sps				  
 
  5. Disclaimer
 
-    Der Programmierer weisst Ausdruecklich darauf hin, dass er weder
-    fuer direkte oder indirekte Schaeden, die aus oder durch die 
-    Benutzung der Software enstanden sind Haftbar gemacht werden kann.
+    Der Programmierer weisst ausdrücklich darauf hin, dass er weder
+    für direkte oder indirekte Schäden, die aus oder durch die 
+    Benutzung der Software enstanden sind, haftbar gemacht werden kann.
 
 
     ACHTUNG: Benutzung des SPS Simulators unter LINUX!!!
-          Sie muessen  beachten, dass unter LINUX
+          Sie müssen  beachten, dass unter LINUX
           die Zykluszeit nicht konstant ist (Multitasking!!!)
 
           Steuerungen im allgemeinen: Bitte immer Vorsorge treffen
           was eine Steuerung "macht" wenn der Rechner, das Programm
-          oder wer sonst auch immer verueckt spielt.
+          oder wer sonst auch immer verückt spielt.
 
     Wie immer: Der Programmierer übernimmt für nichts eine Verantwortung
             vor allem nicht für das was Ihr damit steuert; bzw die
             Umgebung Eurer Steuerung.
 
-    Vorschläge, Kritik etc an: hartmut@eilers.net
+    Vorschläge, Kritik etc an: sps4linux@eilers.net
 
 
  6.History
@@ -600,7 +615,7 @@
           Bis ich am 25.10.97 FPK Pascal auf meiner Linux Maschine
           installierte und etwas brauchte, um auszuprobieren wie
           gut die Kompatibilität zu Turbo Pascal ist.
-          Nach nur ca. 10 Stunden hatte ich die jetzige Version
+          Nach nur ca. 10 Stunden hatte ich die Version
           1.7 Linux Beta 0.1 lauffähig. Probleme hatte ich lediglich
           bei einigen Konstrukten in Sachen Strings ( val .. copy)
           die ich in einzelne Anweisungen packen mußte, sowie bei
@@ -622,23 +637,23 @@
           nicht mehr weiterentwickelt. Allerdings möchte ich die Urversion
 		  als GPL Code unter DOS rausbringen.
 		  
-		  Geplant ist ein Port auf Windows, die Atmel Mikrocontroller
-		  sind in arbeit.
+		  Geplant ist ein Port auf Windows, HP-UX und Solaris ,
+		  die Atmel Mikrocontroller sind in arbeit.
 		  
 7. Einladung
 		  
 	  Wer mitarbeiten will ist herzlich eingeladen!!!! -> 
-	  Mail an hartmut@eilers.net
-	  Bitte meldet Euch auch, wenn Ihr eine Version fuer andere OS
+	  Mail an sps4linux@eilers.net
+	  Bitte meldet Euch auch, wenn Ihr eine Version für andere OS
 	  bauen wollt. ( Ich bin sehr zuversichtlich, dass zumindest 
 	  grosse Teile des Codes ohne Änderungen funktionieren. Die IO
 	  Zugriffe jedoch sind im Moment noch NICHT portabel. 
 	  
-	  Ein grosses weiteres Betaetigungsfeld ist der Docubereich.
-	  Hier waere eine angepasste Einführung in die hier verwendeten
-	  Techniken richtig toll. Ebenso gut erlaeuterte Beispiele,
-	  die eventuell auch noch die Hardwareseite beruecksichtigen.
-	  Alles in allem freue ich mich ueber jeden, der Lust hat mit-
+	  Ein grosses weiteres Betätigungsfeld ist der Docubereich.
+	  Hier wäre eine angepasste Einführung in die hier verwendeten
+	  Techniken richtig toll. Ebenso gut erläuterte Beispiele,
+	  die eventuell auch noch die Hardwareseite berücksichtigen.
+	  Alles in allem freue ich mich über jeden, der Lust hat mit-
 	  zuwirken. Egal in welcher Funktion.
 
       Alles hängt von den Usern ab. Also gebt mir Feedback.
