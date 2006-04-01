@@ -68,7 +68,6 @@ var
 		TimeVal 	: TTimeVal;
 		FCharBuf	: array [1..32768] of char;
 		RecBufSize	: integer;
-		TRespSize	: string;
 		sendString	: AnsiString;
 	{$endif}
 
@@ -78,6 +77,13 @@ var
 
 	// Counter
 	BufCnt,i		: Integer;
+
+	{ the requested URL, the File to serve and the response }
+	URL			: String;
+	F			: text;
+	header,page,line	: AnsiString;
+	PageSize,HeaderSize	: LongInt;
+	TRespSize		: string;
 
 	// Request size
 	reqSize,reqCnt,respSize : word;
@@ -126,9 +132,7 @@ begin
 	{$ifdef LINUX}
 		listen(sock, max_connections);
 	{$else}
-		if (listen(sock, max_connections) = SOCKET_ERROR) then begin
-			writeln('listen() failed with error ', WSAGetLastError());
-		end;
+		if (listen(sock, max_connections) = SOCKET_ERROR) then writeln('listen() failed with error ', WSAGetLastError());
 	{$endif}
 	// Main loop accepting client connections
 	repeat
@@ -154,9 +158,7 @@ begin
 				TimeVal.tv_sec:=0;
 				TimeVal.tv_usec:=0;
 				Result:=Select(0, @FDRead, nil, nil, @TimeVal);
-				if Result = SOCKET_ERROR then begin
-					writeln('ERROR=',WSAGetLastError);
-				end;
+				if Result = SOCKET_ERROR then writeln('ERROR=',WSAGetLastError);
 			until Result > 0 ;
 		{$endif}
 
@@ -204,23 +206,48 @@ begin
 		respSize:=reqSize+testSize;
 		writeln('response Size: ',respSize);
 
+		{ post[1] is the request, extract the wanted URL }
+		{ at position 5 in the string the URL starts and longs until next space }
+		{ e.g. "GET /path/to/a/non/existing/file.htm HTTP/1.1" }
+		URL:=copy(post[1],5,length(post[1]));
+		URL:=copy(URL,1,pos(' ',URL)-1);
+		URL:='.'+URL;
+		writeln('requested URL=',URL);
+
+		{ now open the file, read and serve it }
+		{$i-}
+		assign(F,URL);
+		reset (F);
+		{$i+}
+		if (IoResult=0) then
+			{ read the file }
+			while not eof(F) do begin
+				readln(F,line);
+				writeln('page: ',line);
+				page:=page+line;
+			end
+		else page:='not found';
+		PageSize:=length(page);
+
+		{ generate the header }
+		header:='HTTP/1.0 200 OK'+chr(10);
+		header:=header+'Connection: close'+chr(10);
+		header:=header+'MIME-Version: 1.0'+chr(10);
+		header:=header+'Server: PSW/alpha'+chr(10);
+		header:=header+'Content-Type: text/html'+chr(10);
+		header:=header+'Content-length: ';
+		HeaderSize:=length(header);
+		str(PageSize+HeaderSize,TRespSize);
+		header:=header+TRespSize;
+		header:=header+chr(10);
+		writeln('DocSize: ',HeaderSize+PageSize);
+
 		// Sending responce
 		delay(10);
 		writeln('serving data...');
 		{$ifdef LINUX}
 			writeln('BufCnt=',BufCnt);
-			writeln(sout, 'HTTP/1.0 200 OK');
-			writeln(sout, 'Connection: close');
-			writeln(sout, 'MIME-Version: 1.0');
-			writeln(sout, 'Server: PSW/alpha');
-			writeln(sout, 'Content-Type: text/html');
-			writeln(sout, 'Content-length: ',respSize);
-			writeln(sout);
-			writeln(sout, '<html><body>');
-			writeln(sout, '<h1>Hello, I´m PSWebserver (Pretty Small Webserver) alpha! </h1>');
-			for i:=1 to BufCnt do
-				writeln(sout,post[i],'<br>');
-			writeln(sout, '</body></html>');
+			writeln(sout,header+page);
 			writeln(sout);
 
 			// Flushing output
@@ -232,18 +259,7 @@ begin
 		{$else}
 			{ note chr(10) is newline }
 			{ build the string that should be send }
-			sendString:='HTTP/1.0 200 OK'+chr(10);
-			sendString:=sendString+'Connection: close'+chr(10);
-			sendString:=sendString+'MIME-Version: 1.0'+chr(10);
-			sendString:=sendString+'Server: PSW/alpha'+chr(10);
-			sendString:=sendString+'Content-Type: text/html'+chr(10);
-			sendString:=sendString+'Content-length: ';
-			str(207,TRespSize);
-			sendString:=sendString+TRespSize;
-			sendString:=sendString+chr(10);
-			sendString:=sendString+'<html><body>'+chr(10);
-			sendString:=sendString+'<h1>Hello, I´m PSWebserver (Pretty Small Webserver) alpha! </h1>'+chr(10);
-			sendString:=sendString+'</body></html>'+chr(10);
+			sendString:=header+page;
 			{ copy string to send into the send buffer }
 			for i:=1 to length(sendString) do FCharBuf[i]:=sendString[i];
 			writeln('respSize: ',length(sendString));
