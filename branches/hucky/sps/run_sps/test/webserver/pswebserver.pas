@@ -16,6 +16,8 @@ program pswebserver;
 { 24.03.2006 WINSOCK code works including read of request }
 { 27.03.2006 WINSOCK code works }
 { 02.04.2006 serving of simple text pages work }
+{ 03.04.2006 cleaned code, tested with firefox and konqueror -> ok }
+{	     wget doesn't receive anything :( }
 
 
 
@@ -31,8 +33,7 @@ program pswebserver;
 {$endif}
 	
 const 
-	testSize = 92;
-	RemoteAddress = '127.0.0.1';
+	LocalAddress = '127.0.0.1';
 	
 var
 
@@ -81,7 +82,7 @@ var
 	URL			: String;
 	F			: text;
 	header,page,line	: AnsiString;
-	PageSize,HeaderSize	: LongInt;
+	PageSize		: LongInt;
 	TRespSize,status	: string;
 
 	// Request size
@@ -97,11 +98,11 @@ begin
 	{$ifdef LINUX}
 		srv_addr.family := AF_INET;
 		srv_addr.port := htons(10080);	 
-		srv_addr.addr := StrToAddr(RemoteAddress);
+		srv_addr.addr := StrToAddr(LocalAddress);
 	{$else}
 		srv_addr.sin_family := AF_INET;
 		srv_addr.sin_port := htons(10080);
-		srv_addr.sin_addr.S_addr := StrToAddr(RemoteAddress);
+		srv_addr.sin_addr.S_addr := StrToAddr(LocalAddress);
         	{ Inititialize WINSOCK }
 		if WSAStartup($101, GInitData) <> 0 then writeln ('Error init Winsock');
 	{$endif}
@@ -121,9 +122,15 @@ begin
 	// Binding the server
 	writeln('Binding port..');
 	{$ifdef LINUX}
-		if not bind(sock, srv_addr, sizeof(srv_addr)) then writeln('!! Error in bind().');
+		if not bind(sock, srv_addr, sizeof(srv_addr)) then begin
+			writeln('!! Error in bind().');
+			halt;
+		end;
 	{$else}
-		if (bind(sock, srv_addr, SizeOf(srv_addr)) <> 0) then writeln('!! Error in bind');
+		if (bind(sock, srv_addr, SizeOf(srv_addr)) <> 0) then  begin
+			writeln('!! Error in bind');
+			halt;
+		end;
 	{$endif}
 	
 	// Listening on port
@@ -177,6 +184,9 @@ begin
 		reqSize:=0;
 		writeln('reading request data');
 		repeat
+			{ actually we should switch to blocking mode here, }
+			{ because it is possible that some amount of time  }
+			{ is between the connect and the request           }
 			{$ifdef LINUX}
 				readln(sin, buff);
 				writeln ('Req[',BufCnt,']=',buff);
@@ -216,7 +226,11 @@ begin
 		assign(F,URL);
 		reset (F);
 		{$i+}
+		{ for examples of status codes see: }
+		{ http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html }
+		page:='';
 		if (IoResult=0) then begin
+			{ the file exists }
 			status:='200 OK';
 			{ read the file }
 			while not eof(F) do begin
@@ -226,8 +240,9 @@ begin
 			end;
 		end
 		else begin
+			{ file not found }
 			page:='<html><body>Document not found</body></html>';
-			status:='404 not found';
+			status:='404 Not Found';
 		end;
 		PageSize:=length(page);
 
@@ -236,20 +251,24 @@ begin
 		header:=header+'Connection: close'+chr(10);
 		header:=header+'MIME-Version: 1.0'+chr(10);
 		header:=header+'Server: PSW/alpha'+chr(10);
+		{ currently the mimetype of an object is always text/html }
 		header:=header+'Content-Type: text/html'+chr(10);
 		header:=header+'Content-length: ';
-		HeaderSize:=length(header);
-		str(PageSize+HeaderSize,TRespSize);
+		{ the Content-length is the size of the served object }
+		{ without the size of the header } 
+		str(PageSize,TRespSize);
 		header:=header+TRespSize;
 		header:=header+chr(10);
-		writeln('DocSize: ',HeaderSize+PageSize);
+		writeln('DocSize: ',PageSize);
 
 		// Sending responce
-		delay(10);
 		writeln('serving data...');
 		{$ifdef LINUX}
 			writeln('BufCnt=',BufCnt);
-			writeln(sout,header+page);
+			{ if I send the header and the page together }
+			{ firefox has a problem and display nothing }
+			writeln(sout,header);
+ 			writeln(sout,page);
 			writeln(sout);
 
 			// Flushing output
