@@ -3,13 +3,11 @@
 {$H+}{$MODE OBJFPC}
 program pswebserver;
 
-{ simple HTTP test server }
+{ simple HTTP test server for FPC }
 { non-blocking socket I/O }
 { based on pswebserver (c) by Vladimir Sibirov }
 { modified by Hartmut Eilers <hartmut@eilers.net> }
-{ currently only runs on Linux }
-{ porting to Win32 in progress }
-{ running on Win 32  W2K Advanced Server }
+{ tested on Win 32  W2K Advanced Server and Debian Linux }
 
 { History: }
 { 15.03.2006 startet with Vladimirs Code }
@@ -17,6 +15,7 @@ program pswebserver;
 { 20.03.2006 startet porting to win32 using winsock }
 { 24.03.2006 WINSOCK code works including read of request }
 { 27.03.2006 WINSOCK code works }
+{ 02.04.2006 serving of simple text pages work }
 
 
 
@@ -76,17 +75,17 @@ var
 	post			: array [1..65535] of string;
 
 	// Counter
-	BufCnt,i		: Integer;
+	BufCnt			: Integer;
 
 	{ the requested URL, the File to serve and the response }
 	URL			: String;
 	F			: text;
 	header,page,line	: AnsiString;
 	PageSize,HeaderSize	: LongInt;
-	TRespSize		: string;
+	TRespSize,status	: string;
 
 	// Request size
-	reqSize,reqCnt,respSize : word;
+	reqSize,reqCnt		 : word;
 	
 begin
 	writeln('PSWebserver starting server...');
@@ -203,15 +202,13 @@ begin
 		inc(reqCnt);
 		writeln('# of Requests : ',reqCnt);
 		writeln('requestSize: ',reqSize);
-		respSize:=reqSize+testSize;
-		writeln('response Size: ',respSize);
 
 		{ post[1] is the request, extract the wanted URL }
 		{ at position 5 in the string the URL starts and longs until next space }
 		{ e.g. "GET /path/to/a/non/existing/file.htm HTTP/1.1" }
 		URL:=copy(post[1],5,length(post[1]));
 		URL:=copy(URL,1,pos(' ',URL)-1);
-		URL:='.'+URL;
+		URL:='.'+URL;			// add current dir as Document root
 		writeln('requested URL=',URL);
 
 		{ now open the file, read and serve it }
@@ -219,18 +216,23 @@ begin
 		assign(F,URL);
 		reset (F);
 		{$i+}
-		if (IoResult=0) then
+		if (IoResult=0) then begin
+			status:='200 OK';
 			{ read the file }
 			while not eof(F) do begin
 				readln(F,line);
 				writeln('page: ',line);
 				page:=page+line;
-			end
-		else page:='not found';
+			end;
+		end
+		else begin
+			page:='<html><body>Document not found</body></html>';
+			status:='404 not found';
+		end;
 		PageSize:=length(page);
 
 		{ generate the header }
-		header:='HTTP/1.0 200 OK'+chr(10);
+		header:='HTTP/1.0 '+status+chr(10);
 		header:=header+'Connection: close'+chr(10);
 		header:=header+'MIME-Version: 1.0'+chr(10);
 		header:=header+'Server: PSW/alpha'+chr(10);
