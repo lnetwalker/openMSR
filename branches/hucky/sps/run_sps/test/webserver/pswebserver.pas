@@ -79,11 +79,13 @@ var
 	BufCnt			: Integer;
 
 	{ the requested URL, the File to serve and the response }
-	URL			: String;
-	F			: text;
-	header,page,line	: AnsiString;
+	URL				: String;
+	F				: text;
+	header,page,
+	line			: AnsiString;
 	PageSize		: LongInt;
-	TRespSize,status	: string;
+	TRespSize,
+	status			: string;
 
 	// Request size
 	reqSize,reqCnt		 : word;
@@ -169,7 +171,7 @@ begin
 		{$endif}
 
 		writeln('reading request....');
-		// Reading whole request
+		// Reading whole request -> accept on socket, then read erquest data
 
 		writeln('accept connection');
 		{$ifdef LINUX}
@@ -213,10 +215,13 @@ begin
 		writeln('# of Requests : ',reqCnt);
 		writeln('requestSize: ',reqSize);
 
-		{ post[1] is the request, extract the wanted URL }
-		{ at position 5 in the string the URL starts and longs until next space }
+		{ processing the request }
+
+		{ post[1] is the request URI, extract the wanted URL }
+		{ after first slash (/) in the string the URL starts and longs until next blank }
 		{ e.g. "GET /path/to/a/non/existing/file.htm HTTP/1.1" }
-		URL:=copy(post[1],5,length(post[1]));
+		{ request type is ignored it's always GET assumed }
+		URL:=copy(post[1],pos('/',post[1]),length(post[1]));
 		URL:=copy(URL,1,pos(' ',URL)-1);
 		URL:='.'+URL;			// add current dir as Document root
 		writeln('requested URL=',URL);
@@ -229,19 +234,16 @@ begin
 		{ for examples of status codes see: }
 		{ http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html }
 		page:='';
-		if (IoResult=0) then begin
-			{ the file exists }
+		if (IoResult=0) then begin { the file exists }
 			status:='200 OK';
-			{ read the file }
-			while not eof(F) do begin
+			while not eof(F) do begin  { read the file }
 				readln(F,line);
 				writeln('page: ',line);
 				page:=page+line;
 			end;
 		end
-		else begin
-			{ file not found }
-			page:='<html><body>Document not found</body></html>';
+		else begin  { file not found }
+			page:='<html><body>Error: 404 Document not found</body></html>';
 			status:='404 Not Found';
 		end;
 		PageSize:=length(page);
