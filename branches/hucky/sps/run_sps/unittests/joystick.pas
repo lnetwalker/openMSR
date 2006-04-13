@@ -18,13 +18,14 @@ var
 	ende	: boolean;
 
 begin
+	clrscr;
 	writeln ('Unittest joystick running, stop with any key :) ');
 	ende:=false;
 	writeln('Hardware_init : ',joy_hwinit('/dev/js0'));	
 	while not(ende) do begin
-		writeln(' Buttons: ',joy_read_ports(0));
-		writeln(' Axis 1 : ',joy_read_ports(0,0));
-		writeln(' Axis 2 : ',joy_read_ports(0,1));
+		clreol;gotoxy(1,2); writeln(' Buttons: ',joy_read_ports(0));
+		clreol;gotoxy(1,3);writeln(' Axis 1 : ',joy_read_ports(0,0));
+		clreol;gotoxy(1,4);writeln(' Axis 2 : ',joy_read_ports(0,1));
 		if keypressed then begin
 			taste:=readkey;
 			ende:=true;
