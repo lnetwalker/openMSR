@@ -1,0 +1,5 @@
+
+
+set the shell Variables LINES and COLUMNS to the value of
+your screen/xterm etc values and sps will use the maximum possible size
+
