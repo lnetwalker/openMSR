@@ -42,10 +42,12 @@ const
 var	i					: integer;
 	i_address,
 	o_address,
-	c_address			: array [1..group_max] of LongInt; 
+	c_address,
+	a_address			: array [1..group_max] of LongInt; 
 	i_devicetype,
 	o_devicetype,
-	c_devicetype 		: array [1..group_max] of char;
+	c_devicetype,
+	a_devicetype 		: array [1..group_max] of char;
 	HWPlatform			: string;
 
 procedure load_cfg;
@@ -105,9 +107,10 @@ begin
 			{PORT!I!  1! $00!I}
 			dir:=copy(zeile,6,1);
 			val(copy(zeile,8,3),iogroup);
-			if ( dir = 'I' ) then begin
+			if     ( dir = 'I' ) then begin
 				val(copy(zeile,12,4),i_address[iogroup]);
 				i_devicetype[iogroup]:=zeile[17];
+				if (debug) then writeln('Input Group ',iogroup,'devicetype=',i_devicetype[iogroup]);
 			end	
 			else if( dir = 'O' ) then begin
 				val(copy(zeile,12,4),o_address[iogroup]);
@@ -116,6 +119,10 @@ begin
 			else if( dir = 'C' ) then begin
 				val(copy(zeile,12,4),c_address[iogroup]);
 				c_devicetype[iogroup]:=zeile[17];
+			end
+			else if( dir = 'A' ) then begin
+				val(copy(zeile,12,4),a_address[iogroup]);
+				a_devicetype[iogroup]:=zeile[17];
 			end;
 			
 		end;
@@ -205,13 +212,14 @@ begin
 		timer[x]:=false;
 		t[x]:=0;
 	end;
-	{ the devicetype n/c means unconfigured }
+	{ the devicetype - means unconfigured }
 	for x:=1 to group_max do begin 
 		i_devicetype[x]:='-';
 		o_devicetype[x]:='-';
 		c_devicetype[x]:='-';
+		a_devicetype[x]:='-';
 	end;
-	hwPlatform:='';	         
+	hwPlatform:='';
 end;                               { ****ENDE INIT ****}
 
 
@@ -234,7 +242,7 @@ begin
 	repeat
 		io_group:=round(int(x/8)+1);
 		if (i_devicetype[io_group] <> '-') then 
-			case o_devicetype[io_group] of
+			case i_devicetype[io_group] of
 				'D'	: wert:=dil_read_ports(i_address[io_group]);
 				'L'	: wert:=lp_read_ports(i_address[io_group]);
 				'I'	: wert:=iow_read_ports(i_address[io_group]);
@@ -260,6 +268,22 @@ begin
 		end;
 		x:=x+8
 	until ( x > io_max );	 	  
+end;
+
+procedure get_analog;				{ read analog inputs }
+var
+	x					: integer;
+
+begin
+	x:=0;
+	repeat
+		if (a_devicetype[x] <> '-') then
+			case a_devicetype[x] of
+				'J' : analog_in[x+1]:=joy_read_ports(a_address[x],x);
+			end;
+			if (debug) then writeln('Analog_in[',x+1,']=',analog_in[x+1]);
+		inc(x);
+	until ( x > analog_max );
 end;
 
 
@@ -335,15 +359,16 @@ end;                               { **** ENDE COUNT_DOWN ****       }
 
 
 begin                              		{ hp run_awl                      }
-      get_input;                      	{ INPUTS lesen                    }
-      interpret;                      	{ einen AWLdurchlauf abarbeiten   }
-      set_output;                     	{ OUTPUTS ausgeben                }
-      count_down;                     	{ TIMER / ZAHLER aktualisieren    }
-      toggle_internal_clock(marker[62],marker[63],marker[64]);          { interne TAKTE M62-M64 toggeln   }
-      if (debug) then begin
-        delay (1000);
-        writeln ('########################################################################################');
-      end;  
+    get_input;                      	{ INPUTS lesen                    }
+	get_analog;							{ analoge inputs lesen			  }
+    interpret;                      	{ einen AWLdurchlauf abarbeiten   }
+    set_output;                     	{ OUTPUTS ausgeben                }
+    count_down;                     	{ TIMER / ZAHLER aktualisieren    }
+    toggle_internal_clock(marker[62],marker[63],marker[64]);          { interne TAKTE M62-M64 toggeln   }
+    if (debug) then begin
+    	delay (1000);
+    	writeln ('########################################################################################');
+    end;
 end;                               { **** ENDE RUN_AWL ****          }
 
 
