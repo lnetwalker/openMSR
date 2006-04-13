@@ -3,7 +3,8 @@
 { ugly constant values in the code, please replace them with	}
 { symbolic names and define the names in this file		}
 { and please remember: the project is running since the early	}
-{ 90's ! there is code of all my Pascal programming states	}
+{ 90's !It was first used in Dezember 1989 }
+{ there is code of all my Pascal programming states	}
 { included beginner to "rebeginner" after years of no single	}
 { line written in pascal! thanks for not blaming me ;)		}
 
@@ -20,7 +21,7 @@ type  string3 =string[3];
                      vor  : doc_pointer;
                    end;
 
-   
+
 
 const 
       	debug       = false;

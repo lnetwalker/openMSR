@@ -6,12 +6,12 @@ const
 	cnt_max			= 16;
 	tim_max			= 16;
 	akku_max		= 16;
-	analog_max		= 16;  	      
+	analog_max		= 16;
 	power			: array [0..7] of byte =(1,2,4,8,16,32,64,128);
-       
+
 
 var
-{$IFDEF SPS}       
+{$IFDEF SPS}
 	extern,grafik,
 	hard_copy		: boolean;
 	std,min,sec,
@@ -28,8 +28,8 @@ var
 	durchlauf100,
 	oldUmins		: LongInt;
 	esc				: boolean;
-	   
-{$ENDIF}       
+
+{$ENDIF}
 	x				: word;
 	watchdog		: word;
 	t				: array[1..tim_max]	 of word;	 
@@ -39,6 +39,6 @@ var
 	timer			: array[1..tim_max]	 of boolean;
 	zahler			: array[1..cnt_max]	 of boolean;
 	lastakku		: array[1..akku_max]   of boolean;
-	analog_in		: array[1..analog_max] of word;	
+	analog_in		: array[1..analog_max] of integer;	
 	zust			: array[1..io_max]	 of boolean;
 	time2			: real;
