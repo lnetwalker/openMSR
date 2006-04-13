@@ -49,7 +49,6 @@ var
 	i           : byte;
 	buttonvalue : byte;
 	JoyStick    : JoyEvent;
-//	f           : file of JoyEvent;
 	DevStr      : string;
 
 begin   
@@ -57,7 +56,6 @@ begin
 	str(io_port,DevStr);
 	JoyDev:=JoyDevStr+DevStr;
 	if debug then writeln('Buttons lesen: Device: ',JoyDev,'*');
-	//assign(f,JoyDev);
 	reset(f);
 	for i:=0 to 3 do begin
 		repeat
@@ -66,7 +64,6 @@ begin
 		if debug then writeln('Counter: ',i,'JoyStick.JoyType : ',JoyStick.JoyType,'JoyStick.JoyNumber : ',JoyStick.JoyNumber,' JoyStick.JoyValue : ',JoyStick.JoyValue);
 		if (JoyStick.JoyValue = 1) then buttonvalue:=buttonvalue+2**i;
 	end;
-	//close(f);
 	if debug then writeln('ButtonValue : ',buttonvalue);
 	buttonvalue:=buttonvalue or $F0;
 	joy_read_ports:=buttonvalue;
@@ -76,11 +73,9 @@ function joy_read_ports(io_port:LongInt; axis : byte):integer;
 { read the analog ports , ioport defines which joystick interface }
 { and axis to read }
 var 
-	//axisvalue : array [0..3] of integer;
 	i         : byte;
 	JoyDev    : String;
 	JoyStick  : JoyEvent;
-//	f         : file of JoyEvent;
 	DevStr    : string;
 
 begin
@@ -104,7 +99,7 @@ begin
 end;
 
 function joy_hwinit(initdata:string):boolean;
-{ initialize everything unused in this case }
+{ initialize everything , initdata is the FQN of the device file }
 begin
 	assign(f,initdata);
 	reset(f);
