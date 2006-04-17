@@ -2,32 +2,51 @@ program runsps;
 {$M 16000,0,0}                   { 16000 Bytes STACK , kein HEAP }
 
 { porting to linux startet at 27.05.99 				}
-{ don't blame me for "bad" code					}
-{ some of the code inside is from my earliest steps in pascal 	}
-{ and some of my least steps after years where I coded not	}
-{ one simple line in pascal :) If you have improvements		}
-{ please contact me at hartmut@eilers.net			}
+{ don't blame me for "bad" code						}
+{ some of the code inside is from my earliest steps }
+{ in pascal and some of my least steps after years	}
+{ where I coded not	 one simple line in pascal :) 	}
+{ If you have improvements please contact me at 	}
+{ hartmut@eilers.net								}
 { all code is copyright by Hartmut Eilers			}
-{ the code is distributed under the GNU general public license	}
-{ history 							}
-{	27.05.1999    	start of Linux Port			   }
-{ 	03.10.2000	  	start of Version 1.7.1		   }
-{	11.10.2000	  	installed fpc 1.0 			   }
-{	11.10.2000	  	start analog processing EQ,LT,GT     }
-{	10.09.2005	  	restructure code to support different hardware }
-{	12.10.2005		started code to read configuaration file }
-{					set TAB STops to 4 started to beauitify code }
-{                                                                }
-{   25.10.2005      run_sps is fully configurable, hardware may be mixed }
+{ the code is distributed under the GNU 			}
+{ general public license							}
+{ history 											}
+{	27.05.1999    	start of Linux Port				}
+{ 	03.10.2000	  	start of Version 1.7.1			}
+{	11.10.2000	  	installed fpc 1.0 				}
+{	11.10.2000	  	start analog processing 		}
+{					EQ,LT,GT						}
+{	10.09.2005	  	restructure code to support 	}
+{					different hardware 				}
+{	12.10.2005		started code to read 			}
+{					configuaration file				}
+{					set TAB STops to 4 started to 	}
+{					beauitify code					}
+{                                                   }
+{   25.10.2005      run_sps is fully configurable,	}
+{					hardware may be mixed			}
+{	12.04.2006		added driver for joystick 		}
+{					analog processing works ! 		}
 
-{ virtual machine version 1.1                                    }
-{ physical machine version 1.3                                   }
-
-{ define the hardware platform for compilation }
-{ possible values are LP_IO, DIL_IO, IOW_IO or  PIO_IO }
+{ virtual machine version 1.1						}
+{ physical machine version 1.3						}
 
 
-uses dos,crt,oldlinux,lp_io_access,dil_io_access,iow_io_access,pio_io_access,joy_io_access;
+{$define newio}
+{ undef newio if you need a binary running without 	}
+{ iowarrior library e.g. DIL/Net PC					}
+{ for windows only newio works						} 
+uses 	dos,crt,
+{$ifdef LINUX }
+		oldlinux,dil_io_access,lp_io_access,pio_io_access,joy_io_access,
+{$endif}
+{$ifdef newio }
+		iowkit_io_access;
+{$else}
+		iow_io_access;
+{$endif}
+
 
 
 {$i ./sps.h}
@@ -35,9 +54,14 @@ uses dos,crt,oldlinux,lp_io_access,dil_io_access,iow_io_access,pio_io_access,joy
 {$i ./awl_interpreter.pas}
 
 const 
-      ProgNamVer  =' RUN_SPS  for Linux '+version+' '+datum+' ';
-      Copyright   ='      (c)  27.05.99 by H.EILERS ';
-	  group_max   = round(io_max/8);     
+{$ifdef LINUX}
+	Platform = ' Linux ';
+{$else}
+	Platform = ' Windows ';
+{$endif}	
+    ProgNamVer  =' RUN_SPS  for'+Platform+version+' '+datum+' ';
+    Copyright   ='      (c)  1989 - 2006 by Hartmut Eilers ';
+	group_max   = round(io_max/8);     
 
 var	i					: integer;
 	i_address,
@@ -78,6 +102,7 @@ begin
 			{ call the initfunction of that device }
 			if (debug) then writeln('device ',initdevice,'   ',initstring);
 			case initdevice of
+{$ifdef LINUX}
 				'D'	: begin
 						dil_hwinit(initstring);
 						HWPlatform:=HWPlatform+',DIL/NetPC ';
@@ -90,13 +115,14 @@ begin
 						pio_hwinit(initstring);
 						HWPlatform:=HWPlatform+',PIO 8255 ';
 					  end;	
-				'I'	: begin
-						iow_hwinit(initstring);
-						HWPlatform:=HWPlatform+',IO-Warrior 40 ';
-					  end;	
 				'J'	: begin
 						joy_hwinit(initstring);
 						HWPlatform:=HWPlatform+',Joystick ';
+					  end;	
+{$endif}
+				'I'	: begin
+						iow_hwinit(initstring);
+						HWPlatform:=HWPlatform+',IO-Warrior 40 ';
 					  end;	
 			end;	
 			
@@ -243,11 +269,13 @@ begin
 		io_group:=round(int(x/8)+1);
 		if (i_devicetype[io_group] <> '-') then 
 			case i_devicetype[io_group] of
+{$ifdef LINUX}
 				'D'	: wert:=dil_read_ports(i_address[io_group]);
 				'L'	: wert:=lp_read_ports(i_address[io_group]);
-				'I'	: wert:=iow_read_ports(i_address[io_group]);
 				'P'	: wert:=pio_read_ports(i_address[io_group]);
 				'J'	: wert:=joy_read_ports(i_address[io_group]);
+{$endif}
+				'I'	: wert:=iow_read_ports(i_address[io_group]);
 			end	
 		else
 			wert:=0;
@@ -279,7 +307,10 @@ begin
 	repeat
 		if (a_devicetype[x] <> '-') then
 			case a_devicetype[x] of
+{$ifdef LINUX}
 				'J' : analog_in[x+1]:=joy_read_ports(a_address[x],x);
+{$endif}
+				'X'	: { this is just a dummy for windows, so there is no empty case statement }
 			end;
 			if (debug) then writeln('Analog_in[',x+1,']=',analog_in[x+1]);
 		inc(x);
@@ -303,15 +334,17 @@ begin
 		 		write (ausgang[k+x],' ');
 		 		if (k=0 ) then writeln;
 			end;		
-		end;   
+		end;
 		io_group:=round(int(x/8)+1);
 		if (o_devicetype[io_group] <> '-') then 
 			case o_devicetype[io_group] of
+{$ifdef LINUX}
 				'D'	: dil_write_ports(o_address[io_group],wert);
 				'L'	: lp_write_ports(o_address[io_group],wert);
-				'I'	: iow_write_ports(o_address[io_group],wert);
 				'P'	: pio_write_ports(o_address[io_group],wert);
 				'J'	: joy_write_ports(o_address[io_group],wert);
+{$endif}
+				'I'	: iow_write_ports(o_address[io_group],wert);
 			end;	
 		x:=x+8;
 	until ( x > io_max );
@@ -333,11 +366,13 @@ begin
 		if (c_devicetype[io_group] <> '-') then 
 			{ ZÄHLEReingänge lesen  }
 			case o_devicetype[io_group] of
+{$ifdef LINUX}
 				'D'	: dil_read_ports(i_address[io_group]);
 				'L'	: lp_read_ports(i_address[io_group]);
-				'I'	: iow_read_ports(i_address[io_group]);
 				'P'	: pio_read_ports(i_address[io_group]);
 				'J'	: joy_read_ports(i_address[io_group]);
+{$endif}
+				'I'	: iow_read_ports(i_address[io_group]);
 			end
 		else
 			wert:=0;
@@ -364,38 +399,39 @@ begin                              		{ hp run_awl                      }
     interpret;                      	{ einen AWLdurchlauf abarbeiten   }
     set_output;                     	{ OUTPUTS ausgeben                }
     count_down;                     	{ TIMER / ZAHLER aktualisieren    }
-    toggle_internal_clock(marker[62],marker[63],marker[64]);          { interne TAKTE M62-M64 toggeln   }
+    toggle_internal_clock(marker[62],marker[63],marker[64]);{ interne TAKTE M62-M64 toggeln   }
     if (debug) then begin
     	delay (1000);
-    	writeln ('########################################################################################');
+    	writeln ('###########################################################################');
     end;
 end;                               { **** ENDE RUN_AWL ****          }
 
 
 begin                              { SPS_SIMULATION           }
-      { signal handling is needed here, also the program should go in background 	}
-      { and at least there should be something done with the load			}
-      { set a very nice priority }
-      
-      
-      nice(20);
-      init;
-	  load_cfg;
-      write(ProgNamVer);
-	  writeln(HWPlatform);
-      writeln(copyright);
-      sps_laden;
-      if (debug) then begin
-	  	for i:=1 to awl_max do writeln (i:3,operation[i]:5, operand[i]:4,par[i]:4,comment[i]:22);
+    { signal handling is needed here, also the program should go in background 	}
+    { and at least there should be something done with the load			}
+    { set a very nice priority }
+
+{$ifdef LINUX}
+    nice(20);
+{$endif}
+    init;
+	load_cfg;
+    write(ProgNamVer);
+	writeln(HWPlatform);
+    writeln(copyright);
+    sps_laden;
+    if (debug) then begin
+	 	for i:=1 to awl_max do writeln (i:3,operation[i]:5, operand[i]:4,par[i]:4,comment[i]:22);
 		writeln (' Configured input ports :');
 		for i:=1 to group_max do writeln(i:3,i_address[i]:6,i_devicetype[i]:6);
 		writeln (' Configured output ports :');
 		for i:=1 to group_max do writeln(i:3,o_address[i]:6,o_devicetype[i]:6);
 		writeln (' Configured counter ports :');
 		for i:=1 to group_max do writeln(i:3,c_address[i]:6,c_devicetype[i]:6);
-	  end;	
-      writeln('AWL gestartet');
-      repeat
-	  	run_awl
-      until keypressed;	     	
+	end;	
+    writeln('AWL gestartet');
+    repeat
+		run_awl
+    until keypressed;	     	
 end.                               { **** SPS_SIMULATION **** }
