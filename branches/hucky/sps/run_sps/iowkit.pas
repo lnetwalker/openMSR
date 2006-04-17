@@ -6,8 +6,11 @@ unit iowkit;
 
 interface
 
+
+{$ifdef LINUX}
 uses
   oldlinux;
+{$endif}
 
 const
   // IoWarrior vendor & product IDs
