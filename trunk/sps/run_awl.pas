@@ -4,8 +4,10 @@
 
 {$i ./run_awl.h}
 {$i ./awl_interpreter.pas}
+{$i ./physical_machine.pas }
 
 procedure run_awl_menu;
+
 
 begin
      cursor_off;
@@ -201,36 +203,6 @@ end;
 
 
 
-procedure handle_timer;
-
-var	c	:byte;
-
-begin
-	inc(durchlauf);								{ timerbasis = 1s }
-	inc(durchlauf100);							{ timerbasis = 100 ms }							
-	if (durchlauf>=durchlaufeProSec) then begin { Diese Timer laufen mit Sekundenbasis }
-	     for c:=1 to 4 do begin
-    	     if t[c] >= 0 then t[c]:=t[c]-1;
-        	 if t[c]=0 then timer[c]:=true
-     	end;
-		durchlauf:=0;
-	end;	
-	if (durchlauf100>=round(durchlaufeProSec/10)) then begin { timer auf basis 100 ms }
-		for c:=5 to 12 do begin
-    	     if t[c] >= 0 then t[c]:=t[c]-1;
-        	 if t[c]=0 then timer[c]:=true
-		end;
-		durchlauf100:=0;
-	end;
-	for c:=13 to 16 do begin
-         if t[c] >= 0 then t[c]:=t[c]-1;
-    	 if t[c]=0 then timer[c]:=true
-	end;
-
-	{ END OF TIMER }
-end;
-
-
 procedure init;
 var x		:word;
 begin
@@ -263,7 +235,6 @@ begin
 end;
 
 
-
 procedure run_awl;                 { abarbeiten einer AWL }
 
 begin                              {hp run_awl}
@@ -272,12 +243,7 @@ begin                              {hp run_awl}
      run_awl_menu;
      repeat
 	 		if (runs<=0) or ( runs > TimeRuns) then begin
-				{$ifdef LINUX}
-				gettime(std,min,sec,ms,usec);
-				{$else}
-				gettime(std,min,sec,ms);
-				{$endif}
-				time1:=(((std*60+min)*60+sec)*1000+ms)*1000+usec;
+				time1:=timeNow;
 			end;
 			check_keyboard;
 			handle_counter;	
@@ -286,27 +252,7 @@ begin                              {hp run_awl}
 			print_in_out;
 			toggle_internal_clock(marker[62],marker[63],marker[64]);
 			if watchdog > awl_max then esc:=true;
-			inc(runs);
-			if ( runs > TimeRuns ) then begin
-				runs:=0;
-				{$ifdef LINUX}
-				gettime(std,min,sec,ms,usec);
-				{$else}
-				gettime(std,min,sec,ms);
-				{$endif}
-				time2:=(((((std*60+min)*60+sec)*1000+ms)*1000+usec)-time1)/1000/TimeRuns;
-				if (time2<=0) then begin
-					{TimeRuns:=TimeRuns*2;}
-					time2:=1;
-				end;	
-				durchlaufeProSec:=trunc(1000/time2)	;
-				{if (durchlaufeProSec/oldUmins>1.5) then TimeRuns:=TimeRuns*2 }
-				{else if (durchlaufeProSec/oldUmins<0.5) then TimeRuns:=trunc(TimeRuns/2); }
-				oldUmins:=durchlaufeProSec;
-				if ( oldUmins=0 ) then oldUmins:=1; 
-				if (timeRuns>maxTimeRuns) then TimeRuns:=maxTimeRuns;
-				GotoXY(35,16);clreol;write('Cycletime Tz=',time2:5:2,' ms =',DurchlaufeProSec:5,' CPS ');
-			end;	
+			RPMs;
      until esc;
 
      window (2,2,screenx,screeny);textcolor(black);textbackground(black);clrscr;

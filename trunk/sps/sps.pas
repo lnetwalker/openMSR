@@ -1,12 +1,19 @@
 program sps_simulator;
 
-{$ifdef LINUX} 
-uses dos,porting,oldlinux,crt,printer,popmenu,ports;
-{$else}
-uses dos,porting,windows,crt,printer,popmenu;
+
+uses 	dos,crt,porting,printer,popmenu,
+{$ifdef LINUX }
+		oldlinux,dil_io_access,lp_io_access,pio_io_access,joy_io_access,
 {$endif}
-
-
+{$ifdef WIN32 }
+		windows,
+		{$define newio }
+{$endif}
+{$ifdef newio }
+		iowkit_io_access;
+{$else}
+		iow_io_access;
+{$endif}
 {$M 16384,0,100000} 
 
 {$DEFINE SPS}
