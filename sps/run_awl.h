@@ -8,7 +8,7 @@ const
 	akku_max		= 16;
 	analog_max		= 16;
 	power			: array [0..7] of byte =(1,2,4,8,16,32,64,128);
-
+	group_max   	= round(io_max/8);
 
 var
 {$IFDEF SPS}
@@ -42,3 +42,14 @@ var
 	analog_in		: array[1..analog_max] of integer;	
 	zust			: array[1..io_max]	 of boolean;
 	time2			: real;
+
+{ data for the physical machine }
+	i_address,
+	o_address,
+	c_address,
+	a_address			: array [1..group_max] of LongInt; 
+	i_devicetype,
+	o_devicetype,
+	c_devicetype,
+	a_devicetype 		: array [1..group_max] of char;
+	HWPlatform			: string;

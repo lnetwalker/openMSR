@@ -1,28 +1,33 @@
 
 
 
-                        S P S - SIMULATOR V 1.7.3
+                        S P S - SIMULATOR V 1.7.3-rc4
                                 SPS4Linux ( i386 )
-
-                     (c) 1990-2005 by Hartmut Eilers
+                                  OpenSPS
+                     (c) 1990-2006 by Hartmut Eilers
 
               News und Info unter: http://www.eilers.net/sps/
-      
+
       English Documentation may be found in sps-e.doc. Rename
       that file to sps.doc to read the docs in the IDE!
 
+      Aus SPS4Linux wird OpenSPS, denn seit V 1.7.3-rc4 läuft SPS jetzt
+      auch unter Windows. Getestet mit Win2K im VMWare Player.
+      Als IO Unit wird der IO Warrior 40 unterstützt.
+
+      Alles zur externen Steuerung finden sie im Unterverzeichnis run_sps.
 
       Ab Version 1.7.1  unterliegt SPS4Linux der GNU General Public Licence;
       siehe http://www.gnu.org/ fuer Details.
-      
+
       Neben dem Binary ist der komplette Source enthalten. Mit dem FPC
-	  Compiler kann der source compiliert werden.
-	  
+      Compiler kann der source compiliert werden.
+
       Wer Lust hat an SPS mitzuarbeiten ( egal in welcher Form ) melde
       sich bitte via E-Mail bei Hartmut@eilers.net
 
       Bugs, Vorschläge an hartmut@eilers.net
-      
+ 
       Flames to /dev/null
 
 
@@ -331,7 +336,7 @@
 			  
 		   In der AWL können die Bezeichner beliebig gemischt verwendet werden,
 		   um der Lesbarkeit Willen sollten Sie jedoch eine Schreibweise 
-		   einhallten.
+		   einhalten.
 			  
       3.2 Technische Daten des SPS Simulators
 
@@ -357,7 +362,9 @@
 		  
            Bei Verwendung des Dil/NetPC ist Port 0 Eingang und Port1
            Ausgang, Port 0 wird auch fuer die Softcounter genommen.
-		   
+
+           Zur analogen Datenerfassung steht der Joystick Port zur Verfügung.
+ 
            Alle Ein- und Ausgänge haben TTL Pegel.
            
 		   Die Timer haben unterschiedliche Zeitbasen:
@@ -608,6 +615,8 @@
           Natürlich ließen sich die 'Goodies' wie Interrupt gesteuerte
           Zeitanzeige in der Menüleiste sowie meine Fummeleien mit MSDOS
           Funtionsaufrufen für Mouse und Screen etc nicht portieren.
+		  Im April 2006 wurde SPS4Linux auf Windows portiert, die Atmel 
+          Mikrocontroller sind in arbeit.
           
 	      Okt. 2000 ist meine Entwicklungsumgebung ein alter 
 	      Pentium 100MHz Notebook mit 32 MB RAM und 800 MB HDD unter 
@@ -618,12 +627,14 @@
           FPC 1.9.4
 	  	   
           Wie gehts weiter?
-          Es geht unter Linux weiter, die DOS Version wird
-          nicht mehr weiterentwickelt. Allerdings möchte ich die Urversion
-		  als GPL Code unter DOS rausbringen.
+          Es geht unter Linux und Windows weiter, die DOS Version wird
+          für den DIL/Net PC sowie FreeDOS portiert. Ein Port auf MAC OS X
+          ist ebenfalls geplant.
+
+          ein Webserver existiert bereits als Prototyp und soll Java Applets
+          die Möglichkeit geben die Steuerung zu visualisieren.  
 		  
-		  Geplant ist ein Port auf Windows, die Atmel Mikrocontroller
-		  sind in arbeit.
+          Bis dahin gibt es noch viel zu tun und daher folgt die...
 		  
 7. Einladung
 		  

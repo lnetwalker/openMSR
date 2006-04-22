@@ -1,5 +1,15 @@
 roadmap is as follows:
 
+current tasks:
+        test and debug Joystick interface
+        rewrite IOwarrior code
+        build windows Version
+        build embeddable Webserver
+        reunify code for SPS an RUN_SPS
+
+
+
+the tasks below are already done
 
 new stuff 1.7.3
 - awl_interpreter : runtime calculations do not work due to getdate changes in compiler
