@@ -1,12 +1,27 @@
 IO Driver Information
 
-SPS soll folgende IO Devices unterstützen:
+SPS unterstützt folgende IO Devices 
 
 Printerports
 Joystick Port
 PIO mit 8255
+IO Warrior
+DIL Net PC
+
+
+Siehe Directory run_sps
+das Konfigfile
+.run_sps.cfg
+den code der IO Driver *_io_access.pas
+
+
+
+
+
+
 
 die Ports haben folgende Adressen
+
 printer: 1 0x378-37f	2 0x278-27f	3 0x3bc-3be
 game:	 1 0x200-207
 PIO: zB 0x300-303 prinzipiell beliebig
@@ -17,9 +32,6 @@ Dateneingang Bsp. lpt1 out 378 , in 379
 Bei der Pio ist der erste Port der Port  a, 2 = b, 3 = c und der letzte Port
 der Controlport.
 
-infos zum joystick muss den sourcen des joysticktreibers entnommen werden.
-ein write access auf port 200 löst den A/D Vorgang aus, ein read access
-liesst die Werte der Tasten und ob die A/D Wandlung fur einen Eingang
-abgeschlossen ist oder nicht.
+Joystick Programming hints: /usr/share/doc/joystick/input/joystick-api.txt.gz
 
 
