@@ -55,7 +55,7 @@ begin
   write (z[1]:5,' ',z[2]:5,' ',z[3]:5,' ',z[4]:5,' ');  	       
   writeln(z[5]:5,' ',z[6]:5,' ',z[7]:5,' ',z[8]:5,' ');
   gotoxy (13,15);
-  write(analog_in[1]:5,' ',analog_in[2]:5,' ',analog_in[3]:5,' ',analog_in[4]:5);
+  write(analog_in[1]:7,' ',analog_in[2]:7,' ',analog_in[3]:7,' ',analog_in[4]:7);
  
   writeln('');
     						        	      
@@ -184,10 +184,13 @@ var taste : byte;
 begin
 	taste:=next_event;		
 	if (taste<>ord('^')) then begin
-		chk_inputs(taste);
-		chk_analoginputs(taste);
-		chk_counters(taste);
-		chk_control(taste);
+		if (taste=ord('c')) then extern:=not(extern);
+		if not(extern) then begin
+			chk_inputs(taste);
+			chk_analoginputs(taste);
+			chk_counters(taste);
+			chk_control(taste);
+		end;
 	end;
 end;
 
@@ -202,62 +205,35 @@ begin
 end;
 
 
-
-procedure init;
-var x		:word;
-begin
-     for x:=1 to marker_max do Marker[x]:=false;
-     for x:=1 to analog_max do analog_in[x]:=0;
-     for x:=1 to akku_max do lastakku[x]:=false;
-     for x:=1 to io_max do begin
-         ausgang[x]:=false;
-         eingang[x]:=false;
-     end;
-     for x:=1 to tim_max do begin
-         timer[x]:=false;
-         t[x]:=65535;
-     end;
-     for x:=1 to cnt_max do begin     
-         zahler[x]:=false;
-         zust[x]:=false;
-         z[x]:=65535;
-     end;	 
-     extern:=false;
-     esc:=false;
-	 runs:=0;
-	 TimeRuns:=160;
-     maxTimeRuns:=TimeRuns*10;
-	 time2:=1;
-	 durchlauf:=0;
-	 durchlauf100:=0;
-	 durchlaufeProSec:=1000;
-	 oldUmins:=1;
-end;
-
-
 procedure run_awl;                 { abarbeiten einer AWL }
 
 begin                              {hp run_awl}
-     if not(programm) then exit;
-	 init;
-     run_awl_menu;
-     repeat
-	 		if (runs<=0) or ( runs > TimeRuns) then begin
-				time1:=timeNow;
-			end;
-			check_keyboard;
+    if not(programm) then exit;
+	init;
+	load_cfg;
+    run_awl_menu;
+    repeat
+		check_keyboard;
+		if ( extern ) then begin
+	    	get_input;                      	{ INPUTS lesen                    }
+			get_analog;							{ analoge inputs lesen			  }
+  			count_down;                     	{ TIMER / ZAHLER aktualisieren    }
+		end
+		else 
 			handle_counter;	
-			handle_timer;
-			interpret;
-			print_in_out;
-			toggle_internal_clock(marker[62],marker[63],marker[64]);
-			if watchdog > awl_max then esc:=true;
-			RPMs;
-     until esc;
+		handle_timer;
+		interpret;
+		if ( extern ) then
+	   		set_output;                     	{ OUTPUTS ausgeben                }
+		print_in_out;
+		toggle_internal_clock(marker[62],marker[63],marker[64]);
+		if watchdog > awl_max then esc:=true;
+		RPMs;
+    until esc;
 
-     window (2,2,screenx,screeny);textcolor(black);textbackground(black);clrscr;
-     if extern then {port[port_b]:=$00};
-     if watchdog > awl_max then begin
+    window (2,2,screenx,screeny);textcolor(black);textbackground(black);clrscr;
+    if extern then {port[port_b]:=$00};
+    if watchdog > awl_max then begin
         textcolor(black);textbackground(white);
         my_wwindow (10,10,40,15,'[WATCHDOG]','<bel.taste>',true);
         sound(220);delay(200);nosound;
@@ -268,5 +244,5 @@ begin                              {hp run_awl}
         until keypressed;
         readkey;
         window (10,10,40,15);textcolor(black);textbackground(black);clrscr;
-     end
+    end
 end;                               { **** ENDE RUN_AWL ****}
