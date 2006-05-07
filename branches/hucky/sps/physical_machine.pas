@@ -1,6 +1,47 @@
 { This is the physical machine Version 1.3 			}
 { features input outputs analogIn counter and timer }
 
+procedure init;
+var x		:word;
+begin
+	if ( io_max / 8 > group_max ) then begin
+		writeln ('IO_MAX too big compared to group_max');
+		halt(1);
+	end;		
+     for x:=1 to marker_max do Marker[x]:=false;
+     for x:=1 to analog_max do analog_in[x]:=0;
+     for x:=1 to akku_max do lastakku[x]:=false;
+     for x:=1 to io_max do begin
+         ausgang[x]:=false;
+         eingang[x]:=false;
+     end;
+     for x:=1 to cnt_max do begin     
+         zahler[x]:=false;
+         zust[x]:=false;
+         z[x]:=65535;
+     end;	 
+     for x:=1 to tim_max do begin
+         timer[x]:=false;
+         t[x]:=65535;
+     end;
+	{ the devicetype - means unconfigured }
+	for x:=1 to group_max do begin 
+		i_devicetype[x]:='-';
+		o_devicetype[x]:='-';
+		c_devicetype[x]:='-';
+		a_devicetype[x]:='-';
+	end;
+     extern:=false;
+     esc:=false;
+	 runs:=0;
+	 TimeRuns:=150;
+     maxTimeRuns:=TimeRuns*10;
+	 time2:=1;
+	 durchlauf:=0;
+	 durchlauf100:=0;
+	 durchlaufeProSec:=1000;
+end;
+
 
 procedure load_cfg;
 var	f					: text;
@@ -186,10 +227,6 @@ var c,wert              : byte;
 	x,io_group			: integer;
 
 begin
-	for c:=1 to tim_max do begin
-		if t[c] > 0 then t[c]:=t[c]-1;  	 { Zeitzähler decrementieren  }
-		if t[c]=0 then timer[c]:=true  { zeitzähler = 0? ja ==> TIMER auf 1}
-	end;
 	x:=1;
 	repeat
 		io_group:=round(int(x/8)+1);
@@ -259,6 +296,7 @@ begin
 	gettime(std,min,sec,ms,usec);
 	{$else}
 	gettime(std,min,sec,ms);
+	usec:=0;
 	{$endif}
 	timeNow:=(((std*60+min)*60+sec)*1000+ms)*1000+usec;
 end;
@@ -266,21 +304,20 @@ end;
 
 procedure RPMs;
 begin
+	if (runs=0) then begin
+		time1:=timeNow;
+	end;
 	inc(runs);
-	if ( runs > TimeRuns ) then begin
+	if ( runs = TimeRuns ) then begin
 		runs:=0;
-		time2:=timeNow;
-		if (time2<=0) then begin
-			{TimeRuns:=TimeRuns*2;}
-			time2:=1;
-		end;	
-		durchlaufeProSec:=trunc(1000/time2)	;
-		{if (durchlaufeProSec/oldUmins>1.5) then TimeRuns:=TimeRuns*2 }
-		{else if (durchlaufeProSec/oldUmins<0.5) then TimeRuns:=trunc(TimeRuns/2); }
-		oldUmins:=durchlaufeProSec;
-		if ( oldUmins=0 ) then oldUmins:=1; 
-		if (timeRuns>maxTimeRuns) then TimeRuns:=maxTimeRuns;
-		GotoXY(35,16);clreol;write('Cycletime Tz=',time2:5:2,' ms =',DurchlaufeProSec:5,' CPS ');
+		time2:=(timeNow-time1)/TimeRuns;
+		if ( time2=0 ) then time2:=0.0000001;		{ 1 µsecond }
+		durchlaufeProSec:=trunc(1000000/time2);
+{$ifdef SPS}
+		GotoXY(35,16);
+		clreol;
+		write('Cycletime Tz=',(time2/1000):5:2,' ms =',DurchlaufeProSec:5,' CPS ');
+{$endif}
 	end;	
 end;
 
