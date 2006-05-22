@@ -7,7 +7,7 @@ program iow40_test;
 (*  IOW_READ =1074053122 *)
 (* This must be improved, it's bad style to use the constants *)
             
-uses linux,crt;
+uses oldlinux,crt;
 
 const
         IOW_WRITE = 1074053121;
@@ -19,8 +19,10 @@ var
         ivalue  : Cardinal;
         pvalue  : ^Cardinal;
         dummy   : char;
+	counter : Cardinal;
         
 begin
+	counter:=0;
         writeln ('read/write IO-Warrior');
         new (pvalue);
         f:=fdOpen('/dev/usb/iowarrior0',Open_RdWr); 
@@ -30,18 +32,20 @@ begin
                 (* read the warrior *)
                 ioctl (f,IOW_READ,pvalue);
                 ivalue:=pvalue^;
-                writeln('READ : ',ivalue);
+                writeln('READ : ',byte (ivalue));
         until keypressed;
         dummy:=readkey;
         
         writeln('writing IO-Warrior - press any key to stop');
         repeat
-                ovalue:=$F0F0F0F0;pvalue^:=ovalue;
+                ovalue:=(counter shl 24);pvalue^:=ovalue;
+		writeln (ovalue);
+		ioctl (f,IOW_WRITE,pvalue);
+                delay (400);
+		if (counter < 2 ) then inc(counter);
+                (** ovalue:=$0F0F0F0F;pvalue^:=ovalue;
                 ioctl (f,IOW_WRITE,pvalue);
-                delay (100);
-                ovalue:=$0F0F0F0F;pvalue^:=ovalue;
-                ioctl (f,IOW_WRITE,pvalue);
-                delay (100);  
+                delay (100);**)  
                 write('.');  
         until keypressed;
         writeln;
