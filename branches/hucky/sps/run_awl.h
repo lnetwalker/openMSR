@@ -12,24 +12,17 @@ const
 
 var
 {$IFDEF SPS}
-	extern,grafik,
+	grafik,
 	hard_copy		: boolean;
-	std,min,sec,
-	ms,usec			: word;
 	tasten,
 	maxaus			: byte;
 	ein_alt,aus_alt,
 	e,a				: array[1..io_max] of boolean;
 	zeit			: string[5];
-	time1			: real;
-	runs,TimeRuns,maxTimeRuns,
-	durchlaufeProSec,
-	durchlauf,
-	durchlauf100,
-	oldUmins		: LongInt;
-	esc				: boolean;
 
 {$ENDIF}
+	extern			: boolean;
+	esc				: boolean;
 	x				: word;
 	watchdog		: word;
 	t				: array[1..tim_max]	 of word;	 
@@ -41,7 +34,13 @@ var
 	lastakku		: array[1..akku_max]   of boolean;
 	analog_in		: array[1..analog_max] of integer;	
 	zust			: array[1..io_max]	 of boolean;
-	time2			: real;
+	time1,time2		: real;
+	runs,TimeRuns,maxTimeRuns,
+	durchlaufeProSec,
+	durchlauf,
+	durchlauf100,
+	std,min,sec,
+	ms,usec			: word;
 
 { data for the physical machine }
 	i_address,
