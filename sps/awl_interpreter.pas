@@ -9,6 +9,25 @@ begin
     if m2 and m3 then m1:=not(m1);
 end;                               { **** ENDE TOGGLE_INTERNAL_CLOCK **** }
 
+function mehrfach (z:word):boolean;
+
+begin
+     mehrfach:=true;
+     if (operation[z+1]=anweisung[1]) or				{ UN(	}
+        (operation[z+1]=anweisung[3]) or				{ UN	}
+        (operation[z+1]=anweisung[5]) or				{ U(	}
+		(operation[z+1]=anweisung[20]) or				{ NOP	}
+		(operation[z+1]=anweisung[11]) or				{ EN	}
+		(operation[z+1]=anweisung[25]) or				{ PE	}
+		(operation[z+1]=anweisung[30]) or				{ EP	}
+		(operation[z+1]=anweisung[31]) or				{ AN(	}
+		(operation[z+1]=anweisung[32]) or				{ AN	}
+		(operation[z+1]=anweisung[33]) or				{ A(	}
+		(operation[z+1]=anweisung[34]) or				{ A		}
+        (operation[z+1]=anweisung[12]) 					{ U		}
+	 then mehrfach:=false
+end;
+
 
 
 procedure interpret;               { interpretiert einen durchlauf der awl }
@@ -96,22 +115,6 @@ begin
 		  34		: akku:=akku and help;				{ A		}
      end
 end;                               { **** ENDE VERKN ****}
-
-
-function mehrfach (z:word):boolean;
-
-begin
-     mehrfach:=true;
-     if (operation[z+1]=anweisung[1]) or				{ UN(	}
-        (operation[z+1]=anweisung[3]) or				{ UN	}
-        (operation[z+1]=anweisung[5]) or				{ U(	}
-		(operation[z+1]=anweisung[31]) or				{ AN(	}
-		(operation[z+1]=anweisung[32]) or				{ AN	}
-		(operation[z+1]=anweisung[33]) or				{ A(	}
-		(operation[z+1]=anweisung[34]) or				{ A		}
-        (operation[z+1]=anweisung[12]) 					{ U		}
-	 then mehrfach:=false
-end;
 
 
 procedure zuweisen;                { weist den akkuinhalt einem ausg. od merker}
@@ -310,7 +313,7 @@ begin
           { für spätere Fehlerabfrage }
           end;
      until ( aktuell = 'EN ') or (aktuell = 'PE ') or (aktuell='EP ');
-     Str(time2:5:2,timestring);
+     Str((time2/1000):5:2,timestring);
      if (aktuell='EN ') or (aktuell='PE ')  or (aktuell='EP ') then comment[k]:='Zykluszeit Tz='+timestring+' ms';
      if ( debug ) then begin
        for k:=8 downto 1 do
