@@ -378,7 +378,7 @@ begin
 	until (eingabe=esc) or (zeilnum=awl_max);
 	
 	{ add an end of programm just to ensure that nothing is lost if user forgot it }
-	operation[anweismax]:='EN ';
+	operation[awl_max]:='EN ';
 
      if zeilnum=awl_max then begin
         clrscr;
