@@ -1,12 +1,12 @@
 { global variables and constant definitions of the sps project 	}
-{ all global values should be defined here, if you see any	}
+{ all global values should be defined here, if you see any		}
 { ugly constant values in the code, please replace them with	}
-{ symbolic names and define the names in this file		}
+{ symbolic names and define the names in this file				}
 { and please remember: the project is running since the early	}
-{ 90's !It was first used in Dezember 1989 }
-{ there is code of all my Pascal programming states	}
+{ 90's !It was first used in Dezember 1989						}
+{ there is code of all my Pascal programming states				}
 { included beginner to "rebeginner" after years of no single	}
-{ line written in pascal! thanks for not blaming me ;)		}
+{ line written in pascal! thanks for not blaming me ;)			}
 
 
 
@@ -14,12 +14,6 @@ type  string3 =string[3];
       string12=string[12];
       string15 =string[15];
       string80=string[80];
-      doc_pointer = ^doc_record;
-      doc_record = record
-                     zeil : string[76];
-                     nach,
-                     vor  : doc_pointer;
-                   end;
 
 
 
