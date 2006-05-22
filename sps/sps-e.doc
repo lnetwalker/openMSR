@@ -1,0 +1,447 @@
+
+                          S P S - SIMULATOR 
+                             
+
+                     (c) 1990-2005 by Hartmut Eilers
+
+      News and Info at: http://www.eilers.net/sps
+
+Pay attention, this Document is not uptodate see german doc
+
+      New for this version is the license. From 01.01.2001 the program
+      is distributed unter the Term of the GPL. In former versions was
+      third party code which prevented me from distributing it in this way.
+      Now all the code is copyrighted by Hartmut Eilers. Further infos
+      at Hartmut@eilers.net
+      
+      
+!!    SPS4Linux is entirely programmed in Pascal. It was written over 10 
+!!    years ago on an MSDOS System. I'm currently porting from the old
+!!    DOS Version to Linux.
+
+      If you want to help in any form please contact me at 
+      Hartmut@eilers.net
+
+      Bugs, ideas or help contact: hartmut@eilers.net
+
+
+      1) Overview
+
+	SPS4Linux is a PLC.
+	First of all I try to translate SPS to you. SPS is a German
+	acronym for "Speicher Programmierbare Steuerung". The meaning
+	of this is "memory programmable control".
+
+	The SPS Simulator is an IDE (Integrated development Environment)
+	for SPS Programs( they are called AWL ). with SPS4Linux you can
+              1 - edit an AWL
+              2 - save, load and print AWL
+              3 - run your AWL for tests
+
+         ( AWL = is an Acronym for Anweisungsliste, its the SPS Programm)
+
+**      The Dos Version was able to control real motors, light bulbs
+**      and switches through a pio Interface. Currently only a small
+**      hardware at the printer port is supported. PIO support is coming
+         
+	You can print this documentation ist called sps-e.doc         
+
+      2) Running SPS4Linux
+
+	You can start SPS4Linux with SPS and enter. After a short version
+	information the main menu is displayed at the top of the screen.
+	
+!!      Sorry to say, but I have some problems with the colors.
+!!	Hope to fix this soon...
+
+	You can select the main functions through the highlighted keys
+	or with the arrow keys and enter.
+	
+              - <F>ile :  everything dealing with your AWL
+	                             
+                              - delete
+                              - load
+                              - save
+**                              - print
+                          and:
+                              - list Directory
+                              - change default directory
+**                              - open an OS shell
+
+              - <E>dit :  write or edit your AWL
+
+              - <R>un :   run and debug your AWL
+
+              - <D>ocu :  read and serach the Documentation
+
+              - <Q>uit :  Quit the SPS4Linux IDE
+
+
+
+      2.1 Explanation of the Menue Items
+
+	If you choose a menu item a "window" is opened. In teh upper
+	left corner you find the Title of that window, in the lower
+	right corner how to close the window
+	
+      2.1.1  FILE
+
+	In the file submenue you can navigate with the highlighted
+	keys or the arrow keys:
+	
+               N - New AWL
+                   ( d.h. the current AWL in memory will be deleted )
+
+               L - Load a AWL from disk
+
+               S - Save AWL to disk
+
+**               P - Print your AWL
+
+
+               D - show Directory
+
+               C - change default directory
+
+**               O - OS shell
+**                   ( go back with exit )
+
+
+	since this program  is a port of a MSDOS program you have
+	to type *.* for all files not only *
+	
+        If you do not enter an extension .SPS will be appended to any name
+
+      2.1.2 EDIT
+
+	Here you can enter or change your AWL
+	Explanation of the format in the editor:
+	
+              1. Line number:
+		 the editor always increments the line number.
+		 If it is okay just enter your commands, if not,
+		 type a new line number. and your command.
+		 If you want to change a line just enter the number
+		 and your command
+
+              2. Operation (max 3chars) the command
+
+              3. Operand (1 char ) one of the operands
+
+              4. Parameter ( max 65535 ) the parameters of your command
+	         or the number of your operand
+		 
+              5. Comment ( max 22 chars ) 
+
+	you have to type your lines without spaces like:
+          Bsp.: 18 ue1Input 1 = start button
+
+	the editor changes this input like that:
+
+                      18 U   E     1 Input 1 = start button
+          meaning  :   | |   |     | |
+                       | |   |     | + Comments ---------->
+                       | |   |     + Parameter
+                       | |   + Operand
+                       | + Operation
+                       + line number
+
+	You have to finish every line with ENTER. Before pressing
+	ENTER you can change the line with BACKSPACE. After pressing
+	ENTER you can only overwrite the line.
+	You can use the following keys in the editor:
+	
+
+        INSERT: insert a line; after entering a line number, this line
+	      will be inserted with the NOP (no operation) command.
+	      you can change this line by overwriting it.
+	      
+        DELETE: delete one line, after entering a line number the line
+	      will be deleted.
+	      
+          Note: the jump references are modified by insert or delete!
+	  SPS4Linux will automatically correct the jump destination line
+	  if you insert or delete a line.
+	  
+        CURSOR UP/DOWN browse through the AWL line by line
+
+        PAGE   UP/DOWN browse through the AWL page by page
+
+        BACKSPACE delete char left of the cursor
+
+        RETURN finish a line
+
+        ESC leave the editor.
+
+      2.1.4 RUN
+
+          With run you start your SPS Program. You see the values
+	  of all 
+               - MARKERs
+               - TIMERs
+               - COUNTERs
+               - INPUTs
+               - OUTPUTs 
+**        You can also switch between internal = simulation of your control
+**	  or real control useing a PIO device.
+	  In addition you see the cycle time, this is the time needed
+	  to run once through your AWL.
+	  
+**        the cycle time is placed as an comment in the last line of your 
+          AWL. you can calculate the raw times for the TIMERs with the 
+	  cycle time.
+!!        attention the cycle time is not very accurate under LINUX!
+
+	  Your AWL runs until you pree ESC.
+	  
+          You can use the following keys:
+
+          1-8 while in INTERNAL control you can toggle the values of 
+	  the inputs.
+	  
+**          f9  switch between INTERN /EXTERN
+**                External mode uses an attached PIO device.
+
+**	    f10 switch to graphical representation of your signals.
+
+
+      2.1.5 DOCU
+
+          You can browse through the documentation with the PAGE UP /
+	  and PAGE down keys. Or you can serach by pressing s.
+	  You can leave the online documetation by pressing ESC.
+	  The search is case insensitive, it always starts at the 
+	  beginning of the document. You can leave the search by 
+	  pressing ESC or continue searching by hitting any other key.
+	  
+!!        Attention: I have a pointer Problem. If the search runs to the
+!!	  end of the Documentation the program crashes.
+!!	  Save your AWL before searching!!
+          
+	  The documetation text is stored in the file sps.doc.
+	  you can edit it with your favorite editor. Attention, max.
+	  line length is limited to 76 chars.
+	  
+
+      2.1.6 QUIT
+
+          Quit the IDE, if your AWL is not stored, you get a warning
+	  message an the chance to save your file.
+	  
+
+      3. the commands of the AWL:
+
+           U    the akkumulator and the operand are AND evaluated
+           UN   first the akkumalator is negatet and the result AND
+	        evaluated with the operand
+           U(   the akkumulator is AND evaluated with the result of
+	        the expressions in braces.
+           UN(  the akkumulator is negated and the AND evaluated
+	        with teh expression in braces
+
+           O    same as U but logical OR
+           ON   
+           O(
+           ON(
+           =    Assignment, the contents of the akku is assigned
+	        to an Marker, Timer or output
+	   =N   same as above, but negated before assignment.
+           S    set OUTPUT or MARKER to logical 1
+           R    set OUTPUT or MARKER to logical 0
+           J    unconditional jump. execution continues at line number
+           JI   conditional jump - is only done if akku is logical 1.
+           TE   This is a timer with delayed switch on
+           ZR   backward counter
+           K    konstant value for Timers and markers
+           NOP  No Operation
+           EN   End of your program
+
+           Have a look at the examples!
+	   Please don't blame me for U being and.
+	   It's a German control language... and U is abbreviation for 
+	   and
+
+      3.1 technical data of SPS4Linux
+
+           max length of AWL  is 500 lines
+           8 OUTPUTs ( A1 - A8 ) (Port B of the PIO)
+           8 INPUTS ( E1 - E8 ) (Port A of the PIO)
+           8 COUNTER   ( Z1 - Z8 ) (Port C of the PIO)
+           8 Timer    ( T1 - T8 ) *
+           64 Marker  ( M1 - M64) with M64  has a frequency of
+	   	M64 = 2*cycletime 
+           	M63 = 4*cycletime
+           	M62 = 8*cycletime
+
+**           the PIO must be build with an 8255 and reside at the IO-Ports
+**           300h-303h ( hexadecimal values ).
+
+**           All In- or Outputs do have TTL signal voltage
+           you can calculate the delaytime for the timers with:
+           t= K * cycletime ( K is the konstant value )
+	   You can measeure the cycletime by assigning M64 to an output
+	   and measuring the frequeny. the cycletime Tc is tc=2/f
+	   
+
+
+      3.2 Configuartion
+ 
+ 	  You can configure the PIO values with FILE/Konfiguration.
+	  If you have no PIO in your system just enter none for the 
+	  base address
+
+      4. Examples of the AWL syntax
+
+      4.1 the AND command and an assignment.
+
+	you want the following shematic as an SPS Programm.
+                     _____
+            E1------!     !
+            E2------!  &  !----A1      A1=E1*E2*E3
+            E3------!_____!
+
+            You need the foolowing AWL:: 
+                  1 U   E  1
+                  2 U   E  2
+                  3 U   E  3
+                  4 =   A  1
+                  5 EN
+
+	    Explanation: the internal register called akkumulator 
+	    or short akku is loaded at the start of the AWL ( or after
+	    any assigment ) with a logical 1. With the command U E 1
+	    you do an evaluation of the Input signal E1 with the
+	    logical 1 stored in the akku. the result is again stored
+	    in the akku. ( This is a similarity to machine code 
+	    instructions ) This means, that you loaded the value of 
+	    INPUT E1 into the akku. ( E1 * 1 = E1 ).
+	    In line 2 you do an AND evaluation of the akku ( E1 )
+	    with the Input E2 and store the result in the akku.
+	    In the third line you repeat that with Input E3
+	    and in the 4th line you assign the result to the OUTPUT
+	    A1. Line 5 contains EN the sign for the end of an
+	    AWL, the simulation starts back in line 1.
+	    You can see here, that every result is trored in the akku.
+	    or is referencing the akku.
+
+
+            If you change line 4 in "4 =N  A  1" you get the following
+	    schematic:
+
+                     _____
+            E1------!     !               ________
+            E2------!  &  !o---A1      A1=E1*E2*E3
+            E3------!_____!
+
+                  because the akku is negated before the assignment.
+
+
+      4.2 Logical OR operation:
+
+            Now try the following schematic
+
+                     _____
+            E1------!     !                        
+            E2------! >=  !----A1      A1=E1+E2+E3
+            E3------!_____!
+
+            I think your solution looks like that:
+
+                  1 O   E  1
+                  2 O   E  2
+                  3 O   E  3
+                  4 =   A  1
+                  5 EN
+
+                  But sorry this is wrong!
+                  Why ? 
+                  the mistake is in line 1 of your AWL.
+		  As I said earlier, with the start or every loop or
+		  assignment the akku is loaded with a logical 1.
+		  What you did here is: E1 + 1 = 1
+                  So you have the following result
+                  1+E2+E3= A1 that means A1 is always 1.
+
+                  The right solution is:
+
+                  1 U   E  1
+                  2 O   E  2
+                  3 O   E  3
+                  4 =   A  1
+                  5 EN
+
+		  Please remember the start of your AWL or the first 
+		  line after an assignment must be a U... to load
+		  the akku correctly.
+
+                  Now you can try some easy logical operations.
+
+      4.3  operations with braces :
+
+	    I hope you saw the commands with braces in the command list
+	    above. I try to explain in short how they work.
+	    Lets have a look at this AWL:
+                  1 U   E  1
+                  2 O(  
+                  3 U   E  2
+                  4 U   E  3
+                  5 )
+                  6 =   A  1
+                  7 EN
+
+            Okay, now let's strip this down to the basics:
+	    in line one we load the Value of INPUT E1 into the akku.
+	    from line 2 up to line 5 we have the operation in braces.
+	    This is evaluated first and the OR evaluated with the value
+	    stored in the akku ( the value of E1 ).
+	    In line 3 you have a new load command and the value of E2
+	    is loaded, AND evaluated with E3 and the result as mentioned
+	    OR evaluated with E1. the result is assigned to OUTPUT A1.
+	    
+	    You have to take care about the following:
+	    	If you open a braces the akku is internally saved
+		and set to 1. So you have as first command after the brace
+		a load command, it must start with U ( the AND evaluation)
+		if you close the braces the akku is evaluated with the
+		previously stored akkumulator contents and the result
+		is stored again in the akku.
+
+		the schematic looks like that:
+                              _____
+            E1---------------!     !                 
+                  _____      ! >=  !---A1
+            E2---!     !  !--!_____!
+                 !  &  !--!                
+            E3---!_____!
+
+
+            Now try a bit with the following commands
+            U / UN / U( / UN( / O / ON / O( / ON(
+            
+
+            These are only basic examples. more are coming soon on
+	    the web pages. If you have examples please send them
+	    to me, I will use them in my tutorial.
+
+ 5. Disclaimer
+
+  I 'm not responsible for any damages resulting by the use of
+  SPS4Linux!
+
+  Please take care of what you control with SPS4Linux. Keep care
+  on your environment, and think about what happens if your
+  AWL or SPS4Linux is working faulty !!!
+
+Special thanks to the people programming the great FPK Pascal Compiler.
+without their work this wouldn't be possible.
+
+
+Bugs, ideas and everything else to: hartmut@eilers.net
+
+I wish, that you have a lot of fun using SPS4Linux, keep me up to date
+about what you are doing with it.
+
+Have fun  Hucky
+
+
+
