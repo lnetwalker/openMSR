@@ -52,6 +52,7 @@ uses 	dos,crt,
 {$i ./sps.h}
 {$i ./run_awl.h }
 {$i ./awl_interpreter.pas}
+{$i ./physical_machine.pas }
 
 const 
 {$ifdef LINUX}
@@ -123,56 +124,19 @@ begin
 end;                               {**** ENDE SPS_LADEN **** }
 
 
-
-procedure init;                    { initialisieren aller Variablen }
-
-begin
-	if ( io_max / 8 > group_max ) then begin
-		writeln ('IO_MAX too big compared to group_max');
-		halt(1);
-	end;		
-	for x:=1 to marker_max do Marker[x]:=false;
-	for x:=1 to akku_max do lastakku[x]:=false;
-	for x:=1 to  io_max do begin
-		ausgang[x]:=false;
-		eingang[x]:=false;
-		zust[x]:=false;
-	end;
-	for x:=1 to cnt_max do begin
-		zahler[x]:=false;
-		z[x]:=0;
-	end;	 	 
-	for x:=1 to tim_max do begin
-		timer[x]:=false;
-		t[x]:=0;
-	end;
-	{ the devicetype - means unconfigured }
-	for x:=1 to group_max do begin 
-		i_devicetype[x]:='-';
-		o_devicetype[x]:='-';
-		c_devicetype[x]:='-';
-		a_devicetype[x]:='-';
-	end;
-	hwPlatform:='';
-end;                               { ****ENDE INIT ****}
-
-
-
-
 procedure run_awl;
 {interrupt; }
-
-{$i ./physical_machine.pas }
-
-
 
 begin                              		{ hp run_awl                      }
     get_input;                      	{ INPUTS lesen                    }
 	get_analog;							{ analoge inputs lesen			  }
+    count_down;                     	{ TIMER / ZAHLER aktualisieren    }
+	handle_timer;
     interpret;                      	{ einen AWLdurchlauf abarbeiten   }
     set_output;                     	{ OUTPUTS ausgeben                }
-    count_down;                     	{ TIMER / ZAHLER aktualisieren    }
     toggle_internal_clock(marker[62],marker[63],marker[64]);{ interne TAKTE M62-M64 toggeln   }
+	if watchdog > awl_max then esc:=true;
+	RPMs;
     if (debug) then begin
     	delay (1000);
     	writeln ('###########################################################################');
@@ -189,6 +153,7 @@ begin                              { SPS_SIMULATION           }
     nice(20);
 {$endif}
     init;
+	extern:=true;
 	load_cfg;
     write(ProgNamVer);
 	writeln(HWPlatform);
@@ -206,5 +171,6 @@ begin                              { SPS_SIMULATION           }
     writeln('AWL gestartet');
     repeat
 		run_awl
-    until keypressed;	     	
+    until keypressed or esc;	
+	if esc then writeln('Error: Watchdog error...!');	
 end.                               { **** SPS_SIMULATION **** }
