@@ -1,7 +1,7 @@
 
 
 
-                        S P S - SIMULATOR V 1.7.3-rc4
+                        S P S - SIMULATOR V 1.7.3-rc5
                                 SPS4Linux ( i386 )
                                   OpenSPS
                      (c) 1990-2006 by Hartmut Eilers
@@ -13,9 +13,17 @@
 
       Aus SPS4Linux wird OpenSPS, denn seit V 1.7.3-rc4 läuft SPS jetzt
       auch unter Windows. Getestet mit Win2K im VMWare Player.
-      Als IO Unit wird der IO Warrior 40 unterstützt.
+      Als IO Unit wird der IO Warrior 40 unterstützt. Die Docu gilt
+      mit Ausnahme der unterstützten IO Hardware für alle Betriebssysteme.
+      Linux unterstützt: DIL/Net PC, PIO, Printerport, Joystick und 
+      IO Warrior.
+      Windows unterstützt ausschliesslich den IO Warrior, wodurch im Moment
+      unter Windows keine analoge Eingabe zur Verfügung steht. In Elektor
+      Ausgabe 12/2005 wurde ein A/D Wandler auf Basis des IO Warriors 
+      vorgestellt (läuft unter Windows und Linux) .
+      Die Unterstützung dafür ist in Arbeit.
 
-      Alles zur externen Steuerung finden sie im Unterverzeichnis run_sps.
+      Alles zur externen Steuerung finden sie im Programm run_sps.
 
       Ab Version 1.7.1  unterliegt SPS4Linux der GNU General Public Licence;
       siehe http://www.gnu.org/ fuer Details.
@@ -26,10 +34,15 @@
       Wer Lust hat an SPS mitzuarbeiten ( egal in welcher Form ) melde
       sich bitte via E-Mail bei Hartmut@eilers.net
 
-      Bugs, Vorschläge an hartmut@eilers.net
- 
+      Wichtig: gebt mir Feedback ( Anwendung, Bugs, Vorschläge) an:
+      opensps@eilers.net
+
       Flames to /dev/null
 
+      Credits: ich habe unmengen an freien Delphi und Pascal sourcen 
+      studiert und mit dem dort gelesenen dieses Programm geschrieben. 
+      Vielen Dank an alle Delphi und Pascal opensource Programmierer 
+      und alle Sponsoren die mich unterstützen.
 
       1) Überblick
 
@@ -42,26 +55,26 @@
 
          ( AWL = Anweisungsliste, enpricht quasi dem SPS Programm)
 
-		 Verfügt man über eine handelsübliche 8255 PIO - Karte, den IO 
-		 Warrior 40, einen DIL/NetPC oder einen Drucker Port ist es
-		 möglich eine Steuerung mit dem PC aufzubauen.
+         Verfügt man über eine handelsübliche 8255 PIO - Karte, den IO 
+         Warrior 40, einen DIL/NetPC oder einen Drucker Port ist es
+         möglich eine Steuerung mit dem PC aufzubauen.
 
-		 Dank dem Daemon run_sps können Sie mit Ihrem PC
-		 wie gewohnt arbeiten, während im Hintergrund Ihre Steuerung
-		 läuft. Über RUN_SPS erfahren sie weitere Details in der
-		 Documentation RUN_SPS.DOC. ( Diese muß noch erstellt werden)
-         
+         Dank dem Daemon run_sps können Sie mit Ihrem PC
+         wie gewohnt arbeiten, während im Hintergrund Ihre Steuerung
+         läuft. Über RUN_SPS erfahren sie weitere Details in der
+         Documentation RUN_SPS.DOC. ( Diese muß noch erstellt werden)
+
          Diese Dokumentation können Sie natürlich auch ausdrucken.
          ( sps.doc )
-		 
-		 Eine sehr gute Einführung sind die im HÜTHIG Verlag 
-		 erschienenen Bücher von A. Auer "SPS Aufbau und Programmierung"
-		 und "SPS Programmierung Beispiele und Aufgaben".
-		 
-		 An dieser Stelle mein Dank an A. Auer, meinen Prof Ende der
-		 achtziger Jahre in Isny, der mich dazu motivierte das
-		 Programm zu schreiben.
-         
+
+         Eine sehr gute Einführung sind die im HÜTHIG Verlag 
+         erschienenen Bücher von A. Auer "SPS Aufbau und Programmierung"
+         und "SPS Programmierung Beispiele und Aufgaben"
+
+         An dieser Stelle mein Dank an A. Auer, meinen Prof Ende der
+         achtziger Jahre in Isny, der mich dazu motivierte das
+         Programm zu schreiben.
+
       2) Bedienung
 
          Nach Start des Programmes durch Eingabe von SPS und Be-
@@ -71,8 +84,8 @@
          1.Zeile des Bildschirms das Hauptmenü.
 
          Mit den Shell Variablen LINES und COLUMNS können Sie die
-		 Größe des Terminals einstellen ( default 24 Lines und 80
-		 COLUMNS )
+         Größe des Terminals einstellen ( default 24 Lines und 80
+         COLUMNS )
          Durch Eingabe der farbig abgesezten Anfangsbuchstaben
          oder der Pfeiltasten und RETURN   
          kann der Anwender zwischen folgenden Punkten wählen:
@@ -89,6 +102,8 @@
               - <E>dit :  erlaubt das Erstellen und Ändern einer AWL
 
               - <R>un :   Starten einer AWL
+
+              - <K>op :   Ausgabe der AWL als Kontaktplan ( KOP )
 
               - <D>ocu :  Lesen der bzw. Suchen in der Online Dokumentation
 
@@ -268,14 +283,14 @@
       3. Die Befehle der AWL:
 
           Die Befehle der AWL können sowohl in Ihrer deutschen Schreibweise
-		  als auch mit dem englischen Pendant geschrieben werden.
-		  Das gilt auch für die Bezeichnung der In- Outputs, Merker oder
-		  Zähler. Der Interpreter kann mit einer beliebigen Mischung korrekt
-		  umgehen. Sie sollten sich jedoch eine einheitliche Schreibweise
-		  angewöhnen. Alle Beispiele benutzen jeweils die erstgenannte
-		  Schreibweise. Wenn es verschiedene Alternativen gibt, sind sie 
-		  jeweils mit (de) für deutsch oder (en) für englisch gekennzeichnet.
-		  
+          als auch mit dem englischen Pendant geschrieben werden.
+          Das gilt auch für die Bezeichnung der In- Outputs, Merker oder
+          Zähler. Der Interpreter kann mit einer beliebigen Mischung korrekt
+          umgehen. Sie sollten sich jedoch eine einheitliche Schreibweise
+          angewöhnen. Alle Beispiele benutzen jeweils die erstgenannte
+          Schreibweise. Wenn es verschiedene Alternativen gibt, sind sie 
+          jeweils mit (de) für deutsch oder (en) für englisch gekennzeichnet.
+
            U    der Akkuinhalt wird mit angeg. Oper. UND verknüpft.
                 Englische Schreibweise A
            UN   der negierte Akkuinhalt wird mit dem angegeb. Oper.
@@ -291,7 +306,7 @@
            O(
            ON(
            =    Zuweisung, damit kann einem Marker, Timer oder  Ausgang
-		        der Akkuinhalt zugewiesen werden. mehrfach Zuweisungen
+                der Akkuinhalt zugewiesen werden. mehrfach Zuweisungen
                 sind erlaubt !
            =N   wie oben, jedoch der negierte Akkuinhalt.
            S    damit kann ein Ausgang oder Merker auf 1 gesetzt werden
@@ -312,32 +327,32 @@
            LT   Less than - kleiner als ( analog Verarbeitung ) 
            GT   Greater than - größer als ( analog Verarbeitung )
            EQ   Equal - gleich ( analog Verarbeitung )
-		        Beispiel zur Analogverarbeitung siehe Punkt 4.4
+                Beispiel zur Analogverarbeitung siehe Punkt 4.4
            $    execute (ausfuehren externer Programme ) 
-		        Bsp: flankenlogger.sps 
-	   
+                Bsp: flankenlogger.sps 
+
 
            Siehe  Beispiele!
-		   
-		   
+
+
       3.1 die Bezeichner der AWL
-	  
-	       Die AWL Unterstützt digitale Ein- und Ausgänge, Softwarezähler, 
-		   Timer und Merker sowie analoge Eingänge.
-		   Folgende Bezeichner unterstützt die AWL
-		   
+
+           Die AWL Unterstützt digitale Ein- und Ausgänge, Softwarezähler, 
+           Timer und Merker sowie analoge Eingänge.
+           Folgende Bezeichner unterstützt die AWL
+
            deutsch     englisch      Bedeutung
               E            I           Eingang
-			  A            O           Ausgang
-			  Z            C           Zähler
-			  T            T           Timer
-			  M            M           Merker
-			  K            K           Konstante
-			  
-		   In der AWL können die Bezeichner beliebig gemischt verwendet werden,
-		   um der Lesbarkeit Willen sollten Sie jedoch eine Schreibweise 
-		   einhalten.
-			  
+              A            O           Ausgang
+              Z            C           Zähler
+              T            T           Timer
+              M            M           Merker
+              K            K           Konstante
+
+           In der AWL können die Bezeichner beliebig gemischt verwendet werden,
+           um der Lesbarkeit Willen sollten Sie jedoch eine Schreibweise 
+           einhalten.
+
       3.2 Technische Daten des SPS Simulators
 
            AWL Länge max 2000 Zeilen
@@ -355,39 +370,39 @@
            im Addressbereich 300h-3FFh liegen.
            Derartige PIO's wurden schon in vielen Fachzeit-
            schriften zum Selbstbau vorgestellt. Fertige Karten
-		   gibt es unter anderem bei Decision Computer
-           
-		   Neben der PIO funktioniert ausserdem der Printerport sowie
-		   die IO Warrior Serie von Code Mercanaries als Ein-Ausgabe Einheit.
-		  
+           gibt es unter anderem bei Decision Computer
+
+           Neben der PIO funktioniert ausserdem der Printerport sowie
+           die IO Warrior Serie von Code Mercanaries als Ein-Ausgabe Einheit.
+
            Bei Verwendung des Dil/NetPC ist Port 0 Eingang und Port1
            Ausgang, Port 0 wird auch fuer die Softcounter genommen.
 
            Zur analogen Datenerfassung steht der Joystick Port zur Verfügung.
- 
+
            Alle Ein- und Ausgänge haben TTL Pegel.
-           
-		   Die Timer haben unterschiedliche Zeitbasen:
-		   T1-T4	Basis 1 Sekunde
-		   T5-12	Basis 100 ms
-		   T13-T16  Basis Zykluszeit 
-		   
-		   Damit stehen Verzögerungen von 100 ms bis 65535 sec,
-		   was etwa 18 h entspricht.
-		   Die Timer sind Softwaretimer, wie exakt sie sind kann ich noch
-		   nicht sagen.
-		   Daher empfehle ich bei Verzögerungen im Sekundenbereich die
-		   100ms Timer T5-T12.
-		   
-		   Falls die Zykluszeit die Timebasis überschreitet, laufen die
-		   Timer zu langsam !
+
+           Die Timer haben unterschiedliche Zeitbasen:
+           T1-T4	Basis 1 Sekunde
+           T5-12	Basis 100 ms
+           T13-T16  Basis Zykluszeit 
+
+           Damit stehen Verzögerungen von 100 ms bis 65535 sec,
+           was etwa 18 h entspricht.
+           Die Timer sind Softwaretimer, wie exakt sie sind kann ich noch
+           nicht sagen.
+           Daher empfehle ich bei Verzögerungen im Sekundenbereich die
+           100ms Timer T5-T12.
+
+           Falls die Zykluszeit die Timebasis überschreitet, laufen die
+           Timer zu langsam !
 
 
       3.3 Konfiguration
 
-	   Zur Konfiguration editieren Sie die Datei /etc/sps.cfg
-	   mit dem Editor Ihrer Wahl.
-	   
+       Zur Konfiguration editieren Sie die Datei /etc/sps.cfg
+       mit dem Editor Ihrer Wahl.
+
       4. Beispiele zur Syntax
 
       4.1 der UND Befehl und die Zuweisung:
@@ -524,10 +539,10 @@
             einfache Funktionen aus .
 
       4.4 Analogverabeitung:
-      
+
             Analoge Signale können auf kleiner, gleich oder größer
             verglichen werden. Ein kleines Bsp. zeigt das Prinzip:
-	    
+
                     1 U	J     1
                     2 LT      128
                     3 =	A     1
@@ -538,22 +553,21 @@
                     8 EQ      128
                     9 =	A     3
                    10 EN
-	
-	    mit der Ladeanweisung U J 1 wird der Wert des analogen Eingangs
-	    in den ANALOG_AKKU geladen. die Anwesiungen in den Zeilen 2,5 und
-	    8 vergleichen den ANALOG_AKKU mit der angegebenen Konstanten
-	    und setzen den AKKU auf 1, wenn der Vergleich wahr ist.
-	    Dieser Wert wird dann den Ausgängen A1-A3 zugewiesen.
-	    
-	    Die Steuerung der Analogeingänge 1-4 in der Entwicklungsumgebung
-	    erfolgt über die Tasten q w e und r. Mit jedem Tastendruck wird
-	    der entsprechende Eingang um 1 erhöht. Bei Überlauf der 8Bit wird
-	    der Eingang wieder auf 0 zurückgesetzt.
-	    
-	4.5 Execute
-		Ist der Akkuinhalt 1 wird das Progamm aufgerufen, welches im Comment
-		steht. Der Returncode des programmes wird in den analog akku geschrieben.
-		
+
+            mit der Ladeanweisung U J 1 wird der Wert des analogen Eingangs
+            in den ANALOG_AKKU geladen. die Anwesiungen in den Zeilen 2,5 und
+            8 vergleichen den ANALOG_AKKU mit der angegebenen Konstanten
+            und setzen den AKKU auf 1, wenn der Vergleich wahr ist.
+            Dieser Wert wird dann den Ausgängen A1-A3 zugewiesen.
+
+            Die Steuerung der Analogeingänge 1-4 in der Entwicklungsumgebung
+            erfolgt über die Tasten q w e und r. Mit jedem Tastendruck wird
+            der entsprechende Eingang um 1 erhöht. Bei Überlauf der 8Bit wird
+            der Eingang wieder auf 0 zurückgesetzt.
+    4.5 Execute
+         Ist der Akkunhalt 1 wird das Progamm aufgerufen, welches im Comment
+         steht. Der Returncode des programmes wird in den analog akku geschrieben.
+
             Vor allem eines beachten :
                   Diese Ausführungen sollen Ihnen nur erläutern wie
                   dieser Simulator arbeitet. Mehr über SPS und
@@ -561,7 +575,28 @@
                   rund um das Thema SPS und den Beispielen.
                   Beachten Sie die *.doc Dateien zu den Beispielen!!
 
- 5. Disclaimer
+
+ 5. Kontaktplan ( KOP )
+
+    Ausgabe der AWL als Kontaktplan oder kurz KOP.
+    Die Syntax entspricht meines Wissens nach Simatic Step 5.
+    Folgende Befehle des AWL Befehlumfanges sind implementiert:
+
+    AWL Cmd     KOP             Kommentar
+        U                       alt. A
+        O
+        UN                      alt. AN
+        ON
+        =N      -|NOT|-
+        TE      -(SE)-          Konstante in Beschriftung
+        ZR      -(ZR)-          Konstante in Beschriftung
+        EN      |-END-|         alt. PE EP
+        S       -(S)-
+        R       -(R)-
+        NOP                     Leerzeile
+        $       -(execute)-     Commando in Beschriftung
+
+ 6. Disclaimer
 
     Der Programmierer weisst Ausdruecklich darauf hin, dass er weder
     fuer direkte oder indirekte Schaeden, die aus oder durch die 
@@ -577,13 +612,13 @@
           oder wer sonst auch immer verueckt spielt.
 
     Wie immer: Der Programmierer übernimmt für nichts eine Verantwortung
-            vor allem nicht für das was Ihr damit steuert; bzw die
-            Umgebung Eurer Steuerung.
+    vor allem nicht für das was Ihr damit steuert; bzw die
+    Umgebung Eurer Steuerung.
 
     Vorschläge, Kritik etc an: hartmut@eilers.net
 
 
- 6.History
+ 7.History
 
           Entstanden ist SPS während meiner Ausbildung. Grund war 
           damals die schlechten Tools. 1989 gab es, zumindest in
@@ -615,17 +650,17 @@
           Natürlich ließen sich die 'Goodies' wie Interrupt gesteuerte
           Zeitanzeige in der Menüleiste sowie meine Fummeleien mit MSDOS
           Funtionsaufrufen für Mouse und Screen etc nicht portieren.
-		  Im April 2006 wurde SPS4Linux auf Windows portiert, die Atmel 
+          Im April 2006 wurde SPS4Linux auf Windows portiert, die Atmel 
           Mikrocontroller sind in arbeit.
-          
-	      Okt. 2000 ist meine Entwicklungsumgebung ein alter 
-	      Pentium 100MHz Notebook mit 32 MB RAM und 800 MB HDD unter 
-	      Red Hat Linux 6.2.
-	      Als Compiler verwende ich fpc 1.00, als Editor kommt nedit
-	      zum Einsatz.
+
+          Okt. 2000 ist meine Entwicklungsumgebung ein alter 
+          Pentium 100MHz Notebook mit 32 MB RAM und 800 MB HDD unter 
+          Red Hat Linux 6.2.
+          Als Compiler verwende ich fpc 1.00, als Editor kommt nedit
+          zum Einsatz.
           Okt. 2005 : Pentuim III 1GHz, 512 MB RAM, DEBIAN Sarge.
           FPC 1.9.4
-	  	   
+
           Wie gehts weiter?
           Es geht unter Linux und Windows weiter, die DOS Version wird
           für den DIL/Net PC sowie FreeDOS portiert. Ein Port auf MAC OS X
@@ -633,30 +668,29 @@
 
           ein Webserver existiert bereits als Prototyp und soll Java Applets
           die Möglichkeit geben die Steuerung zu visualisieren.  
-		  
+
           Bis dahin gibt es noch viel zu tun und daher folgt die...
-		  
-7. Einladung
-		  
-	  Wer mitarbeiten will ist herzlich eingeladen!!!! -> 
-	  Mail an hartmut@eilers.net
-	  Bitte meldet Euch auch, wenn Ihr eine Version fuer andere OS
-	  bauen wollt. ( Ich bin sehr zuversichtlich, dass zumindest 
-	  grosse Teile des Codes ohne Änderungen funktionieren. Die IO
-	  Zugriffe jedoch sind im Moment noch NICHT portabel. 
-	  
-	  Ein grosses weiteres Betaetigungsfeld ist der Docubereich.
-	  Hier waere eine angepasste Einführung in die hier verwendeten
-	  Techniken richtig toll. Ebenso gut erlaeuterte Beispiele,
-	  die eventuell auch noch die Hardwareseite beruecksichtigen.
-	  Alles in allem freue ich mich ueber jeden, der Lust hat mit-
-	  zuwirken. Egal in welcher Funktion.
+
+8. Einladung
+
+      Wer mitarbeiten will ist herzlich eingeladen!!!! -> 
+      Mail an hartmut@eilers.net
+      Bitte meldet Euch auch, wenn Ihr eine Version fuer andere OS
+      bauen wollt. ( Ich bin sehr zuversichtlich, dass zumindest 
+      grosse Teile des Codes ohne Änderungen funktionieren. Die IO
+      Zugriffe jedoch sind im Moment noch NICHT portabel. 
+
+      Ein grosses weiteres Betaetigungsfeld ist der Docubereich.
+      Hier waere eine angepasste Einführung in die hier verwendeten
+      Techniken richtig toll. Ebenso gut erlaeuterte Beispiele,
+      die eventuell auch noch die Hardwareseite beruecksichtigen.
+      Alles in allem freue ich mich ueber jeden, der Lust hat mit-
+      zuwirken. Egal in welcher Funktion.
 
       Alles hängt von den Usern ab. Also gebt mir Feedback.
-      Ansonsten ist das ganze nach wie vor ein Hobbyprojekt
-      und wird es wohl auch bleiben.
 
-          Viel Spaß damit
+
+          Viel Spaß mit OpenSPS
           Hucky
 
 
