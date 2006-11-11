@@ -1,0 +1,1936 @@
+PWS Pascal Web Server - starting server...
+using port=10080 address=127.0.0.1
+Binding port..
+listen..
+reading request....
+accept connection
+reading request data
+Req[1]=GET /index.html HTTP/1.1
+Req[2]=Host: localhost:10080
+Req[3]=User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.5) Gecko/20060731 Ubuntu/dapper-security Firefox/1.5.0.5
+Req[4]=Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5
+Req[5]=Accept-Language: en-us,en;q=0.5
+Req[6]=Accept-Encoding: gzip,deflate
+Req[7]=Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+Req[8]=Keep-Alive: 300
+Req[9]=Connection: keep-alive
+Req[10]=Referer: http://localhost:10080/status/index.html
+Req[11]=
+# of Requests : 1
+requestSize: 461
+requested URL=./docroot//index.html
+DocSize: 564
+Header: HTTP/1.0 200 OK
+Connection: close
+MIME-Version: 1.0
+Server: PWS/alpha
+Content-Type: text/html
+Content-length: 564
+
+/Header
+serving data...
+BufCnt=12
+finished request..., connection closed
+reading request....
+accept connection
+reading request data
+Req[1]=GET /images/test.jpg HTTP/1.1
+Req[2]=Host: localhost:10080
+Req[3]=User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.5) Gecko/20060731 Ubuntu/dapper-security Firefox/1.5.0.5
+Req[4]=Accept: image/png,*/*;q=0.5
+Req[5]=Accept-Language: en-us,en;q=0.5
+Req[6]=Accept-Encoding: gzip,deflate
+Req[7]=Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+Req[8]=Keep-Alive: 300
+Req[9]=Connection: keep-alive
+Req[10]=Referer: http://localhost:10080/index.html
+Req[11]=
+# of Requests : 2
+requestSize: 379
+requested URL=./docroot//images/test.jpg
+DocSize: 35642
+Header: HTTP/1.0 200 OK
+Connection: close
+MIME-Version: 1.0
+Server: PWS/alpha
+Content-Type: image/jpeg
+Content-length: 35642
+
+/Header
+serving data...
+BufCnt=12
+finished request..., connection closed
+reading request....
+accept connection
+reading request data
+Req[1]=GET /test.htm HTTP/1.1
+Req[2]=Host: localhost:10080
+Req[3]=User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.5) Gecko/20060731 Ubuntu/dapper-security Firefox/1.5.0.5
+Req[4]=Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5
+Req[5]=Accept-Language: en-us,en;q=0.5
+Req[6]=Accept-Encoding: gzip,deflate
+Req[7]=Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+Req[8]=Keep-Alive: 300
+Req[9]=Connection: keep-alive
+Req[10]=Referer: http://localhost:10080/index.html
+Req[11]=
+# of Requests : 3
+requestSize: 452
+requested URL=./docroot//test.htm
+DocSize: 552
+Header: HTTP/1.0 200 OK
+Connection: close
+MIME-Version: 1.0
+Server: PWS/alpha
+Content-Type: text/html
+Content-length: 552
+
+/Header
+serving data...
+BufCnt=12
+finished request..., connection closed
+reading request....
+accept connection
+reading request data
+Req[1]=GET /images/test.jpg HTTP/1.1
+Req[2]=Host: localhost:10080
+Req[3]=User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.5) Gecko/20060731 Ubuntu/dapper-security Firefox/1.5.0.5
+Req[4]=Accept: image/png,*/*;q=0.5
+Req[5]=Accept-Language: en-us,en;q=0.5
+Req[6]=Accept-Encoding: gzip,deflate
+Req[7]=Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+Req[8]=Keep-Alive: 300
+Req[9]=Connection: keep-alive
+Req[10]=Referer: http://localhost:10080/test.htm
+Req[11]=
+# of Requests : 4
+requestSize: 377
+requested URL=./docroot//images/test.jpg
+DocSize: 35642
+Header: HTTP/1.0 200 OK
+Connection: close
+MIME-Version: 1.0
+Server: PWS/alpha
+Content-Type: image/jpeg
+Content-length: 35642
+
+/Header
+serving data...
+BufCnt=12
+finished request..., connection closed
+reading request....
+accept connection
+reading request data
+Req[1]=GET /index.html HTTP/1.1
+Req[2]=Host: localhost:10080
+Req[3]=User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.5) Gecko/20060731 Ubuntu/dapper-security Firefox/1.5.0.5
+Req[4]=Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5
+Req[5]=Accept-Language: en-us,en;q=0.5
+Req[6]=Accept-Encoding: gzip,deflate
+Req[7]=Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+Req[8]=Keep-Alive: 300
+Req[9]=Connection: keep-alive
+Req[10]=Referer: http://localhost:10080/test.htm
+Req[11]=
+# of Requests : 5
+requestSize: 452
+requested URL=./docroot//index.html
+DocSize: 564
+Header: HTTP/1.0 200 OK
+Connection: close
+MIME-Version: 1.0
+Server: PWS/alpha
+Content-Type: text/html
+Content-length: 564
+
+/Header
+serving data...
+BufCnt=12
+finished request..., connection closed
+reading request....
+accept connection
+reading request data
+Req[1]=GET /images/test.jpg HTTP/1.1
+Req[2]=Host: localhost:10080
+Req[3]=User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.5) Gecko/20060731 Ubuntu/dapper-security Firefox/1.5.0.5
+Req[4]=Accept: image/png,*/*;q=0.5
+Req[5]=Accept-Language: en-us,en;q=0.5
+Req[6]=Accept-Encoding: gzip,deflate
+Req[7]=Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+Req[8]=Keep-Alive: 300
+Req[9]=Connection: keep-alive
+Req[10]=Referer: http://localhost:10080/index.html
+Req[11]=
+# of Requests : 6
+requestSize: 379
+requested URL=./docroot//images/test.jpg
+DocSize: 35642
+Header: HTTP/1.0 200 OK
+Connection: close
+MIME-Version: 1.0
+Server: PWS/alpha
+Content-Type: image/jpeg
+Content-length: 35642
+
+/Header
+serving data...
+BufCnt=12
+finished request..., connection closed
+reading request....
+accept connection
+reading request data
+Req[1]=GET /test.htm HTTP/1.1
+Req[2]=Host: localhost:10080
+Req[3]=User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.5) Gecko/20060731 Ubuntu/dapper-security Firefox/1.5.0.5
+Req[4]=Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5
+Req[5]=Accept-Language: en-us,en;q=0.5
+Req[6]=Accept-Encoding: gzip,deflate
+Req[7]=Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+Req[8]=Keep-Alive: 300
+Req[9]=Connection: keep-alive
+Req[10]=Referer: http://localhost:10080/index.html
+Req[11]=
+# of Requests : 7
+requestSize: 452
+requested URL=./docroot//test.htm
+DocSize: 552
+Header: HTTP/1.0 200 OK
+Connection: close
+MIME-Version: 1.0
+Server: PWS/alpha
+Content-Type: text/html
+Content-length: 552
+
+/Header
+serving data...
+BufCnt=12
+finished request..., connection closed
+reading request....
+accept connection
+reading request data
+Req[1]=GET /images/test.jpg HTTP/1.1
+Req[2]=Host: localhost:10080
+Req[3]=User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.5) Gecko/20060731 Ubuntu/dapper-security Firefox/1.5.0.5
+Req[4]=Accept: image/png,*/*;q=0.5
+Req[5]=Accept-Language: en-us,en;q=0.5
+Req[6]=Accept-Encoding: gzip,deflate
+Req[7]=Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+Req[8]=Keep-Alive: 300
+Req[9]=Connection: keep-alive
+Req[10]=Referer: http://localhost:10080/test.htm
+Req[11]=
+# of Requests : 8
+requestSize: 377
+requested URL=./docroot//images/test.jpg
+DocSize: 35642
+Header: HTTP/1.0 200 OK
+Connection: close
+MIME-Version: 1.0
+Server: PWS/alpha
+Content-Type: image/jpeg
+Content-length: 35642
+
+/Header
+serving data...
+BufCnt=12
+finished request..., connection closed
+reading request....
+accept connection
+reading request data
+Req[1]=GET /index.html HTTP/1.1
+Req[2]=Host: localhost:10080
+Req[3]=User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.5) Gecko/20060731 Ubuntu/dapper-security Firefox/1.5.0.5
+Req[4]=Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5
+Req[5]=Accept-Language: en-us,en;q=0.5
+Req[6]=Accept-Encoding: gzip,deflate
+Req[7]=Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+Req[8]=Keep-Alive: 300
+Req[9]=Connection: keep-alive
+Req[10]=Referer: http://localhost:10080/test.htm
+Req[11]=
+# of Requests : 9
+requestSize: 452
+requested URL=./docroot//index.html
+DocSize: 564
+Header: HTTP/1.0 200 OK
+Connection: close
+MIME-Version: 1.0
+Server: PWS/alpha
+Content-Type: text/html
+Content-length: 564
+
+/Header
+serving data...
+BufCnt=12
+finished request..., connection closed
+reading request....
+accept connection
+reading request data
+Req[1]=GET /images/test.jpg HTTP/1.1
+Req[2]=Host: localhost:10080
+Req[3]=User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.5) Gecko/20060731 Ubuntu/dapper-security Firefox/1.5.0.5
+Req[4]=Accept: image/png,*/*;q=0.5
+Req[5]=Accept-Language: en-us,en;q=0.5
+Req[6]=Accept-Encoding: gzip,deflate
+Req[7]=Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+Req[8]=Keep-Alive: 300
+Req[9]=Connection: keep-alive
+Req[10]=Referer: http://localhost:10080/index.html
+Req[11]=
+# of Requests : 10
+requestSize: 379
+requested URL=./docroot//images/test.jpg
+DocSize: 35642
+Header: HTTP/1.0 200 OK
+Connection: close
+MIME-Version: 1.0
+Server: PWS/alpha
+Content-Type: image/jpeg
+Content-length: 35642
+
+/Header
+serving data...
+BufCnt=12
+finished request..., connection closed
+reading request....
+accept connection
+reading request data
+Req[1]=GET /test.htm HTTP/1.1
+Req[2]=Host: localhost:10080
+Req[3]=User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.5) Gecko/20060731 Ubuntu/dapper-security Firefox/1.5.0.5
+Req[4]=Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5
+Req[5]=Accept-Language: en-us,en;q=0.5
+Req[6]=Accept-Encoding: gzip,deflate
+Req[7]=Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+Req[8]=Keep-Alive: 300
+Req[9]=Connection: keep-alive
+Req[10]=Referer: http://localhost:10080/index.html
+Req[11]=
+# of Requests : 11
+requestSize: 452
+requested URL=./docroot//test.htm
+DocSize: 552
+Header: HTTP/1.0 200 OK
+Connection: close
+MIME-Version: 1.0
+Server: PWS/alpha
+Content-Type: text/html
+Content-length: 552
+
+/Header
+serving data...
+BufCnt=12
+finished request..., connection closed
+reading request....
+accept connection
+reading request data
+Req[1]=GET /images/test.jpg HTTP/1.1
+Req[2]=Host: localhost:10080
+Req[3]=User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.5) Gecko/20060731 Ubuntu/dapper-security Firefox/1.5.0.5
+Req[4]=Accept: image/png,*/*;q=0.5
+Req[5]=Accept-Language: en-us,en;q=0.5
+Req[6]=Accept-Encoding: gzip,deflate
+Req[7]=Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+Req[8]=Keep-Alive: 300
+Req[9]=Connection: keep-alive
+Req[10]=Referer: http://localhost:10080/test.htm
+Req[11]=
+# of Requests : 12
+requestSize: 377
+requested URL=./docroot//images/test.jpg
+DocSize: 35642
+Header: HTTP/1.0 200 OK
+Connection: close
+MIME-Version: 1.0
+Server: PWS/alpha
+Content-Type: image/jpeg
+Content-length: 35642
+
+/Header
+serving data...
+BufCnt=12
+finished request..., connection closed
+reading request....
+accept connection
+reading request data
+Req[1]=GET /index.html HTTP/1.1
+Req[2]=Host: localhost:10080
+Req[3]=User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.5) Gecko/20060731 Ubuntu/dapper-security Firefox/1.5.0.5
+Req[4]=Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5
+Req[5]=Accept-Language: en-us,en;q=0.5
+Req[6]=Accept-Encoding: gzip,deflate
+Req[7]=Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+Req[8]=Keep-Alive: 300
+Req[9]=Connection: keep-alive
+Req[10]=Referer: http://localhost:10080/test.htm
+Req[11]=
+# of Requests : 13
+requestSize: 452
+requested URL=./docroot//index.html
+DocSize: 564
+Header: HTTP/1.0 200 OK
+Connection: close
+MIME-Version: 1.0
+Server: PWS/alpha
+Content-Type: text/html
+Content-length: 564
+
+/Header
+serving data...
+BufCnt=12
+finished request..., connection closed
+reading request....
+accept connection
+reading request data
+Req[1]=GET /images/test.jpg HTTP/1.1
+Req[2]=Host: localhost:10080
+Req[3]=User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.5) Gecko/20060731 Ubuntu/dapper-security Firefox/1.5.0.5
+Req[4]=Accept: image/png,*/*;q=0.5
+Req[5]=Accept-Language: en-us,en;q=0.5
+Req[6]=Accept-Encoding: gzip,deflate
+Req[7]=Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+Req[8]=Keep-Alive: 300
+Req[9]=Connection: keep-alive
+Req[10]=Referer: http://localhost:10080/index.html
+Req[11]=
+# of Requests : 14
+requestSize: 379
+requested URL=./docroot//images/test.jpg
+DocSize: 35642
+Header: HTTP/1.0 200 OK
+Connection: close
+MIME-Version: 1.0
+Server: PWS/alpha
+Content-Type: image/jpeg
+Content-length: 35642
+
+/Header
+serving data...
+BufCnt=12
+finished request..., connection closed
+reading request....
+accept connection
+reading request data
+Req[1]=GET /status/index.html HTTP/1.1
+Req[2]=Host: localhost:10080
+Req[3]=User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.5) Gecko/20060731 Ubuntu/dapper-security Firefox/1.5.0.5
+Req[4]=Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5
+Req[5]=Accept-Language: en-us,en;q=0.5
+Req[6]=Accept-Encoding: gzip,deflate
+Req[7]=Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+Req[8]=Keep-Alive: 300
+Req[9]=Connection: keep-alive
+Req[10]=Referer: http://localhost:10080/index.html
+Req[11]=
+# of Requests : 15
+requestSize: 461
+DocSize: 83
+Header: HTTP/1.0 200 OK
+Connection: close
+MIME-Version: 1.0
+Server: PWS/alpha
+Content-Type: text/html
+Content-length: 83
+
+/Header
+serving data...
+BufCnt=12
+finished request..., connection closed
+reading request....
+accept connection
+reading request data
+Req[1]=GET /index.html HTTP/1.1
+Req[2]=Host: localhost:10080
+Req[3]=User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.5) Gecko/20060731 Ubuntu/dapper-security Firefox/1.5.0.5
+Req[4]=Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5
+Req[5]=Accept-Language: en-us,en;q=0.5
+Req[6]=Accept-Encoding: gzip,deflate
+Req[7]=Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+Req[8]=Keep-Alive: 300
+Req[9]=Connection: keep-alive
+Req[10]=Referer: http://localhost:10080/status/index.html
+Req[11]=
+# of Requests : 16
+requestSize: 461
+requested URL=./docroot//index.html
+DocSize: 564
+Header: HTTP/1.0 200 OK
+Connection: close
+MIME-Version: 1.0
+Server: PWS/alpha
+Content-Type: text/html
+Content-length: 564
+
+/Header
+serving data...
+BufCnt=12
+finished request..., connection closed
+reading request....
+accept connection
+reading request data
+Req[1]=GET /images/test.jpg HTTP/1.1
+Req[2]=Host: localhost:10080
+Req[3]=User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.5) Gecko/20060731 Ubuntu/dapper-security Firefox/1.5.0.5
+Req[4]=Accept: image/png,*/*;q=0.5
+Req[5]=Accept-Language: en-us,en;q=0.5
+Req[6]=Accept-Encoding: gzip,deflate
+Req[7]=Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+Req[8]=Keep-Alive: 300
+Req[9]=Connection: keep-alive
+Req[10]=Referer: http://localhost:10080/index.html
+Req[11]=
+# of Requests : 17
+requestSize: 379
+requested URL=./docroot//images/test.jpg
+DocSize: 35642
+Header: HTTP/1.0 200 OK
+Connection: close
+MIME-Version: 1.0
+Server: PWS/alpha
+Content-Type: image/jpeg
+Content-length: 35642
+
+/Header
+serving data...
+BufCnt=12
+finished request..., connection closed
+reading request....
+accept connection
+reading request data
+Req[1]=GET /images/test.jpg HTTP/1.1
+Req[2]=Host: localhost:10080
+Req[3]=User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.5) Gecko/20060731 Ubuntu/dapper-security Firefox/1.5.0.5
+Req[4]=Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5
+Req[5]=Accept-Language: en-us,en;q=0.5
+Req[6]=Accept-Encoding: gzip,deflate
+Req[7]=Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+Req[8]=Keep-Alive: 300
+Req[9]=Connection: keep-alive
+Req[10]=Referer: http://localhost:10080/index.html
+Req[11]=
+# of Requests : 18
+requestSize: 459
+requested URL=./docroot//images/test.jpg
+DocSize: 35642
+Header: HTTP/1.0 200 OK
+Connection: close
+MIME-Version: 1.0
+Server: PWS/alpha
+Content-Type: image/jpeg
+Content-length: 35642
+
+/Header
+serving data...
+BufCnt=12
+finished request..., connection closed
+reading request....
+accept connection
+reading request data
+Req[1]=GET /images/test.jpg HTTP/1.1
+Req[2]=Host: localhost:10080
+Req[3]=User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.5) Gecko/20060731 Ubuntu/dapper-security Firefox/1.5.0.5
+Req[4]=Accept: image/png,*/*;q=0.5
+Req[5]=Accept-Language: en-us,en;q=0.5
+Req[6]=Accept-Encoding: gzip,deflate
+Req[7]=Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+Req[8]=Keep-Alive: 300
+Req[9]=Connection: keep-alive
+Req[10]=
+# of Requests : 19
+requestSize: 337
+requested URL=./docroot//images/test.jpg
+DocSize: 35642
+Header: HTTP/1.0 200 OK
+Connection: close
+MIME-Version: 1.0
+Server: PWS/alpha
+Content-Type: image/jpeg
+Content-length: 35642
+
+/Header
+serving data...
+BufCnt=11
+finished request..., connection closed
+reading request....
+accept connection
+reading request data
+Req[1]=GET /test.htm HTTP/1.1
+Req[2]=Host: localhost:10080
+Req[3]=User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.5) Gecko/20060731 Ubuntu/dapper-security Firefox/1.5.0.5
+Req[4]=Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5
+Req[5]=Accept-Language: en-us,en;q=0.5
+Req[6]=Accept-Encoding: gzip,deflate
+Req[7]=Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+Req[8]=Keep-Alive: 300
+Req[9]=Connection: keep-alive
+Req[10]=Referer: http://localhost:10080/index.html
+Req[11]=
+# of Requests : 20
+requestSize: 452
+requested URL=./docroot//test.htm
+DocSize: 552
+Header: HTTP/1.0 200 OK
+Connection: close
+MIME-Version: 1.0
+Server: PWS/alpha
+Content-Type: text/html
+Content-length: 552
+
+/Header
+serving data...
+BufCnt=12
+finished request..., connection closed
+reading request....
+accept connection
+reading request data
+Req[1]=GET /images/test.jpg HTTP/1.1
+Req[2]=Host: localhost:10080
+Req[3]=User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.5) Gecko/20060731 Ubuntu/dapper-security Firefox/1.5.0.5
+Req[4]=Accept: image/png,*/*;q=0.5
+Req[5]=Accept-Language: en-us,en;q=0.5
+Req[6]=Accept-Encoding: gzip,deflate
+Req[7]=Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+Req[8]=Keep-Alive: 300
+Req[9]=Connection: keep-alive
+Req[10]=Referer: http://localhost:10080/test.htm
+Req[11]=
+# of Requests : 21
+requestSize: 377
+requested URL=./docroot//images/test.jpg
+DocSize: 35642
+Header: HTTP/1.0 200 OK
+Connection: close
+MIME-Version: 1.0
+Server: PWS/alpha
+Content-Type: image/jpeg
+Content-length: 35642
+
+/Header
+serving data...
+BufCnt=12
+finished request..., connection closed
+reading request....
+accept connection
+reading request data
+Req[1]=GET /index.html HTTP/1.1
+Req[2]=Host: localhost:10080
+Req[3]=User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.5) Gecko/20060731 Ubuntu/dapper-security Firefox/1.5.0.5
+Req[4]=Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5
+Req[5]=Accept-Language: en-us,en;q=0.5
+Req[6]=Accept-Encoding: gzip,deflate
+Req[7]=Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+Req[8]=Keep-Alive: 300
+Req[9]=Connection: keep-alive
+Req[10]=Referer: http://localhost:10080/test.htm
+Req[11]=
+# of Requests : 22
+requestSize: 452
+requested URL=./docroot//index.html
+DocSize: 564
+Header: HTTP/1.0 200 OK
+Connection: close
+MIME-Version: 1.0
+Server: PWS/alpha
+Content-Type: text/html
+Content-length: 564
+
+/Header
+serving data...
+BufCnt=12
+finished request..., connection closed
+reading request....
+accept connection
+reading request data
+Req[1]=GET /images/test.jpg HTTP/1.1
+Req[2]=Host: localhost:10080
+Req[3]=User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.5) Gecko/20060731 Ubuntu/dapper-security Firefox/1.5.0.5
+Req[4]=Accept: image/png,*/*;q=0.5
+Req[5]=Accept-Language: en-us,en;q=0.5
+Req[6]=Accept-Encoding: gzip,deflate
+Req[7]=Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+Req[8]=Keep-Alive: 300
+Req[9]=Connection: keep-alive
+Req[10]=Referer: http://localhost:10080/index.html
+Req[11]=
+# of Requests : 23
+requestSize: 379
+requested URL=./docroot//images/test.jpg
+DocSize: 35642
+Header: HTTP/1.0 200 OK
+Connection: close
+MIME-Version: 1.0
+Server: PWS/alpha
+Content-Type: image/jpeg
+Content-length: 35642
+
+/Header
+serving data...
+BufCnt=12
+finished request..., connection closed
+reading request....
+accept connection
+reading request data
+Req[1]=GET /test.htm HTTP/1.1
+Req[2]=Host: localhost:10080
+Req[3]=User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.5) Gecko/20060731 Ubuntu/dapper-security Firefox/1.5.0.5
+Req[4]=Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5
+Req[5]=Accept-Language: en-us,en;q=0.5
+Req[6]=Accept-Encoding: gzip,deflate
+Req[7]=Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+Req[8]=Keep-Alive: 300
+Req[9]=Connection: keep-alive
+Req[10]=Referer: http://localhost:10080/index.html
+Req[11]=
+# of Requests : 24
+requestSize: 452
+requested URL=./docroot//test.htm
+DocSize: 552
+Header: HTTP/1.0 200 OK
+Connection: close
+MIME-Version: 1.0
+Server: PWS/alpha
+Content-Type: text/html
+Content-length: 552
+
+/Header
+serving data...
+BufCnt=12
+finished request..., connection closed
+reading request....
+accept connection
+reading request data
+Req[1]=GET /images/test.jpg HTTP/1.1
+Req[2]=Host: localhost:10080
+Req[3]=User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.5) Gecko/20060731 Ubuntu/dapper-security Firefox/1.5.0.5
+Req[4]=Accept: image/png,*/*;q=0.5
+Req[5]=Accept-Language: en-us,en;q=0.5
+Req[6]=Accept-Encoding: gzip,deflate
+Req[7]=Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+Req[8]=Keep-Alive: 300
+Req[9]=Connection: keep-alive
+Req[10]=Referer: http://localhost:10080/test.htm
+Req[11]=
+# of Requests : 25
+requestSize: 377
+requested URL=./docroot//images/test.jpg
+DocSize: 35642
+Header: HTTP/1.0 200 OK
+Connection: close
+MIME-Version: 1.0
+Server: PWS/alpha
+Content-Type: image/jpeg
+Content-length: 35642
+
+/Header
+serving data...
+BufCnt=12
+finished request..., connection closed
+reading request....
+accept connection
+reading request data
+Req[1]=GET /index.html HTTP/1.1
+Req[2]=Host: localhost:10080
+Req[3]=User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.5) Gecko/20060731 Ubuntu/dapper-security Firefox/1.5.0.5
+Req[4]=Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5
+Req[5]=Accept-Language: en-us,en;q=0.5
+Req[6]=Accept-Encoding: gzip,deflate
+Req[7]=Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+Req[8]=Keep-Alive: 300
+Req[9]=Connection: keep-alive
+Req[10]=Referer: http://localhost:10080/test.htm
+Req[11]=
+# of Requests : 26
+requestSize: 452
+requested URL=./docroot//index.html
+DocSize: 564
+Header: HTTP/1.0 200 OK
+Connection: close
+MIME-Version: 1.0
+Server: PWS/alpha
+Content-Type: text/html
+Content-length: 564
+
+/Header
+serving data...
+BufCnt=12
+finished request..., connection closed
+reading request....
+accept connection
+reading request data
+Req[1]=GET /images/test.jpg HTTP/1.1
+Req[2]=Host: localhost:10080
+Req[3]=User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.5) Gecko/20060731 Ubuntu/dapper-security Firefox/1.5.0.5
+Req[4]=Accept: image/png,*/*;q=0.5
+Req[5]=Accept-Language: en-us,en;q=0.5
+Req[6]=Accept-Encoding: gzip,deflate
+Req[7]=Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+Req[8]=Keep-Alive: 300
+Req[9]=Connection: keep-alive
+Req[10]=Referer: http://localhost:10080/index.html
+Req[11]=
+# of Requests : 27
+requestSize: 379
+requested URL=./docroot//images/test.jpg
+DocSize: 35642
+Header: HTTP/1.0 200 OK
+Connection: close
+MIME-Version: 1.0
+Server: PWS/alpha
+Content-Type: image/jpeg
+Content-length: 35642
+
+/Header
+serving data...
+BufCnt=12
+finished request..., connection closed
+reading request....
+accept connection
+reading request data
+Req[1]=GET /test.htm HTTP/1.1
+Req[2]=Host: localhost:10080
+Req[3]=User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.5) Gecko/20060731 Ubuntu/dapper-security Firefox/1.5.0.5
+Req[4]=Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5
+Req[5]=Accept-Language: en-us,en;q=0.5
+Req[6]=Accept-Encoding: gzip,deflate
+Req[7]=Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+Req[8]=Keep-Alive: 300
+Req[9]=Connection: keep-alive
+Req[10]=Referer: http://localhost:10080/index.html
+Req[11]=
+# of Requests : 28
+requestSize: 452
+requested URL=./docroot//test.htm
+DocSize: 552
+Header: HTTP/1.0 200 OK
+Connection: close
+MIME-Version: 1.0
+Server: PWS/alpha
+Content-Type: text/html
+Content-length: 552
+
+/Header
+serving data...
+BufCnt=12
+finished request..., connection closed
+reading request....
+accept connection
+reading request data
+Req[1]=GET /images/test.jpg HTTP/1.1
+Req[2]=Host: localhost:10080
+Req[3]=User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.5) Gecko/20060731 Ubuntu/dapper-security Firefox/1.5.0.5
+Req[4]=Accept: image/png,*/*;q=0.5
+Req[5]=Accept-Language: en-us,en;q=0.5
+Req[6]=Accept-Encoding: gzip,deflate
+Req[7]=Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+Req[8]=Keep-Alive: 300
+Req[9]=Connection: keep-alive
+Req[10]=Referer: http://localhost:10080/test.htm
+Req[11]=
+# of Requests : 29
+requestSize: 377
+requested URL=./docroot//images/test.jpg
+DocSize: 35642
+Header: HTTP/1.0 200 OK
+Connection: close
+MIME-Version: 1.0
+Server: PWS/alpha
+Content-Type: image/jpeg
+Content-length: 35642
+
+/Header
+serving data...
+BufCnt=12
+finished request..., connection closed
+reading request....
+accept connection
+reading request data
+Req[1]=GET /index.html HTTP/1.1
+Req[2]=Host: localhost:10080
+Req[3]=User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.5) Gecko/20060731 Ubuntu/dapper-security Firefox/1.5.0.5
+Req[4]=Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5
+Req[5]=Accept-Language: en-us,en;q=0.5
+Req[6]=Accept-Encoding: gzip,deflate
+Req[7]=Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+Req[8]=Keep-Alive: 300
+Req[9]=Connection: keep-alive
+Req[10]=Referer: http://localhost:10080/test.htm
+Req[11]=
+# of Requests : 30
+requestSize: 452
+requested URL=./docroot//index.html
+DocSize: 564
+Header: HTTP/1.0 200 OK
+Connection: close
+MIME-Version: 1.0
+Server: PWS/alpha
+Content-Type: text/html
+Content-length: 564
+
+/Header
+serving data...
+BufCnt=12
+finished request..., connection closed
+reading request....
+accept connection
+reading request data
+Req[1]=GET /images/test.jpg HTTP/1.1
+Req[2]=Host: localhost:10080
+Req[3]=User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.5) Gecko/20060731 Ubuntu/dapper-security Firefox/1.5.0.5
+Req[4]=Accept: image/png,*/*;q=0.5
+Req[5]=Accept-Language: en-us,en;q=0.5
+Req[6]=Accept-Encoding: gzip,deflate
+Req[7]=Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+Req[8]=Keep-Alive: 300
+Req[9]=Connection: keep-alive
+Req[10]=Referer: http://localhost:10080/index.html
+Req[11]=
+# of Requests : 31
+requestSize: 379
+requested URL=./docroot//images/test.jpg
+DocSize: 35642
+Header: HTTP/1.0 200 OK
+Connection: close
+MIME-Version: 1.0
+Server: PWS/alpha
+Content-Type: image/jpeg
+Content-length: 35642
+
+/Header
+serving data...
+BufCnt=12
+finished request..., connection closed
+reading request....
+accept connection
+reading request data
+Req[1]=GET /test.htm HTTP/1.1
+Req[2]=Host: localhost:10080
+Req[3]=User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.5) Gecko/20060731 Ubuntu/dapper-security Firefox/1.5.0.5
+Req[4]=Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5
+Req[5]=Accept-Language: en-us,en;q=0.5
+Req[6]=Accept-Encoding: gzip,deflate
+Req[7]=Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+Req[8]=Keep-Alive: 300
+Req[9]=Connection: keep-alive
+Req[10]=Referer: http://localhost:10080/index.html
+Req[11]=
+# of Requests : 32
+requestSize: 452
+requested URL=./docroot//test.htm
+DocSize: 552
+Header: HTTP/1.0 200 OK
+Connection: close
+MIME-Version: 1.0
+Server: PWS/alpha
+Content-Type: text/html
+Content-length: 552
+
+/Header
+serving data...
+BufCnt=12
+finished request..., connection closed
+reading request....
+accept connection
+reading request data
+Req[1]=GET /images/test.jpg HTTP/1.1
+Req[2]=Host: localhost:10080
+Req[3]=User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.5) Gecko/20060731 Ubuntu/dapper-security Firefox/1.5.0.5
+Req[4]=Accept: image/png,*/*;q=0.5
+Req[5]=Accept-Language: en-us,en;q=0.5
+Req[6]=Accept-Encoding: gzip,deflate
+Req[7]=Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+Req[8]=Keep-Alive: 300
+Req[9]=Connection: keep-alive
+Req[10]=Referer: http://localhost:10080/test.htm
+Req[11]=
+# of Requests : 33
+requestSize: 377
+requested URL=./docroot//images/test.jpg
+DocSize: 35642
+Header: HTTP/1.0 200 OK
+Connection: close
+MIME-Version: 1.0
+Server: PWS/alpha
+Content-Type: image/jpeg
+Content-length: 35642
+
+/Header
+serving data...
+BufCnt=12
+finished request..., connection closed
+reading request....
+accept connection
+reading request data
+Req[1]=GET /index.html HTTP/1.1
+Req[2]=Host: localhost:10080
+Req[3]=User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.5) Gecko/20060731 Ubuntu/dapper-security Firefox/1.5.0.5
+Req[4]=Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5
+Req[5]=Accept-Language: en-us,en;q=0.5
+Req[6]=Accept-Encoding: gzip,deflate
+Req[7]=Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+Req[8]=Keep-Alive: 300
+Req[9]=Connection: keep-alive
+Req[10]=Referer: http://localhost:10080/test.htm
+Req[11]=
+# of Requests : 34
+requestSize: 452
+requested URL=./docroot//index.html
+DocSize: 564
+Header: HTTP/1.0 200 OK
+Connection: close
+MIME-Version: 1.0
+Server: PWS/alpha
+Content-Type: text/html
+Content-length: 564
+
+/Header
+serving data...
+BufCnt=12
+finished request..., connection closed
+reading request....
+accept connection
+reading request data
+Req[1]=GET /images/test.jpg HTTP/1.1
+Req[2]=Host: localhost:10080
+Req[3]=User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.5) Gecko/20060731 Ubuntu/dapper-security Firefox/1.5.0.5
+Req[4]=Accept: image/png,*/*;q=0.5
+Req[5]=Accept-Language: en-us,en;q=0.5
+Req[6]=Accept-Encoding: gzip,deflate
+Req[7]=Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+Req[8]=Keep-Alive: 300
+Req[9]=Connection: keep-alive
+Req[10]=Referer: http://localhost:10080/index.html
+Req[11]=
+# of Requests : 35
+requestSize: 379
+requested URL=./docroot//images/test.jpg
+DocSize: 35642
+Header: HTTP/1.0 200 OK
+Connection: close
+MIME-Version: 1.0
+Server: PWS/alpha
+Content-Type: image/jpeg
+Content-length: 35642
+
+/Header
+serving data...
+BufCnt=12
+finished request..., connection closed
+reading request....
+accept connection
+reading request data
+Req[1]=GET /test.htm HTTP/1.1
+Req[2]=Host: localhost:10080
+Req[3]=User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.5) Gecko/20060731 Ubuntu/dapper-security Firefox/1.5.0.5
+Req[4]=Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5
+Req[5]=Accept-Language: en-us,en;q=0.5
+Req[6]=Accept-Encoding: gzip,deflate
+Req[7]=Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+Req[8]=Keep-Alive: 300
+Req[9]=Connection: keep-alive
+Req[10]=Referer: http://localhost:10080/index.html
+Req[11]=
+# of Requests : 36
+requestSize: 452
+requested URL=./docroot//test.htm
+DocSize: 552
+Header: HTTP/1.0 200 OK
+Connection: close
+MIME-Version: 1.0
+Server: PWS/alpha
+Content-Type: text/html
+Content-length: 552
+
+/Header
+serving data...
+BufCnt=12
+finished request..., connection closed
+reading request....
+accept connection
+reading request data
+Req[1]=GET /images/test.jpg HTTP/1.1
+Req[2]=Host: localhost:10080
+Req[3]=User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.5) Gecko/20060731 Ubuntu/dapper-security Firefox/1.5.0.5
+Req[4]=Accept: image/png,*/*;q=0.5
+Req[5]=Accept-Language: en-us,en;q=0.5
+Req[6]=Accept-Encoding: gzip,deflate
+Req[7]=Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+Req[8]=Keep-Alive: 300
+Req[9]=Connection: keep-alive
+Req[10]=Referer: http://localhost:10080/test.htm
+Req[11]=
+# of Requests : 37
+requestSize: 377
+requested URL=./docroot//images/test.jpg
+DocSize: 35642
+Header: HTTP/1.0 200 OK
+Connection: close
+MIME-Version: 1.0
+Server: PWS/alpha
+Content-Type: image/jpeg
+Content-length: 35642
+
+/Header
+serving data...
+BufCnt=12
+finished request..., connection closed
+reading request....
+accept connection
+reading request data
+Req[1]=GET /index.html HTTP/1.1
+Req[2]=Host: localhost:10080
+Req[3]=User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.5) Gecko/20060731 Ubuntu/dapper-security Firefox/1.5.0.5
+Req[4]=Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5
+Req[5]=Accept-Language: en-us,en;q=0.5
+Req[6]=Accept-Encoding: gzip,deflate
+Req[7]=Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+Req[8]=Keep-Alive: 300
+Req[9]=Connection: keep-alive
+Req[10]=Referer: http://localhost:10080/test.htm
+Req[11]=
+# of Requests : 38
+requestSize: 452
+requested URL=./docroot//index.html
+DocSize: 564
+Header: HTTP/1.0 200 OK
+Connection: close
+MIME-Version: 1.0
+Server: PWS/alpha
+Content-Type: text/html
+Content-length: 564
+
+/Header
+serving data...
+BufCnt=12
+finished request..., connection closed
+reading request....
+accept connection
+reading request data
+Req[1]=GET /images/test.jpg HTTP/1.1
+Req[2]=Host: localhost:10080
+Req[3]=User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.5) Gecko/20060731 Ubuntu/dapper-security Firefox/1.5.0.5
+Req[4]=Accept: image/png,*/*;q=0.5
+Req[5]=Accept-Language: en-us,en;q=0.5
+Req[6]=Accept-Encoding: gzip,deflate
+Req[7]=Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+Req[8]=Keep-Alive: 300
+Req[9]=Connection: keep-alive
+Req[10]=Referer: http://localhost:10080/index.html
+Req[11]=
+# of Requests : 39
+requestSize: 379
+requested URL=./docroot//images/test.jpg
+DocSize: 35642
+Header: HTTP/1.0 200 OK
+Connection: close
+MIME-Version: 1.0
+Server: PWS/alpha
+Content-Type: image/jpeg
+Content-length: 35642
+
+/Header
+serving data...
+BufCnt=12
+finished request..., connection closed
+reading request....
+accept connection
+reading request data
+Req[1]=GET /test.htm HTTP/1.1
+Req[2]=Host: localhost:10080
+Req[3]=User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.5) Gecko/20060731 Ubuntu/dapper-security Firefox/1.5.0.5
+Req[4]=Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5
+Req[5]=Accept-Language: en-us,en;q=0.5
+Req[6]=Accept-Encoding: gzip,deflate
+Req[7]=Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+Req[8]=Keep-Alive: 300
+Req[9]=Connection: keep-alive
+Req[10]=Referer: http://localhost:10080/index.html
+Req[11]=
+# of Requests : 40
+requestSize: 452
+requested URL=./docroot//test.htm
+DocSize: 552
+Header: HTTP/1.0 200 OK
+Connection: close
+MIME-Version: 1.0
+Server: PWS/alpha
+Content-Type: text/html
+Content-length: 552
+
+/Header
+serving data...
+BufCnt=12
+finished request..., connection closed
+reading request....
+accept connection
+reading request data
+Req[1]=GET /images/test.jpg HTTP/1.1
+Req[2]=Host: localhost:10080
+Req[3]=User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.5) Gecko/20060731 Ubuntu/dapper-security Firefox/1.5.0.5
+Req[4]=Accept: image/png,*/*;q=0.5
+Req[5]=Accept-Language: en-us,en;q=0.5
+Req[6]=Accept-Encoding: gzip,deflate
+Req[7]=Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+Req[8]=Keep-Alive: 300
+Req[9]=Connection: keep-alive
+Req[10]=Referer: http://localhost:10080/test.htm
+Req[11]=
+# of Requests : 41
+requestSize: 377
+requested URL=./docroot//images/test.jpg
+DocSize: 35642
+Header: HTTP/1.0 200 OK
+Connection: close
+MIME-Version: 1.0
+Server: PWS/alpha
+Content-Type: image/jpeg
+Content-length: 35642
+
+/Header
+serving data...
+BufCnt=12
+finished request..., connection closed
+reading request....
+accept connection
+reading request data
+Req[1]=GET /index.html HTTP/1.1
+Req[2]=Host: localhost:10080
+Req[3]=User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.5) Gecko/20060731 Ubuntu/dapper-security Firefox/1.5.0.5
+Req[4]=Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5
+Req[5]=Accept-Language: en-us,en;q=0.5
+Req[6]=Accept-Encoding: gzip,deflate
+Req[7]=Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+Req[8]=Keep-Alive: 300
+Req[9]=Connection: keep-alive
+Req[10]=Referer: http://localhost:10080/test.htm
+Req[11]=
+# of Requests : 42
+requestSize: 452
+requested URL=./docroot//index.html
+DocSize: 564
+Header: HTTP/1.0 200 OK
+Connection: close
+MIME-Version: 1.0
+Server: PWS/alpha
+Content-Type: text/html
+Content-length: 564
+
+/Header
+serving data...
+BufCnt=12
+finished request..., connection closed
+reading request....
+accept connection
+reading request data
+Req[1]=GET /images/test.jpg HTTP/1.1
+Req[2]=Host: localhost:10080
+Req[3]=User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.5) Gecko/20060731 Ubuntu/dapper-security Firefox/1.5.0.5
+Req[4]=Accept: image/png,*/*;q=0.5
+Req[5]=Accept-Language: en-us,en;q=0.5
+Req[6]=Accept-Encoding: gzip,deflate
+Req[7]=Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+Req[8]=Keep-Alive: 300
+Req[9]=Connection: keep-alive
+Req[10]=Referer: http://localhost:10080/index.html
+Req[11]=
+# of Requests : 43
+requestSize: 379
+requested URL=./docroot//images/test.jpg
+DocSize: 35642
+Header: HTTP/1.0 200 OK
+Connection: close
+MIME-Version: 1.0
+Server: PWS/alpha
+Content-Type: image/jpeg
+Content-length: 35642
+
+/Header
+serving data...
+BufCnt=12
+finished request..., connection closed
+reading request....
+accept connection
+reading request data
+Req[1]=GET /test.htm HTTP/1.1
+Req[2]=Host: localhost:10080
+Req[3]=User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.5) Gecko/20060731 Ubuntu/dapper-security Firefox/1.5.0.5
+Req[4]=Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5
+Req[5]=Accept-Language: en-us,en;q=0.5
+Req[6]=Accept-Encoding: gzip,deflate
+Req[7]=Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+Req[8]=Keep-Alive: 300
+Req[9]=Connection: keep-alive
+Req[10]=Referer: http://localhost:10080/index.html
+Req[11]=
+# of Requests : 44
+requestSize: 452
+requested URL=./docroot//test.htm
+DocSize: 552
+Header: HTTP/1.0 200 OK
+Connection: close
+MIME-Version: 1.0
+Server: PWS/alpha
+Content-Type: text/html
+Content-length: 552
+
+/Header
+serving data...
+BufCnt=12
+finished request..., connection closed
+reading request....
+accept connection
+reading request data
+Req[1]=GET /images/test.jpg HTTP/1.1
+Req[2]=Host: localhost:10080
+Req[3]=User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.5) Gecko/20060731 Ubuntu/dapper-security Firefox/1.5.0.5
+Req[4]=Accept: image/png,*/*;q=0.5
+Req[5]=Accept-Language: en-us,en;q=0.5
+Req[6]=Accept-Encoding: gzip,deflate
+Req[7]=Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+Req[8]=Keep-Alive: 300
+Req[9]=Connection: keep-alive
+Req[10]=Referer: http://localhost:10080/test.htm
+Req[11]=
+# of Requests : 45
+requestSize: 377
+requested URL=./docroot//images/test.jpg
+DocSize: 35642
+Header: HTTP/1.0 200 OK
+Connection: close
+MIME-Version: 1.0
+Server: PWS/alpha
+Content-Type: image/jpeg
+Content-length: 35642
+
+/Header
+serving data...
+BufCnt=12
+finished request..., connection closed
+reading request....
+accept connection
+reading request data
+Req[1]=GET /index.html HTTP/1.1
+Req[2]=Host: localhost:10080
+Req[3]=User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.5) Gecko/20060731 Ubuntu/dapper-security Firefox/1.5.0.5
+Req[4]=Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5
+Req[5]=Accept-Language: en-us,en;q=0.5
+Req[6]=Accept-Encoding: gzip,deflate
+Req[7]=Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+Req[8]=Keep-Alive: 300
+Req[9]=Connection: keep-alive
+Req[10]=Referer: http://localhost:10080/test.htm
+Req[11]=
+# of Requests : 46
+requestSize: 452
+requested URL=./docroot//index.html
+DocSize: 564
+Header: HTTP/1.0 200 OK
+Connection: close
+MIME-Version: 1.0
+Server: PWS/alpha
+Content-Type: text/html
+Content-length: 564
+
+/Header
+serving data...
+BufCnt=12
+finished request..., connection closed
+reading request....
+accept connection
+reading request data
+Req[1]=GET /images/test.jpg HTTP/1.1
+Req[2]=Host: localhost:10080
+Req[3]=User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.5) Gecko/20060731 Ubuntu/dapper-security Firefox/1.5.0.5
+Req[4]=Accept: image/png,*/*;q=0.5
+Req[5]=Accept-Language: en-us,en;q=0.5
+Req[6]=Accept-Encoding: gzip,deflate
+Req[7]=Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+Req[8]=Keep-Alive: 300
+Req[9]=Connection: keep-alive
+Req[10]=Referer: http://localhost:10080/index.html
+Req[11]=
+# of Requests : 47
+requestSize: 379
+requested URL=./docroot//images/test.jpg
+DocSize: 35642
+Header: HTTP/1.0 200 OK
+Connection: close
+MIME-Version: 1.0
+Server: PWS/alpha
+Content-Type: image/jpeg
+Content-length: 35642
+
+/Header
+serving data...
+BufCnt=12
+finished request..., connection closed
+reading request....
+accept connection
+reading request data
+Req[1]=GET /test.htm HTTP/1.1
+Req[2]=Host: localhost:10080
+Req[3]=User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.5) Gecko/20060731 Ubuntu/dapper-security Firefox/1.5.0.5
+Req[4]=Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5
+Req[5]=Accept-Language: en-us,en;q=0.5
+Req[6]=Accept-Encoding: gzip,deflate
+Req[7]=Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+Req[8]=Keep-Alive: 300
+Req[9]=Connection: keep-alive
+Req[10]=Referer: http://localhost:10080/index.html
+Req[11]=
+# of Requests : 48
+requestSize: 452
+requested URL=./docroot//test.htm
+DocSize: 552
+Header: HTTP/1.0 200 OK
+Connection: close
+MIME-Version: 1.0
+Server: PWS/alpha
+Content-Type: text/html
+Content-length: 552
+
+/Header
+serving data...
+BufCnt=12
+finished request..., connection closed
+reading request....
+accept connection
+reading request data
+Req[1]=GET /images/test.jpg HTTP/1.1
+Req[2]=Host: localhost:10080
+Req[3]=User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.5) Gecko/20060731 Ubuntu/dapper-security Firefox/1.5.0.5
+Req[4]=Accept: image/png,*/*;q=0.5
+Req[5]=Accept-Language: en-us,en;q=0.5
+Req[6]=Accept-Encoding: gzip,deflate
+Req[7]=Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+Req[8]=Keep-Alive: 300
+Req[9]=Connection: keep-alive
+Req[10]=Referer: http://localhost:10080/test.htm
+Req[11]=
+# of Requests : 49
+requestSize: 377
+requested URL=./docroot//images/test.jpg
+DocSize: 35642
+Header: HTTP/1.0 200 OK
+Connection: close
+MIME-Version: 1.0
+Server: PWS/alpha
+Content-Type: image/jpeg
+Content-length: 35642
+
+/Header
+serving data...
+BufCnt=12
+finished request..., connection closed
+reading request....
+accept connection
+reading request data
+Req[1]=GET /index.html HTTP/1.1
+Req[2]=Host: localhost:10080
+Req[3]=User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.5) Gecko/20060731 Ubuntu/dapper-security Firefox/1.5.0.5
+Req[4]=Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5
+Req[5]=Accept-Language: en-us,en;q=0.5
+Req[6]=Accept-Encoding: gzip,deflate
+Req[7]=Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+Req[8]=Keep-Alive: 300
+Req[9]=Connection: keep-alive
+Req[10]=Referer: http://localhost:10080/test.htm
+Req[11]=
+# of Requests : 50
+requestSize: 452
+requested URL=./docroot//index.html
+DocSize: 564
+Header: HTTP/1.0 200 OK
+Connection: close
+MIME-Version: 1.0
+Server: PWS/alpha
+Content-Type: text/html
+Content-length: 564
+
+/Header
+serving data...
+BufCnt=12
+finished request..., connection closed
+reading request....
+accept connection
+reading request data
+Req[1]=GET /images/test.jpg HTTP/1.1
+Req[2]=Host: localhost:10080
+Req[3]=User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.5) Gecko/20060731 Ubuntu/dapper-security Firefox/1.5.0.5
+Req[4]=Accept: image/png,*/*;q=0.5
+Req[5]=Accept-Language: en-us,en;q=0.5
+Req[6]=Accept-Encoding: gzip,deflate
+Req[7]=Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+Req[8]=Keep-Alive: 300
+Req[9]=Connection: keep-alive
+Req[10]=Referer: http://localhost:10080/index.html
+Req[11]=
+# of Requests : 51
+requestSize: 379
+requested URL=./docroot//images/test.jpg
+DocSize: 35642
+Header: HTTP/1.0 200 OK
+Connection: close
+MIME-Version: 1.0
+Server: PWS/alpha
+Content-Type: image/jpeg
+Content-length: 35642
+
+/Header
+serving data...
+BufCnt=12
+finished request..., connection closed
+reading request....
+accept connection
+reading request data
+Req[1]=GET /test.htm HTTP/1.1
+Req[2]=Host: localhost:10080
+Req[3]=User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.5) Gecko/20060731 Ubuntu/dapper-security Firefox/1.5.0.5
+Req[4]=Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5
+Req[5]=Accept-Language: en-us,en;q=0.5
+Req[6]=Accept-Encoding: gzip,deflate
+Req[7]=Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+Req[8]=Keep-Alive: 300
+Req[9]=Connection: keep-alive
+Req[10]=Referer: http://localhost:10080/index.html
+Req[11]=
+# of Requests : 52
+requestSize: 452
+requested URL=./docroot//test.htm
+DocSize: 552
+Header: HTTP/1.0 200 OK
+Connection: close
+MIME-Version: 1.0
+Server: PWS/alpha
+Content-Type: text/html
+Content-length: 552
+
+/Header
+serving data...
+BufCnt=12
+finished request..., connection closed
+reading request....
+accept connection
+reading request data
+Req[1]=GET /images/test.jpg HTTP/1.1
+Req[2]=Host: localhost:10080
+Req[3]=User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.5) Gecko/20060731 Ubuntu/dapper-security Firefox/1.5.0.5
+Req[4]=Accept: image/png,*/*;q=0.5
+Req[5]=Accept-Language: en-us,en;q=0.5
+Req[6]=Accept-Encoding: gzip,deflate
+Req[7]=Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+Req[8]=Keep-Alive: 300
+Req[9]=Connection: keep-alive
+Req[10]=Referer: http://localhost:10080/test.htm
+Req[11]=
+# of Requests : 53
+requestSize: 377
+requested URL=./docroot//images/test.jpg
+DocSize: 35642
+Header: HTTP/1.0 200 OK
+Connection: close
+MIME-Version: 1.0
+Server: PWS/alpha
+Content-Type: image/jpeg
+Content-length: 35642
+
+/Header
+serving data...
+BufCnt=12
+finished request..., connection closed
+reading request....
+accept connection
+reading request data
+Req[1]=GET /index.html HTTP/1.1
+Req[2]=Host: localhost:10080
+Req[3]=User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.5) Gecko/20060731 Ubuntu/dapper-security Firefox/1.5.0.5
+Req[4]=Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5
+Req[5]=Accept-Language: en-us,en;q=0.5
+Req[6]=Accept-Encoding: gzip,deflate
+Req[7]=Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+Req[8]=Keep-Alive: 300
+Req[9]=Connection: keep-alive
+Req[10]=Referer: http://localhost:10080/test.htm
+Req[11]=
+# of Requests : 54
+requestSize: 452
+requested URL=./docroot//index.html
+DocSize: 564
+Header: HTTP/1.0 200 OK
+Connection: close
+MIME-Version: 1.0
+Server: PWS/alpha
+Content-Type: text/html
+Content-length: 564
+
+/Header
+serving data...
+BufCnt=12
+finished request..., connection closed
+reading request....
+accept connection
+reading request data
+Req[1]=GET /images/test.jpg HTTP/1.1
+Req[2]=Host: localhost:10080
+Req[3]=User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.5) Gecko/20060731 Ubuntu/dapper-security Firefox/1.5.0.5
+Req[4]=Accept: image/png,*/*;q=0.5
+Req[5]=Accept-Language: en-us,en;q=0.5
+Req[6]=Accept-Encoding: gzip,deflate
+Req[7]=Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+Req[8]=Keep-Alive: 300
+Req[9]=Connection: keep-alive
+Req[10]=Referer: http://localhost:10080/index.html
+Req[11]=
+# of Requests : 55
+requestSize: 379
+requested URL=./docroot//images/test.jpg
+DocSize: 35642
+Header: HTTP/1.0 200 OK
+Connection: close
+MIME-Version: 1.0
+Server: PWS/alpha
+Content-Type: image/jpeg
+Content-length: 35642
+
+/Header
+serving data...
+BufCnt=12
+finished request..., connection closed
+reading request....
+accept connection
+reading request data
+Req[1]=GET /test.htm HTTP/1.1
+Req[2]=Host: localhost:10080
+Req[3]=User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.5) Gecko/20060731 Ubuntu/dapper-security Firefox/1.5.0.5
+Req[4]=Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5
+Req[5]=Accept-Language: en-us,en;q=0.5
+Req[6]=Accept-Encoding: gzip,deflate
+Req[7]=Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+Req[8]=Keep-Alive: 300
+Req[9]=Connection: keep-alive
+Req[10]=Referer: http://localhost:10080/index.html
+Req[11]=
+# of Requests : 56
+requestSize: 452
+requested URL=./docroot//test.htm
+DocSize: 552
+Header: HTTP/1.0 200 OK
+Connection: close
+MIME-Version: 1.0
+Server: PWS/alpha
+Content-Type: text/html
+Content-length: 552
+
+/Header
+serving data...
+BufCnt=12
+finished request..., connection closed
+reading request....
+accept connection
+reading request data
+Req[1]=GET /images/test.jpg HTTP/1.1
+Req[2]=Host: localhost:10080
+Req[3]=User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.5) Gecko/20060731 Ubuntu/dapper-security Firefox/1.5.0.5
+Req[4]=Accept: image/png,*/*;q=0.5
+Req[5]=Accept-Language: en-us,en;q=0.5
+Req[6]=Accept-Encoding: gzip,deflate
+Req[7]=Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+Req[8]=Keep-Alive: 300
+Req[9]=Connection: keep-alive
+Req[10]=Referer: http://localhost:10080/test.htm
+Req[11]=
+# of Requests : 57
+requestSize: 377
+requested URL=./docroot//images/test.jpg
+DocSize: 35642
+Header: HTTP/1.0 200 OK
+Connection: close
+MIME-Version: 1.0
+Server: PWS/alpha
+Content-Type: image/jpeg
+Content-length: 35642
+
+/Header
+serving data...
+BufCnt=12
+finished request..., connection closed
+reading request....
+accept connection
+reading request data
+Req[1]=GET /index.html HTTP/1.1
+Req[2]=Host: localhost:10080
+Req[3]=User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.5) Gecko/20060731 Ubuntu/dapper-security Firefox/1.5.0.5
+Req[4]=Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5
+Req[5]=Accept-Language: en-us,en;q=0.5
+Req[6]=Accept-Encoding: gzip,deflate
+Req[7]=Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+Req[8]=Keep-Alive: 300
+Req[9]=Connection: keep-alive
+Req[10]=Referer: http://localhost:10080/test.htm
+Req[11]=
+# of Requests : 58
+requestSize: 452
+requested URL=./docroot//index.html
+DocSize: 564
+Header: HTTP/1.0 200 OK
+Connection: close
+MIME-Version: 1.0
+Server: PWS/alpha
+Content-Type: text/html
+Content-length: 564
+
+/Header
+serving data...
+BufCnt=12
+finished request..., connection closed
+reading request....
+accept connection
+reading request data
+Req[1]=GET /images/test.jpg HTTP/1.1
+Req[2]=Host: localhost:10080
+Req[3]=User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.5) Gecko/20060731 Ubuntu/dapper-security Firefox/1.5.0.5
+Req[4]=Accept: image/png,*/*;q=0.5
+Req[5]=Accept-Language: en-us,en;q=0.5
+Req[6]=Accept-Encoding: gzip,deflate
+Req[7]=Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+Req[8]=Keep-Alive: 300
+Req[9]=Connection: keep-alive
+Req[10]=Referer: http://localhost:10080/index.html
+Req[11]=
+# of Requests : 59
+requestSize: 379
+requested URL=./docroot//images/test.jpg
+DocSize: 35642
+Header: HTTP/1.0 200 OK
+Connection: close
+MIME-Version: 1.0
+Server: PWS/alpha
+Content-Type: image/jpeg
+Content-length: 35642
+
+/Header
+serving data...
+BufCnt=12
+finished request..., connection closed
+reading request....
+accept connection
+reading request data
+Req[1]=GET /test.htm HTTP/1.1
+Req[2]=Host: localhost:10080
+Req[3]=User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.5) Gecko/20060731 Ubuntu/dapper-security Firefox/1.5.0.5
+Req[4]=Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5
+Req[5]=Accept-Language: en-us,en;q=0.5
+Req[6]=Accept-Encoding: gzip,deflate
+Req[7]=Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+Req[8]=Keep-Alive: 300
+Req[9]=Connection: keep-alive
+Req[10]=Referer: http://localhost:10080/index.html
+Req[11]=
+# of Requests : 60
+requestSize: 452
+requested URL=./docroot//test.htm
+DocSize: 552
+Header: HTTP/1.0 200 OK
+Connection: close
+MIME-Version: 1.0
+Server: PWS/alpha
+Content-Type: text/html
+Content-length: 552
+
+/Header
+serving data...
+BufCnt=12
+finished request..., connection closed
+reading request....
+accept connection
+reading request data
+Req[1]=GET /images/test.jpg HTTP/1.1
+Req[2]=Host: localhost:10080
+Req[3]=User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.5) Gecko/20060731 Ubuntu/dapper-security Firefox/1.5.0.5
+Req[4]=Accept: image/png,*/*;q=0.5
+Req[5]=Accept-Language: en-us,en;q=0.5
+Req[6]=Accept-Encoding: gzip,deflate
+Req[7]=Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+Req[8]=Keep-Alive: 300
+Req[9]=Connection: keep-alive
+Req[10]=Referer: http://localhost:10080/test.htm
+Req[11]=
+# of Requests : 61
+requestSize: 377
+requested URL=./docroot//images/test.jpg
+DocSize: 35642
+Header: HTTP/1.0 200 OK
+Connection: close
+MIME-Version: 1.0
+Server: PWS/alpha
+Content-Type: image/jpeg
+Content-length: 35642
+
+/Header
+serving data...
+BufCnt=12
+finished request..., connection closed
+reading request....
+accept connection
+reading request data
+Req[1]=GET /index.html HTTP/1.1
+Req[2]=Host: localhost:10080
+Req[3]=User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.5) Gecko/20060731 Ubuntu/dapper-security Firefox/1.5.0.5
+Req[4]=Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5
+Req[5]=Accept-Language: en-us,en;q=0.5
+Req[6]=Accept-Encoding: gzip,deflate
+Req[7]=Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+Req[8]=Keep-Alive: 300
+Req[9]=Connection: keep-alive
+Req[10]=Referer: http://localhost:10080/test.htm
+Req[11]=
+# of Requests : 62
+requestSize: 452
+requested URL=./docroot//index.html
+DocSize: 564
+Header: HTTP/1.0 200 OK
+Connection: close
+MIME-Version: 1.0
+Server: PWS/alpha
+Content-Type: text/html
+Content-length: 564
+
+/Header
+serving data...
+BufCnt=12
+finished request..., connection closed
+reading request....
+accept connection
+reading request data
+Req[1]=GET /images/test.jpg HTTP/1.1
+Req[2]=Host: localhost:10080
+Req[3]=User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.5) Gecko/20060731 Ubuntu/dapper-security Firefox/1.5.0.5
+Req[4]=Accept: image/png,*/*;q=0.5
+Req[5]=Accept-Language: en-us,en;q=0.5
+Req[6]=Accept-Encoding: gzip,deflate
+Req[7]=Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+Req[8]=Keep-Alive: 300
+Req[9]=Connection: keep-alive
+Req[10]=Referer: http://localhost:10080/index.html
+Req[11]=
+# of Requests : 63
+requestSize: 379
+requested URL=./docroot//images/test.jpg
+DocSize: 35642
+Header: HTTP/1.0 200 OK
+Connection: close
+MIME-Version: 1.0
+Server: PWS/alpha
+Content-Type: image/jpeg
+Content-length: 35642
+
+/Header
+serving data...
+BufCnt=12
+finished request..., connection closed
+reading request....
+accept connection
+reading request data
+Req[1]=GET /test.htm HTTP/1.1
+Req[2]=Host: localhost:10080
+Req[3]=User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.5) Gecko/20060731 Ubuntu/dapper-security Firefox/1.5.0.5
+Req[4]=Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5
+Req[5]=Accept-Language: en-us,en;q=0.5
+Req[6]=Accept-Encoding: gzip,deflate
+Req[7]=Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+Req[8]=Keep-Alive: 300
+Req[9]=Connection: keep-alive
+Req[10]=Referer: http://localhost:10080/index.html
+Req[11]=
+# of Requests : 64
+requestSize: 452
+requested URL=./docroot//test.htm
+DocSize: 552
+Header: HTTP/1.0 200 OK
+Connection: close
+MIME-Version: 1.0
+Server: PWS/alpha
+Content-Type: text/html
+Content-length: 552
+
+/Header
+serving data...
+BufCnt=12
+finished request..., connection closed
+reading request....
+accept connection
+reading request data
+Req[1]=GET /images/test.jpg HTTP/1.1
+Req[2]=Host: localhost:10080
+Req[3]=User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.5) Gecko/20060731 Ubuntu/dapper-security Firefox/1.5.0.5
+Req[4]=Accept: image/png,*/*;q=0.5
+Req[5]=Accept-Language: en-us,en;q=0.5
+Req[6]=Accept-Encoding: gzip,deflate
+Req[7]=Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+Req[8]=Keep-Alive: 300
+Req[9]=Connection: keep-alive
+Req[10]=Referer: http://localhost:10080/test.htm
+Req[11]=
+# of Requests : 65
+requestSize: 377
+requested URL=./docroot//images/test.jpg
+DocSize: 35642
+Header: HTTP/1.0 200 OK
+Connection: close
+MIME-Version: 1.0
+Server: PWS/alpha
+Content-Type: image/jpeg
+Content-length: 35642
+
+/Header
+serving data...
+BufCnt=12
+finished request..., connection closed
+reading request....
+accept connection
+reading request data
+Req[1]=GET /index.html HTTP/1.1
+Req[2]=Host: localhost:10080
+Req[3]=User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.5) Gecko/20060731 Ubuntu/dapper-security Firefox/1.5.0.5
+Req[4]=Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5
+Req[5]=Accept-Language: en-us,en;q=0.5
+Req[6]=Accept-Encoding: gzip,deflate
+Req[7]=Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+Req[8]=Keep-Alive: 300
+Req[9]=Connection: keep-alive
+Req[10]=Referer: http://localhost:10080/test.htm
+Req[11]=
+# of Requests : 66
+requestSize: 452
+requested URL=./docroot//index.html
+DocSize: 564
+Header: HTTP/1.0 200 OK
+Connection: close
+MIME-Version: 1.0
+Server: PWS/alpha
+Content-Type: text/html
+Content-length: 564
+
+/Header
+serving data...
+BufCnt=12
+finished request..., connection closed
+reading request....
+accept connection
+reading request data
+Req[1]=GET /images/test.jpg HTTP/1.1
+Req[2]=Host: localhost:10080
+Req[3]=User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.5) Gecko/20060731 Ubuntu/dapper-security Firefox/1.5.0.5
+Req[4]=Accept: image/png,*/*;q=0.5
+Req[5]=Accept-Language: en-us,en;q=0.5
+Req[6]=Accept-Encoding: gzip,deflate
+Req[7]=Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+Req[8]=Keep-Alive: 300
+Req[9]=Connection: keep-alive
+Req[10]=Referer: http://localhost:10080/index.html
+Req[11]=
+# of Requests : 67
+requestSize: 379
+requested URL=./docroot//images/test.jpg
+DocSize: 35642
+Header: HTTP/1.0 200 OK
+Conn
