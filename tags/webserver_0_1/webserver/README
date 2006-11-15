@@ -1,0 +1,8 @@
+Embeddable Webserver is a tiny webserver to include in your
+program. See pwserver.pas for usage instructions.
+
+Runs under win32 and Linux.
+
+Copyright (c) 2006 by Hartmut Eilers <hartmut@eilers.net>
+Distributed under the terms of the GNU GPL V2
+
