@@ -11,6 +11,7 @@ uses qgtk2;
 
 const	
 	version='V 0.1';
+	TimeLengthPixel=8;	// gibt an wieviel pixel eine Zeiteinheit lang ist
 
 var 
 	maxx,maxy,
@@ -30,6 +31,8 @@ var
 	ExitButton,
 	TimerValue		: qWidget;
 	Pause			: boolean;
+	Background		: qpic;
+
 
 procedure oncreate;
 
@@ -51,10 +54,10 @@ begin
 	leftoffset:=round(length(meldung)/2)+10;
 	(*writeln('leftoffset=',leftoffset);*)
     qdrawtext(round(maxx/2-(leftoffset*xfakt)),1*yfakt,meldung);
-    qrect(xOffset,3*yfakt,maxx,8*yfakt+10);
-	qrect(xOffset+1,3*yfakt+1,maxx,8*yfakt+10);
-	qrect(xOffset,16*yfakt,maxx,8*yfakt+10);
-    qrect(xOffset+1,16*yfakt+1,maxx,8*yfakt+10);
+    qrect(xOffset-2,3*yfakt,maxx,8*yfakt+10);
+	qrect(xOffset-2+1,3*yfakt+1,maxx,8*yfakt+10);
+	qrect(xOffset-2,16*yfakt,maxx,8*yfakt+10);
+    qrect(xOffset-2+1,16*yfakt+1,maxx,8*yfakt+10);
     for x:=1 to 8 do begin
     	str(x,ch);
         z:=(x+3)*yfakt;
@@ -67,13 +70,15 @@ begin
         qline(xOffset,z,maxx,z);
         qline(xOffset,z+1,maxx,z+1);
     end;
-	qdrawtext(1,14*yfakt,'Time');
+	qdrawtext(1,14*yfakt,'T');
     qline (xOffset,14*yfakt-4,maxx,14*yfakt-4);
     tx:=xOffset;
     while (tx<=maxx) do begin
 		qline(tx,14*yfakt-8,tx,14*yfakt);
-        inc(tx,8);
+        inc(tx,TimeLengthPixel);
 	end;
+	// save the Background
+	qgetpic(xOffset+TimeLengthPixel,3*yfakt,TimeLengthPixel,24*yfakt,Background);
 end;
 
 function GetNewValue: integer;
@@ -97,7 +102,8 @@ var x			: byte;
     z,y			: word;
 
 begin
-	y:=Messung*8+xOffset;
+	y:=Messung*TimeLengthPixel+xOffset;
+	qdrawpic(y-TimeLengthPixel, 3*yfakt,Background);
 	qsetClr( qGreen );
 	for x:=1 to 8 do begin
 		z:=(x+3) * yfakt-8*ord(eingang[x]);
@@ -114,6 +120,9 @@ begin
 		ein_alt[x]:=eingang[x];
 		aus_alt[x]:=ausgang[x];
      end;
+	// roter Cursor
+	qsetClr( qRed );
+	qline (y,3*yfakt,y,24*yfakt);
 end;                               { **** ENDE SET_HI_LOW ****}
 
 
@@ -124,10 +133,7 @@ begin
 		GetNewValue;
 		set_hi_low;
 		inc(Messung);
-		if (Messung>TimeBase) then begin
-			Messung:=1;
-			oncreate;
-		end;
+		if (Messung>TimeBase) then Messung:=1;
 	end;
 end;
 
@@ -160,11 +166,11 @@ end;
 
 
 begin
-    maxx:=640;maxy:=480;
+    maxx:=800;maxy:=600;
     xfakt:=round(maxx/80);yfakt:=round(maxy/25);
 	xOffset:=5*xfakt;
 	{ TimeBase gibt an wieviel Messpunkte in x-Richtung platz haben  }
-	TimeBase:=round((maxx-xOffset)/8);
+	TimeBase:=round((maxx-xOffset)/TimeLengthPixel);
 	Timer:=20;
 	OldTimer:=Timer;
 	Messung:=1;
