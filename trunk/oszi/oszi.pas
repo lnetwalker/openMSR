@@ -5,7 +5,9 @@ program oszi;
 { see http://www.gnu.org/licenses/gpl.html for details				}
 
 { this program may be used as an osziloscope in connection with 	}
-{ a support A/D IO Card												}
+{ a supported A/D IO Card											}
+
+{ $Id$ }
 
 uses qgtk2;
 
@@ -27,6 +29,7 @@ var i,ox,oy,
 
 	Pause			: boolean;
 
+	Background		: qpic;
 
 procedure oncreate;
 
@@ -42,12 +45,15 @@ begin
 	end;
 	qline(0,ymitte,maxx,ymitte);
 	qline(xmitte,0,xmitte,maxy);
+	// save the Background
+	qgetpic(0,0,PixelPerTimeBase,maxy,Background);
+
 end;
 
 function GetNewValue(value:integer): integer;
 begin
 	GetNewValue:=random(maxx-10)+1+5;
-	{GetNewValue:=round(sin(value)*(maxy-10))+ymitte;}
+	GetNewValue:=round(sin(value)*(maxy/4))+ymitte;
 end;
 
 
@@ -58,12 +64,19 @@ begin
 		{ get next value from A/D device }
 		{ and draw a line from current coordinates to new ones }
 		y:=GetNewValue(x);
-		inc(timebase,PixelPerTimeBase);
 		x:=timebase;
+		inc(timebase,PixelPerTimeBase);
+
+		// delete the old signal where we currently draW
+		qdrawpic(x, 0,Background);
+		qsetClr( qGreen );
+		// readraw the vertical line if needed
+		if ((x mod Raster) = 0 ) then qline(x,0,x,maxy);
+
+		qsetClr( qYellow );
 		if x >= maxx then begin
 			timebase:=0;
 			ox:=0;oy:=ymitte;
-			oncreate;
 		end
 		else begin
 			qline(ox,oy,x,y);
@@ -88,7 +101,8 @@ end;
 procedure onTimebase;
 begin
 	val(qinput('Timervalue in ms:', '100'),Timer );
-	if Timer <> 0 then
+	if Timer > 0 then begin
+		if Timer < 2 then Timer:=2;
 		if Timer <> OldTimer then begin
 			writeln('Timebase changed try to stop timer ',OldTimer,'  ms');
 			qtimerstop(OldTimer);
@@ -96,6 +110,7 @@ begin
 			writeln ( ' restarting new timer with ',Timer,' ms');
 			qtimerstart(Timer, @ontimer);
 		end
+	end
 end;
 
 
