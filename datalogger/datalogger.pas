@@ -1,4 +1,4 @@
-program spsdatalogger;
+program datalogger;
 
 { (c) 2006 by Hartmut Eilers < hartmut@eilers.net					}
 { distributed  under the terms of the GNU GPL V 2					}
@@ -7,7 +7,9 @@ program spsdatalogger;
 { this program may be used as an datalogger in connection with 		}
 { the SPS Software													}
 
-uses qgtk2;
+{ $Id$ }
+
+uses qgtk2,PhysMach;
 
 const	
 	version='V 0.1';
@@ -20,26 +22,41 @@ var
 	xfakt,yfakt,
 	xOffset,
 	Timer,
+	leftoffset,
 	OldTimer		: word;
 
-	eingang,
-	ausgang,
-	ein_alt,
-	aus_alt			: array[1..16] of boolean;
+	input_group1,
+	input_group2,
+	ig1_alt,
+	ig2_alt			: array[1..8] of boolean;
 
 	PauseButton,
 	ExitButton,
-	TimerValue		: qWidget;
-	Pause			: boolean;
+	TimerValue,
+	SaveButton,
+	StartButton		: qWidget;
+	Pause,
+	SaveData		: boolean;
+	
 	Background		: qpic;
 
-
-procedure oncreate;
-
-var x,z,leftoffset,
-	tx				: word;
-	ch				: string;
 	meldung			: string;
+
+	f				: text;
+
+
+procedure printMeldung;
+begin
+	qsetClr( qBlack );
+	qfillrect( 0, 0,maxx-1, yfakt);
+	qsetClr( qWhite );
+	qdrawtext(xfakt,1*yfakt,meldung);
+end;
+
+procedure onCreate;
+
+var x,z,tx			: word;
+	ch				: string;
 
 
 begin
@@ -50,10 +67,11 @@ begin
 	qfont(yfakt-8);
 	(*writeln ('xfakt:=',xfakt,' yfakt=',yfakt);*)
     qrect(0,0,maxx,maxy);
-    meldung:='SPS Datalogger '+version;
-	leftoffset:=round(length(meldung)/2)+10;
-	(*writeln('leftoffset=',leftoffset);*)
-    qdrawtext(round(maxx/2-(leftoffset*xfakt)),1*yfakt,meldung);
+
+	str(Timer,meldung);
+	meldung:='Timebase: '+meldung+' ms';
+    qdrawtext(xfakt,1*yfakt,meldung);
+
     qrect(xOffset-2,3*yfakt,maxx,8*yfakt+10);
 	qrect(xOffset-2+1,3*yfakt+1,maxx,8*yfakt+10);
 	qrect(xOffset-2,16*yfakt,maxx,8*yfakt+10);
@@ -62,15 +80,16 @@ begin
     	str(x,ch);
         z:=(x+3)*yfakt;
 		writeln('x=',x,' z=',z);
-		qdrawtext(xfakt,z,'E'+ch);
+		qdrawtext(xfakt,z,'S'+ch);
         qline(xOffset,z+1,maxx,z+1);
 
+		str(x+8,ch);
 		z:=(x+16)*yfakt+1;
-        qdrawtext(xfakt,z,'A'+ch);
+        qdrawtext(xfakt,z,'S'+ch);
         qline(xOffset,z,maxx,z);
         qline(xOffset,z+1,maxx,z+1);
     end;
-	qdrawtext(1,14*yfakt,'T');
+	qdrawtext(1,14*yfakt,'Time');
     qline (xOffset,14*yfakt-4,maxx,14*yfakt-4);
     tx:=xOffset;
     while (tx<=maxx) do begin
@@ -86,14 +105,23 @@ var	k	: byte;
 begin
 	for k:=1 to 8 do begin
 		if (Random<=0.5) then
-			eingang[k]:=false
+			input_group1[k]:=false
 		else
-			eingang[k]:=true;
+			input_group1[k]:=true;
 		if (Random<=0.5) then
-			ausgang[k]:=false
+			input_group2[k]:=false
 		else
-			ausgang[k]:=true;
+			input_group2[k]:=true;
+
+		if SaveData then begin
+			write(f,input_group1[k]:6);
+			write(f,input_group2[k]:6);
+		end;
+
 	end;
+
+	if SaveData then writeln(f);
+
 end;
 
 
@@ -106,19 +134,19 @@ begin
 	qdrawpic(y-TimeLengthPixel, 3*yfakt,Background);
 	qsetClr( qGreen );
 	for x:=1 to 8 do begin
-		z:=(x+3) * yfakt-8*ord(eingang[x]);
+		z:=(x+3) * yfakt-8*ord(input_group1[x]);
 		qline(y-8,z,y,z);
-		if ein_alt[x]<>eingang[x] then begin
+		if ig1_alt[x]<>input_group1[x] then begin
 			qline(y-8,(x+3)*yfakt,y-8,(x+3)*yfakt-8);
 			{setlinestyle(dashedln,0,normwidth);}
 			{qline(y-8,(x+3)*yfakt,y-8,(8+15)*yfakt)};
 		end;
-		z:=(x+16)*yfakt-8*ord(ausgang[x]);
+		z:=(x+16)*yfakt-8*ord(input_group2[x]);
 		qline(y-8,z,y,z);
-		if aus_alt[x]<>ausgang[x] then
+		if ig2_alt[x]<>input_group2[x] then
 			qline(y-8,(x+16)*yfakt,y-8,(x+16)*yfakt-8);
-		ein_alt[x]:=eingang[x];
-		aus_alt[x]:=ausgang[x];
+		ig1_alt[x]:=input_group1[x];
+		ig2_alt[x]:=input_group2[x];
      end;
 	// roter Cursor
 	qsetClr( qRed );
@@ -126,8 +154,20 @@ begin
 end;                               { **** ENDE SET_HI_LOW ****}
 
 
+procedure onStart;
+begin
+	// start mit der Möglichkeit trigger einzustellen
+end;
 
-procedure ontimer;
+
+
+procedure onSettings;
+begin
+	// Dialog zur Auswahl der setup datei mit den Einstellungen
+end;
+
+
+procedure onTimer;
 begin
 	if (not(Pause)) then begin
 		GetNewValue;
@@ -138,10 +178,12 @@ begin
 end;
 
 
-procedure onclose;
+procedure onClose;
 begin
-if qdialog('Quit?','Yes', 'No','') =1 then
-      qdestroy;
+	if qdialog('Quit?','Yes', 'No','') =1 then begin
+		qdestroy;
+		close(f);
+	end;
 end;
 
 
@@ -160,28 +202,61 @@ begin
 			qtimerstop(OldTimer);
 			OldTimer:=Timer;
 			writeln ( ' restarting new timer with ',Timer,' ms');
-			qtimerstart(Timer, @ontimer);
+			qtimerstart(Timer, @onTimer);
+
+			str(Timer,meldung);
+			meldung:='Timebase: '+meldung+' ms';
+			printMeldung();
+			if SaveData then writeln(f,meldung);
+
 		end
+end;
+
+procedure onSave;
+var
+	Picture		: qpic;
+	filename	: String;
+
+begin
+	filename:=qFileselect('Save Data', '*.dlog');
+	writeln('selected filename: ',filename);
+	if (filename<>'') then begin
+		assign(f,filename);
+		rewrite(f);
+		SaveData:=true;
+
+		str(Timer,meldung);
+		meldung:='Timebase: '+meldung+' ms';
+		writeln(f,meldung);
+
+	end;
 end;
 
 
 begin
     maxx:=800;maxy:=600;
     xfakt:=round(maxx/80);yfakt:=round(maxy/25);
-	xOffset:=5*xfakt;
+	xOffset:=7*xfakt;
 	{ TimeBase gibt an wieviel Messpunkte in x-Richtung platz haben  }
 	TimeBase:=round((maxx-xOffset)/TimeLengthPixel);
 	Timer:=20;
 	OldTimer:=Timer;
 	Messung:=1;
 	randomize;
-	qstart('Datalogger', nil, nil);
-	TimerValue:=qbutton('Timebase',  @onTimebase);
+
+	// initialize Hardware
+	PhysMachInit;
+	PhysMachloadCfg('.datalogger.cfg');
+	qstart('Datalogger  '+version, nil, nil);
+	StartButton:=qbutton('|>', @onStart);
 	PauseButton:=qbuttonToggle('||', @onPause);
+	TimerValue:=qbutton('Timebase',  @onTimebase);
+	SaveButton:=qbutton('Save',@onSave);
 	ExitButton:=qbutton('Exit',@onClose);
 	qNextRow;
-	qdrawstart(maxx,maxy, @oncreate,nil, nil);
-	qtimerstart(Timer, @ontimer);
+	qdrawstart(maxx,maxy, @onCreate,nil, nil);
+
+	qtimerstart(Timer, @onTimer);
 
 	qGo;
 end.
