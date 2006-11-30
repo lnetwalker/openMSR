@@ -11,8 +11,7 @@ program oszi;
 
 uses qgtk2;
 
-
-var i,ox,oy,
+var i,
 	xmitte,ymitte,
 	timebase,
 	Raster,
@@ -30,6 +29,13 @@ var i,ox,oy,
 	Pause			: boolean;
 
 	Background		: qpic;
+
+	ox,oy			: Array [1..8] of Integer;
+
+	NoOfInputs		: byte;
+
+	Farbe			: Array [1..8] of LongInt = (qRed,qAqua,qBlue,qYellow,qPurple,qWhite,qBrown,qGray);
+
 
 procedure oncreate;
 
@@ -50,20 +56,21 @@ begin
 
 end;
 
+
+
 function GetNewValue(value:integer): integer;
 begin
+	{ read a new value and normalize it to this coordinate system }
 	GetNewValue:=random(maxx-10)+1+5;
-	GetNewValue:=round(sin(value)*(maxy/4))+ymitte;
+	//GetNewValue:=round(sin(value)*(maxy/4))+ymitte;
 end;
 
 
 procedure ontimer;
-var 	x,y		: integer;
+var 	x,y,i		: integer;
 begin
 	if not(Pause) then begin
-		{ get next value from A/D device }
-		{ and draw a line from current coordinates to new ones }
-		y:=GetNewValue(x);
+
 		x:=timebase;
 		inc(timebase,PixelPerTimeBase);
 
@@ -73,16 +80,21 @@ begin
 		// readraw the vertical line if needed
 		if ((x mod Raster) = 0 ) then qline(x,0,x,maxy);
 
-		qsetClr( qYellow );
-		if x >= maxx then begin
-			timebase:=0;
-			ox:=0;oy:=ymitte;
-		end
-		else begin
-			qline(ox,oy,x,y);
-			ox:=x;
-			oy:=y;
-		end;
+		for i:=1 to NoOfInputs do begin
+			{ get next value from A/D device }
+			{ and draw a line from current coordinates to new ones }
+			y:=GetNewValue(x);
+
+			qsetClr(Farbe[i]);
+			qline(ox[i],oy[i],x,y);
+			ox[i]:=x;
+			oy[i]:=y;
+
+			if x >= maxx then begin
+				timebase:=0;
+				ox[i]:=0;oy[i]:=ymitte;
+			end
+		end;	
 	end;
 end;
 
@@ -115,10 +127,11 @@ end;
 
 
 begin
+	NoOfInputs:=2;
 	Raster:= 40;
 	maxx:=480;
 	maxy:=480;
-	PixelPerTimeBase:=8;
+	PixelPerTimeBase:=20;
 	Timer:=100;
 
 	xmitte:=round(int(maxx/2));
