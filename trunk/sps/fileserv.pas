@@ -1,3 +1,5 @@
+{ copyright (C) 2007 by Hartmut Eilers <hartmut@eilers.net>			}
+{ distributed under the GNU General Public License V2 or any later	}
 
 procedure fileservice;             { Filehandling }
 
@@ -48,7 +50,7 @@ var  f              :text;
      zeile          :string;
      i		        :integer;
      dummy_text     :string;
-     dummy_zahl     :byte;
+     dummy_zahl     :LongInt;
 
 begin
      i:=0;
