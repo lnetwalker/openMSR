@@ -1,0 +1,53 @@
+ver 1.2 19/10/90        unit autograf eingebaut
+				konstanten version und datum eingebaut
+				configurstionsfile eingefuhrt
+				input_pot aus 'util' geloescht
+
+
+ver 1.2 30/10/90        schattierung der fenster in 'util' eingebaut
+
+ver 1.3 02/11/90        aus 'util' unit popmenu erstellt und eingebaut
+			    rest von 'util' in 'hardcopy' umbenannt
+
+ver 1.4 ??/??/91        farbgebung geandert
+			    info im editor erweitert
+			    bug bei rueckkehr aus grafikmodus entfernt
+
+ver 1.5 ??/06/92        beginn der version 1.5
+
+ver 1.5 14/06/92        neue unit popmenu mit mausunterstuetzung integriert
+			    im inc 'fileservice' suche nach comspec integriert
+
+ver 1.5 24/06/92        menupunkt DOCU eingefuegt mit suchfunktion
+
+ver 1.5 05/07/92        in module run_awl zykluszeit berechnung korrigiert
+
+ver 1.7 19/10/92    beginn der version 1.7
+				     ausserdem controlportadresse auf none
+				     ueberpruefung eingefuehrt
+				     bei none ist pio false
+				     in sps und run_awl kontrolle auf pio
+				     in portausgaben eingefuegt.
+				     heap auf 100k erhoeht damit docfile
+				     mehr platz hat.
+		     awl_max auf 500 erhoeht.
+		     aufbau konfigfile geaendert
+
+ver 1.7 24/08/93     mouse in info und edit eingebaut
+ver 1.7 23/09/93     grafikerkennung durch eigene routinen ersetzt
+		     detectgraph.. erst bei aufruf run_awl!
+		     in allen units grafikerkennung geaendert!
+		     delay in sps.pas bei prgstart verkuerzt
+
+ver 1.7 27/09/93     erkennung von windows eingefuegt sps.pas
+		     [SPS] in Prompt bei os-shell eingebaut
+         6/11/93     dokumentation um hinweis dosshell , os/2 erweitert
+                     fehler beim suchen in info.pas bereinigt.
+
+was fehlt:
+	  zusatzprogramme einbinden
+	  spscfg zur menuegefuehrten installation
+	  infoseiten zu awls
+	  unterstuetzung der conrad io-karten
+	  analogverarbeitung
+	  a020 aeg - unterstuetzung
