@@ -1,0 +1,5 @@
+Arm support
+
+write an iodriver for the DIL NetPc Arm IO Hardware
+use Zaurus to compile
+find somebody to test 
