@@ -1,3 +1,10 @@
+Ver 1.7.3-rc4 07.05.2007 the iodrivers are now located in the unit PhysMach
+	which will be an independent project from now on
+
+Ver 1.7.3 complete rewrite of the iodrivers and run_sps
+	got back to one codebase 
+
+
 ver 1.7.1  30.12.2001 fixed default path for directory listing in the ide from
 	*.SPS to *
 	fixed minor bug with text color in the directory listing
