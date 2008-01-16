@@ -1,5 +1,3 @@
-{ copyright (C) 2007 by Hartmut Eilers <hartmut@eilers.net>			}
-{ distributed under the GNU General Public License V2 or any later	}
 
 procedure fileservice;             { Filehandling }
 
@@ -50,12 +48,12 @@ var  f              :text;
      zeile          :string;
      i		        :integer;
      dummy_text     :string;
-     dummy_zahl     :LongInt;
+     dummy_zahl     :byte;
 
 begin
      i:=0;
      name:=filebrowser('.','[Load]','L');
-     if (name='esc') then exit;
+	 if (name='esc') then exit;
      assign (f,name);
      {$I-} reset (f); {$I+}
      if ioresult <> 0 then     begin
@@ -333,19 +331,19 @@ begin                              { Menu Filehandling}
      repeat
           backGround:=lightgray;ForeGround:=Black;highlighted:=cyan;
           dropdown(1,2,'[FILE]',Menu_Pkt,6,auswahl);
-	  getdir(0,akt_pfad);
+	  	  getdir(0,akt_pfad);
           case auswahl of
                'N' : loeschen;
                'L' : sps_laden;
                'S' : sps_sichern;
                'P' : Ausdruck;
                (*'D' : filebrowser(akt_pfad);*)
-	       'D' : inhalt;
+	       	   'D' : inhalt;
                'C' : chngepfad;
                
-	       #27 : ;
+			   #27 : ;
           	   
-	  else begin
+			   else begin
                  sound(220); delay(200); nosound;
                end
           end

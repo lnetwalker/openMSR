@@ -1,7 +1,3 @@
-{ copyright (C) 2007 by Hartmut Eilers <hartmut@eilers.net>			}
-{ distributed under the GNU General Public License V2 or any later	}
-
-
 
 procedure edit;                    {editieren von awl}
 
@@ -213,34 +209,13 @@ begin
      { find numbers that could be usefull parameters }
      if ( par[znum] < 0 ) then 
      else begin
-
-		{ starts the parameter with a char ? }
-		if (ord(textzeile[1])<48) or (ord(textzeile[1])>57) then
-			{ yes, ignore char ( should be J for analog input }
-			{ and take the rest as parameter }
-     		j:=1
-		else
-			{ no, take every number as parameter }
-			j:=0;
-
-		{ search for the end of parameter ( not a number !}
+     	j:=0;
      	repeat
         	inc(j);
      	until (ord(textzeile[j]) < 48) or (ord(textzeile[j]) > 57);
-
-		{ is the first pos a char ? }
-		if ((ord(textzeile[1])< 48) or (ord(textzeile[1])>57)) then begin
-			{ yes, this is an analog input as parameter }
-			text_dummy:=copy(textzeile,2,j-1);
-			val(text_dummy,longInt_dummy);
-			longInt_dummy:=longInt_dummy*-1;
-		end
-		else begin
-			{ no , everything is a number }
-     		text_dummy:=copy(textzeile,1,j-1);
-			val(text_dummy,longInt_dummy);
-		end;
+     	text_dummy:=copy(textzeile,1,j-1);
      	c:=c+j-1;
+     	val(text_dummy,longInt_dummy);
      	par[znum]:=longInt_dummy;
      	delete(textzeile,1,j-1);
      end;
@@ -254,8 +229,7 @@ begin
      clreol;
      gotoxy(1,wherey);
      write (znr[znum]:3,' ',operation[znum],' ',operand[znum],' ');
-     {if par[znum]>=0 then write(par[znum]:5) else write('     ');}
-	 write(par[znum]:5);
+     if par[znum]>=0 then write(par[znum]:5) else write('     ');
      write(' ',comment[znum]);
      saved_text:='';
 end;                               {**** ENDE FORMATIEREN****}
@@ -404,7 +378,7 @@ begin
 	until (eingabe=esc) or (zeilnum=awl_max);
 	
 	{ add an end of programm just to ensure that nothing is lost if user forgot it }
-	operation[awl_max]:='EN ';
+	operation[anweismax]:='EN ';
 
      if zeilnum=awl_max then begin
         clrscr;
