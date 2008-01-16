@@ -8,6 +8,8 @@
 { included beginner to "rebeginner" after years of no single	}
 { line written in pascal! thanks for not blaming me ;)			}
 
+{ copyright (c) 2006 by Hartmut Eilers <hartmut@eilers.net>				}
+{ distributed under the GNU General Public License V2 or any later	}
 
 
 type  string3 =string[3];
