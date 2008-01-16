@@ -1,18 +1,16 @@
 program sps_simulator;
 
+{ copyright (c) 2006 by Hartmut Eilers <hartmut@eilers.net>				}
+{ distributed under the GNU General Public License V2 or any later	}
+
+
 {  $define newio }
-uses 	dos,crt,porting,printer,popmenu,browse,
+uses 	dos,crt,porting,printer,popmenu,browse,PhysMach,
 {$ifdef LINUX }
-		oldlinux,dil_io_access,lp_io_access,pio_io_access,joy_io_access,
+		oldlinux;
 {$endif}
 {$ifdef WIN32 }
-		windows,
-		{$define newio }
-{$endif}
-{$ifdef newio }
-		iowkit_io_access;
-{$else}
-		iow_io_access;
+		windows;
 {$endif}
 {$M 16384,0,100000} 
 
@@ -90,7 +88,7 @@ begin
 	 ReadListFromFile(conf_path,doc_start);
 end;
 
-            
+
 procedure menu;                    { Hauptmenu }
 
 var   Auswahl      : char;
