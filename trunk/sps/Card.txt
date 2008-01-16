@@ -1,12 +1,2 @@
-More information about a card can be found in ./ToDo/Cardnnn.txt where nnn is the card number
-
 Date		Card No:		Todo
 12.04.06	1				improve joy_io_access.pas to support more than one joystick
-16.05.07	2				Allow analog inputs to be used as K values
-16.05.07	3				include embeddable webserver
-16.05.07	4				write http io access driver
-16.05.07	5				implement jmp to label in the awl interpreter
-16.05.07	6				atmel support
-16.05.07	7				arm support ( Zaurus )
-16.05.07	8				implement mouse support see mouse.pas
-16.05.07	9				implement support for PhysMach in run_sps
