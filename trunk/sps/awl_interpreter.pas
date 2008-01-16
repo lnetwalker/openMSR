@@ -1,6 +1,9 @@
 { this is the interpreter for sps files }
 { interpreter version 1.2}
 
+{ copyright (C) 2007 by Hartmut Eilers <hartmut@eilers.net>			}
+{ distributed under the GNU General Public License V2 or any later	}
+
 procedure toggle_internal_clock (var m1,m2,m3 : boolean);   { toggelt die internen clock-marker }
 
 begin
@@ -176,10 +179,18 @@ begin
 end;                               { **** ENDE KLAMMER_ZU **** }
 
 procedure set_timer;               {timer auf startwert setzen}
+var dummy	: integer;
 
 begin
      if akku and not(lastakku[par[k]]) then begin
-        t[par[k]]:=par[k+1];
+		{ negative parameter means that a analog input value should be used as parameter }
+		if ( par[k+1] > 0 ) then
+        	t[par[k]]:=par[k+1]
+		else begin	
+			write(#7);
+			dummy:=par[k+1]*-1;
+			t[par[k]]:=analog_in[dummy];
+		end;
         timer[par[k]]:=false;
         lastakku[par[k]]:=true;
      end
