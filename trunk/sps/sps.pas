@@ -1,12 +1,17 @@
 program sps_simulator;
 
-{$ifdef LINUX} 
-uses dos,porting,oldlinux,crt,printer,popmenu,ports;
-{$else}
-uses dos,porting,windows,crt,printer,popmenu;
+{ copyright (c) 2006 by Hartmut Eilers <hartmut@eilers.net>				}
+{ distributed under the GNU General Public License V2 or any later	}
+
+
+{  $define newio }
+uses 	dos,crt,porting,printer,popmenu,browse,PhysMach,
+{$ifdef LINUX }
+		oldlinux;
 {$endif}
-
-
+{$ifdef WIN32 }
+		windows;
+{$endif}
 {$M 16384,0,100000} 
 
 {$DEFINE SPS}
@@ -15,7 +20,8 @@ uses dos,porting,windows,crt,printer,popmenu;
 {$i ./fileserv.pas}
 {$i ./edit.pas}
 {$i ./run_awl.pas}
-{$i ./info.pas}
+{$i ./kop.pas}
+
 
 procedure configuration;
 
@@ -26,7 +32,6 @@ var  f                 : text;
      gleich,i          : byte;
      error             : integer;
      zahl              : byte;
-     z1,z2             : doc_pointer;
 
 begin
      i:=0;
@@ -80,31 +85,10 @@ begin
      end;
      if length(start_pfad)=3 then conf_path:=start_pfad+'sps.doc'
      else conf_path:=start_pfad+'/sps.doc';
-     assign(f,conf_path);
-     {$I-} reset(f); {$I+}
-     if ioresult <> 0 then begin
-        writeln (#7,'Error reading  DOCfiles');
-        writeln ('DOCfile not found ',conf_path);
-        halt(1);
-     end
-     else begin
-        new(z1);
-        doc_start:=z1;
-        readln(f,z1^.zeil);
-        z1^.vor:=nil;
-        while not eof(f) do begin
-           new(z2);
-           z1^.nach:=z2;
-           readln(f,z2^.zeil);
-           z2^.vor:=z1;
-           z1:=z2;
-        end;
-        z1^.nach:=nil;
-        close(f);
-     end;
+	 ReadListFromFile(conf_path,doc_start);
 end;
 
-            
+
 procedure menu;                    { Hauptmenu }
 
 var   Auswahl      : char;
@@ -113,18 +97,20 @@ begin
      balken_pkte[1]:='File';
      balken_pkte[2]:='Edit';
      balken_pkte[3]:='Run';
-     balken_pkte[4]:='Docu';
-     balken_pkte[5]:='Quit';
+     balken_pkte[4]:='Kop';
+	 balken_pkte[5]:='Docu';
+     balken_pkte[6]:='Quit';
      copy_right:='(c) H. Eilers';
      repeat
            BackGround:=lightgray;ForeGround:=Black;
-	   Highlighted:=red;
-           balken(balken_pkte,5,copy_right,auswahl);
+	   	   Highlighted:=red;
+           balken(balken_pkte,6,copy_right,auswahl);
            case Auswahl of
                'F' : fileservice;
                'E' : edit;
                'R' : run_awl;
-               'D' : info(doc_start);
+			   'K' : kop;
+               'D' : browsetext(doc_start,1,2,GetScreenMaxX,GetScreenMaxY);
                'Q' : ;
            else begin
                   sound(220); delay(200); nosound;
@@ -146,13 +132,12 @@ begin
         until (taste='Y') or (taste='N');
         cursor_off;
         restore_screen;
-        if taste='Y' then 
-	begin
-		textbackground(black);textcolor(black);
-		window(1,2,screenx,screeny);
-		clrscr;
-		menu;
-	end;	
+        if taste='Y' then begin
+			textbackground(black);textcolor(black);
+			window(1,2,screenx,screeny);
+			clrscr;
+			menu;
+		end;	
      end;
 end;                               {**** ENDE  HAUPTMENU **** }
 
@@ -178,7 +163,7 @@ begin                              { SPS_SIMULATION }
      textbackground(lightgray);textcolor(Black);
      my_wwindow(trunc(screenx/2-25),trunc(screeny/2-2),trunc(screenx/2+25),trunc(screeny/2+2),'','',true);
      writeln(' SPS SIMULATOR V ',version);
-     write(' Build on ',datum,' (c) by H. Eilers ');
+     write(' Build on ',datum,' (c) 1989-2006 by H. Eilers ');
      getdir(0,start_pfad);
      start_pfad:='.';
      configuration;
@@ -195,8 +180,8 @@ begin                              { SPS_SIMULATION }
      {closegraph;}
      window (1,1,screenx,screeny);
      textcolor(white);textbackground(black); clrscr;
-     cursor_on;
      normvideo;
+     cursor_on;
 end. 
 
 

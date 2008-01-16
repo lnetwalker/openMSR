@@ -4,6 +4,9 @@ Unit PopMenu;
 { zur Verfügung                                                         }
 { (c) 02/11/90 by Hartmut Eilers 	               	                }
 
+{ copyright (c) 2006 by Hartmut Eilers <hartmut@eilers.net>				}
+{ distributed under the GNU General Public License V2 or any later	}
+
 INTERFACE
 
 {$ifdef LINUX}
@@ -131,14 +134,26 @@ end;
 procedure cursor_off;              {cursor ausschalten}
 
 begin
+	{$ifdef WIN32}
 	CursorOff
+	{$endif}
+
+	{$ifdef LINUX}
+	write(#27'[?25l');
+	{$endif}
 end;                               { **** ENDE CURSOR_OFF **** }
 
 procedure cursor_on;               { cursor einschalten }
 
 
 begin
+	{$ifdef WIN32}
 	CursorOn;	
+	{$endif}
+
+	{$ifdef LINUX}
+	write(#27'[?25h');
+	{$endif}
 end;                               { **** ENDE CURSOR_ON **** }
 
 
@@ -233,14 +248,16 @@ var MaxLen,i,x2,y2,
 begin
      MaxLen := 0;
      textbackground(backGround);textcolor(foreground);
+	 Highlighted:=red;
      for i:= 1 to NrOfItems do
          if length(Items[i])>MaxLen then MaxLen:=length(items[i]);
      y2:=y+NrOfItems+2;
      x2:=x+MaxLen+3;
      my_wwindow (x,y,x2,y2,uber,'<ESC>',true);
-     cursor_off;
+     //cursor_off;
      for i:= 1 to NrOfItems do PrintLine(1,i,Items[i],MaxLen);
      textbackground(ForeGround);textcolor(BackGround);
+	 Highlighted:=green;
      PrintLine(1,1,Items[1],MaxLen);
      Help:=copy(Items[1],1,1);
      Choice:=help[1];
@@ -259,8 +276,10 @@ begin
            end;
            if zeile <> altezeile then begin
               textbackground(backGround);textcolor(foreground);
+			  Highlighted:=red;
               printLine(1,AlteZeile,Items[altezeile],maxlen);
-              textbackground(foreground);textcolor(background);
+              textbackground(foreground);textcolor(backGround);
+			  Highlighted:=green;
               PrintLine(1,zeile,Items[zeile],MaxLen);
            end;
            if taste=enter then begin
@@ -290,12 +309,14 @@ var i,
 
 begin
      textbackground(backGround);textcolor(foreground);
+	 Highlighted:=red;
      window (1,1,GetScreenMaxX,1);
      clrscr;
-     cursor_off;
+     //cursor_off;
      for i:= 0 to NrOfItems-1 do PrintLine(i*10+1,1,Items[i+1],10);
      gotoxy(GetScreenMaxX-length(info)-1,1);write(info);
      textbackground(ForeGround);textcolor(BackGround);
+	 Highlighted:=green;
      PrintLine(1,1,Items[1],9);
      help:=copy(Items[1],1,1);
      choice:=help[1];
@@ -314,8 +335,10 @@ begin
            end;
            if spalte <> altespalte then begin
              textbackground(backGround);textcolor(foreground);
+			 Highlighted:=red;
               printLine((altespalte-1)*10+1,1,Items[altespalte],9);
               textbackground(foreground);textcolor(background);
+			  Highlighted:=green;
               PrintLine((spalte-1)*10+1,1,Items[spalte],9);
            end;
            if taste=enter then begin
@@ -451,4 +474,5 @@ end;
 begin
      startseg:=$b800;
 {     if Graph_mode=hga then startseg:=$b000;}
+	Highlighted:=red;
 end.

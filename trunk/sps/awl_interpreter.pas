@@ -1,6 +1,9 @@
 { this is the interpreter for sps files }
 { interpreter version 1.2}
 
+{ copyright (C) 2007 by Hartmut Eilers <hartmut@eilers.net>			}
+{ distributed under the GNU General Public License V2 or any later	}
+
 procedure toggle_internal_clock (var m1,m2,m3 : boolean);   { toggelt die internen clock-marker }
 
 begin
@@ -8,6 +11,25 @@ begin
     if m3 then m2:=not(m2);
     if m2 and m3 then m1:=not(m1);
 end;                               { **** ENDE TOGGLE_INTERNAL_CLOCK **** }
+
+function mehrfach (z:word):boolean;
+
+begin
+     mehrfach:=true;
+     if (operation[z+1]=anweisung[1]) or				{ UN(	}
+        (operation[z+1]=anweisung[3]) or				{ UN	}
+        (operation[z+1]=anweisung[5]) or				{ U(	}
+		(operation[z+1]=anweisung[20]) or				{ NOP	}
+		(operation[z+1]=anweisung[11]) or				{ EN	}
+		(operation[z+1]=anweisung[25]) or				{ PE	}
+		(operation[z+1]=anweisung[30]) or				{ EP	}
+		(operation[z+1]=anweisung[31]) or				{ AN(	}
+		(operation[z+1]=anweisung[32]) or				{ AN	}
+		(operation[z+1]=anweisung[33]) or				{ A(	}
+		(operation[z+1]=anweisung[34]) or				{ A		}
+        (operation[z+1]=anweisung[12]) 					{ U		}
+	 then mehrfach:=false
+end;
 
 
 
@@ -98,22 +120,6 @@ begin
 end;                               { **** ENDE VERKN ****}
 
 
-function mehrfach (z:word):boolean;
-
-begin
-     mehrfach:=true;
-     if (operation[z+1]=anweisung[1]) or				{ UN(	}
-        (operation[z+1]=anweisung[3]) or				{ UN	}
-        (operation[z+1]=anweisung[5]) or				{ U(	}
-		(operation[z+1]=anweisung[31]) or				{ AN(	}
-		(operation[z+1]=anweisung[32]) or				{ AN	}
-		(operation[z+1]=anweisung[33]) or				{ A(	}
-		(operation[z+1]=anweisung[34]) or				{ A		}
-        (operation[z+1]=anweisung[12]) 					{ U		}
-	 then mehrfach:=false
-end;
-
-
 procedure zuweisen;                { weist den akkuinhalt einem ausg. od merker}
 begin
      if token=7 then akku:=not(akku);
@@ -173,10 +179,18 @@ begin
 end;                               { **** ENDE KLAMMER_ZU **** }
 
 procedure set_timer;               {timer auf startwert setzen}
+var dummy	: integer;
 
 begin
      if akku and not(lastakku[par[k]]) then begin
-        t[par[k]]:=par[k+1];
+		{ negative parameter means that a analog input value should be used as parameter }
+		if ( par[k+1] > 0 ) then
+        	t[par[k]]:=par[k+1]
+		else begin	
+			write(#7);
+			dummy:=par[k+1]*-1;
+			t[par[k]]:=analog_in[dummy];
+		end;
         timer[par[k]]:=false;
         lastakku[par[k]]:=true;
      end
@@ -310,7 +324,7 @@ begin
           { für spätere Fehlerabfrage }
           end;
      until ( aktuell = 'EN ') or (aktuell = 'PE ') or (aktuell='EP ');
-     Str(time2:5:2,timestring);
+     Str((time2/1000):5:2,timestring);
      if (aktuell='EN ') or (aktuell='PE ')  or (aktuell='EP ') then comment[k]:='Zykluszeit Tz='+timestring+' ms';
      if ( debug ) then begin
        for k:=8 downto 1 do
