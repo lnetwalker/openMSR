@@ -1,6 +1,8 @@
 unit porting;
 
 { enthaelt alles was portiert werden muss  }
+{ copyright (c) 2006 by Hartmut Eilers <hartmut@eilers.net>				}
+{ distributed under the GNU General Public License V2 or any later	}
 
 interface
 {$ifdef LINUX}
