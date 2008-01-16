@@ -1,3 +1,7 @@
+{ copyright (C) 2007 by Hartmut Eilers <hartmut@eilers.net>			}
+{ distributed under the GNU General Public License V2 or any later	}
+
+
 { info.pas  includefile, zur anzeige der doc-datei }
 
 procedure info(start :doc_pointer);
