@@ -1,0 +1,38 @@
+roadmap is as follows:
+
+current tasks:
+        test and debug Joystick interface
+        rewrite IOwarrior code
+        build windows Version
+        build embeddable Webserver
+        reunify code for SPS an RUN_SPS
+
+
+
+the tasks below are already done
+
+new stuff 1.7.3
+- awl_interpreter : runtime calculations do not work due to getdate changes in compiler
+- fileserv : same getdate problem
+
+
+
+
+urgent : find people which will help in that project
+any help is welcome (programming, hardware/ interfacing, app examples, translation, howtos...)
+my big problem is, that I have only a very limitied timeframe to work on this project.
+therefor any help is welcome
+
+1.7.1 support for the hardware, asap
+
+1.7.2 networking support via http. I plan to implement the possibility to access
+	the state of the markers via http. together with that feature I plan to
+	write some JAVA applets to make nice browser controlable GUI interfaces
+	for sps programs. with that feature it would be possible to build
+	distributed control ( e.g. 15 small ethernet connected DIL/PC work
+	together, controled and visualized by a Browser like Netscape ).
+
+?????? 	I want to rewrite the code to be object oriented. Its not very nice
+to work with a lot of global variables and stuff
+
+

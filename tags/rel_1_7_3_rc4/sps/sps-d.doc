@@ -1,0 +1,666 @@
+
+
+
+                        S P S - SIMULATOR V 1.7.3
+                                SPS4Linux ( i386 )
+
+                     (c) 1990-2005 by Hartmut Eilers
+
+              News und Info unter: http://www.eilers.net/sps/
+      
+      English Documentation may be found in sps-e.doc. Rename
+      that file to sps.doc to read the docs in the IDE!
+
+
+      Ab Version 1.7.1  unterliegt SPS4Linux der GPL, GNU General Public Licence;
+      siehe http://www.gnu.org/ für Details.
+      
+      Neben dem Binary ist der komplette Source enthalten. Mit dem FPC
+	  Compiler kann der source compiliert werden.
+	  
+      Wer Lust hat an SPS mitzuarbeiten ( egal in welcher Form ) melde
+      sich bitte via E-Mail bei sps4linux@eilers.net
+
+      Bugs, Vorschläge an sps4linux@eilers.net
+      
+      Flames to /dev/null
+
+
+      1) Überblick
+
+         Der SPS - Simulator ist eine Entwicklungsumgebung zur Er-
+         stellung Speicherprogramierbarer Steuerungen. Er enthält
+         alle notwendigen Funktionen um eine:
+              1 - AWL zu editieren
+              2 - AWL zu archivieren (laden,speichern,drucken)
+              3 - AWL zu testen
+
+         ( AWL = Anweisungsliste, enpricht quasi dem SPS Programm)
+
+		 Verfügt man über eine handelsübliche 8255 PIO - Karte, den IO 
+		 Warrior 40, einen DIL/NetPC oder einen Drucker Port ist es
+		 möglich eine Steuerung mit dem PC aufzubauen.
+
+		 Dank dem Daemon run_sps können Sie mit Ihrem PC
+		 wie gewohnt arbeiten, während im Hintergrund Ihre Steuerung
+		 läuft. Über RUN_SPS erfahren sie weitere Details in der
+		 Documentation RUN_SPS.DOC. ( Diese muß noch erstellt werden)
+         
+         Diese Dokumentation können Sie natürlich auch ausdrucken.
+         ( sps.doc )
+		 
+		 Eine sehr gute Einführung sind die im HÜTHIG Verlag 
+		 erschienenen Bücher von A. Auer "SPS Aufbau und Programmierung"
+		 und "SPS Programmierung Beispiele und Aufgaben".
+		 
+		 An dieser Stelle mein Dank an A. Auer, meinen Prof Ende der
+		 achtziger Jahre in Isny, der mich dazu motivierte das
+		 Programm zu schreiben.
+         
+      2) Bedienung
+
+         Nach Start des Programmes durch Eingabe von SPS und Be-
+         tätigung der RETURN - Taste meldet sich das Programm
+         mit dem Titelbild und der Versionsangabe. Diese Meldung
+         wird nach kurzer Zeit gelöscht und es erscheint in der
+         1.Zeile des Bildschirms das Hauptmenü.
+
+         Mit den Shell Variablen LINES und COLUMNS können Sie die
+		 Größe des Terminals einstellen ( default 24 Lines und 80
+		 COLUMNS )
+         Durch Eingabe der farbig abgesezten Anfangsbuchstaben
+         oder der Pfeiltasten und RETURN   
+         kann der Anwender zwischen folgenden Punkten wählen:
+
+              - <F>ile :  enthält alle Menüpunkte um eine
+                          AWL zu
+                              - löschen
+                              - laden
+                              - speichern
+                          sowie:
+                              - Directory anzeigen
+                              - Standardverzeichnis wechseln
+
+              - <E>dit :  erlaubt das Erstellen und Ändern einer AWL
+
+              - <R>un :   Starten einer AWL
+
+              - <D>ocu :  Lesen der bzw. Suchen in der Online Dokumentation
+
+              - <Q>uit :  Beenden der Entwicklungsumgebung
+
+
+
+      2.1 Erklärung der Menüpunkte
+
+          Bei Auswahl der Menüpunkte wird ein Fenster geöffnet.
+          Im oberen Rahmen des Fensters steht in eckigen Klammern
+          der Name des Menüpunktes, im unteren Rahmen in spitzen
+          Klammern wie man diesen Menüpunkt beenden kann.
+
+      2.1.1 Der Menüpunkt FILE
+
+          Nach Eingabe von F im Hauptmenü erscheint das Auswahlmenü
+          FILE. Sie können jetzt wieder durch Eingabe des farbig unter-
+          legten Anfangsbuchstaben ,der Pfeiltasten und RETURN 
+          zwischen folgenden Punkten wählen :
+               N - New = löschen des Speichers
+                   ( d.h. Löschen der aktuellen AWL im Speicher )
+
+               L - Laden einer AWL von Disk / Platte
+
+               S - Sichern der aktuellen AWL auf Disk/Platte
+
+               P - Ausdruck der im Speicher befindlichen AWL
+
+
+               D - Directory anzeigen
+
+               C - wechseln des Standarddirectories
+
+
+          Alle Pfad- und Dateiangaben im Menü FILE müssen in der
+          DOS Syntax angegeben werden. ( z.B.: *.* nicht * )
+          Wird kein absoluter Pfad angegeben bezieht sich der Befehl
+          auf den aktuellen Pfad. 
+		  
+          Wird keine Dateinamenserweiterung angegeben wird automatisch
+          .SPS angehängt.
+
+      2.1.2 Der Menüpkt EDIT
+
+          Nach Eingabe von E aus dem Hauptmenü befindet man sich
+          im Editorfenster.
+
+          Es kann nun eine AWL erstellt oder geändert werden.
+
+          Aufbau einer Zeile der AWL:
+              1. Zeilennummer:
+                 Der Editor schlägt jeweils die nächste aktuelle
+                 Zeilennummer vor. Will man diese übernehmen, so
+                 muß keine neue Zeilennummer angegeben werden.
+                 Will man jedoch eine bestehende Zeile ändern
+                 so muß hier die entsprechende Zeilennummer ange-
+                 geben werden und die Zeile überschrieben werden.
+
+              2. Operation (max 3Stellig) enthält einen gültigen
+                 Befehl.
+
+              3. Operand (1 stellig ) enthält einen gültigen Operanden
+
+              4. Parameter ( max 65535 ) enthält den Parameter eines
+                 Befehls oder die Nummer eines Operanden.
+
+              5. Kommentar ( max 22 Stellen ) ist optional und nur zu
+                 Dokumentationszwecken.
+
+
+          Alle Komponenten einer Zeile werden ohne Zwischenräume
+          direkt eingegeben.
+          Bsp.: 18 ue1Eingang 1 = Starttaste
+
+          Diese Eingabe wird vom Editor wie folgt umgeformt:
+
+                      18 U   E     1 Eingang 1 = Starttaste
+          Bedeutung:   | |   |     | |
+                       | |   |     | + Kommentar---------->
+                       | |   |     + Parameter
+                       | |   + Operand
+                       | + Operation
+                       + vorgegebene Zeilennummer
+
+          Jede Zeile wird mit RETURN bzw. ENTER abgeschlossen.
+          Solange eine Zeile nicht abgeschlossen ist kann sie
+          mit BACKSPACE korrigiert werden.
+          Nach Abschluß einer Zeile kann diese nur durch
+          Überschreiben geändert werden.
+
+          Folgende Tasten haben im Editor eine Bedeutung:
+
+          EINFG: Einfügen einer Zeile in die AWL. Nach Eingabe der
+              Zeilennummer wird an dieser Stelle eine Zeile ein-
+              gefügt deren Inhalt der NOP Befehl ( No Operation )
+              ist. Diese Zeile kann durch überschreiben geändert
+              werden.
+
+          ENTF: Löschen einer Zeile in der AWL . Nach Angabe der
+              Zeilennummer wird diese Zeile gelöscht, alle nach-
+              folgenden zeilen werden um eine Position verschoben.
+
+          Die Sprungziele bei den Sprungbefehlen werden automatisch
+          angepaßt.
+
+          CURSOR UP/DOWN Zeilenweises blättern durch die AWL
+
+          PAGE   UP/DOWN Seitenweises blättern durch die AWL
+
+          BACKSPACE Zeichen links vom Cursoor löschen
+
+          RETURN Zeile abschließen
+
+          ESC Editor verlassen.
+
+      2.1.4 Der Menüpunkt RUN
+
+          Durch Eingabe von R im Hauptmenü wird eine AWL gestartet.
+          Auf dem Bildschirm erscheint ein Fenster in dem der Zustand
+          aller
+               - MARKER
+               - TIMER
+               - COUNTER
+               - EINGÄNGE
+               - AUSGÄNGE 
+               - Analoge Eingänge (Joystick) angezeigt wird,
+          sowie die Information ob die Steuerung INTERN oder EXTERN
+          arbeitet sowie die sog. Zykluszeit. Diese gibt an, wie lange
+          ein AWL Durchlauf durchschnittlich dauert.
+          Die Zykluszeit wird auch als Kommentar in die letzte Zeile der
+          AWL eingesezt. An Hand der Zykluszeit kann die Verzögerungs-
+          zeit der Timer berechnet werden.
+          Die Zykluszeit unter Linux stimmt nur sehr, sehr grob
+          nicht drauf verlassen!
+
+          Eine AWL wird solange immer wieder abgearbeitet bis ESC be-
+          tätigt wird.
+
+          Folgende Tasten haben eine Bedeutung:
+
+          1-8         Bei Interner Steuerung wird mit jedem Tastendruck 
+                      der Zustand der Eingänge E1  - E8   getoggelt.
+          shift + 1-8 s.o. jedoch Eingänge     E9  - E16
+          alt   + 1-8 s.o. jedoch Eingänge     E17 - E24		
+          q-i         s.o. jedoch Counter      Z1  - Z8
+          shift + q-i s.o. jedoch Counter      Z9  - Z16
+          a-f         s.o. jedoch analoge Ein  J1  - J4
+		  
+		  
+      2.1.5 Menupunkt DOCU
+
+          Durch D im Hauptmenu bzw. die Cursortasten wird
+          die Online Dokumentation aufgerufen. Mit PAGE UP bzw. PAGE DOWN
+          können Sie nun durch die Dokumentation blättern, oder über
+          die Taste s die Suchfunktion aktivieren. Mittels ESC verlassen
+          Sie die Online Dokumentation und gelangen zuruck ins Hauptmenue.
+          über die Suchfunktion können Sie nach beliebigen Wörten bzw.
+          Wortteilen suchen. Die Schreibweise (gross/klein) wird dabei
+          ignoriert. Die Suche beginnt immer am Dokumentanfang und wird
+          zum Ende hin fortgesetzt. Falls die Suche erfolgreich war können
+          Sie über ESC die Suche beenden oder mit einer beliebigen Taste
+          fortsetzen.
+          Die Dokumentations-Datei heisst SPS.DOC und muss sich
+          in dem Verzeichnis befinden aus dem SPS.EXE gestartet wurde.
+          Da es sich bei der DOC Datei um eine reine ASCII - Datei handelt
+          können Sie selbst die Dokumentation erweitern. Dazu benötigen
+          Sie lediglich einen Editor der ASCII Dateien erzeugen kann.
+          (z.B.: vi, emacs, ... ). Dabei müssen Sie jedoch die Zeilen-
+          länge von max. 76 Zeichen beachten !!!! Auch keine Tabs verwen-
+          den, sondern schön mit blanks formatieren :)
+
+      2.1.6 Menüpunkt QUIT
+
+          Durch Q im Hauptmenü wird die Entwicklungsumgebung verlassen
+          Befindet sich zu diesem Zeitpunkt eine AWL im Speicher, die
+          noch nicht gespeichert wurde, haben sie die Möglichkeit
+          über den Menüpunkt File diese ZU sichern.
+
+
+      3. Die Befehle der AWL:
+
+          Die Befehle der AWL können sowohl in Ihrer deutschen Schreibweise
+		  als auch mit dem englischen Pendant geschrieben werden.
+		  Das gilt auch für die Bezeichnung der In- Outputs, Merker oder
+		  Zähler. Der Interpreter kann mit einer beliebigen Mischung korrekt
+		  umgehen. Sie sollten sich jedoch eine einheitliche Schreibweise
+		  angewöhnen. Alle Beispiele benutzen jeweils die erstgenannte
+		  Schreibweise. Wenn es verschiedene Alternativen gibt, sind sie 
+		  jeweils mit (de) für deutsch oder (en) für englisch gekennzeichnet.
+		  
+           U    der Akkuinhalt wird mit angeg. Oper. UND verknüpft.
+                Englische Schreibweise A
+           UN   der negierte Akkuinhalt wird mit dem angegeb. Oper.
+                Englische Schreibweise AN
+                verknüpft.
+           U(   der Akkuinkalt wird mit dem log. Ergebnis des Klammer-
+                ausdruckes und verkn.  Englische Schreibweise A(
+           UN(  der neg. Akkkuinhalt wird mit Ergebnis des Klammeraus-
+                druckes UND verknüpft.  Englische Schreibweise AN(
+
+           O    der Akkuinhalt wird mit Oper. ODER verk.
+           ON   Siehe oben jedoch ODER Verknüpfung.
+           O(
+           ON(
+           =    Zuweisung, damit kann einem Marker, Timer oder  Ausgang
+		        der Akkuinhalt zugewiesen werden. mehrfach Zuweisungen
+                sind erlaubt !
+           =N   wie oben, jedoch der negierte Akkuinhalt.
+           S    damit kann ein Ausgang oder Merker auf 1 gesetzt werden
+           R    damit kann ein Ausgang oder Merker auf 0 rückgesetzt werden
+           J    unbedingter Sprung. Es wird immer an die Stelle gespprungen
+                die als Parameter angegeben ist. Alternativ SP (de) und 
+                JP (en)
+           JI   jump if- begingter Sprung der nur ausgeführt wird wenn
+                akkuinhalt 1 ist. Ebenso können Sie alternativ auch JC (en)
+                oder SPB (de) verwenden.
+                Bei allen Sprungbefehlen beachten: Rücksprünge sind nicht 
+                erlaubt!
+           TE   Timer einschaltverzögert. Bsp: zahler.sps
+           ZR   Zähler rückwärts.         Bsp: timer.sps
+           K    Konstante für ZählerS oder Timer
+           NOP  No Operation
+           EN   oder auch PE (de) oder EP (en)  = Ende der AWL.
+           LT   Less than - kleiner als ( analog Verarbeitung ) 
+           GT   Greater than - größer als ( analog Verarbeitung )
+           EQ   Equal - gleich ( analog Verarbeitung )
+		        Beispiel zur Analogverarbeitung siehe Punkt 4.4
+           $    execute (ausführen externer Programme ) 
+		        Bsp: flankenlogger.sps 
+	   
+
+           Siehe  Beispiele!
+		   
+		   
+      3.1 die Bezeichner der AWL
+	  
+	       Die AWL unterstützt digitale Ein- und Ausgänge, Softwarezähler, 
+		   Timer und Merker sowie analoge Eingänge.
+		   Folgende Bezeichner unterstützt die AWL
+		   
+           deutsch     englisch      Bedeutung
+              E            I           Eingang
+              A            O           Ausgang
+              Z            C           Zähler
+              T            T           Timer
+              M            M           Merker
+              K            K           Konstante
+              J            J           Joystick
+			   
+		   In der AWL können die Bezeichner beliebig gemischt verwendet werden,
+		   um der Lesbarkeit Willen sollten Sie jedoch eine Schreibweise 
+		   einhalten.
+			  
+      3.2 Technische Daten des SPS Simulators
+
+           AWL Länge max 2000 Zeilen
+           128 Ausgänge ( A1 - A128 oder O1-O128 )
+           128 Eingänge ( E1 - E128 oder I1-I128 )
+           16 Zähler   ( Z1 - Z16 oder C1-C16 ) 
+           16 Timer    ( T1 - T16 ) *
+           4 Analog Eingänge ( J1 - J4 )
+           255 Marker  ( M1 - M255) davon M64 = Takt mit 2*Tz
+                                          M63 = Takt mit 4*Tz
+                                          M62 = Takt mit 8*Tz
+
+           SPS4Linux ist NICHT Echtzeitfähig!
+           Die Pio muß mit einem 8255 aufgebaut sein und
+           im Addressbereich 300h-3FFh liegen.
+           Derartige PIO's wurden schon in vielen Fachzeit-
+           schriften zum Selbstbau vorgestellt. Fertige Karten
+		   gibt es unter anderem bei Decision Computer
+           
+		   Neben der PIO funktioniert ausserdem der Printerport sowie
+		   die IO Warrior Serie von Code Mercanaries als Ein-Ausgabe Einheit.
+		  
+           Bei Verwendung des Dil/NetPC ist Port 0 Eingang und Port1
+           Ausgang, Port 0 wird auch für die Softcounter genommen.
+		   
+           Alle Ein- und Ausgänge haben TTL Pegel.
+           
+		   Die Timer haben unterschiedliche Zeitbasen:
+		   T1-T4	Basis 1 Sekunde
+		   T5-12	Basis 100 ms
+		   T13-T16  Basis Zykluszeit 
+		   
+		   Damit stehen Verzögerungen von 100 ms bis 65535 sec,
+		   was etwa 18 h entspricht, zur Verfügung.
+		   Die Timer sind Softwaretimer, wie exakt sie sind kann ich noch
+		   nicht sagen.
+		   Daher empfehle ich bei Verzögerungen im Sekundenbereich die
+		   100ms Timer T5-T12.
+		   
+		   Falls die Zykluszeit die Timebasis überschreitet, laufen die
+		   Timer zu langsam !
+
+
+      3.3 Konfiguration
+
+	   Zur Konfiguration editieren Sie die Datei /etc/sps.cfg
+	   mit dem Editor Ihrer Wahl.
+	   
+      4. Beispiele zur Syntax
+
+      4.1 der UND Befehl und die Zuweisung:
+
+            Folgende einfache Schaltung soll in eine AWL umgesetzt
+            werden:
+                     _____
+            E1------!     !
+            E2------!  &  !----A1      A1=E1*E2*E3
+            E3------!_____!
+
+            Es ergibt sich folgende AWL: 
+                  1 U   E  1
+                  2 U   E  2
+                  3 U   E  3
+                  4 =   A  1
+                  5 EN
+
+            Erläuterung:  Bei Start der AWL wird das in 3. als Akku
+                  bezeichnete Register mit einer log. 1 geladen.
+                  Durch die Anweisung U E 1 wird dieser Akkuinhalt
+                  mit dem Wert des  Einganges E 1  UND verknüpft.
+                  Das Ergebnis wird wieder im Akku gespeichert. Das
+                  bedeutet der Zustand des Einganges E1 wurde in den 
+                  Akku übernommen, denn nach den Regeln der Boolschen
+                  Algebra ergibt E1 * 1 = E1.
+                  Dieser Akkuinhalt wird dann in Zeile 2 mit dem Wert 
+                  von E2 UND verknüpft und anschließend  wird dieses
+                  Ergebnis (der Akkuinhalt) mit E3 UND verknüpft.
+                  In Zeile 4 wird dieses Ergebnis dem Ausgang A1 zuge-
+                  wiesen.
+                  Zeile 5 EN zeigt dem Simulator daß er am Ende der
+                  AWL angekommen ist und nun wieder mit Zeile 1
+                  beginnen muß.
+                  Man sieht hier deutlich, daß sich alle Operationen
+                  immer auf den Akkuinhalt beziehen.
+
+                  Wird Zeile 4 in "4 =N  A  1" geändert ergibt sich
+                  folgende Schaltung:
+
+                     _____
+            E1------!     !               ________
+            E2------!  &  !o---A1      A1=E1*E2*E3
+            E3------!_____!
+
+                  denn der Akkuinhalt wird vor der Zuweisung negiert.
+
+
+      4.2 Die ODER Verknüpfung:
+
+            Versuchen Sie jetzt doch einmal die folgende Schaltung:
+
+                     _____
+            E1------!     !                        
+            E2------! >=  !----A1      A1=E1+E2+E3
+            E3------!_____!
+
+            Wahrscheinlich sieht Ihre Lösung so aus:
+
+                  1 O   E  1
+                  2 O   E  2
+                  3 O   E  3
+                  4 =   A  1
+                  5 EN
+
+                  Diese Lösung ist jedoch falsch !
+                  Warum ? 
+                  In Zeile 1 steckt der Fehler, denn wie weiter
+                  oben erläutert wird bei jedem Durchlauf der
+                  AWL zu Beginn der Akku mit dem Wert 1 geladen.
+                  ( übrigens auch nach der jeweils letzten Zuweisung
+                  mit = =N S oder R)
+                  Aus der Boolschen Algebra ergibt sich aber
+                  E1 + 1 = 1
+                  Daher haben wir jetzt folgendes Ergebnis:
+                  1+E2+E3= A1 was bedeutet A1 ist immer 1.
+
+                  Richtig muß es daher lauten:
+
+                  1 U   E  1
+                  2 O   E  2
+                  3 O   E  3
+                  4 =   A  1
+                  5 EN
+
+                  Sie sollten sich daher merken, jeden Satzanfang
+                  (Start der AWL oder 1.Zeile nach einer Zuweisung)
+                  müssen Sie mit U .. beginnen damit der AKKU 
+                  korrekt geladen wird.
+
+                  Probieren Sie das ruhig alles mal aus.
+
+      4.3  Klammeroperation :
+
+            In der Liste der Befehle haben Sie sicher auch die Klammer-
+            Befehle gesehen.
+            Im folgenden erläutere ich kurz ihre Syntax.
+            Dazu betrachten wir folgende AWL:
+
+                  1 U   E  1
+                  2 O(  
+                  3 U   E  2
+                  4 U   E  3
+                  5 )
+                  6 =   A  1
+                  7 EN
+
+            Versuchen wir das ganze mal aufzudröseln:
+            In Zeile 1 wird E1 in den Akku geladen. Ab 2 passiert
+            nun folgendes: der Inhalt des Akkus wird mit dem Er-
+            gebnis der Klammeroperation ODER verknüpft, und dann
+            dem Ausgang A1 zugewiesen. Eigentlich noch ganz klar
+            und nachvollziehbar. Dabei muß jedoch eines berücksichtigt
+            werden: 
+                    Beim Öffnen der Klammer wird der Zustand des 
+                    Akkus intern gespeichert und er wird wieder
+                    auf 1 gesetzt. Das heißt in zeile 3 haben wir 
+                    wieder eine Verknüpfung 1*E2=E2 ,also eine 
+                    Ladeanweisung. Erst beim Schließen der Klammer
+                    wird der gespeicherte Akkuinhalt im dem aktuellen
+                    Akkuinhalt ODER verknüpft und dann A1 zugewiesen.
+
+                    Die Schaltung sieht also so aus:
+                              _____
+            E1---------------!     !                 
+                  _____      ! >=  !---A1
+            E2---!     !  !--!_____!
+                 !  &  !--!                
+            E3---!_____!
+
+
+            Probieren Sie jetzt selber einmal mit den verschiedenen
+            Verknüpfungen U / UN / U( / UN( / O / ON / O( / ON(
+            einfache Funktionen aus .
+
+      4.4 Analogverabeitung:
+      
+            Analoge Signale können auf kleiner, gleich oder größer
+            verglichen werden. Ein kleines Bsp. zeigt das Prinzip:
+	    
+                    1 U	J     1
+                    2 LT      128
+                    3 =	A     1
+                    4 U	J     2
+                    5 GT      128
+                    6 =	A     2
+                    7 U	J     3
+                    8 EQ      128
+                    9 =	A     3
+                   10 EN
+	
+	    mit der Ladeanweisung U J 1 wird der Wert des analogen Eingangs
+	    in den ANALOG_AKKU geladen. die Anwesiungen in den Zeilen 2,5 und
+	    8 vergleichen den ANALOG_AKKU mit der angegebenen Konstanten
+	    und setzen den AKKU auf 1, wenn der Vergleich wahr ist.
+	    Dieser Wert wird dann den Ausgängen A1-A3 zugewiesen.
+	    
+	    Die Steuerung der Analogeingänge 1-4 in der Entwicklungsumgebung
+	    erfolgt über die Tasten q w e und r. Mit jedem Tastendruck wird
+	    der entsprechende Eingang um 1 erhöht. Bei Überlauf der 8Bit wird
+	    der Eingang wieder auf 0 zurückgesetzt.
+	    
+	4.5 Execute
+		Ist der Akkuinhalt 1 wird das Progamm aufgerufen, welches im Comment
+		steht. Der Returncode des programmes wird in den analog akku geschrieben.
+		
+            Vor allem eines beachten :
+                  Diese Ausführungen sollen Ihnen nur erläutern wie
+                  dieser Simulator arbeitet. Mehr über SPS und
+                  die Programmierung erfahren Sie in der Literatur
+                  rund um das Thema SPS und den Beispielen.
+                  Beachten Sie die *.doc Dateien zu den Beispielen!!
+				  
+	4.6 Timer
+        ein Beispiel für die Verwendung von Timern finden Sie in timer.sps
+		
+	4.7 Zähler
+	    die Zähler sind als Softcounter ausgeführt. Das heisst, daß bei
+		jedem Durchlauf der AWL der jeweilige Countereingang auf eine
+		positive Flanke getestet wird, bei positiver Flanke wird der interne
+		Zähler heruntergezählt.
+		Ein Beispiel dazu ist zahler.sps				  
+
+ 5. Disclaimer
+
+    Der Programmierer weisst ausdrücklich darauf hin, dass er weder
+    für direkte oder indirekte Schäden, die aus oder durch die 
+    Benutzung der Software enstanden sind, haftbar gemacht werden kann.
+
+
+    ACHTUNG: Benutzung des SPS Simulators unter LINUX!!!
+          Sie müssen  beachten, dass unter LINUX
+          die Zykluszeit nicht konstant ist (Multitasking!!!)
+
+          Steuerungen im allgemeinen: Bitte immer Vorsorge treffen
+          was eine Steuerung "macht" wenn der Rechner, das Programm
+          oder wer sonst auch immer verückt spielt.
+
+    Wie immer: Der Programmierer übernimmt für nichts eine Verantwortung
+            vor allem nicht für das was Ihr damit steuert; bzw die
+            Umgebung Eurer Steuerung.
+
+    Vorschläge, Kritik etc an: sps4linux@eilers.net
+
+
+ 6.History
+
+          Entstanden ist SPS während meiner Ausbildung. Grund war 
+          damals die schlechten Tools. 1989 gab es, zumindest in
+          meiner Umgebung, keine Tools, die auf einem PC liefen
+          und einem die Entwicklung und den Test von AWLS erlaubten.
+          Also setzte ich mich dran, und begann damit erste Versionen
+          zu programieren. Meine damalige Entwicklungsumgebung:
+          Ein PC XT kompatibler PC mit 8088 Prozessor, Herculeskarte
+          20 MB Festplatte und 640 kB RAM. Auf dieser Hardware lief
+          MS-DOS Version 3.2, sowie Turbo Pascal, zuerst als Version
+          3.??? später Turbo Pascal 5.0.
+          Etliche meiner Schulkammeraden benutzten mit mir das
+          Programm. Die spätere Weiterentwicklung habe ich dann nur
+          noch aus 'Spaß an der Freud' gemacht. Dabei habe ich 
+          Features eingebaut, die 1. nie und nimmer geplant waren
+          (z.B. Mousesupport ) und die 2. mit käuflichen Units besser
+          und einfacher funktioniert hätten. ( Bsp. Turbo Vision
+          als Oberfläche ) Mir ging es aber dabei um den Spaß und
+          das Wissen, wie sowas funktioniert. Im September 93 machte
+          ich die letzten Änderungen an der DOS Version. 
+          Bis ich am 25.10.97 FPK Pascal auf meiner Linux Maschine
+          installierte und etwas brauchte, um auszuprobieren wie
+          gut die Kompatibilität zu Turbo Pascal ist.
+          Nach nur ca. 10 Stunden hatte ich die Version
+          1.7 Linux Beta 0.1 lauffähig. Probleme hatte ich lediglich
+          bei einigen Konstrukten in Sachen Strings ( val .. copy)
+          die ich in einzelne Anweisungen packen mußte, sowie bei
+          Formatierungsanweisungen bei Stringroutinen wie str.
+          Natürlich ließen sich die 'Goodies' wie Interrupt gesteuerte
+          Zeitanzeige in der Menüleiste sowie meine Fummeleien mit MSDOS
+          Funtionsaufrufen für Mouse und Screen etc nicht portieren.
+          
+	      Okt. 2000 ist meine Entwicklungsumgebung ein alter 
+	      Pentium 100MHz Notebook mit 32 MB RAM und 800 MB HDD unter 
+	      Red Hat Linux 6.2.
+	      Als Compiler verwende ich fpc 1.00, als Editor kommt nedit
+	      zum Einsatz.
+          Okt. 2005 : Pentuim III 1GHz, 512 MB RAM, DEBIAN Sarge.
+          FPC 1.9.4
+	  	   
+          Wie gehts weiter?
+          Es geht unter Linux weiter, die DOS Version wird
+          nicht mehr weiterentwickelt. Allerdings möchte ich die Urversion
+		  als GPL Code unter DOS rausbringen.
+		  
+		  Geplant ist ein Port auf Windows, HP-UX und Solaris ,
+		  die Atmel Mikrocontroller sind in arbeit.
+		  
+7. Einladung
+		  
+	  Wer mitarbeiten will ist herzlich eingeladen!!!! -> 
+	  Mail an sps4linux@eilers.net
+	  Bitte meldet Euch auch, wenn Ihr eine Version für andere OS
+	  bauen wollt. ( Ich bin sehr zuversichtlich, dass zumindest 
+	  grosse Teile des Codes ohne Änderungen funktionieren. Die IO
+	  Zugriffe jedoch sind im Moment noch NICHT portabel. 
+	  
+	  Ein grosses weiteres Betätigungsfeld ist der Docubereich.
+	  Hier wäre eine angepasste Einführung in die hier verwendeten
+	  Techniken richtig toll. Ebenso gut erläuterte Beispiele,
+	  die eventuell auch noch die Hardwareseite berücksichtigen.
+	  Alles in allem freue ich mich über jeden, der Lust hat mit-
+	  zuwirken. Egal in welcher Funktion.
+
+      Alles hängt von den Usern ab. Also gebt mir Feedback.
+      Ansonsten ist das ganze nach wie vor ein Hobbyprojekt
+      und wird es wohl auch bleiben.
+
+          Viel Spaß damit
+          Hucky
+
+

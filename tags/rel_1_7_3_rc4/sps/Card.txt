@@ -1,0 +1,2 @@
+Date		Card No:		Todo
+12.04.06	1				improve joy_io_access.pas to support more than one joystick
