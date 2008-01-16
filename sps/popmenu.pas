@@ -4,6 +4,9 @@ Unit PopMenu;
 { zur Verfügung                                                         }
 { (c) 02/11/90 by Hartmut Eilers 	               	                }
 
+{ copyright (c) 2006 by Hartmut Eilers <hartmut@eilers.net>				}
+{ distributed under the GNU General Public License V2 or any later	}
+
 INTERFACE
 
 {$ifdef LINUX}
