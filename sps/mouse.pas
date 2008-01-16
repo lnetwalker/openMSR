@@ -1,7 +1,8 @@
 unit mouse;
 { stellt grundlegende mouseroutinen zur verfuegung }
 { achtung im moment nur fuer textmode }
-{ (c) Jun/92 by HuSoft }
+{ (c) Jun/92 by HuSoft  Hartmut Eilers <hartmut@eilers.net>			}
+
 interface
 
 uses dos;

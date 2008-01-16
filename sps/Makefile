@@ -13,14 +13,13 @@ all: $(OBJECTS)
 
 # the sps IDE
 sps: 	sps.pas edit.pas fileserv.pas info.pas popmenu.pas run_awl.pas sps.h awl_interpreter.pas run_awl.h
-	ppc386 sps.pas
+	fpc -Fu../PhysMach -Fu../divLibs/pwu-1.6.0.2-src/main/ sps.pas
 
 # the SPS runtime module	
 run_sps:	run_sps.pas awl_interpreter.pas run_awl.h
-		ppc386 run_sps.pas
+		fpc -Fu../PhysMach run_sps.pas
 
-clear: 
-	-rm lp_io_access.ppu
+clear:
 	-rm run_sps
 			
 clean :
@@ -28,4 +27,4 @@ clean :
 	-rm *.a
 	-rm *.o
 	-rm *.s
-#	-rm $(OBJECTS)
+	-rm $(OBJECTS)

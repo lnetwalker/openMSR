@@ -3,7 +3,9 @@ unit getgraph;
 { unit zur ermittlung der grafikkarte     }
 { ergebnis steht nach einbinden der unit  }
 { in variable graph_mode zur verfueg.     }
-{ (c) by HuSoft 23/09/93                  }
+{ copyright (C) 2007 by Hartmut Eilers <hartmut@eilers.net>			}
+{ distributed under the GNU General Public License V2 or any later	}
+
 
 interface
 
