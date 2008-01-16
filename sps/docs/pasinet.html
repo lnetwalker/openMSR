@@ -1,0 +1,1417 @@
+<html>
+<head>
+<title>Internet Programming with Pascal</title>
+<link rel="Stylesheet" href="../site.css" type="text/css">
+</head>
+
+<body>
+
+<center><h1>Internet Programming with Pascal</h1></center>
+
+<h3>Contents</h3>
+<ol>
+  <li><a href="#chap1">Compilers and Operating Systems</a>
+  <li><a href="#chap2">Getting Started</a>
+  <li><a href="#chap3">Using the Domain Name System</a>
+  <li><a href="#chap4">Handling Multiple Clients</a>
+  <li><a href="#chap5">Binary Data</a>
+  <li><a href="#chap6">Obtaining the Software</a>
+  <li><a href="#chap7">Final Remarks</a>
+</ol>
+
+<a name="chap1">
+<h3>1. Compilers and Operating Systems</h3>
+
+Many people (such as me) came to Pascal programming through Borland's great
+Turbo Pascal series for DOS. A lot of them still consider it the best
+development environment around and want to stay with it as long as possible.
+Unfortunately, there are a few points that let it seem advisable to say
+good-bye to Turbo Pascal and set out for new shores.
+<p>
+
+The 16 bit platform is obsolete, and has been so for quite some time. It is
+unlikely that you vex a lot of users if you require "386 or better" for your
+program to run. On the other hand, having modern processors run 16 bit code
+is waste of ressources at best.
+<p>
+
+Then there are the operating systems. With Turbo/Borland Pascal, the best you
+can get is Windows 3.x; what I said about 16 bit platforms applies. Nowadays,
+most users have 32 bit preemptive multitasking systems like Windows NT or
+Linux, and we should make use of these systems. With focus on Internet
+programming, DOS is an especially problematic system, because TCP/IP stacks
+for DOS are incompatible, poorly documented, and not very wide-spread.
+<p>
+
+To make a long story short, this guide will use Free Pascal. It is a free
+(GPL'd) 32 bit compiler that is available for a number of platforms such as
+Windows32 and Linux (for a full list see their web site below; more platforms
+are expected to be added in the future). It has a well-documented runtime
+library, a number of useful additional units, and a large base of third-party
+packages can be found on the Internet.
+<p>
+
+More information, sources and binary packages are available at the Free Pascal
+website: <a href="http://www.freepascal.org/">http://www.freepascal.org</a>
+<p>
+
+Most information in this guide doesn't rely on operating system specific
+features; if it does, I have pointed that out. The example programs have been
+written under Linux and additionally tested under Windows NT.
+<p>
+
+All files referred in this document are available from the
+<a href="#chap6">download link</a>.
+
+<a name="chap2">
+<h3>2. Getting Started</h3>
+
+So, we want to do &quot;Internet programming&quot;. In other words, we want to
+write programs that communicate with other programs (that may or may not be
+written by us) through the Internet. As you may already know, two transport
+protocols are normally used on the Internet, namely UDP and TCP. The former is
+a so-called connection-less protocol that lets you send and receive small
+packets of data (datagrams) to and from remote computers, while the latter
+establishes an enduring connection between your computer and a remote host.
+In this document, we will only use TCP.
+<p>
+
+I assume that you are familiar with the basic terms of TCP/IP networking,
+such as IP addresses and ports, since I conjecture that this kind of
+knowledge is common among &quot;expercienced computer users&quot; such as
+programmers. If you think this assumption is wrong, please let me know.
+<p>
+
+<h4>2.1. Byte Order</h4>
+
+This is a tiresome issue which keeps arising now and then, and which will be
+a permanent companion in all kinds of network programming. The problem is as
+simple as this:
+<p>
+
+When you store words of 2 or even 4 bytes in memory, such as Free Pascal's
+Integer and LongInt types, there are several possibilities. You could store
+the least significant byte at the lowest address and the most significant
+byte at the highest, as it is done on Intel and VAX machines, to name the most
+important examples. Sounds resonable, doesn't it? However, many other platforms
+such as the Motorola 68000 and the PowerPC, do it just vice versa (for 32 bit
+words, there are more possibilities, but fortunately, no-one has yet used
+<i>these</i>!). Just why do they do that? Well, look at the written
+representation of a 16 bit word in hexadecimal:
+<p>
+
+$4587
+<p>
+
+On an Intel box, the first byte would be 87 and the second 45. In the
+hex-editor, this looks like 87 45. That is why.
+<p>
+
+Communication on the Internet would hardly be possible if people hadn't
+agreed upon a <i>network byte order</i>. If your machine uses this, you don't
+have to change anything, but if it doesn't, you have to swap the bytes. The
+version that was chosen for this purpose is Most Significant Byte First. For
+PC programmers this means that they have to swap.
+<p>
+
+I have written a unit called <tt>inetaux</tt> containing routines for
+byte order conversion on 16 and 32 bit integers. The functions are called:
+<ul>
+  <li><tt>hton</tt> - Host to network byte order for LongInts
+  <li><tt>ntoh</tt> - Network to host byte order for LongInts
+  <li><tt>htons</tt> - Like <tt>hton</tt>, only for Integers
+  <li><tt>ntohs</tt> - Like <tt>ntoh</tt>, only for Integers
+</ul>
+(The nomenclature is inspired by a certain set of C macros.)
+<p>
+
+There are two other interesting routines in inetaux which I will be using
+in the examples below. IP addresses are basically 32 bit numbers, yet what
+you normally see are notations such as '192.168.2.1'. For better readability,
+the four bytes have been split up and written as decimals. The two functions
+can translate a LongInt to the so-called dotted decimal notation and vice
+versa. They are:
+<ul>
+  <li><tt>StrToAddr</tt> - Dotted decimal to LongInt
+  <li><tt>AddrToStr</tt> - LongInt to dotted decimal
+</ul>
+
+Note that the LongInt arguments are in network byte order.
+<p>
+
+Some interesting questions arise when performing these translations. First,
+what to do with strings like '34.324.45.3' - should the 324 be taken as
+&quot;more than a byte&quot; and the surplus bits be added to the 34? Or
+should they be truncated, or, maybe, should a roll-over be performed, such
+that 324 becomes 324 - 256 = 68? Well, StrToAddr would treat the above string
+as <i>invalid</i> and would return 0 (the invalid address).
+<p>
+
+The other case would be strings such as '3232236033' (the decimal version of
+192.168.2.1). Apparently, many programs accept these - a fact which spammers
+tend to make use of for confusing their victims. StrToAddr will treat them
+as invalid because of missing dots. I don't know if this behaviour is
+approved of by the &quot;net.gods&quot;, but as long as I don't have further
+information, it seems only reasonable to me.
+<p>
+
+<h4>2.2. Error Messages</h4>
+
+If you want to write stable, reliable programs, you have to do error checking.
+You should write an error message to stderr (preferrably one that is helpful
+for the user), and then either continue operation or, in the case of an
+unrecoverable error, you should abort. When dealing with the network interface,
+we are going to use a lot of system functions that will, on error, set a
+special variable. The system provides us with a &quot;translation
+service&quot; to turn this number into a human-readable string. I wrote a
+bunch of procedures that I will use in the examples to deal with such errors:
+
+<ul>
+  <li><tt>Say</tt> - Write a message to stderr.
+  <li><tt>SockError</tt> - Write a message to stderr, then then a description
+  of the last Sockets error, then abort.
+  <li><tt>SockSay</tt> - Like SockError, but don't abort.
+  <li><tt>GenError</tt> - Write a message to stderr and abort.
+</ul>
+
+<b>Note Windows programmers:</b> Since strerror is not available under Windows,
+converting the numbers to human-readable messages is currently impossible.
+This has probably to be done using Winsock functions. Until I have found a
+way, there is a special Windows version of the myerror unit that only prints
+numbers (see the link <a href="#chap6">below</a>).
+<p>
+
+<h4>2.3. Introductory Example</h4>
+
+From the application's point of view, the network is accessed through sockets.
+Any program that wants to send or receive data through the network has to
+request such a socket from the operating system, which can then be used to
+open a TCP connection or to handle UDP datagrams. From the network's point of
+view, a socket is associated with a port.
+<p>
+
+When sockets were invented for Unix, the authors had the idea to use the normal
+Unix file descriptors (handles) for this purpose. That way, you can read from
+and write to the network as if it were a normal text file. However, opening a
+socket is still a bit more work than just opening a file...
+<p>
+
+Let's now have a look at a simple example, and describe on a step-by-step
+basis, what the program does. The task is to write a simple server that waits
+for incoming connections (contrarily, a client would actively be opening a
+connection). When a connection is opened, the server reads a line and writes
+the length of the line back to the client. This (rather tedious occupation) is
+repeated until the client disconnects.
+<p>
+
+As all servers, we have to select the port we can be contacted at. Ports
+below 1024 are reserved for system servers such as the FTP daemon etc. Some
+systems won't let user processes bind to these ports. Also, many of them are
+already assigned as <i>well-known port numbers</i> for standardized services
+such as FTP, HTTP and so on by the <a href="http://www.iana.org/">Internet
+Assigned Numbers Authority</a> - certainly nothing we want to mess with. We
+will therefore use a big number such as $AFFE, which is used throughout the
+examples.
+<p>
+
+Ok, let's start off with the initial declarations, and our first action: To
+request a Socket from the operating system. As you can see, a socket is
+nothing but a LongInt:
+
+<pre>
+<b>program</b> simserv;
+
+<b>uses</b>
+   sockets, inetaux, myerror;
+
+<b>const</b>
+   ListenPort : Word = $AFFE;
+   MaxConn = 1;
+
+<b>var</b>
+   lSock, uSock : LongInt;
+   sAddr : TInetSockAddr;
+   Len : LongInt;
+   Line : String;
+   sin, sout : Text;
+
+<b>begin</b>
+   lSock := Socket(af_inet, sock_stream, 0);
+   <b>if</b> lSock = -1 <b>then</b> SockError('Socket: ');
+</pre>
+
+The socket is created using the Socket system call. Let us have a look at the
+parameters. First of all, you have to know that sockets are not only used
+for TCP/IP networking, but also for IPX/SPX, AppleTalk and what have you.
+Since we want to use the Internet, we specify the address family
+<tt>af_inet</tt>. The next parameter, <tt>sock_stream</tt>, indicates that we
+are going to use a TCP connection. The last parameter specifies a certain
+protocol. We set it to 0, as there is only once choice, and that is TCP.
+<p>
+
+A return value of -1 returns an error; we call SockError to abort.
+<p>
+
+Now that we have a socket, we want to bind it to a certain address/port. For
+this, we use the variable <tt>sAddr</tt> of type <tt>TInetSockAddr</tt>. It
+has three (relevant) fields; the address family, the address and the port
+number:
+
+<pre>   
+   <b>with</b> sAddr <b>do</b>
+   <b>begin</b>
+      Family := af_inet;
+      Port := htons(ListenPort);
+      Addr := 0;
+   <b>end</b>;
+   
+   <b>if</b> <b>not</b> Bind(lSock, sAddr, sizeof(sAddr)) <b>then</b> SockError('Bind: ');
+</pre>
+
+The family is again <tt>af_inet</tt>. The port is set to the constant defined
+earlier, and please note that it is converted to network byte order. The
+address is set to 0 (invalid address), which makes the operating system
+automatically fill in our own address.
+<p>
+
+With the address record ready, we call the Bind function (the third parameter
+is the size of the address record), which returns False on error. Now we are
+ready to tell the system to open this socket for incoming connections:
+<p>
+
+<pre>
+   <b>if</b> <b>not</b> Listen(lSock, MaxConn) <b>then</b> SockError('Listen: ');
+</pre>
+
+<tt>MaxConn</tt> (also defined in the const part) is a number, also known as
+<i>backlog</i>, that specifies how many incoming connections should be kept in
+a queue until we get around to answering them. Anyhow, now that the socket is
+listening, how <i>do</i> we check for connections and answer them? The
+following code shows:
+
+<pre>   
+   <b>repeat</b>
+      Say('Waiting for connections...');
+      Len := sizeof(sAddr);
+      uSock := Accept(lSock, sAddr, Len);
+      <b>if</b> uSock = -1 <b>then</b> SockError('Accept: ');
+      Say('Accepted connection from ' + AddrToStr(sAddr.Addr));
+</pre>
+
+The Accept call blocks the program until a connection arrives (unless we
+use it with a non-blocking socket, which I'm not going to cover here). It
+fills <tt>sAddr</tt> with the address of the connection's other end. The
+return value is a new socket for the new connection (the old socket keeps
+listening), unless an error occurs, in which case it returns -1. The last line
+produces an output that reports the new connection.
+<p>
+
+Having successfully opened a connection, we use the procedure Sock2Text to
+retrieve two text files - one for input, one for output: Then we use it as if
+it was a normal file to communicate with the remote host:
+
+<pre>
+      Sock2Text(uSock, sin, sout);
+      
+      Reset(sin);
+      Rewrite(sout);
+      Writeln(sout, 'Welcome, stranger!');
+      <b>while</b> <b>not</b> eof(sin) <b>do</b>
+      <b>begin</b>
+         Readln(sin, Line);
+         <b>if</b> Line = 'close' <b>then</b> <b>break</b>;
+         Writeln(sout, Length(Line));
+      <b>end</b>;
+
+      Close(sin);
+      Close(sout);
+      Shutdown(uSock, 2);
+      Say('Connection closed.');
+   <b>until</b> False;
+<b>end</b>.
+</pre>
+
+The Shutdown procedure is used to permanently close the connection, with the
+parameter 2 meaning that no further sending or receiving is allowed. Other
+choices would be 0: No further receives and 1: No further sends.
+<p>
+
+To summarize, the course of events is as follows:
+<ol>
+  <li>Create a new internet socket of type stream.
+  <li>Bind this socket to our own address, with our custom port.
+  <li>Call Listen to let the system know we want to accept connections.
+  <li>Wait for connections with Accept.
+  <li>After a connection has been accepted, convert the socket to Text files,
+  then open the files.
+  <li>Exchange data with the client.
+  <li>Close the files and call Shutdown to close the connection.
+</ol>
+
+To test our server, we can use a standard Telnet client (port $AFFE = 45054).
+It is a good idea to open two xterms and start the server in the first one
+and the Telnet client in the other one (in Windows, open two Telnet
+windows). The telnet output should look like this:
+
+<pre>
+basti@clever:~ > telnet localhost 45054
+Trying 127.0.0.1...
+Connected to localhost.
+Escape character is '^]'.
+Welcome, stranger!
+short line
+10
+this is a very long line
+24
+close
+Connection closed by foreign host.
+</pre>
+<p>
+
+<h4>2.4. The Other End</h4>
+
+Ok, now we know in principle what the server has to do. The client is even
+simpler: Instead of binding to an address on the local host and listening for
+connection, it just opens one. The function Connect is used for this. It takes
+as first argument the socket, and as second an address of the type
+<tt>TInetSockAddr</tt> that we already know (a third argument is the size of
+the address record).
+<p>
+
+The following program implements a client for the server we just wrote:
+<p>
+
+<pre>
+<b>program</b> simclient;
+
+{ Simple client program }
+
+<b>uses</b>
+   sockets, inetaux, myerror;
+
+<b>const</b>
+   RemoteAddress = '127.0.0.1';
+   RemotePort : Word = $AFFE;
+
+<b>var</b>
+   Sock : LongInt;
+   sAddr : TInetSockAddr;
+   sin, sout : Text;
+   Line : String;
+
+<b>begin</b>
+   Sock := Socket(af_inet, sock_stream, 0);
+   <b>if</b> Sock = -1 <b>then</b> SockError('Socket: ');
+   
+   <b>with</b> sAddr <b>do</b>
+   <b>begin</b>
+      Family := af_inet;
+      Port := htons(RemotePort);
+      Addr := StrToAddr(RemoteAddress);
+   <b>end</b>;
+
+   <b>if</b> <b>not</b> Connect(Sock, sAddr, sizeof(sAddr)) <b>then</b> SockError('Connect: ');
+   Sock2Text(Sock, sin, sout);
+   Reset(sin);
+   Rewrite(sout);
+   
+   Writeln('Connected.');
+   Readln(sin, Line);
+   Writeln(Line);
+   <b>repeat</b>
+      Write('> ');
+      Readln(Line);
+      Writeln(sout, Line);
+      <b>if</b> Line <> 'close' <b>then</b>
+      <b>begin</b>
+         Readln(sin, Line);
+         Writeln(Line);
+      <b>end</b>;
+   <b>until</b> Line = 'close';
+   
+   Close(sin);
+   Close(sout);
+   Shutdown(Sock, 2);
+<b>end</b>.
+</pre>
+
+A few remarks: As you can see, the loopback address 127.0.0.1 is hard-coded
+into the program as a string. We use the function <tt>StrToAddr</tt> from
+the <tt>inetaux</tt> unit to convert it to a LongInt. Another possibility
+would be to define it as $7F000001 (host byte order!), but this technique
+quickly becomes impractical. Also, if we use strings, we can easily change
+the program to accept IP addresses as user input, as we shall see in the
+next subsection.
+<p>
+
+The rest of the program is nothing new. Go ahead and try it out, but make
+sure that the server is already running somewhere.
+<p>
+
+<h4>2.5. Something Useful</h4>
+
+It's time that we write a program that actually has a <i>purpose</i>. I mean,
+determining the length of a string is not really one of the services you want
+to offer other people over the 'net (and also other people don't offer it).
+One of the lesser known services on the Internet is &quot;daytime&quot;. Some
+hosts offer a clock service at port 13. The protocol is simple:
+<ol>
+  <li>You connect to the server.
+  <li>The server sends a line with the current date and time in some
+  human-readable format.
+  <li>The server disconnects.
+</ol>
+
+Of course, this is not very accurate, since the message needs some time to
+travel through the network. For precise time transmission, there is the
+network time protocol (NTP), as defined in RFC 1305. Let's just say it's
+<i>very</i> mathy, if that is a word. However, if you awake in a dark, locked
+room after a long, dreamless sleep, not knowing whether it is day or night,
+you could simply connect to a daytime server to gain this essential
+information.
+<p>
+
+The daytime protocol is defined in RFC 867. I suggest that you read it, it is
+an easy read compared to your average RFC. RFC documents can be retrieved
+from the <a href="http://www.rfc-editor.org/">RFC-Editor</a>.
+<p>
+
+Without further ado, this is the source:
+
+<pre>
+<b>program</b> daytime;
+
+{ Simple client program }
+
+<b>uses</b>
+   sockets, inetaux, myerror;
+
+<b>const</b>
+   RemotePort : Word = 13;
+
+<b>var</b>
+   Sock : LongInt;
+   sAddr : TInetSockAddr;
+   sin, sout : Text;
+   Line : String;
+
+<b>begin</b>
+   <b>if</b> ParamCount = 0 <b>then</b> GenError('Supply IP address as parameter.');
+
+   <b>with</b> sAddr <b>do</b>
+   <b>begin</b>
+      Family := af_inet;
+      Port := htons(RemotePort);
+      Addr := StrToAddr(ParamStr(1));
+      <b>if</b> Addr = 0 <b>then</b> GenError('Not a valid IP address.');
+   <b>end</b>;
+
+   Sock := Socket(af_inet, sock_stream, 0);
+   <b>if</b> Sock = -1 <b>then</b> SockError('Socket: ');
+
+   <b>if</b> <b>not</b> Connect(Sock, sAddr, sizeof(sAddr)) <b>then</b> SockError('Connect: ');
+   Sock2Text(Sock, sin, sout);
+   Reset(sin);
+   Rewrite(sout);
+
+   <b>while</b> <b>not</b> eof(sin) <b>do</b>   
+   <b>begin</b>
+      Readln(sin, Line);
+      Writeln(Line);
+   <b>end</b>;
+   
+   Close(sin);
+   Close(sout);
+   Shutdown(Sock, 2);
+<b>end</b>.
+</pre>
+
+The syntax is &quot;<tt>daytime &lt;ip-address&gt;</tt>&quot;. Many server
+administrators disable the daytime service. Just try some server at a
+university that you know. For example, <tt>public.uni-hamburg.de</tt> works
+fine:
+
+<pre>
+basti@clever:~/pas > nslookup public.uni-hamburg.de
+Server:  rzaix240.rrz.uni-hamburg.de
+Address:  134.100.33.240
+
+Name:    public.uni-hamburg.de
+Address:  134.100.32.55
+
+basti@clever:~/pas > daytime 134.100.32.55
+Sun Apr 23 16:54:50 2000
+basti@clever:~/pas > 
+</pre>
+<p>
+
+<h4>2.6. Suggestions</h4>
+
+If you want to try your newly gained knowledge, here are some things you could
+do:
+<ul>
+  <li>Write a server that reads file names from the client and, for each
+  name, sends back the content of that file.
+  <p>
+
+  <li>The server described above is the worst security hole imaginable.
+  Modify the program so that it will interpret the file names relative to a
+  directory specified either in the code or by the user. Make sure that your
+  program cannot be fooled by file names like <tt>'../../../etc/passwd'</tt>.
+  Once you start writing network programs, you <i>have</i> to start thinking
+  about security issues!
+  <p>
+
+  <li>Read RFC 1288 - The Finger User Information Protocol. Write a finger
+  client. Find out why this service is called Finger and tell me about your
+  findings, since I'd like to know.
+  <p>
+
+  <li>Why not write a daytime server?
+</ul>
+<p>
+
+<a name="chap3">
+<h3>3. Using the Domain Name System</h3>
+
+As every schoolkid knows, hosts on the Internet are uniquely identified by an
+IP address, which is - as we have already seen - nothing but a 32 bit number
+normally written as 4 consecutive bytes. Now if there is something we can
+learn from the telephone system, it is that numbers are hard to rememeber.
+Therefore, the domain name system was created. This is not the only use of the
+DNS - email exchange hosts can also be determined, among other things.
+<p>
+
+The DNS is a distributed database of a hierarchical name space. Distributed
+means that there is not one central name server that holds all the information,
+but instead the administrator of a zone such as &quot;microsoft.com&quot; has
+to provide name services for all hosts in that zone (zones can be partitioned
+into sub-zones, as is probably done in the case of Microsoft). There are,
+however, root servers that know what the name servers for each zone are. This
+information should partly be available at every provider, but if it is not,
+there is a hierarchical system of name servers that your provider's server can
+ask, ending up with the root servers.
+<p>
+
+<h4>3.1. Interface</h4>
+
+Fortunately, we don't have to deal with all this. We can use a simple set of
+operating system calls to resolve a name to an IP address. For this, you have
+to tell your operating system the IP address of your provider's name servers,
+which is something you probably have done when you set up your computer.
+<p>
+
+Micha&euml;l van Canneyt of the Free Pascal Development Team has written
+a unit called <tt>inet</tt> to provide some basic services including name
+resolution. Unfortunately, it is only available for Linux (included in the
+distrubution since version 0.99.14). Windows programmers will therefore have
+to use the WinSock unit manually.
+<p>
+
+The inet unit provides an
+object type <tt>THost</tt> that encapsulates the needed calls to system
+functions such as <tt>GetHostByName</tt> etc. The reason is that more than
+one IP address can be returned, and also additional names. (Multiple names can
+point to the same host, and multiple hosts can be specified for a name.)
+The returned data has a clumsy structure that only C programmers might have
+fun with. Luckily, the THost object will examine it for us. This is its
+type declaration from <tt>inet.pp</tt>:
+
+<pre>
+  THost = <b>Object</b>
+    FHostEntry : PHostEnt;
+    FAlias,FAddr,FError : Longint;
+    <b>Constructor</b> NameLookup (HostName : String);
+    <b>Constructor</b> AddressLookup (<b>Const</b> Address : THostAddr);
+    <b>Destructor</b> Done;
+    <b>Function</b> Name : String;
+    <b>Function</b> GetAddress (Select : TSelectType) : String;
+    <b>Function</b> GetAlias (Select : TSelectType) : String;
+    <b>Function</b> IPAddress : THostAddr;
+    <b>Function</b> IPString : String;
+    <b>Function</b> LastError : Longint;
+  <b>end</b>;
+</pre>
+
+We are going to call the constructor NameLookup, and then use the fields
+<tt>Name</tt> (the official name) and, most importantly, IPAddress, which can
+be cast to a LongInt without problems and is already in network byte order
+(for more details please see inet.pp).
+<p>
+
+However, IP address strings such as '127.0.0.1' will not be resolved to
+the address. How do we detect these?
+<p>
+
+1. The clean way: Check if the string could be a correct IP address, that is,
+four numbers in the range 0 - 255, separated by dots.
+<p>
+
+2. Our way: Try to convert it, and if it fails (0 = invalid address), try to
+resolve it.
+<p>
+
+This is an improved version of the daytime client with DNS support:
+
+<pre>
+<b>program</b> dtname;
+
+{ Simple client program with DNS support }
+
+<b>uses</b>
+   sockets, inet, inetaux, myerror;
+
+<b>const</b>
+   RemotePort : Word = 13;
+
+<b>var</b>
+   Sock : LongInt;
+   sAddr : TInetSockAddr;
+   sin, sout : Text;
+   Line : String;
+   Host : THost;
+
+<b>begin</b>
+   <b>if</b> ParamCount = 0 <b>then</b> GenError('Supply hostname as parameter');
+
+   <b>with</b> sAddr <b>do</b>
+   <b>begin</b>
+      Family := af_inet;
+      Port := htons(RemotePort);
+      Addr := StrToAddr(ParamStr(1));  { Maybe it's an IP address }
+      <b>if</b> Addr = 0 <b>then</b>
+      <b>begin</b>
+         <b>with</b> Host <b>do</b>
+         <b>begin</b>
+            NameLookup(ParamStr(1));
+            <b>if</b> LastError <> 0 <b>then</b> GenError('Name lookup failure');
+            Writeln('Official name: ', Name);
+            Addr := LongInt(IPAddress);
+            Writeln('IP address: ', AddrToStr(Addr));
+         <b>end</b>;
+      <b>end</b>;
+   <b>end</b>;
+
+   Sock := Socket(af_inet, sock_stream, 0);
+   <b>if</b> Sock = -1 <b>then</b> SockError('Socket: ');
+
+   <b>if</b> <b>not</b> Connect(Sock, sAddr, sizeof(sAddr)) <b>then</b> SockError('Connect: ');
+   Sock2Text(Sock, sin, sout);
+   Reset(sin);
+   Rewrite(sout);
+
+   <b>while</b> <b>not</b> eof(sin) <b>do</b>   
+   <b>begin</b>
+      Readln(sin, Line);
+      Writeln(Line);
+   <b>end</b>;
+   
+   Close(sin);
+   Close(sout);
+   Shutdown(Sock, 2);
+<b>end</b>.
+</pre>
+
+As an example of its usage, let's see if the folks in the capital will tell
+us what time it is:
+
+<pre>
+basti@clever:~/pas/collection/inet > dtname news.fu-berlin.de
+Official name: news.fu-berlin.de
+IP address: 130.133.1.4
+Sun Apr 23 19:44:25 2000
+basti@clever:~/pas/collection/inet > 
+</pre>
+
+<h4>3.2. Suggestions</h4>
+
+DNS is a powerful system. If you want to find out more about the information
+you can retrieve through your name servers, you might want to get a hand on
+the package &quot;dig&quot; which is available for most operating systems.
+DNS is described in RFCs 1034 and 1035.
+<p>
+
+The THost object can do more than just retrieve one address and one hostname.
+It can find secondary addresses (for example if the host is multi-homed), and
+it can find alias names. Many organizations use systematic names for their
+computers, and in addition to that, name one of them 'www', one 'ftp' (might
+be the same), and so on. Use GetAddress and GetAlias to determine these.
+<p>
+
+<a name="chap4">
+<h3>4. Handling Multiple Clients</h3>
+
+The servers we have written so far can only serve one client at a time. This
+may be acceptable for very simple services such as daytime, but otherwise
+it is unacceptable, especially when connections can last longer (NNTP, FTP
+or Telnet come to mind). There are two basic techniques to write multi-client
+servers, which we will explore in the following section.
+<p>
+
+Unfortunately, at this point we are leaving the zone of operating system
+independence. We are going to use mechanisms of parallelism that are not part
+of the sockets network interface, and thus there will be differences between
+operating systems. So where are we going? As you might have guessed from the
+text so far (especially the example outputs with a bash prompt, ahem...), I am
+doing this mainly under Linux, so I am a bit more familar with that. This is
+why this section will be Linux specific. On the other hand, I had
+the opportunity to use the WinSock DLL some time ago, so if there is a strong
+interest in Windows, let me know and I'll see if I can dig out some old
+sources. (Besides, Delphi offers great sockets components.)
+<p>
+
+<h4>4.1. Multitasking</h4>
+
+This is the first approach to the task. If multiple clients can be handled
+independently, it is possible to start a new process for each client. That
+means that we proceed like in the simple server presented earlier, but
+after accepting, issue a Fork command. Fork creates a new process that is an
+exact copy of the old one, all variable values, file descriptors etc.
+included. With one small, but subtle difference: The return value of the
+Fork function is 0 in the child process, and another number in the parent
+process (more precisely, the process ID of the child). So the basic structure
+looks like this:
+
+<pre>
+<b>if</b> Fork = 0 <b>then</b>  { we are the child }
+<b>begin</b>
+   handle the new client;
+   Halt;
+<b>end</b>
+<b>else</b> proceed <b>with</b> the accepting loop;
+</pre>
+
+However, after executing the Halt, the child process is not really dead. On
+the other hand, it surely doesn't live anymore, so it is fair to say that it
+is in a mysterious state between life and death. It is called a zombie. (I am
+not making jokes, please read the manual page for ps!) The process will stay
+in this state until it is delivered by its parent through a call of WaitPid.
+<p>
+
+Before proceeding with the loop, the parent version has therefore to call
+WaitPid (with no particular process ID to wait for) until all childs that are
+currently in zombie state are deleted from the process list. The appropriate
+call is
+
+<pre>
+WaitPid(-1, nil, wnohang);
+</pre>
+
+where -1 means that we are not waiting for a particular process, nil means
+that we don't want to know more about the child's state and the flag wnohang
+indicates that if there is no zombie, the function should return immediately.
+The return value is -1 on failure (no zombie) and the process number of the
+child otherwise.
+<p>
+
+This is the complete program:
+
+<pre>
+<b>program</b> mtserv;
+
+{ A multi-threaded server program. }
+
+<b>uses</b>
+   sockets, inetaux, myerror, linux;
+
+<b>const</b>
+   ListenPort : Word = $AFFE;
+   MaxConn = 1;
+
+<b>var</b>
+   lSock, uSock : LongInt;
+   sAddr : TInetSockAddr;
+   Len : LongInt;
+   Line : String;
+   sin, sout : Text;
+
+<b>begin</b>
+   lSock := Socket(af_inet, sock_stream, 0);
+   <b>if</b> lSock = -1 <b>then</b> SockError('Socket: ');
+   
+   <b>with</b> sAddr <b>do</b>
+   <b>begin</b>
+      Family := af_inet;
+      Port := htons(ListenPort);
+      Addr := 0;
+   <b>end</b>;
+   
+   <b>if</b> <b>not</b> Bind(lSock, sAddr, sizeof(sAddr)) <b>then</b> SockError('Bind: ');
+   <b>if</b> <b>not</b> Listen(lSock, MaxConn) <b>then</b> SockError('Listen: ');
+   
+   <b>repeat</b>
+      Say('Waiting for connections...');
+      Len := sizeof(sAddr);
+      uSock := Accept(lSock, sAddr, Len);
+      <b>if</b> uSock = -1 <b>then</b> SockError('Accept: ');
+      Say('Accepted connection from ' + AddrToStr(sAddr.Addr));
+      
+      <b>if</b> Fork = 0 <b>then</b>  { we are the child }
+      <b>begin</b>
+
+         Sock2Text(uSock, sin, sout);
+      
+         Reset(sin);
+         Rewrite(sout);
+         Writeln(sout, 'Welcome, stranger!');
+         <b>while</b> <b>not</b> eof(sin) <b>do</b>
+         <b>begin</b>
+            Readln(sin, Line);
+            <b>if</b> Line = 'close' <b>then</b> <b>break</b>;
+            Writeln(sout, Length(Line));
+         <b>end</b>;
+   
+         Close(sin);
+         Close(sout);
+         Shutdown(uSock, 2);
+         Say('Connection closed.');
+         Halt;
+      <b>end</b>
+      <b>else</b>  { we are the parent }
+      <b>repeat</b> <b>until</b> WaitPid(-1, nil, wnohang) < 1;
+   <b>until</b> False;
+<b>end</b>.
+</pre>
+
+After starting mtserv, we get the following result from the ps output (try
+ps | grep mt):
+
+<pre>
+ 3735  ?  S    0:00 mtserv 
+</pre>
+
+Then we connect to the server (e. g. with Telnet, or with our own
+sophisticated client), and voil&aacute;, we have two processes running:
+
+<pre>
+ 3735  ?  S    0:00 mtserv 
+ 3753  ?  S    0:00 mtserv 
+</pre>
+
+A second Telnet session, and we have already three of them running. Now let's
+close both connections and look at the results in the process list:
+
+<pre>
+ 3735  ?  S    0:00 mtserv 
+ 3753  ?  Z    0:00 (mtserv &lt;zombie&gt;)
+ 3760  ?  Z    0:00 (mtserv &lt;zombie&gt;)
+</pre>
+
+As expected, two zombies are wandering around. We open a new connection, and
+the parent process will kill off both of them, but on the other hand, a new
+one will be created:
+
+<pre>
+ 3735  ?  S    0:00 mtserv 
+ 3800  ?  S    0:00 mtserv 
+</pre>
+
+Now this guide is not an introduction to Unix process management, so we stop
+here and just note that with this type of management, there might always be
+some processes in zombie state, but at least we free all zombies each time
+we set a new child into the world.
+<p>
+
+All in all, this technique is very useful for servers where there is no need
+for the clients to interact, which includes a lot of well-known protocols
+such as FTP, HTTP and so on. On the other hand, there are a lot of situations
+where clients are supposed to interact with other clients, such as chats and
+MUDs (multi-user dungeons). With multiple processes, we would have to employ
+inter-process communication, which is not exactly what I want to do here.
+Fortunately, there is a simpler technique which also has the advantage of an
+enormously impressive name.
+<p>
+
+<h4>4.2. Synchronous I/O Multiplexing</h4>
+
+This facility is a feature of most Unices, and is not specific to sockets -
+it works for other types of file descriptors as well. Its heart is the Select
+system call, which lets the operating system wait for <i>events</i> to happen
+on one or more files. Of course, regular files are not the most interesting
+examples, since watching them tends to be rather boring. But as Select
+works for sockets as well, it will be a great help.
+<p>
+
+You can tell Select to watch three sets of file descriptors, for read, write
+and exception events. For example, if you put stdin in the read set, you are
+informed when new data is available to be read from stdin. The sets are
+modified upon return of Select to indicate which file descriptors are
+concerned. In our examples, we only use the read category, which covers
+connection establishment and termination as well as incoming data.
+<p>
+
+A number of routines are available to manipulate file descriptor sets:
+<ul>
+  <li><tt>fd_zero</tt> - Empty a set
+  <li><tt>fd_set</tt> - Add a file descriptor to a set
+  <li><tt>fd_clr</tt> - Remove a file descriptor from a set
+  <li><tt>fd_isset</tt> - Determine if a file descriptor is in a set
+</ul>
+
+(For more information, see the documentation about the Linux unit).
+<p>
+
+Select can either block until something happens or you can set a timeout
+parameter. If nothing happens within the specified period of time, Select
+will return anyway. The time can be 0. In our case, using a timeout is not
+useful (except maybe for printing "Still waiting..." messages), so we will
+not set this parameter. The basic structure looks like the following code
+snippet:
+<p>
+
+<pre>
+repeat
+   put all sockets currently connected in the read set;
+   put the listening socket in the read set;
+   Select(read set, no other sets, no timeout);
+   respond to all sockets that are left in the read set;
+until false;
+</pre>
+
+As an example, let's assume we want to write a simple chat server. All data
+that is received from one client is sent to all other clients that are online.
+To maintain the clients, we are going to use a record ClientRec that keeps
+all data we have about one client. More precisely, that means the socket
+descriptor and the two text files. On a more advanced level, you might want to
+store additional information such as a nickname, and so on. For simplicity,
+we use an array to hold the client records.
+<p>
+
+After one or more events have occured, we have to follow the procedure
+outlined below:
+<ol>
+  <li>If an event occured on the listening socket, accept the connection.
+  If there is still room for the new client, store it in the clients list,
+  otherwise send an error message and close the connection.
+  <p>
+
+  <li>Check all active clients for events. If one occured, test if the
+  connection has been closed (with eof). If so, remove the client from the
+  clients list. If not, read the input and process it.
+</ol>
+
+I believe that a piece of code says more than a thousand words of prose, so
+here is it:
+
+<pre>
+<b>program</b> mulserv;
+
+{ A server that can handle multiple client connections. }
+
+<b>uses</b>
+   sockets, inetaux, myerror, linux;
+
+<b>const</b>
+   ListenPort : Word = $AFFE;
+   MaxConn = 5;
+   MaxClients = 5;
+
+<b>type</b>
+   ClientRec = <b>record</b>
+      cSock : LongInt;
+      adstr : String;
+      sin, sout : Text;
+   <b>end</b>;
+
+<b>var</b>
+   lSock, uSock : LongInt;
+   sAddr : TInetSockAddr;
+   Len, i, j : LongInt;
+   Line : String;
+   Clients : <b>array</b>[1..MaxClients] <b>of</b> ClientRec;
+   NumClients : LongInt;
+   MaxFD : LongInt;
+   ReadSet : FDSet;
+   sin, sout : Text;
+
+<b>begin</b>
+   lSock := Socket(af_inet, sock_stream, 0);
+   <b>if</b> lSock = -1 <b>then</b> SockError('Socket: ');
+   
+   <b>with</b> sAddr <b>do</b>
+   <b>begin</b>
+      Family := af_inet;
+      Port := htons(ListenPort);
+      Addr := 0;
+   <b>end</b>;
+   
+   <b>if</b> <b>not</b> Bind(lSock, sAddr, sizeof(sAddr)) <b>then</b> SockError('Bind: ');
+   <b>if</b> <b>not</b> Listen(lSock, MaxConn) <b>then</b> SockError('Listen: ');
+   
+   Say('Waiting...');
+   
+   fd_zero(ReadSet);
+   NumClients := 0;
+   
+   <b>repeat</b>
+      MaxFD := 0;
+      <b>for</b> i := 1 <b>to</b> NumClients <b>do</b> <b>with</b> Clients[i] <b>do</b>
+      <b>begin</b>
+         fd_set(cSock, ReadSet);
+         <b>if</b> cSock > MaxFD <b>then</b> MaxFD := cSock;
+      <b>end</b>;
+      fd_set(lSock, ReadSet);
+      <b>if</b> lSock > MaxFD <b>then</b> MaxFD := lSock;
+      Inc(MaxFD);
+      
+      Select(MaxFD, @ReadSet, nil, nil, <b>nil</b>);  { No timeout! }
+      
+      { New connections? }
+      
+      <b>if</b> fd_isset(lSock, ReadSet) <b>then</b>
+      <b>begin</b>
+         Say('Incoming connection.');
+         Len := sizeof(sAddr);
+         uSock := Accept(lSock, sAddr, Len);
+         <b>if</b> uSock = -1 <b>then</b> SockSay('Accept: ')
+         <b>else</b>
+         <b>begin</b>
+            <b>if</b> NumClients < MaxClients <b>then</b>
+            <b>begin</b>
+               Inc(NumClients);
+               <b>with</b> Clients[NumClients] <b>do</b>
+               <b>begin</b>
+                  cSock := uSock;
+                  Sock2Text(cSock, sin, sout);
+                  Reset(sin);
+                  Rewrite(sout);
+                  adstr := AddrToStr(sAddr.Addr);
+                  Say('Accepted connection from ' + adstr);
+               <b>end</b>;
+            <b>end</b>
+            <b>else</b>  { client limit reached }
+            <b>begin</b>
+               Sock2Text(uSock, sin, sout);
+               Rewrite(sout);
+               Writeln(sout, 'Sorry, we are fully booked.');
+               Close(sout);
+               Shutdown(uSock, 2);
+            <b>end</b>;
+         <b>end</b>;
+      <b>end</b>;
+      
+      { And/or an event on an existing connection? }
+      
+      <b>for</b> i := 1 <b>to</b> NumClients <b>do</b> <b>if</b> fd_isset(Clients[i].cSock, ReadSet) <b>then</b>
+      <b>begin</b>
+         <b>if</b> eof(Clients[i].sin) <b>then</b>  { Connection has been closed? }
+         <b>begin</b>
+            <b>with</b> Clients[i] <b>do</b>
+            <b>begin</b>
+               Close(sin);
+               Close(sout);
+               Shutdown(cSock, 2);
+               Say('Disconnected ' + adstr);
+            <b>end</b>;
+            <b>for</b> j := i <b>to</b> NumClients - 1 <b>do</b> Clients[j] := Clients[j + 1];
+            Dec(NumClients);
+         <b>end</b>
+         <b>else</b>  { No -> Data can be read }
+         <b>begin</b>
+            Say('Received message from ' + Clients[i].adstr + '...');
+            Readln(Clients[i].sin, Line);
+            Say(Line);
+            <b>for</b> j := 1 <b>to</b> NumClients <b>do</b> <b>if</b> i <> j <b>then</b>
+               Writeln(Clients[j].sout, Line);
+         <b>end</b>;
+      <b>end</b>;
+   <b>until</b> False;
+<b>end</b>.
+</pre>
+
+(Note: I once expercienced a mysterious CPU hogging by this server after a
+client had disconnected. I don't know why, and I couldn't reproduce it
+reliably. If you find anything suspicious, please let me know.)
+<p>
+
+<h4>4.3. Suggestions</h4>
+
+The concepts of serving multiple clients should be clear so far. Things to
+try to get used to client interaction:
+<ul>
+  <li>Improve the chat server. If you are familiar with dynamical data
+  structures, you might want to add dynamical client management. It also
+  could use support for nicknames, multiple channels, private conversations,
+  operator mode, etc etc... It might be a good exercise to document your
+  protocol.
+  <p>
+
+  <li>Write a multi-threaded version of the file server from section 2.
+</ul>
+<p>
+
+<a name="chap5">
+<h3>5. Binary Data</h3>
+
+In the example programs so far, we always assumed that communication through
+the network is like text file I/O - lines of reasonable length are exchanged
+with Readln and Writeln (if you are concerned about the line length, consider
+compiling your programs with AnsiString support). Many protocols work this
+way, but it also has its drawbacks. If we want to exchange raw, binary data,
+CR/LF sequences should <i>not</i> be treated in a special way, and buffers
+should be used to hold the data to be sent or received. For this purpose, we
+will use the functions Send and Recv. Both have four parameters:
+<ol>
+  <li>the socket
+  <li>the buffer
+  <li>size of the buffer
+  <li>flags
+</ol>
+
+To illustrate the point, let's assume that we want to conduct bandwidth
+measurements in a network. We need a server we can tell, &quot;send me so many
+bytes of random data&quot;, and it will begin pumping the bytes into the
+network. (Actually, a research group at Hamburg University once developed a
+web server that would accept URLs like http://hostname/50MB for similar
+purposes.) We also need a client to initiate the transmission and receive the
+data.
+<p>
+
+The protocol is as follows: After starting the connection, the client sends
+a four byte LongInt indicating how many bytes it would like to receive (with
+a maximum of 2 GB). The server then starts sending the data. The clients
+writes the data to disk, so that we can examine it (if you think this affects
+your delicate bandwidth measurements, you can change OutFileName to
+'/dev/null', but see <a href="http://www.tuatha.org/~mpk/devnull.html">the
+Fhlushstone benchmark</a>).
+<p>
+
+Anyway, this is the server code:
+
+<pre>
+<b>program</b> binserv;
+
+{ A binary data server program. }
+
+<b>uses</b>
+   sockets, inetaux, myerror;
+
+<b>const</b>
+   ListenPort : Word = $AFFE;
+   MaxConn = 1;
+   BufSize = 1024;
+
+<b>var</b>
+   Buffy : <b>array</b>[0..BufSize - 1] <b>of</b> Char;
+
+<b>procedure</b> FillBuffer;
+<b>var</b> i : LongInt;
+<b>begin</b>
+   <b>for</b> i := 0 <b>to</b> BufSize - 1 <b>do</b> Buffy[i] := Chr(Random(256));
+<b>end</b>;
+
+<b>var</b>
+   lSock, uSock : LongInt;
+   sAddr : TInetSockAddr;
+   Len : LongInt;
+   Amount : LongInt;
+
+<b>begin</b>
+   Randomize;
+   
+   lSock := Socket(af_inet, sock_stream, 0);
+   <b>if</b> lSock = -1 <b>then</b> SockError('Socket: ');
+   
+   <b>with</b> sAddr <b>do</b>
+   <b>begin</b>
+      Family := af_inet;
+      Port := htons(ListenPort);
+      Addr := 0;
+   <b>end</b>;
+   
+   <b>if</b> <b>not</b> Bind(lSock, sAddr, sizeof(sAddr)) <b>then</b> SockError('Bind: ');
+   <b>if</b> <b>not</b> Listen(lSock, MaxConn) <b>then</b> SockError('Listen: ');
+   
+   <b>repeat</b>
+      Say('Waiting for connections...');
+      Len := sizeof(sAddr);
+      uSock := Accept(lSock, sAddr, Len);
+      <b>if</b> uSock = -1 <b>then</b> SockError('Accept: ');
+      Say('Accepted connection from ' + AddrToStr(sAddr.Addr));
+      
+      Len := Recv(uSock, Amount, sizeof(Amount), 0);
+      <b>if</b> SocketError <> 0 <b>then</b> SockError('Recv: ');
+      <b>if</b> Len < sizeof(Amount) <b>then</b> GenError('Couldn''t receive a LongInt!');
+      
+      <b>while</b> Amount > 0 <b>do</b>
+      <b>begin</b>
+         FillBuffer;
+         <b>if</b> Amount < BufSize <b>then</b> Len := Amount <b>else</b> Len := BufSize;
+         Len := Send(uSock, Buffy, Len, 0);
+         <b>if</b> Len = -1 <b>then</b> SockError('Send: ');
+         Dec(Amount, Len);
+      <b>end</b>;
+
+      Shutdown(uSock, 2);
+      Say('Connection closed.');
+   <b>until</b> False;
+<b>end</b>.
+</pre>
+
+Please note that it is not guaranteed that Send will send all the data we
+want to have sent, although it is very likely. If not, we don't resend (as
+the bytes are random anyway), and just take the <i>actual</i> amount of bytes
+sent (as returned by Send) into consideration.
+<p>
+
+The client works similar:
+
+<pre>
+<b>program</b> binclient;
+
+{ Simple client for binary data }
+
+<b>uses</b>
+   sockets, inetaux, myerror;
+
+<b>const</b>
+   RemoteAddress = '127.0.0.1';
+   RemotePort : Word = $AFFE;
+   OutFileName = 'received.bin';
+   const_Amount = 10005;
+   BufSize = 2048;
+   
+<b>var</b>
+   Sock : LongInt;
+   sAddr : TInetSockAddr;
+   Buffy : <b>array</b>[0..BufSize - 1] <b>of</b> Char;
+   fout : File <b>of</b> Char;
+   Amount, Len : LongInt;
+   Closed : Boolean;
+   i : LongInt;
+
+<b>begin</b>
+   Sock := Socket(af_inet, sock_stream, 0);
+   <b>if</b> Sock = -1 <b>then</b> SockError('Socket: ');
+   
+   <b>with</b> sAddr <b>do</b>
+   <b>begin</b>
+      Family := af_inet;
+      Port := htons(RemotePort);
+      Addr := StrToAddr(RemoteAddress);
+   <b>end</b>;
+
+   <b>if</b> <b>not</b> Connect(Sock, sAddr, sizeof(sAddr)) <b>then</b> SockError('Connect: ');
+   Writeln('Connected.');
+   
+   Amount := const_Amount;
+   Len := Send(Sock, Amount, sizeof(Amount), 0);
+   <b>if</b> Len < sizeof(Amount) <b>then</b> GenError('Couldn''t send a LongInt.');
+   
+   Assign(fout, OutFileName);
+   {$I-}
+   Rewrite(fout);
+   <b>if</b> IoResult <> 0 <b>then</b> GenError('Couldn''t open file ' + OutFileName);
+   {$I+}
+   
+   Closed := False;
+   <b>while</b> <b>not</b> Closed <b>do</b>
+   <b>begin</b>
+      Len := Recv(Sock, Buffy, sizeof(Buffy), 0);
+      <b>if</b> SocketError <> 0 <b>then</b>
+      <b>begin</b>
+         Close(fout);
+         SockError('Recv: ');
+      <b>end</b>;
+      <b>if</b> Len = 0 <b>then</b> Closed := True
+      <b>else</b> <b>for</b> i := 0 <b>to</b> Len - 1 <b>do</b> Write(fout, Buffy[i]);
+   <b>end</b>;
+
+   Close(fout);
+   Shutdown(Sock, 2);
+<b>end</b>.
+</pre>
+
+Of course, Send/Recv and the Text file functions can be combined. This might
+be useful in the case of HTTP, which on the one hand works with text-oriented
+headers, on the other hand is able to send binary files (e.g. pictures). I
+have not checked the HTTP specification, so I don't know how this is handled.
+Another thing worth mentioning is the procedure Sock2File which turns the
+socket descriptor into two untyped files (instead of Text files). This allows
+for record-oriented file I/O, since you can call Reset and Rewrite with the
+record size parameter.
+<p>
+
+<h4>Suggestions:</h4>
+
+Unstructured data flow has a number of advantages over line-oriented
+communication. It seems wise to become familiar with it, although there are
+many situations where it only adds management overhead.
+<ul>
+  <li>In the earlier sections, we developed a file server that could be
+  used to transfer files from one host to the other. However, the transmission
+  technique that we used - line oriented - was suboptimal, as it would
+  produce a tremendous overhead for files with many empty lines, and would
+  scale very badly for files with very long lines.
+  <p>
+
+  It is obvious that it would be a major improvement for the program to change
+  the transmission technique to byte-oriented. On the other hand, aren't
+  there some advantages to line-oriented transmission (hint: think about
+  heterogenous networks with communication between Linux and Windows hosts)?
+  <p>
+
+  <li>The SMTP protocol is completely line-oriented, regarding the
+  client-to-server commands as well as the transmitted emails themselves.
+  <a href="http://cr.yp.to/proto/qmtp.txt">QMTP</a> however, devised by qmail
+  author Dan Bernstein as an SMTP replacement, uses so-called
+  &quot;netstrings&quot;, which are not unlike classic Pascal strings, to
+  simplify the protocol and improve throughput.
+  <p>
+  Write a simple message exchange service using netstrings. Using
+  AnsiStrings will be a great help. And don't forget the no. 1 optimization
+  rule for AnsiStrings: If you know the final length beforehand, set it with
+  SetLength.
+  <p>
+</ul>
+
+<a name="chap6">
+<h3>6. Obtaining the Software</h3>
+
+Throughout this document, I have quoted quite a lot of program sources, and
+I have also mentioned several units. All these files are available in a ZIP
+archive accessible via the link below:
+<p>
+
+<a href="sources/pasinet.zip">pasinet.zip</a>
+<p>
+
+Micha&euml;l Van Canneyt's inet package is available from the following
+address:
+<p>
+
+<a href="http://www.freepascal.org/fpc-linux/inet/inet.tar.gz">inet.tar.gz</a>
+<p>
+
+<a name="chap7">
+<h3>7. Final Remarks</h3>
+
+As an overview over the subject of sockets programming, this tutorial
+is far from being
+complete, and it is still evolving. Topics that might be added in the future
+include: Connectionless transmission, FPC's overloaded Accept and Connect
+functions, non-blocking sockets, various fine-tunings (e.g. with the Send and
+Recv flags) etc. Several problems exist with Windows, and I would like to
+address them more specifically - but before I can do that, I have to have a
+closer look at them.
+<p>
+
+Second, while all programs on this page have been tested, that does not mean
+they are bug-free. The same holds true for all other informations: I try to
+get everything right, but there might still be errors and inaccuracies.
+Therefore, any feedback is greatly appreciated; if you find anything to
+criticize - factual errors, bugs, whatever - feel free to mail me at the
+address below.
+<p>
+
+For now, have fun!
+<p>
+
+<hr>
+<address><a href="mailto:basti@bastisoft.de">Sebastian Koppehel</a></address>
+<!-- Created: Sun Apr 23 00:39:36 CEST 2000 -->
+<!-- hhmts start -->
+Last modified: Thu Apr 27 13:26:57 CEST 2000
+<!-- hhmts end -->
+</body>
+</html>
