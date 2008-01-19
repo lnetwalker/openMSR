@@ -1,0 +1,37 @@
+IO Driver Information
+
+PhysMach unterstützt folgende IO Devices 
+
+Printerports
+Joystick Port
+PIO mit 8255
+IO Warrior
+DIL Net PC
+
+
+Siehe Projekt SPS
+das Konfigfile
+.run_sps.cfg
+den code der IO Driver *_io_access.pas
+
+
+
+
+
+
+
+die Ports haben folgende Adressen
+
+printer: 1 0x378-37f	2 0x278-27f	3 0x3bc-3be
+game:	 1 0x200-207
+PIO: zB 0x300-303 prinzipiell beliebig
+
+beim Printerport ist die erste Adresse der Datenausgang, die zweite der 
+Dateneingang Bsp. lpt1 out 378 , in 379
+
+Bei der Pio ist der erste Port der Port  a, 2 = b, 3 = c und der letzte Port
+der Controlport.
+
+Joystick Programming hints: docs/joystick/joystick-api.txt.gz
+
+
