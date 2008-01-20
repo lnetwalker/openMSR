@@ -4,6 +4,7 @@ PhysMach is a Pascal Unit which builds up a kind of machine with a number of
 digital and analog In- and Outputs, internal bit oriented variables, timers and 
 counters.
 
+
 These properties can be mapped with a config file to different real hardware devices
 like the printerport, joystick, PIO, IO Warrior or DIL/Net PC.
 
@@ -11,7 +12,19 @@ You can write your programs using the resources of the PhysMach and use those re
 without even knowing how to really program them. 
 
 What you need to do in your program is Init the Physical Machine, load the config file
-and after that youre able to read and write to all these devices by using simple procedures.
+and after that youre able to read and write to all these devices by using the simple procedures
+PhysMachReadDigital and PhysMachWriteDigital. Analog device can be read by using
+PhysMachReadAnalog, and the software timers and counters can be managed with PhysMachCounter
+and PhysMachTimer.
+
+these procedures are exported :
+procedure PhysMachInit;
+procedure PhysMachReadDigital;
+procedure PhysMachWriteDigital;
+procedure PhysMachCounter;
+procedure PhysMachloadCfg(cfgFilename : string);
+procedure PhysMachReadAnalog;
+procedure PhysMachTimer;
 
 It is possible to define mixtures of all these devices to form the Physical machine.
 
@@ -19,7 +32,7 @@ The Physical machine groups 8 bits into a group of e.g. inputs and every group c
 to a different real hardware. 
 
 The unit can be used with Linux or Windows, but the OSes support different hardware.
-Currently only under Linux all above mention hardware is usable, on windows only the IO Warrior
+Currently only under Linux all above mentioned hardware is usable, on windows only the IO Warrior
 can be used.
 
 The hardware drivers are units of their own and are used by the Physical Machine. To extend the 

@@ -56,7 +56,10 @@ implementation
 
 uses
 {$ifdef LINUX }
-		oldlinux,dil_io_access,lp_io_access,pio_io_access,joy_io_access,rnd_io_access,
+		oldlinux,
+		dil_io_access,lp_io_access,pio_io_access,
+		joy_io_access,rnd_io_access,http_io_access,
+		bmcm_io_access,
 {$endif}
 {$ifdef newio }
 		iowkit_io_access;
@@ -136,6 +139,14 @@ begin
 						rnd_hwinit(initstring);
 						HWPlatform:=HWPlatform+',Random ';
 					  end;	
+				'H' : begin
+						http_hwinit(initstring);
+						HWPlatform:=HWPlatform+',HTTP ';
+					  end;
+				'B' : begin
+						bmcm_hwinit(initstring);
+						HWPlatform:=HWPlatform+',BMCM-Device ';
+					  end;
 			end;	
 			
 		end
@@ -162,7 +173,6 @@ begin
 				val(copy(zeile,12,4),a_address[iogroup]);
 				a_devicetype[iogroup]:=zeile[17];
 			end;
-			
 		end;
 		{ ignore everything else }		
 	end;
@@ -224,6 +234,8 @@ begin
 {$endif}
 				'R' : wert:=rnd_read_ports(i_address[io_group]);
 				'I'	: wert:=iow_read_ports(i_address[io_group]);
+				'H' : wert:=http_read_ports(i_address[io_group]);
+				'B' : wert:=bmcm_read_ports(i_address[io_group]);
 			end	
 		else
 			wert:=0;
@@ -276,6 +288,8 @@ begin
 {$endif}
 				'R' : rnd_write_ports(o_address[io_group],wert);
 				'I'	: iow_write_ports(o_address[io_group],wert);
+				'H' : http_write_ports(o_address[io_group],wert);
+				'B' : bmcm_write_ports(o_address[io_group],wert);
 			end;	
 		x:=x+8;
 	until ( x > io_max );
@@ -305,8 +319,10 @@ begin
 				'P'	: pio_read_ports(i_address[io_group]);
 				'J'	: joy_read_ports(i_address[io_group]);
 {$endif}
-				'R' 	: rnd_read_ports(i_address[io_group]);
+				'R' : rnd_read_ports(i_address[io_group]);
 				'I'	: iow_read_ports(i_address[io_group]);
+				'H' : http_read_ports(i_address[io_group]);
+				'B' : bmcm_read_ports(i_address[io_group]);
 			end
 		else
 			wert:=0;
@@ -340,7 +356,7 @@ begin
 {$ifdef LINUX}
 				'J' : analog_in[x+1]:=joy_read_ports(a_address[x],x);
 {$endif}
-				'X'	: { this is just a dummy for windows, so there is no empty case statement }
+				'H'	: analog_in[x+1]:=http_read_ports(a_address[x],x);
 			end;
 			if (debug) then writeln('Analog_in[',x+1,']=',analog_in[x+1]);
 		inc(x);
