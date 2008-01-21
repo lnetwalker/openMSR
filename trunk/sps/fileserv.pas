@@ -164,8 +164,10 @@ begin
      z := 0;
      s := 1;
 	 {$ifdef LINUX}
-     gettime(std,min,sec);
-	 getdate(jahr,mon,tag);
+		{$ifndef ZAURUS}
+     	gettime(std,min,sec);
+	 	getdate(jahr,mon,tag);
+		{$endif}
 	 {$else}
 	 gettime(std,min,sec,dum);
 	 getdate(jahr,mon,tag,wota);
