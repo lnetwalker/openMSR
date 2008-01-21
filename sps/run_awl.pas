@@ -10,7 +10,11 @@
 function timeNow:Real;
 begin
 	{$ifdef LINUX}
+		{$ifdef ZAURUS }
+	gettime(std,min,sec,ms);
+		{$else}
 	gettime(std,min,sec,ms,usec);
+		{$endif}
 	{$else}
 	gettime(std,min,sec,ms);
 	usec:=0;
@@ -50,6 +54,20 @@ begin
      write  (' q-i -> Z1-Z8, Shift q-i -> Z9-Z16, a-f-> Analog 1-4 IN');
      textbackground(lightgray);
      my_wwindow (2,2,screenx,screeny-4,'[RUN]','<ESC>',false);
+{$ifdef ZAURUS}
+     writeln('NUMBER   0000000001111111111222222222233333333334444444444');
+     writeln('         1234567890123456789012345678901234567890123456789');
+     gotoxy(1,4);writeln('MARKER ');
+     gotoxy(1,5);writeln('TIMER  ');
+     gotoxy(20,4);writeln('COUNTER');
+     gotoxy(20,5);writeln('EINGANG');
+     gotoxy(1,6);writeln('AUSGANG');
+     gotoxy(1,7);write('NUMBER    :   1     2     3     4   ');
+     writeln('  5     6     7     8');
+     gotoxy(1,8);writeln('TIMERWERT :');
+     gotoxy(1,9);writeln('ZÄHLERWERT:');
+     gotoxy(1,10);writeln('ANALOG IN :');
+{$else}
      write('NUMBER   0000000001111111111222222222233333333334444444444');
      writeln('555555555566666');
      write('         1234567890123456789012345678901234567890123456789');
@@ -64,6 +82,7 @@ begin
      gotoxy(1,13);writeln('TIMERWERT :');
      gotoxy(1,14);writeln('ZÄHLERWERT:');
      gotoxy(1,15);writeln('ANALOG IN :');
+{$endif}
  end;
 
 procedure print_in_out;            { gibt die zust�nde der ein-/ausg�nge  }
@@ -72,6 +91,24 @@ var i                : byte;
 
 begin
   gotoxy (10,4);
+{$ifdef ZAURUS}
+  for i:=1 to 49 do write(ord(marker[i]));
+  gotoxy (10,5);
+  for i:=1 to 16 do write(ord(timer[i]));
+  gotoxy (30,4);
+  for i:=1 to 16 do write(ord(zahler[i]));
+  gotoxy (30,5);
+  for i:= 1 to 49 do write(ord(eingang[i]));
+  gotoxy (10,6);
+  for i:= 1 to 49 do write(ord(ausgang[i]));
+  gotoxy (13,8);
+  write (t[1]:5,' ',t[2]:5,' ',t[3]:5,' ',t[4]:5,' ');
+  writeln(t[5]:5,' ',t[6]:5,' ',t[7]:5,' ',t[8]:5,' ');
+  gotoxy (13,9);
+  write (z[1]:5,' ',z[2]:5,' ',z[3]:5,' ',z[4]:5,' ');
+  writeln(z[5]:5,' ',z[6]:5,' ',z[7]:5,' ',z[8]:5,' ');
+  gotoxy (13,10);
+{$else}
   for i:=1 to 64 do write(ord(marker[i]));
   gotoxy (10,5);
   for i:=1 to 16 do write(ord(timer[i]));
@@ -88,6 +125,7 @@ begin
   write (z[1]:5,' ',z[2]:5,' ',z[3]:5,' ',z[4]:5,' ');
   writeln(z[5]:5,' ',z[6]:5,' ',z[7]:5,' ',z[8]:5,' ');
   gotoxy (13,15);
+{$endif}
   write(analog_in[1]:7,' ',analog_in[2]:7,' ',analog_in[3]:7,' ',analog_in[4]:7);
 
   writeln('');
