@@ -23,8 +23,13 @@ const
       	debug       = false;
       	awl_max     = 2000;
       	anweismax   = 34;
+{$ifdef ZAURUS}
+      	minScreenX  = 50;
+      	minScreenY  = 20;
+{$else}
       	minScreenX  = 80;
       	minScreenY  = 25;
+{$endif}
       	{ include the SPS Version and build date }
       	version     ={$I %SPSVERSION% };
       	datum       ={$I %DATE%};
