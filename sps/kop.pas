@@ -14,9 +14,10 @@ var i				: integer;
 	dummy,
 	KVal			: string;
 	KOP_pointer		: doc_pointer;
+	MaxLineLength	: word;
 
 function add2string(Zeichenkette:string;Zeichen:char;laenge:byte):string;
-{ fügt Zeichen an Zeichenkette bis die Länge = laenge ist }
+{ fï¿½gt Zeichen an Zeichenkette bis die Lï¿½nge = laenge ist }
 begin
 	if (length(Zeichenkette)<laenge) then
 		repeat
@@ -28,6 +29,11 @@ end;
 
 begin
 	if not(programm) then exit;
+	{$ifndef ZAURUS}
+		MaxLineLength:=60;
+	{$else}
+		MaxLineLength:=50;
+	{$endif}
 	i:=1;
 	Zeile:='|-';
 	Beschriftung:='  ';
@@ -48,8 +54,8 @@ begin
 					Beschriftung:=Beschriftung+'  '+operand[i]+dummy+' ';
 				 end;
 			7,15 : begin	{ = oder =N }
-						Zeile:=add2string(Zeile,'-',50);
-						Beschriftung:=add2string(Beschriftung,' ',50);
+						Zeile:=add2string(Zeile,'-',MaxLineLength-10);
+						Beschriftung:=add2string(Beschriftung,' ',MaxLineLength-10);
 						if (mehrfach(i)) then begin
 							Zeile:=Zeile+'+';
 							if ( operation[i+1]<>'EN ' ) then
@@ -57,8 +63,8 @@ begin
 						end;
 						if (token = 7) then
 							Zeile:=Zeile+'-|NOT|-';
-						Zeile:=add2string(Zeile,'-',60);
-						Beschriftung:=add2string(Beschriftung,' ',60);
+						Zeile:=add2string(Zeile,'-',MaxLineLength);
+						Beschriftung:=add2string(Beschriftung,' ',MaxLineLength);
 						Zeile:=Zeile+'-( )-|';
 						Beschriftung:=Beschriftung+'  '+operand[i]+dummy+' ';
 						AppendStringToList(Zeile,KOP_pointer);
@@ -66,8 +72,8 @@ begin
 						if (mehrfach(i)) then begin
 							Zeile:='';
 							Beschriftung:='';
-							Zeile:=add2string(Zeile,' ',50);
-							Beschriftung:=add2string(Beschriftung,' ',50);
+							Zeile:=add2string(Zeile,' ',MaxLineLength-10);
+							Beschriftung:=add2string(Beschriftung,' ',MaxLineLength-10);
 						end 
 						else begin
 							Zeile:='|-';
@@ -91,8 +97,8 @@ begin
 						AppendStringToList(Beschriftung,KOP_pointer);
 				 end;
 			24 : begin	{ $ = execute }
-						Zeile:=add2string(Zeile,'-',54);
-						Beschriftung:=add2string(Beschriftung,' ',54);
+						Zeile:=add2string(Zeile,'-',MaxLineLength-6);
+						Beschriftung:=add2string(Beschriftung,' ',MaxLineLength-6);
 						Zeile:=Zeile+'-(execute)-|';
 						Beschriftung:=Beschriftung+comment[i];
 						AppendStringToList(Zeile,KOP_pointer);
@@ -101,8 +107,8 @@ begin
 						Beschriftung:='  ';
 				 end;
 			9  : begin { TE }
-						Zeile:=add2string(Zeile,'-',59);
-						Beschriftung:=add2string(Beschriftung,' ',59);
+						Zeile:=add2string(Zeile,'-',MaxLineLength-1);
+						Beschriftung:=add2string(Beschriftung,' ',MaxLineLength-1);
 						str(par[i+1],KVal);
 						Zeile:=Zeile+'-(SE)-|';
 						Beschriftung:=Beschriftung+'  '+operand[i]+dummy+' k='+KVal;
@@ -113,8 +119,8 @@ begin
 						inc(i);
 				 end;
 			10 : begin { ZR }
-						Zeile:=add2string(Zeile,'-',59);
-						Beschriftung:=add2string(Beschriftung,' ',59);
+						Zeile:=add2string(Zeile,'-',MaxLineLength-1);
+						Beschriftung:=add2string(Beschriftung,' ',MaxLineLength-1);
 						str(par[i+1],KVal);
 						Zeile:=Zeile+'-(ZR)-|';
 						Beschriftung:=Beschriftung+'  '+operand[i]+dummy+' k='+KVal;
@@ -125,14 +131,14 @@ begin
 						inc(i);
 				 end;
 			16,17 : begin { S oder R }
-						Zeile:=add2string(Zeile,'-',50);
-						Beschriftung:=add2string(Beschriftung,' ',50);
+						Zeile:=add2string(Zeile,'-',MaxLineLength-10);
+						Beschriftung:=add2string(Beschriftung,' ',MaxLineLength-10);
 						if (mehrfach(i)) then begin
 							Zeile:=Zeile+'+';
 							Beschriftung:=Beschriftung+'|';
 						end;
-						Zeile:=add2string(Zeile,'-',60);
-						Beschriftung:=add2string(Beschriftung,' ',60);
+						Zeile:=add2string(Zeile,'-',MaxLineLength);
+						Beschriftung:=add2string(Beschriftung,' ',MaxLineLength);
 						if ( token = 16 ) then
 							Zeile:=Zeile+'-(S)-|'
 						else
@@ -143,8 +149,8 @@ begin
 						if (mehrfach(i)) then begin
 							Zeile:='';
 							Beschriftung:='';
-							Zeile:=add2string(Zeile,' ',50);
-							Beschriftung:=add2string(Beschriftung,' ',50);
+							Zeile:=add2string(Zeile,' ',MaxLineLength-10);
+							Beschriftung:=add2string(Beschriftung,' ',MaxLineLength-10);
 						end 
 						else begin
 							Zeile:='|-';
