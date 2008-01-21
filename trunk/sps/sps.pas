@@ -7,7 +7,7 @@ program sps_simulator;
 {  $define newio }
 uses 	dos,crt,porting,printer,popmenu,browse,PhysMach,
 {$ifdef LINUX }
-		oldlinux;
+		linux;
 {$endif}
 {$ifdef WIN32 }
 		windows;
@@ -22,6 +22,20 @@ uses 	dos,crt,porting,printer,popmenu,browse,PhysMach,
 {$i ./run_awl.pas}
 {$i ./kop.pas}
 
+{ new platform: Zaurus = Linux on ARM CPU }
+{$define ZAURUS}
+
+procedure checkScreenSize;
+
+begin
+     screenx:=GetScreenMaxX;
+     screeny:=GetScreenMaxY;
+     if ((screenx<minScreenX) or (screeny<minScreenY)) then
+     begin
+     	writeln('Screen is too small - minimum Screensize is',minScreenX,' x ',minScreenY);
+     	halt(2);
+     end;
+end;
 
 procedure configuration;
 
@@ -71,7 +85,11 @@ begin
                 'F'  : formfeed       :=zahl;
 
            else begin
+{$ifdef ZAURUS}
+                window(1,1,21,59);
+{$else}
                 window(1,1,25,80);
+{$endif}
                 textbackground(black);
                 textcolor(lightgray);
                 clrscr;
@@ -98,18 +116,19 @@ begin
      balken_pkte[2]:='Edit';
      balken_pkte[3]:='Run';
      balken_pkte[4]:='Kop';
-	 balken_pkte[5]:='Docu';
+     balken_pkte[5]:='Docu';
      balken_pkte[6]:='Quit';
      copy_right:='(c) H. Eilers';
      repeat
            BackGround:=lightgray;ForeGround:=Black;
-	   	   Highlighted:=red;
+           checkScreenSize;
+           Highlighted:=red;
            balken(balken_pkte,6,copy_right,auswahl);
            case Auswahl of
                'F' : fileservice;
                'E' : edit;
                'R' : run_awl;
-			   'K' : kop;
+               'K' : kop;
                'D' : browsetext(doc_start,1,2,GetScreenMaxX,GetScreenMaxY);
                'Q' : ;
            else begin
@@ -151,13 +170,7 @@ begin                              { SPS_SIMULATION }
 	   end;
      end;
      textcolor(lightgray);textbackground(black); clrscr;
-     screenx:=GetScreenMaxX;
-     screeny:=GetScreenMaxY;
-     if ((screenx<minScreenX) or (screeny<minScreenY)) then
-     begin
-     	writeln('Screen is too small - minimum Screensize is',screenx,' x ',screeny);
-     	halt(2);
-     end;
+     checkScreenSize;
      cursor_off;
      clrscr;
      textbackground(lightgray);textcolor(Black);
