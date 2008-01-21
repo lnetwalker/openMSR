@@ -45,7 +45,7 @@ var    akku,help         : boolean;
        timestring	 : string;
 
 
-procedure verkn;                   { verknüpft akku mit hilfsregister }
+procedure verkn;                   { verknï¿½pft akku mit hilfsregister }
 
 procedure zerleg;                  {negiert ggf den zustand eines operanden}
 
@@ -90,7 +90,7 @@ begin
                 else
                    help:=zahler[par[k]];
           {else}
-          { für spätere errorabfrage }
+          { fï¿½r spï¿½tere errorabfrage }
           end;
      inv:=false;
 end;                               { **** ENDE ZERLEG *****       }
@@ -128,7 +128,7 @@ begin
           'A'      : ausgang[par[k]]:=akku;
           'M'      : marker[par[k]]:=akku;
      {else}
-     {für spätere errorabfrage }
+     {fï¿½r spï¿½tere errorabfrage }
      end;
      if not(mehrfach(k)) then akku:=true
 end;                               { **** ENDE ZUWEISEN **** }
@@ -141,7 +141,7 @@ begin
             'A' : ausgang[par[k]]:=true;
             'M' : marker [par[k]]:=true;
        {else}
-       { für spätere Fehlermeldung }
+       { fï¿½r spï¿½tere Fehlermeldung }
        end
     end;
     if not(mehrfach(k)) then akku:=true
@@ -155,13 +155,13 @@ begin
             'A' : ausgang[par[k]]:=false;
             'M' : marker [par[k]]:=false;
        {else}
-       { für spätere Fehlermeldung }
+       { fï¿½r spï¿½tere Fehlermeldung }
        end
     end;
     if not(mehrfach(k)) then akku:=true
 end;                               { **** ENDE RUCKSETZEN **** }
 
-procedure klammer_zu;              { beendet letzte klammer und verknüpft }
+procedure klammer_zu;              { beendet letzte klammer und verknï¿½pft }
 var helper : boolean ;
 begin
      if (klammeroper[klammer]='ON(') or (klammeroper[klammer]='UN(') 
@@ -256,7 +256,9 @@ begin
 	{ you have to ensure, that output of the program is redirected	}
 	if ( akku ) then begin
 		{$ifdef LINUX}
+			{$ifndef ZAURUS}
 		analog_akku := shell (comment[k]);
+			{$endif}
 		{$else}
 		exec(GetEnv('COMSPEC'),comment[k]);
 		analog_akku:=DosExitCode;
@@ -321,7 +323,7 @@ begin
 				34    	: verkn;					{ A			}
 	       	       
           {else}
-          { für spätere Fehlerabfrage }
+          { fï¿½r spï¿½tere Fehlerabfrage }
           end;
      until ( aktuell = 'EN ') or (aktuell = 'PE ') or (aktuell='EP ');
      Str((time2/1000):5:2,timestring);
