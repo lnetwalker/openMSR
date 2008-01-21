@@ -1,7 +1,7 @@
 Unit PopMenu;
 
 {Diese Unit stellt Prozeduren zur Fenstertechnik sowie Popup Verwaltung }
-{ zur Verfügung                                                         }
+{ zur Verfï¿½gung                                                         }
 { (c) 02/11/90 by Hartmut Eilers 	               	                }
 
 { copyright (c) 2006 by Hartmut Eilers <hartmut@eilers.net>				}
@@ -62,7 +62,7 @@ type
 		entry : string[255];
 		nach,			{ zeiger auf den nachfolgenden Eintrag in Liste }
 		vor  : doc_pointer;	{ zeiger auf den vorherigen Eintrag }
-		selected : boolean;	{ true -> Eintrag ist angewählt }
+		selected : boolean;	{ true -> Eintrag ist angewï¿½hlt }
 		isDir	: boolean;
 	end;
 
@@ -162,7 +162,7 @@ end;                               { **** ENDE CURSOR_ON **** }
 
 procedure my_wwindow (x1,y1,x2,y2:byte;uber,unter:string12;shadow:boolean);
 
-{ erzeugen eines windows mit rahmen, überschrift, unterschrift und schatten }
+{ erzeugen eines windows mit rahmen, ï¿½berschrift, unterschrift und schatten }
 
 procedure schatten (x1,y1,x2,y2:byte);  { schattierung zeichnen }
 
@@ -205,13 +205,13 @@ begin
      write('+');
      gotoxy(x2-x1,y2-y1);
      write('+');
-     gotoxy(2,1);                            { überschrift }
+     gotoxy(2,1);                            { ï¿½berschrift }
      write(uber);
      gotoxy(x2-x1-length(unter)-1,y2-y1);    { unterschrift }
      write(unter);
      if shadow then schatten(x1,y1,x2,y2);   { schatten }
-     window(x1+1,y1+1,x2-2,y2-2);            { schreibfläche erzeugen und }
-     clrscr;                                 { löschen }
+     window(x1+1,y1+1,x2-2,y2-2);            { schreibflï¿½che erzeugen und }
+     clrscr;                                 { lï¿½schen }
 end;                               { **** ENDE WWINDOW **** }
 
 
@@ -305,19 +305,26 @@ var i,
     spalte,Altespalte    : byte;
     Taste,Pfeil          : char;
     Help                 : string1;
+	ItemWidth            : byte;
+
 
 
 begin
+{$ifdef ZAURUS}
+	 Itemwidth:=6;
+{$else}
+	 ItemWidth:=9;
+{$endif}
      textbackground(backGround);textcolor(foreground);
 	 Highlighted:=red;
      window (1,1,GetScreenMaxX,1);
      clrscr;
      //cursor_off;
-     for i:= 0 to NrOfItems-1 do PrintLine(i*10+1,1,Items[i+1],10);
+     for i:= 0 to NrOfItems-1 do PrintLine(i*ItemWidth+1,1,Items[i+1],ItemWidth);
      gotoxy(GetScreenMaxX-length(info)-1,1);write(info);
      textbackground(ForeGround);textcolor(BackGround);
 	 Highlighted:=green;
-     PrintLine(1,1,Items[1],9);
+     PrintLine(1,1,Items[1],ItemWidth);
      help:=copy(Items[1],1,1);
      choice:=help[1];
      spalte:=1;
@@ -336,10 +343,10 @@ begin
            if spalte <> altespalte then begin
              textbackground(backGround);textcolor(foreground);
 			 Highlighted:=red;
-              printLine((altespalte-1)*10+1,1,Items[altespalte],9);
+              printLine((altespalte-1)*ItemWidth+1,1,Items[altespalte],ItemWidth);
               textbackground(foreground);textcolor(background);
 			  Highlighted:=green;
-              PrintLine((spalte-1)*10+1,1,Items[spalte],9);
+              PrintLine((spalte-1)*ItemWidth+1,1,Items[spalte],ItemWidth);
            end;
            if taste=enter then begin
               help:=copy(Items[spalte],1,1);
