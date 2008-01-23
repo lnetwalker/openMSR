@@ -9,7 +9,7 @@ interface
 
 {$ifdef LINUX}
 uses
-  oldlinux;
+  linux;
 {$endif}
 
 const
