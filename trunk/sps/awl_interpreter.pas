@@ -257,7 +257,7 @@ begin
 	if ( akku ) then begin
 		{$ifdef LINUX}
 			{$ifndef ZAURUS}
-		analog_akku := shell (comment[k]);
+			analog_akku := fpsystem(comment[k]);
 			{$endif}
 		{$else}
 		exec(GetEnv('COMSPEC'),comment[k]);
