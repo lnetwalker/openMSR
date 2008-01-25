@@ -7,7 +7,7 @@ program sps_simulator;
 {  $define newio }
 uses 	dos,crt,porting,printer,popmenu,browse,PhysMach,
 {$ifdef LINUX }
-		linux;
+		linux,unix;
 {$endif}
 {$ifdef WIN32 }
 		windows;
@@ -129,7 +129,7 @@ begin
                'E' : edit;
                'R' : run_awl;
                'K' : kop;
-               'D' : browsetext(doc_start,1,2,GetScreenMaxX,GetScreenMaxY);
+               'D' : browsetext('[Docu]',doc_start,1,2,GetScreenMaxX,GetScreenMaxY);
                'Q' : ;
            else begin
                   sound(220); delay(200); nosound;
