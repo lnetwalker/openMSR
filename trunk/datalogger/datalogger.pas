@@ -184,7 +184,8 @@ begin
 	if qdialog('Quit?','Yes', 'No','') =1 then begin
 		qdestroy;
 		close(f);
-	end;
+	end
+	else Pause:=false;
 end;
 
 
