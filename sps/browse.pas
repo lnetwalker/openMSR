@@ -15,7 +15,7 @@ type
                      vor  : doc_pointer;
                    end;
 
-procedure browsetext (start :doc_pointer;x1,y1,x2,y2:word);
+procedure browsetext (header: string; start :doc_pointer;x1,y1,x2,y2:word);
 procedure ReadListFromFile(fqfn:string;var start:doc_pointer);
 procedure AppendStringToList(line:string;var start:doc_pointer);
 
@@ -70,7 +70,7 @@ begin
 end;
 
 
-procedure browsetext (start :doc_pointer;x1,y1,x2,y2:word);
+procedure browsetext (header: string; start :doc_pointer;x1,y1,x2,y2:word);
 
 
 const p_up = #73;
@@ -187,7 +187,7 @@ begin
      write('Browse with PAGE UP / PAGE DOWN , leave with ESC');
      write(', search with s / S');
      textbackground(lightgray);textcolor(Black);
-     my_wwindow(x1,y1,x2-1,y2-5,'[INFO]','<ESC>',true);
+     my_wwindow(x1,y1,x2-1,y2-5,header,'<ESC>',true);
      list_doc(start,list_end);
      repeat
 		tasten:=readkey;
