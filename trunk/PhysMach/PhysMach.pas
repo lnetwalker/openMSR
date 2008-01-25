@@ -56,7 +56,7 @@ implementation
 
 uses
 {$ifdef LINUX }
-		oldlinux,
+		linux,
 		dil_io_access,lp_io_access,pio_io_access,
 		joy_io_access,rnd_io_access,http_io_access,
 		bmcm_io_access,
