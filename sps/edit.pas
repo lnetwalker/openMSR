@@ -31,7 +31,7 @@ end;                               {****ENDE AUFLIST ****}
 
 
 procedure korrekt_jump(rufer:string12;nr:byte); { korrigiert die Sprung- }
-                                                { ziele bei einf. od. lösch.}
+                                                { ziele bei einf. od. lï¿½sch.}
 var z                       : byte;
 
 begin
@@ -39,7 +39,7 @@ begin
          if (operation[z]=anweisung[14]) or
             (operation[z]=anweisung[15]) then begin  { 'J' oder 'JI' }
             if par[z] >= nr then
-               if rufer = 'EINFÜGEN ' then inc(par[z])
+               if rufer = 'EINFï¿½GEN ' then inc(par[z])
                else dec(par[z]);
          end;
      end;
@@ -62,8 +62,8 @@ begin
      z:=0;
 end;                               { ****ENDE LIES_ZEILNUMMER **** }
 
-procedure einfug;                  { einfügen einer zeile in die awl }
-const ident='EINFÜGEN ';
+procedure einfug;                  { einfï¿½gen einer zeile in die awl }
+const ident='EINFï¿½GEN ';
 var x,y                     : byte;
 
 begin
@@ -92,8 +92,8 @@ begin
    end;
 end;                               { **** ENDE EINFUG **** }
 
-procedure loeschen;                { löschen einer zeile der awl }
-const ident='LÖSCHEN ';
+procedure loeschen;                { lï¿½schen einer zeile der awl }
+const ident='Lï¿½SCHEN ';
 var x,y                     : byte;
 
 begin
@@ -347,7 +347,7 @@ begin
      saved_text:='';                                                                                         
      cursor_on;
      textbackground(green);textcolor(black);
-     my_wwindow(screenx-28,3,screenx-2,screeny-1,'[HELP]','',true);
+     my_wwindow(GetScreenMaxX-28,3,GetScreenMaxX-2,GetScreenMaxY-1,'[HELP]','',true);
      writeln(' EDITOR - Control :');
      writeln(' INSERT -> Insert');
      writeln(' DEL  -> delete ');
@@ -369,7 +369,7 @@ begin
 	 writeln(' Misc.');
      write  ('  $ / NOP / EN,PE,EP');
      textbackground(lightgray);textcolor(Black);
-     my_wwindow(1,2,screenx-30,screeny,'[EDIT]','<ESC>',false);
+     my_wwindow(1,2,GetScreenMaxX-30,GetScreenMaxY,'[EDIT]','<ESC>',false);
      zeile:=1;spalte:=5;
      zeilnum:=1;
      if programm then begin
