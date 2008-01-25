@@ -1,7 +1,7 @@
 Unit iow_io_access;
 
 { diese Unit stellt Funktionen zum I/O Access auf			} 
-{ die Ports des IO Warriors 40 von Code Mercanaries zur Verfügung  	}	
+{ die Ports des IO Warriors 40 von Code Mercanaries zur Verfï¿½gung  	}	
 { If you have improvements please contact me at 			}
 { hartmut@eilers.net							}
 { all code is copyright by Hartmut Eilers and released under		}
@@ -10,6 +10,7 @@ Unit iow_io_access;
 {		10.09.2005 first raw hack				}
 { 		22.09.2005 able to read selected ports			}
 
+{$define ZAURUS}
 INTERFACE
 
 { the io_port address has a special meaning: its a two digit number with the first digit }
@@ -23,7 +24,7 @@ function iow_write_ports(io_port:longint;byte_value:byte):byte;
 function iow_hwinit(initdata:string):boolean;
 
 implementation
-uses oldlinux;
+uses linux;
 
 const	
 (* These values are from the SDK Sample program iow40_wr_if0.c *)
@@ -58,9 +59,11 @@ begin
 	io_port:=round(frac(io_port/10)*10);
 	
 	(* read the warrior *)
+	{$ifndef ZAURUS}
 	f:=fdOpen(device,Open_RdOnly);
 	ioctl (f,IOW_READ,pvalue);
 	fdclose(f);
+	{$endif}
 	ivalue:=pvalue^;
 	
 	if ( debug ) then writeln ('IOW_IO: r  ',device,' ',io_port,':',ivalue);
@@ -122,9 +125,11 @@ begin
 	if (debug) then writeln ('IOW_IO: w  ',device,' ',dev,' ', io_port,':',ovalue);
 	{ write out }
 	pvalue^:=ovalue;
+	{$ifndef ZAURUS}
 	f:=fdOpen(device,Open_WrOnly);
 	ioctl (f,IOW_WRITE,pvalue);
 	fdclose(f);
+	{$endif}
 end;
 
 
