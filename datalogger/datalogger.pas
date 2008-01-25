@@ -180,6 +180,7 @@ end;
 
 procedure onClose;
 begin
+	Pause:=true;
 	if qdialog('Quit?','Yes', 'No','') =1 then begin
 		qdestroy;
 		close(f);
