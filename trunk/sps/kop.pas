@@ -171,6 +171,6 @@ begin
 		end;
 		inc(i);
 	until ((token = 11) or (token = 25) or (token = 30));  { EN PE EP }
-	browsetext(KOP_pointer,1,2,screenx,screeny);
+	browsetext('[KOP]',KOP_pointer,1,2,screenx,screeny);
 	dispose(KOP_pointer);
 end;
