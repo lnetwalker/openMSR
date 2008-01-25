@@ -28,9 +28,12 @@ function bmcm_hwinit(initstring:string):boolean;
 { address 12 read the second usb-PIO  and return the value of port 2 aka port c }
 { the ranges are not checked ! }
 
-implementation
-uses libadp;					{ use the c library }
+{$define ZAURUS}			{ Zaurus = Linux on ARM }
 
+implementation
+{$ifndef ZAURUS}
+uses libadp;					{ use the c library }
+{$endif}
 
 const	
 	bmcm_max  	= 4;			{ max number of bmcm devices which are supported }
@@ -59,8 +62,10 @@ begin
 
 	new (p);			{ generate pointer }
 	p:=@value;			{ let it show to value }
-
+	
+	{$ifndef ZAURUS }
 	ad_digital_in(devices[dev],io_port,p);   { read the value }
+	{$endif}
 
 	bmcm_read_ports:=value;
 end;
@@ -80,7 +85,11 @@ begin
 	(* write the data to device *)
 	if (debug) then
 		write ('Value=',byte_value,' ');
+
+	{$ifndef ZAURUS}
 	ad_digital_out(devices[dev],io_port,byte_value);
+	{$endif}
+
 end;
 
 
@@ -106,11 +115,15 @@ begin
 	DeviceName:=initdata[1]+':'+initdata[2];
 	new(pDeviceName);
 	pDeviceName:=@DeviceName;
+	{$ifndef ZAURUS}
 	devices[cnt]:=ad_open(pDeviceName);
+	{$endif}
 	{ setting line direction for port i $f means read, $0 means write for the bit }
 	for i:=1 to 3 do begin
 		val(initdata[i],direction);
+		{$ifndef ZAURUS}
 		ad_set_line_direction(devices[cnt],i,direction);
+		{$endif}
 	end;
 	{ increment next device counter }
 	inc(cnt);
