@@ -9,16 +9,8 @@
 
 function timeNow:Real;
 begin
-	{$ifdef LINUX}
-		{$ifdef ZAURUS }
-	gettime(std,min,sec,ms);
-		{$else}
-	gettime(std,min,sec,ms,usec);
-		{$endif}
-	{$else}
 	gettime(std,min,sec,ms);
 	usec:=0;
-	{$endif}
 	timeNow:=(((std*60+min)*60+sec)*1000+ms)*1000+usec;
 end;
 
