@@ -12,7 +12,7 @@ Unit dil_io_access;
 { all code is copyright by Hartmut Eilers and released under	}
 { the GNU GPL see www.gnu.org for license details		}
 
-{ $define ZAURUS}
+{$define ZAURUS}
 
 INTERFACE
 
@@ -40,7 +40,7 @@ begin
 	{$ifndef ZAURUS}
 	WritePort(CSCIR,PBDR);
 	ReadPort(CSCDR,byte_value);
-	{$ifdef}
+	{$endif}
 	if (debug) then writeln ('DIL: r ',io_port,' -> ',byte_value);
 	dil_read_ports:=byte_value;
 end;
