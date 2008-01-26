@@ -28,11 +28,11 @@ function bmcm_hwinit(initstring:string):boolean;
 { address 12 read the second usb-PIO  and return the value of port 2 aka port c }
 { the ranges are not checked ! }
 
-{$define ZAURUS}			{ Zaurus = Linux on ARM }
+{$undef ZAURUS}			{ Zaurus = Linux on ARM }
 
 implementation
 {$ifndef ZAURUS}
-uses libadp;					{ use the c library }
+uses libadp,strings;					{ use the c library }
 {$endif}
 
 const	
@@ -52,7 +52,7 @@ function bmcm_read_ports(io_port:longint):byte;
 var
 	dev  		: byte;
 	value		: Cardinal;					{ the value read from device }
-	p 			: PCardinal;				{ pointer to that value }
+	p 		: PCardinal;				{ pointer to that value }
 
 begin
 	{ extract the device number as key to device handle }
@@ -64,7 +64,8 @@ begin
 	p:=@value;			{ let it show to value }
 	
 	{$ifndef ZAURUS }
-	ad_digital_in(devices[dev],io_port,p);   { read the value }
+	ad_digital_in(devices[dev],io_port+1,p);   { read the value }
+	if debug then writeln('BMCM read device: ',devices[dev],' Port: ',io_port+1,' value=',value);
 	{$endif}
 
 	bmcm_read_ports:=value;
@@ -87,7 +88,7 @@ begin
 		write ('Value=',byte_value,' ');
 
 	{$ifndef ZAURUS}
-	ad_digital_out(devices[dev],io_port,byte_value);
+	ad_digital_out(devices[dev],io_port+1,byte_value);
 	{$endif}
 
 end;
@@ -104,19 +105,30 @@ var
 
 begin
 	{ example init string }
-	{ usb-pio:/dev/acm01:$00000000:$ffffffff,$ffff0000}
+	{ usb-pio:0:$00000000:$ffffffff,$ffff0000}
 	{ we have 5 datafields delimited by : }
 	{ for easy handling this string is divided in array values }
 	for i:=1 to 5 do begin
-		initdata[i]:=copy(initstring,1,pos(':',initstring));
+		initdata[i]:=copy(initstring,1,pos(':',initstring)-1);
 		initstring:=copy(initstring,pos(':',initstring)+1, length(initstring));
+		if debug then writeln('initstring=',initstring,' initdata[',i,']=',initdata[i]);
 	end;
 	{ open the device, devices[cnt] is the device handle }
-	DeviceName:=initdata[1]+':'+initdata[2];
-	new(pDeviceName);
-	pDeviceName:=@DeviceName;
+	if length(initdata[2])>0 then 
+		DeviceName:=initdata[1]+':'+initdata[2]
+	else
+		DeviceName:=initdata[1];
+
+	StrPCopy(pDeviceName,DeviceName);
+
+	if debug then writeln('open device: ',DeviceName);
+
 	{$ifndef ZAURUS}
 	devices[cnt]:=ad_open(pDeviceName);
+	if (devices[cnt]<>0) then begin
+		writeln('Fatal error: opening device: ',DeviceName,' check settings in config file');
+		halt;
+	end;
 	{$endif}
 	{ setting line direction for port i $f means read, $0 means write for the bit }
 	for i:=1 to 3 do begin
