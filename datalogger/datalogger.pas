@@ -103,16 +103,10 @@ end;
 function GetNewValue: integer;
 var	k	: byte;
 begin
+	PhysMachReadDigital;
 	for k:=1 to 8 do begin
-		if (Random<=0.5) then
-			input_group1[k]:=false
-		else
-			input_group1[k]:=true;
-		if (Random<=0.5) then
-			input_group2[k]:=false
-		else
-			input_group2[k]:=true;
-
+		input_group1[k]:=eingang[k];
+		input_group2[k]:=eingang[k+8];
 		if SaveData then begin
 			write(f,input_group1[k]:6);
 			write(f,input_group2[k]:6);
@@ -236,8 +230,8 @@ end;
 
 
 begin
-    maxx:=800;maxy:=600;
-    xfakt:=round(maxx/80);yfakt:=round(maxy/25);
+	maxx:=800;maxy:=600;
+	xfakt:=round(maxx/80);yfakt:=round(maxy/25);
 	xOffset:=7*xfakt;
 	{ TimeBase gibt an wieviel Messpunkte in x-Richtung platz haben  }
 	TimeBase:=round((maxx-xOffset)/TimeLengthPixel);
@@ -249,6 +243,8 @@ begin
 	// initialize Hardware
 	PhysMachInit;
 	PhysMachloadCfg('.datalogger.cfg');
+	writeln('detected Hardware: ',HWPlatform);
+
 	qstart('Datalogger  '+version, nil, nil);
 	StartButton:=qbutton('|>', @onStart);
 	PauseButton:=qbuttonToggle('||', @onPause);
