@@ -36,13 +36,14 @@ var
 	SaveButton,
 	StartButton		: qWidget;
 	Pause,
-	SaveData		: boolean;
+	SaveData,
+	Run			: boolean;
 	
 	Background		: qpic;
 
 	meldung			: string;
 
-	f				: text;
+	f			: text;
 
 
 procedure printMeldung;
@@ -66,35 +67,35 @@ begin
 	qsetClr( qWhite );
 	qfont(yfakt-8);
 	(*writeln ('xfakt:=',xfakt,' yfakt=',yfakt);*)
-    qrect(0,0,maxx,maxy);
+	qrect(0,0,maxx,maxy);
 
 	str(Timer,meldung);
 	meldung:='Timebase: '+meldung+' ms';
-    qdrawtext(xfakt,1*yfakt,meldung);
+	qdrawtext(xfakt,1*yfakt,meldung);
 
-    qrect(xOffset-2,3*yfakt,maxx,8*yfakt+10);
+	qrect(xOffset-2,3*yfakt,maxx,8*yfakt+10);
 	qrect(xOffset-2+1,3*yfakt+1,maxx,8*yfakt+10);
 	qrect(xOffset-2,16*yfakt,maxx,8*yfakt+10);
-    qrect(xOffset-2+1,16*yfakt+1,maxx,8*yfakt+10);
-    for x:=1 to 8 do begin
-    	str(x,ch);
-        z:=(x+3)*yfakt;
+	qrect(xOffset-2+1,16*yfakt+1,maxx,8*yfakt+10);
+	for x:=1 to 8 do begin
+    		str(x,ch);
+	 	z:=(x+3)*yfakt;
 		writeln('x=',x,' z=',z);
 		qdrawtext(xfakt,z,'S'+ch);
-        qline(xOffset,z+1,maxx,z+1);
+		qline(xOffset,z+1,maxx,z+1);
 
 		str(x+8,ch);
 		z:=(x+16)*yfakt+1;
-        qdrawtext(xfakt,z,'S'+ch);
-        qline(xOffset,z,maxx,z);
-        qline(xOffset,z+1,maxx,z+1);
-    end;
+		qdrawtext(xfakt,z,'S'+ch);
+		qline(xOffset,z,maxx,z);
+		qline(xOffset,z+1,maxx,z+1);
+	end;
 	qdrawtext(1,14*yfakt,'Time');
-    qline (xOffset,14*yfakt-4,maxx,14*yfakt-4);
-    tx:=xOffset;
-    while (tx<=maxx) do begin
+	qline (xOffset,14*yfakt-4,maxx,14*yfakt-4);
+	tx:=xOffset;
+	while (tx<=maxx) do begin
 		qline(tx,14*yfakt-8,tx,14*yfakt);
-        inc(tx,TimeLengthPixel);
+		inc(tx,TimeLengthPixel);
 	end;
 	// save the Background
 	qgetpic(xOffset+TimeLengthPixel,3*yfakt,TimeLengthPixel,24*yfakt,Background);
@@ -107,14 +108,13 @@ begin
 	for k:=1 to 8 do begin
 		input_group1[k]:=eingang[k];
 		input_group2[k]:=eingang[k+8];
-		if SaveData then begin
-			write(f,input_group1[k]:6);
-			write(f,input_group2[k]:6);
-		end;
-
 	end;
 
-	if SaveData then writeln(f);
+	if SaveData then begin
+		for k:=1 to 16 do 
+			write(f,eingang[k]:6);
+		writeln(f);
+	end;
 
 end;
 
@@ -151,6 +151,7 @@ end;                               { **** ENDE SET_HI_LOW ****}
 procedure onStart;
 begin
 	// start mit der Möglichkeit trigger einzustellen
+	Run:=true;
 end;
 
 
@@ -163,7 +164,7 @@ end;
 
 procedure onTimer;
 begin
-	if (not(Pause)) then begin
+	if ((not(Pause)) and Run) then begin
 		GetNewValue;
 		set_hi_low;
 		inc(Messung);
@@ -190,8 +191,10 @@ begin
 end;
 
 procedure onTimebase;
+var	TimerStr	: String;
 begin
-	val(qinput('Timervalue in ms:', '20'),Timer );
+	str(Timer,TimerStr);
+	val(qinput('Timervalue in ms:', TimerStr),Timer );
 	if Timer <> 0 then
 		if Timer <> OldTimer then begin
 			writeln('Timebase changed try to stop timer ',OldTimer,'  ms');
@@ -235,10 +238,10 @@ begin
 	xOffset:=7*xfakt;
 	{ TimeBase gibt an wieviel Messpunkte in x-Richtung platz haben  }
 	TimeBase:=round((maxx-xOffset)/TimeLengthPixel);
-	Timer:=20;
+	Timer:=100;
 	OldTimer:=Timer;
 	Messung:=1;
-	randomize;
+	Run:=false;
 
 	// initialize Hardware
 	PhysMachInit;
