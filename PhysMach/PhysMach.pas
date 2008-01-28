@@ -355,6 +355,7 @@ begin
 			case a_devicetype[x] of
 {$ifdef LINUX}
 				'J' : analog_in[x+1]:=joy_read_ports(a_address[x],x);
+				'B' : analog_in[x+1]:=bmcm_read_analog(a_address[x]);
 {$endif}
 				'H'	: analog_in[x+1]:=http_read_ports(a_address[x],x);
 			end;

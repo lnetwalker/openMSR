@@ -19,6 +19,7 @@ INTERFACE
 { public functions to init the hardware and read and write ports }
 
 function bmcm_read_ports(io_port:longint):byte;
+function bmcm_read_analog(io_port:longint):integer;
 function bmcm_write_ports(io_port:longint;byte_value:byte):byte;
 function bmcm_hwinit(initstring:string):boolean;
 
@@ -67,10 +68,37 @@ begin
 	ad_digital_in(devices[dev],io_port+1,p);   { read the value }
 	if debug then writeln('BMCM read device: ',devices[dev],' Port: ',io_port+1,' value=',value);
 	{$endif}
+	//dispose(p);
 
 	bmcm_read_ports:=value;
 end;
+
+
+function bmcm_read_analog(io_port:longint):integer;
+
+var
+	dev  		: byte;
+	value		: Cardinal;					{ the value read from device }
+	p 		: PCardinal;				{ pointer to that value }
+
+begin
+	{ extract the device number as key to device handle }
+	dev:=round(io_port/10);
+	{ extract the port }
+	io_port:=round(frac(io_port/10)*10);
+
+	new (p);			{ generate pointer }
+	p:=@value;			{ let it show to value }
 	
+	{$ifndef ZAURUS }
+	ad_discrete_in(devices[dev],io_port,0,p);   { read the value }
+	if debug then writeln('BMCM read device: ',devices[dev],' Port: ',io_port+1,' value=',value);
+	{$endif}
+	dispose (p);
+
+	bmcm_read_analog:=value;
+end;
+
 
 function bmcm_write_ports(io_port:longint;byte_value:byte):byte;	
 
@@ -126,16 +154,19 @@ begin
 	{$ifndef ZAURUS}
 	devices[cnt]:=ad_open(pDeviceName);
 	if (devices[cnt]<>0) then begin
-		writeln('Fatal error: opening device: ',DeviceName,' check settings in config file');
+		writeln('Fatal error: opening device : ',cnt,' ',DeviceName,' check settings in config file');
 		halt;
 	end;
 	{$endif}
-	{ setting line direction for port i $f means read, $0 means write for the bit }
-	for i:=1 to 3 do begin
-		val(initdata[i],direction);
-		{$ifndef ZAURUS}
-		ad_set_line_direction(devices[cnt],i,direction);
-		{$endif}
+
+	if (initdata[1]='usb-pio') then begin
+		{ setting line direction for port i $f means read, $0 means write for the bit }
+		for i:=1 to 3 do begin
+			val(initdata[i],direction);
+			{$ifndef ZAURUS}
+			ad_set_line_direction(devices[cnt],i,direction);
+			{$endif}
+		end;
 	end;
 	{ increment next device counter }
 	inc(cnt);
