@@ -14,6 +14,7 @@ uses qgtk2,PhysMach;
 const	
 	version='V 0.1';
 	TimeLengthPixel=8;	// gibt an wieviel pixel eine Zeiteinheit lang ist
+	SignalHight=8;
 
 var 
 	maxx,maxy,
@@ -128,17 +129,17 @@ begin
 	qdrawpic(y-TimeLengthPixel, 3*yfakt,Background);
 	qsetClr( qGreen );
 	for x:=1 to 8 do begin
-		z:=(x+3) * yfakt-8*ord(input_group1[x]);
-		qline(y-8,z,y,z);
+		z:=(x+3) * yfakt-SignalHight*ord(input_group1[x]);
+		qline(y-TimeLengthPixel,z,y,z);
 		if ig1_alt[x]<>input_group1[x] then begin
-			qline(y-8,(x+3)*yfakt,y-8,(x+3)*yfakt-8);
+			qline(y-TimeLengthPixel,(x+3)*yfakt,y-TimeLengthPixel,(x+3)*yfakt-SignalHight);
 			{setlinestyle(dashedln,0,normwidth);}
 			{qline(y-8,(x+3)*yfakt,y-8,(8+15)*yfakt)};
 		end;
-		z:=(x+16)*yfakt-8*ord(input_group2[x]);
-		qline(y-8,z,y,z);
+		z:=(x+16)*yfakt-SignalHight*ord(input_group2[x]);
+		qline(y-TimeLengthPixel,z,y,z);
 		if ig2_alt[x]<>input_group2[x] then
-			qline(y-8,(x+16)*yfakt,y-8,(x+16)*yfakt-8);
+			qline(y-TimeLengthPixel,(x+16)*yfakt,y-TimeLengthPixel,(x+16)*yfakt-SignalHight);
 		ig1_alt[x]:=input_group1[x];
 		ig2_alt[x]:=input_group2[x];
      end;
