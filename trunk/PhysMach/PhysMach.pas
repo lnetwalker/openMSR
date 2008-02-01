@@ -18,7 +18,7 @@ interface
 
 const
 	io_max			= 128;
-	group_max   	= round(io_max/8);
+	group_max   		= round(io_max/8);
 	marker_max		= 255;
 	akku_max		= 16;
 	cnt_max			= 16;
@@ -27,13 +27,13 @@ const
 
 var
 	marker 			: array[1..marker_max]   of boolean;
-	eingang,ausgang	: array[1..io_max]	 of boolean;
+	eingang,ausgang		: array[1..io_max]	 of boolean;
 	zust			: array[1..io_max]	 of boolean;
 	lastakku		: array[1..akku_max]     of boolean;
 	zahler			: array[1..cnt_max]	 of boolean;
 	timer			: array[1..tim_max]	 of boolean;
-	t				: array[1..tim_max]	 of word;	 
-	z				: array[1..cnt_max]	 of word;
+	t			: array[1..tim_max]	 of word;	 
+	z			: array[1..cnt_max]	 of word;
 	analog_in		: array[1..analog_max]   of integer;
 
 	HWPlatform		: string;
@@ -59,7 +59,7 @@ uses
 		linux,
 		dil_io_access,lp_io_access,pio_io_access,
 		joy_io_access,rnd_io_access,http_io_access,
-		bmcm_io_access,
+		bmcm_io_access,bmcm_ad_access,
 {$endif}
 {$ifdef newio }
 		iowkit_io_access;
@@ -87,11 +87,11 @@ var
 
 
 procedure PhysMachloadCfg(cfgFilename : string);
-var	f					: text;
+var	f				: text;
 	zeile		   		: string[48];
 	initdevice			: char;
 	initstring			: string;
-	dir					: shortString;
+	dir				: shortString;
 	iogroup				: integer;
 	
 begin
@@ -145,7 +145,11 @@ begin
 					  end;
 				'B' : begin
 						bmcm_hwinit(initstring);
-						HWPlatform:=HWPlatform+',BMCM-Device ';
+						HWPlatform:=HWPlatform+',BMCM-Pio-Device ';
+					  end;
+				'C' : begin
+						bmcm_hwinit(initstring);
+						HWPlatform:=HWPlatform+',BMCM-AD-Device ';
 					  end;
 			end;	
 			
@@ -236,6 +240,7 @@ begin
 				'I'	: wert:=iow_read_ports(i_address[io_group]);
 				'H' : wert:=http_read_ports(i_address[io_group]);
 				'B' : wert:=bmcm_read_ports(i_address[io_group]);
+				'C' : wert:=cmcm_read_ports(i_address[io_group]);
 			end	
 		else
 			wert:=0;
@@ -290,6 +295,7 @@ begin
 				'I'	: iow_write_ports(o_address[io_group],wert);
 				'H' : http_write_ports(o_address[io_group],wert);
 				'B' : bmcm_write_ports(o_address[io_group],wert);
+				'C' : cmcm_write_ports(o_address[io_group],wert);
 			end;	
 		x:=x+8;
 	until ( x > io_max );
@@ -323,6 +329,7 @@ begin
 				'I'	: iow_read_ports(i_address[io_group]);
 				'H' : http_read_ports(i_address[io_group]);
 				'B' : bmcm_read_ports(i_address[io_group]);
+				'C' : bmcm_read_ports(i_address[io_group]);
 			end
 		else
 			wert:=0;
@@ -355,7 +362,7 @@ begin
 			case a_devicetype[x] of
 {$ifdef LINUX}
 				'J' : analog_in[x+1]:=joy_read_ports(a_address[x],x);
-				'B' : analog_in[x+1]:=bmcm_read_analog(a_address[x]);
+				'C' : analog_in[x+1]:=cmcm_read_analog(a_address[x]);
 {$endif}
 				'H'	: analog_in[x+1]:=http_read_ports(a_address[x],x);
 			end;
