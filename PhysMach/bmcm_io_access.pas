@@ -45,7 +45,8 @@ type
 	
 var	
 	devices		: array[1..bmcm_max] of longint;		{ array with the device handles }
-	cnt			: byte;									{ the counter for the divces }
+	cnt		: byte;									{ the counter for the divces }
+	p 		: PCardinal;				{ pointer to that value }
 
 
 function bmcm_read_ports(io_port:longint):byte;
@@ -53,7 +54,6 @@ function bmcm_read_ports(io_port:longint):byte;
 var
 	dev  		: byte;
 	value		: Cardinal;					{ the value read from device }
-	p 		: PCardinal;				{ pointer to that value }
 
 begin
 	{ extract the device number as key to device handle }
@@ -61,14 +61,12 @@ begin
 	{ extract the port }
 	io_port:=round(frac(io_port/10)*10);
 
-	new (p);			{ generate pointer }
 	p:=@value;			{ let it show to value }
 	
 	{$ifndef ZAURUS }
 	ad_digital_in(devices[dev],io_port+1,p);   { read the value }
 	if debug then writeln('BMCM read device: ',devices[dev],' Port: ',io_port+1,' value=',value);
 	{$endif}
-	//dispose(p);
 
 	bmcm_read_ports:=value;
 end;
@@ -79,7 +77,6 @@ function bmcm_read_analog(io_port:longint):integer;
 var
 	dev  		: byte;
 	value		: Cardinal;					{ the value read from device }
-	p 		: PCardinal;				{ pointer to that value }
 
 begin
 	{ extract the device number as key to device handle }
@@ -87,14 +84,12 @@ begin
 	{ extract the port }
 	io_port:=round(frac(io_port/10)*10);
 
-	new (p);			{ generate pointer }
 	p:=@value;			{ let it show to value }
 	
 	{$ifndef ZAURUS }
 	ad_discrete_in(devices[dev],io_port,0,p);   { read the value }
 	if debug then writeln('BMCM read device: ',devices[dev],' Port: ',io_port+1,' value=',value);
 	{$endif}
-	dispose (p);
 
 	bmcm_read_analog:=value;
 end;
@@ -132,6 +127,7 @@ var
 
 
 begin
+
 	{ example init string }
 	{ usb-pio:0:$00000000:$ffffffff,$ffff0000}
 	{ we have 5 datafields delimited by : }
@@ -174,6 +170,8 @@ end;
 
 
 begin
+	new (p);			{ generate pointer }
+
 	{ reset the device counter to ensure that device handles are stored correctly }
 	cnt:=0;
 end.
