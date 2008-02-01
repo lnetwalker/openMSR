@@ -72,12 +72,12 @@ const
 	power			: array [0..7] of byte =(1,2,4,8,16,32,64,128);
 
 var
-	x				: word;
+	x			: word;
 
 	i_address,
 	o_address,
 	c_address,
-	a_address			: array [1..group_max] of LongInt; 
+	a_address		: array [1..group_max] of LongInt; 
 	i_devicetype,
 	o_devicetype,
 	c_devicetype,
@@ -87,7 +87,8 @@ var
 
 
 procedure PhysMachloadCfg(cfgFilename : string);
-var	f				: text;
+var
+	f				: text;
 	zeile		   		: string[48];
 	initdevice			: char;
 	initstring			: string;
@@ -217,7 +218,7 @@ begin
 end;                               { ****ENDE INIT ****}
 
 
-procedure PhysMachReadDigital;               { lie� eingangswerte ein }
+procedure PhysMachReadDigital;               { liesst eingangswerte ein }
 
 var  
 	wert,i           	: byte;
@@ -236,11 +237,11 @@ begin
 				'P'	: wert:=pio_read_ports(i_address[io_group]);
 				'J'	: wert:=joy_read_ports(i_address[io_group]);
 {$endif}
-				'R' : wert:=rnd_read_ports(i_address[io_group]);
+				'R'	: wert:=rnd_read_ports(i_address[io_group]);
 				'I'	: wert:=iow_read_ports(i_address[io_group]);
-				'H' : wert:=http_read_ports(i_address[io_group]);
-				'B' : wert:=bmcm_read_ports(i_address[io_group]);
-				'C' : wert:=cmcm_read_ports(i_address[io_group]);
+				'H' 	: wert:=http_read_ports(i_address[io_group]);
+				'B' 	: wert:=bmcm_read_ports(i_address[io_group]);
+				'C' 	: wert:=cmcm_read_ports(i_address[io_group]);
 			end	
 		else
 			wert:=0;
@@ -291,33 +292,34 @@ begin
 				'P'	: pio_write_ports(o_address[io_group],wert);
 				'J'	: joy_write_ports(o_address[io_group],wert);
 {$endif}
-				'R' : rnd_write_ports(o_address[io_group],wert);
+				'R' 	: rnd_write_ports(o_address[io_group],wert);
 				'I'	: iow_write_ports(o_address[io_group],wert);
-				'H' : http_write_ports(o_address[io_group],wert);
-				'B' : bmcm_write_ports(o_address[io_group],wert);
-				'C' : cmcm_write_ports(o_address[io_group],wert);
+				'H' 	: http_write_ports(o_address[io_group],wert);
+				'B' 	: bmcm_write_ports(o_address[io_group],wert);
+				'C' 	: cmcm_write_ports(o_address[io_group],wert);
 			end;	
 		x:=x+8;
 	until ( x > io_max );
-end;                               { **** ENDE SET_OUTPUT **** }
+end;					{ **** ENDE SET_OUTPUT **** }
 
 
 
-procedure PhysMachCounter;                    { z�lt timer und counter herunter liesst counter hardware }
+procedure PhysMachCounter;		{ zaehlt timer und counter herunter liesst counter hardware }
 
-var c,wert              : byte;
+var 
+	c,wert				: byte;
 	x,io_group			: integer;
 
 begin
 	for c:=1 to tim_max do begin
-		if t[c] > 0 then t[c]:=t[c]-1;  	 { Zeitz�ler decrementieren  }
-		if t[c]=0 then timer[c]:=true  { zeitz�ler = 0? ja ==> TIMER auf 1}
+		if t[c] > 0 then t[c]:=t[c]-1;	{ Zeitzaehler decrementieren  }
+		if t[c]=0 then timer[c]:=true	{ zeitzaehler = 0? ja ==> TIMER auf 1}
 	end;
 	x:=1;
 	repeat
 		io_group:=round(int(x/8)+1);
 		if (c_devicetype[io_group] <> '-') then 
-			{ Z�LEReing�ge lesen  }
+			{ ZAEHLEReingaenge lesen  }
 			case c_devicetype[io_group] of
 {$ifdef LINUX}
 				'D'	: dil_read_ports(i_address[io_group]);
@@ -325,11 +327,11 @@ begin
 				'P'	: pio_read_ports(i_address[io_group]);
 				'J'	: joy_read_ports(i_address[io_group]);
 {$endif}
-				'R' : rnd_read_ports(i_address[io_group]);
+				'R' 	: rnd_read_ports(i_address[io_group]);
 				'I'	: iow_read_ports(i_address[io_group]);
-				'H' : http_read_ports(i_address[io_group]);
-				'B' : bmcm_read_ports(i_address[io_group]);
-				'C' : bmcm_read_ports(i_address[io_group]);
+				'H' 	: http_read_ports(i_address[io_group]);
+				'B' 	: bmcm_read_ports(i_address[io_group]);
+				'C' 	: cmcm_read_ports(i_address[io_group]);
 			end
 		else
 			wert:=0;
@@ -337,8 +339,8 @@ begin
 		for c:=1 to 8 do begin
 			if wert mod 2 = 0 then zust[c+x-1]:=false 			{ wenn low dann 0 speichern	}
 			else
-				if not(zust[c+x-1]) then begin  				{ wenn pos. Flanke am Eingang }
-					zust[c+x-1]:=true;  				  		{ dann 1 speichern			}
+				if not(zust[c+x-1]) then begin 				{ wenn pos. Flanke am Eingang }
+					zust[c+x-1]:=true;		  		{ dann 1 speichern			}
 					if z[c+x-1]>0 then z[c+x-1]:=z[c+x-1]-1;	{ und ISTwert herunterz�en } 
 					if z[c+x-1]=0 then zahler[c+x-1]:=true;   	{ wenn ISTwert 0 dann ZAHLER 1}
 				end;
@@ -353,7 +355,7 @@ end;                               { **** ENDE COUNT_DOWN ****       }
 
 procedure PhysMachReadAnalog;				{ read analog inputs }
 var
-	x					: integer;
+	x				: integer;
 
 begin
 	x:=0;
@@ -361,8 +363,8 @@ begin
 		if (a_devicetype[x] <> '-') then
 			case a_devicetype[x] of
 {$ifdef LINUX}
-				'J' : analog_in[x+1]:=joy_read_ports(a_address[x],x);
-				'C' : analog_in[x+1]:=cmcm_read_analog(a_address[x]);
+				'J' 	: analog_in[x+1]:=joy_read_ports(a_address[x],x);
+				'C' 	: analog_in[x+1]:=cmcm_read_analog(a_address[x]);
 {$endif}
 				'H'	: analog_in[x+1]:=http_read_ports(a_address[x],x);
 			end;
@@ -377,8 +379,8 @@ procedure PhysMachTimer;
 var	c	:byte;
 
 begin
-	inc(durchlauf);								{ timerbasis = 1s }
-	inc(durchlauf100);							{ timerbasis = 100 ms }
+	inc(durchlauf);				{ timerbasis = 1s }
+	inc(durchlauf100);			{ timerbasis = 100 ms }
 	
 	if (durchlauf>=durchlaufeProSec) then begin { Diese Timer laufen mit Sekundenbasis }
 		for c:=1 to 4 do begin
