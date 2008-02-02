@@ -58,7 +58,7 @@ end;
 procedure onCreate;
 
 var x,z,tx			: word;
-	ch				: string;
+	ch			: string;
 
 
 begin
