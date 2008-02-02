@@ -14,29 +14,29 @@ zwei Schritten vollzogen, A Wandler brauchen lediglich die 2. Transformation, B-
 
 1.  Transformation
 
-		+Y													+Y
-		| Rmax												| Cmax
-		|													|
-	   0+---------------              ------>				|
- 		|													|
-		|													|
-		-Y												   0+------------------------
+		+Y								+Y
+		| Rmax								| Cmax
+		|								|
+		0+---------------              ------>				|
+ 		|								|
+		|								|
+		-Y								0+------------------------
 		  Rmax
 
 
 =^ bedeutet entspricht
 
-Yr + Yrmax =^  Yc
-2*Yrmax    =^  Ycmax
+Yr + Yrmax   =^ Yc
+  2*Yrmax    =^  Ycmax
 
-		Yc         Yr + Yrmax
+	   Yc         Yr + Yrmax
 	---------- = --------------
-      Ycmax           2Yrmax
+	  Ycmax         2*Yrmax
 
-
-       Yr + Yrmax
+        Yr + Yrmax
 yc = -------------- *  Ycmax
-         2Yrmax
+         2*Yrmax
+
 
 
 
@@ -44,26 +44,26 @@ yc = -------------- *  Ycmax
 
 
 	+Y
-	| Cmax												   0+------------------------
-	|														|
-	|									------>				|
-	|														|
-	|														|
-   0+------------------------								|
-															Y
-															 C'max
+	| Cmax								0+------------------------
+	|								|
+	|					------>			|
+	|								|
+	|								|
+	0+------------------------					|
+									Y
+									 C'max
 
 
-Yc-Ycmax   =^  Yc'
-Ycmax*-1   =^  Yc'max
+(Yc-Ycmax)*-1   =^  Yc'
+Ycmax   =^  Yc'max
 
 
 
 
-   Yc'              Yc-Ycmax
+   Yc'              (Yc-Ycmax)*-1
 ------------  =  ---------------
-  Yc'max             -Ycmax
+  Yc'max             Ycmax
 
-     Yc-Ycmax
-Yc'=----------*Yc'max
-     -Ycmax
+     (Yc-Ycmax)*-1
+Yc'=---------------*Yc'max
+     	Ycmax
