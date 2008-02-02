@@ -19,7 +19,7 @@ INTERFACE
 { public functions to init the hardware and read and write ports }
 
 function bmcm_read_ports(io_port:longint):byte;
-function bmcm_read_analog(io_port:longint):integer;
+function bmcm_read_analog(io_port:longint):longint;
 function bmcm_write_ports(io_port:longint;byte_value:byte):byte;
 function bmcm_hwinit(initstring:string):boolean;
 
@@ -38,7 +38,7 @@ uses libadp,strings;					{ use the c library }
 
 const	
 	bmcm_max  	= 4;			{ max number of bmcm devices which are supported }
-	debug     	= false;
+	debug     	= true;
 
 type 
 	PCardinal = ^Cardinal;
@@ -56,10 +56,15 @@ var
 	value		: Cardinal;					{ the value read from device }
 
 begin
+	if debug then writeln('IO_port=',io_port);
+
 	{ extract the device number as key to device handle }
 	dev:=round(io_port/10);
+	if debug then writeln('dev=',dev);
+
 	{ extract the port }
 	io_port:=round(frac(io_port/10)*10);
+	if debug then writeln('port=',io_port);
 
 	p:=@value;			{ let it show to value }
 	
@@ -72,23 +77,28 @@ begin
 end;
 
 
-function bmcm_read_analog(io_port:longint):integer;
+function bmcm_read_analog(io_port:longint):LongInt;
 
 var
 	dev  		: byte;
 	value		: Cardinal;					{ the value read from device }
 
 begin
+	if debug then writeln('io_port=',io_port);
+
 	{ extract the device number as key to device handle }
-	dev:=round(io_port/10);
+	dev:=round(io_port/16);
+	if debug then writeln('dev=',dev);
+
 	{ extract the port }
-	io_port:=round(frac(io_port/10)*10);
+	io_port:=round(frac(io_port/16)*10);
+	if debug then writeln ('port=',io_port);
 
 	p:=@value;			{ let it show to value }
 	
 	{$ifndef ZAURUS }
-	ad_discrete_in(devices[dev],io_port,0,p);   { read the value }
-	if debug then writeln('BMCM read device: ',devices[dev],' Port: ',io_port+1,' value=',value);
+	ad_discrete_in(devices[dev],AD_CHA_TYPE_ANALOG_IN or (io_port+1),0,p);   { read the value }
+	if debug then writeln('BMCM read analog device : ',devices[dev],' Port: ',io_port+1,' value=',value);
 	{$endif}
 
 	bmcm_read_analog:=value;
@@ -119,7 +129,7 @@ end;
 
 function bmcm_hwinit(initstring:string):boolean;
 var
-	x,i			: byte;
+	i		: byte;
 	initdata 	: array[1..5] of string;
 	direction	: LongInt;
 	DeviceName	: String;
@@ -142,14 +152,16 @@ begin
 		DeviceName:=initdata[1]+':'+initdata[2]
 	else
 		DeviceName:=initdata[1];
-
+	if debug then writeln('DeviceName=',DeviceName);
 	StrPCopy(pDeviceName,DeviceName);
 
 	if debug then writeln('open device: ',DeviceName);
 
 	{$ifndef ZAURUS}
 	devices[cnt]:=ad_open(pDeviceName);
-	if (devices[cnt]<>0) then begin
+	if debug then writeln('Device=',cnt,' DeviceName=',DeviceName,' device Handle=',devices[cnt]);
+
+	if (devices[cnt]=-1) then begin
 		writeln('Fatal error: opening device : ',cnt,' ',DeviceName,' check settings in config file');
 		halt;
 	end;
