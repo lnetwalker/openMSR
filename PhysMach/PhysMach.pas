@@ -34,7 +34,7 @@ var
 	timer			: array[1..tim_max]	 of boolean;
 	t			: array[1..tim_max]	 of word;	 
 	z			: array[1..cnt_max]	 of word;
-	analog_in		: array[1..analog_max]   of integer;
+	analog_in		: array[1..analog_max]   of LongInt;
 
 	HWPlatform		: string;
 
@@ -59,7 +59,7 @@ uses
 		linux,
 		dil_io_access,lp_io_access,pio_io_access,
 		joy_io_access,rnd_io_access,http_io_access,
-		bmcm_io_access,bmcm_ad_access,
+		bmcm_io_access,
 {$endif}
 {$ifdef newio }
 		iowkit_io_access;
@@ -68,7 +68,7 @@ uses
 {$endif}
 
 const
-	debug 			= false;
+	debugFlag 		= false;
 	power			: array [0..7] of byte =(1,2,4,8,16,32,64,128);
 
 var
@@ -89,7 +89,7 @@ var
 procedure PhysMachloadCfg(cfgFilename : string);
 var
 	f				: text;
-	zeile		   		: string[48];
+	zeile		   		: string[80];
 	initdevice			: char;
 	initstring			: string;
 	dir				: shortString;
@@ -106,13 +106,13 @@ begin
 	while not(eof(f)) do begin
 		readln (f,zeile);
 		if ( copy(zeile,1,6) = 'DEVICE' ) then begin
-			if ( debug ) then writeln ('device detected');
+			if ( debugFlag ) then writeln ('device detected');
 			{ device line looks like }
 			{ DEVICE!P!$307:$99 }
 			initdevice:=zeile[8];
-			initstring:=copy(zeile,10,length(zeile)-9);
+			initstring:=copy(zeile,10,length(zeile));
 			{ call the initfunction of that device }
-			if (debug) then writeln('device ',initdevice,'   ',initstring);
+			if (debugFlag) then writeln('device ',initdevice,'   ',initstring);
 			case initdevice of
 {$ifdef LINUX}
 				'D'	: begin
@@ -146,17 +146,13 @@ begin
 					  end;
 				'B' : begin
 						bmcm_hwinit(initstring);
-						HWPlatform:=HWPlatform+',BMCM-Pio-Device ';
-					  end;
-				'C' : begin
-						bmcm_hwinit(initstring);
-						HWPlatform:=HWPlatform+',BMCM-AD-Device ';
+						HWPlatform:=HWPlatform+',BMCM-USB-Device ';
 					  end;
 			end;	
 			
 		end
 		else if (copy(zeile,1,4) = 'PORT') then begin
-			if ( debug ) then writeln ('port detected');
+			if ( debugFlag ) then writeln ('port detected');
 			{port line looks like }
 			{PORT!I!  1! $00!I}
 			dir:=copy(zeile,6,1);
@@ -164,7 +160,7 @@ begin
 			if     ( dir = 'I' ) then begin
 				val(copy(zeile,12,4),i_address[iogroup]);
 				i_devicetype[iogroup]:=zeile[17];
-				if (debug) then writeln('Input Group ',iogroup,'devicetype=',i_devicetype[iogroup]);
+				if (debugFlag) then writeln('Input Group ',iogroup,'devicetype=',i_devicetype[iogroup]);
 			end	
 			else if( dir = 'O' ) then begin
 				val(copy(zeile,12,4),o_address[iogroup]);
@@ -177,6 +173,7 @@ begin
 			else if( dir = 'A' ) then begin
 				val(copy(zeile,12,4),a_address[iogroup]);
 				a_devicetype[iogroup]:=zeile[17];
+				if debugFlag then writeln('Analog Line=',iogroup,' Address=',a_address[iogroup]);
 			end;
 		end;
 		{ ignore everything else }		
@@ -213,6 +210,7 @@ begin
 		i_devicetype[x]:='-';
 		o_devicetype[x]:='-';
 		c_devicetype[x]:='-';
+		a_devicetype[x]:='-';
 	end;
 	hwPlatform:='';
 end;                               { ****ENDE INIT ****}
@@ -241,11 +239,10 @@ begin
 				'I'	: wert:=iow_read_ports(i_address[io_group]);
 				'H' 	: wert:=http_read_ports(i_address[io_group]);
 				'B' 	: wert:=bmcm_read_ports(i_address[io_group]);
-				'C' 	: wert:=cmcm_read_ports(i_address[io_group]);
 			end	
 		else
 			wert:=0;
-		if (debug) then 
+		if (debugFlag) then 
 			writeln	('PhysMach:PhysMachReadDigital   group ',io_group,' -> ',wert); 
 		for i:=7 downto 0 do begin	
 			if wert>=power[i] then begin
@@ -254,7 +251,7 @@ begin
 			end
 			else 
 				eingang[x+i]:=false;
-			if (debug ) then begin
+			if (debugFlag ) then begin
 				if ( i=7 ) then write('E group ',x,'   ');
 			   	write (eingang[x+i],' ');
 			   	if (i=0 ) then writeln;
@@ -277,7 +274,7 @@ begin
 		wert:=0;
 		for  k:=7 downto 0 do begin
 			wert:=wert+power[k]*ord(ausgang[k+x]);
-			if (debug ) then begin
+			if (debugFlag ) then begin
 		 		if ( k=7 ) then write('A group ',x,'    ');
 		 		write (ausgang[k+x],' ');
 		 		if (k=0 ) then writeln;
@@ -296,7 +293,6 @@ begin
 				'I'	: iow_write_ports(o_address[io_group],wert);
 				'H' 	: http_write_ports(o_address[io_group],wert);
 				'B' 	: bmcm_write_ports(o_address[io_group],wert);
-				'C' 	: cmcm_write_ports(o_address[io_group],wert);
 			end;	
 		x:=x+8;
 	until ( x > io_max );
@@ -331,7 +327,6 @@ begin
 				'I'	: iow_read_ports(i_address[io_group]);
 				'H' 	: http_read_ports(i_address[io_group]);
 				'B' 	: bmcm_read_ports(i_address[io_group]);
-				'C' 	: cmcm_read_ports(i_address[io_group]);
 			end
 		else
 			wert:=0;
@@ -364,11 +359,11 @@ begin
 			case a_devicetype[x] of
 {$ifdef LINUX}
 				'J' 	: analog_in[x+1]:=joy_read_ports(a_address[x],x);
-				'C' 	: analog_in[x+1]:=cmcm_read_analog(a_address[x]);
+				'B' 	: analog_in[x]:=bmcm_read_analog(a_address[x]);
 {$endif}
 				'H'	: analog_in[x+1]:=http_read_ports(a_address[x],x);
 			end;
-			if (debug) then writeln('Analog_in[',x+1,']=',analog_in[x+1]);
+		if (debugFlag) then writeln('Analog_in[',x+1,']=',analog_in[x+1]);
 		inc(x);
 	until ( x > analog_max );
 end;
