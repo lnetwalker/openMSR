@@ -8,51 +8,40 @@ program runsps;
 { where I coded not	 one simple line in pascal :) 	}
 { If you have improvements please contact me at 	}
 { hartmut@eilers.net								}
-{ all code is copyright by Hartmut Eilers			}
-{ the code is distributed under the GNU 			}
+{ all code is copyright by Hartmut Eilers					}
+{ the code is distributed under the GNU 					}
 { general public license							}
-{ history 											}
-{	27.05.1999    	start of Linux Port				}
-{ 	03.10.2000	  	start of Version 1.7.1			}
+{ history 									}
+{	27.05.1999    		start of Linux Port				}
+{ 	03.10.2000	  	start of Version 1.7.1				}
 {	11.10.2000	  	installed fpc 1.0 				}
-{	11.10.2000	  	start analog processing 		}
-{					EQ,LT,GT						}
-{	10.09.2005	  	restructure code to support 	}
-{					different hardware 				}
-{	12.10.2005		started code to read 			}
-{					configuaration file				}
-{					set TAB STops to 4 started to 	}
-{					beauitify code					}
-{                                                   }
-{   25.10.2005      run_sps is fully configurable,	}
-{					hardware may be mixed			}
-{	12.04.2006		added driver for joystick 		}
-{					analog processing works ! 		}
+{	11.10.2000	  	start analog processing 			}
+{				EQ,LT,GT					}
+{	10.09.2005	  	restructure code to support 			}
+{				different hardware 				}
+{	12.10.2005		started code to read 				}
+{				configuaration file				}
+{				set TAB STops to 4 started to 			}
+{				beauitify code					}
+{                                                   				}
+{	25.10.2005 		run_sps is fully configurable,			}
+{				hardware may be mixed				}
+{	12.04.2006		added driver for joystick 			}
+{				analog processing works ! 			}
+{	03.02.2008		introduced PhysMach Unit for Hardware access 	}
 
-{ virtual machine version 1.1						}
-{ physical machine version 1.3						}
+{ virtual machine version 1.1							}
+{ physical machine version PhysMach						}
 
-
-{$define newio}
-{ undef newio if you need a binary running without 	}
-{ iowarrior library e.g. DIL/Net PC					}
-{ for windows only newio works						} 
-uses 	dos,crt,
+uses 	
 {$ifdef LINUX }
-		oldlinux,dil_io_access,lp_io_access,pio_io_access,joy_io_access,
+	unix,oldlinux,
 {$endif}
-{$ifdef newio }
-		iowkit_io_access;
-{$else}
-		iow_io_access;
-{$endif}
-
-
+	dos,crt,PhysMach;
 
 {$i ./sps.h}
 {$i ./run_awl.h }
 {$i ./awl_interpreter.pas}
-{$i ./physical_machine.pas }
 
 const 
 {$ifdef LINUX}
@@ -60,18 +49,21 @@ const
 {$else}
 	Platform = ' Windows ';
 {$endif}	
-    ProgNamVer  =' RUN_SPS  for'+Platform+version+' '+datum+' ';
-    Copyright   ='      (c)  1989 - 2006 by Hartmut Eilers ';
+	ProgNamVer  =' RUN_SPS  for'+Platform+version+' '+datum+' ';
+	Copyright   ='      (c)  1989 - 2008 by Hartmut Eilers ';
 
-var	i					: integer;
+var
+	i					: integer;
 
 
 
 procedure sps_laden;
 
-var	f              		:text;
+var	
+	f				:text;
 	zeile		   		:string[48];
-	i,code  	   		:integer;   { code is currently a dummy, may be used for error detection }
+	i,code  	   		:integer;   
+{ code is currently a dummy, may be used for error detection }
 	name		   		:string;
 
 procedure get_file_name;           { namen des awl-files einlesen   }
@@ -127,40 +119,39 @@ end;                               {**** ENDE SPS_LADEN **** }
 procedure run_awl;
 {interrupt; }
 
-begin                              		{ hp run_awl                      }
-    get_input;                      	{ INPUTS lesen                    }
-	get_analog;							{ analoge inputs lesen			  }
-    count_down;                     	{ TIMER / ZAHLER aktualisieren    }
-	handle_timer;
-    interpret;                      	{ einen AWLdurchlauf abarbeiten   }
-    set_output;                     	{ OUTPUTS ausgeben                }
-    toggle_internal_clock(marker[62],marker[63],marker[64]);{ interne TAKTE M62-M64 toggeln   }
+begin                             		{ hp run_awl                      }
+	PhysMachReadDigital;                   	{ INPUTS lesen                    }
+	PhysMachReadAnalog;;			{ analoge inputs lesen			  }
+	PhysMachCounter;                     	{ TIMER / ZAHLER aktualisieren    }
+	PhysMAchTimer;
+	interpret;                      	{ einen AWLdurchlauf abarbeiten   }
+	PhysMachWriteDigital;			{ OUTPUTS ausgeben                }
+	toggle_internal_clock(marker[62],marker[63],marker[64]);{ interne TAKTE M62-M64 toggeln   }
 	if watchdog > awl_max then esc:=true;
 	RPMs;
-    if (debug) then begin
-    	delay (1000);
-    	writeln ('###########################################################################');
-    end;
+	if (debug) then begin
+		delay (1000);
+    		writeln ('###########################################################################');
+	end;
 end;                               { **** ENDE RUN_AWL ****          }
 
 
 begin                              { SPS_SIMULATION           }
-    { signal handling is needed here, also the program should go in background 	}
-    { and at least there should be something done with the load			}
-    { set a very nice priority }
+	{ signal handling is needed here, also the program should go in background 	}
+	{ and at least there should be something done with the load			}
+	{ set a very nice priority }
 
-{$ifdef LINUX}
-    nice(20);
-{$endif}
-    init;
-	extern:=true;
-	load_cfg;
-    write(ProgNamVer);
-	writeln(HWPlatform);
-    writeln(copyright);
-    sps_laden;
-    if (debug) then begin
-	 	for i:=1 to awl_max do writeln (i:3,operation[i]:5, operand[i]:4,par[i]:4,comment[i]:22);
+	{$ifdef LINUX}
+	nice(20);
+	{$endif}
+	PhysMachInit;
+	PhysMachloadCfg('.run_sps.cfg');
+	write(ProgNamVer);
+	writeln(copyright);
+	writeln('detected Hardware: ',HWPlatform);
+	sps_laden;
+	if (debug) then begin
+	 	//for i:=1 to awl_max do writeln (i:3,operation[i]:5, operand[i]:4,par[i]:4,comment[i]:22);
 		writeln (' Configured input ports :');
 		for i:=1 to group_max do writeln(i:3,i_address[i]:6,i_devicetype[i]:6);
 		writeln (' Configured output ports :');
@@ -168,9 +159,9 @@ begin                              { SPS_SIMULATION           }
 		writeln (' Configured counter ports :');
 		for i:=1 to group_max do writeln(i:3,c_address[i]:6,c_devicetype[i]:6);
 	end;	
-    writeln('AWL gestartet');
-    repeat
+	writeln('AWL gestartet');
+	repeat
 		run_awl
-    until keypressed or esc;	
+	until keypressed or esc;	
 	if esc then writeln('Error: Watchdog error...!');	
 end.                               { **** SPS_SIMULATION **** }
