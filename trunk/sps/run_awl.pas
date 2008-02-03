@@ -7,32 +7,7 @@
 {$i ./run_awl.h}
 {$i ./awl_interpreter.pas}
 
-function timeNow:Real;
-begin
-	gettime(std,min,sec,ms);
-	usec:=0;
-	timeNow:=(((std*60+min)*60+sec)*1000+ms)*1000+usec;
-end;
 
-
-procedure RPMs;
-begin
-	if (runs=0) then begin
-		time1:=timeNow;
-	end;
-	inc(runs);
-	if ( runs = TimeRuns ) then begin
-		runs:=0;
-		time2:=(timeNow-time1)/TimeRuns;
-		if ( time2=0 ) then time2:=0.0000001;		{ 1 �second }
-		durchlaufeProSec:=trunc(1000000/time2);
-{$ifdef SPS}
-		GotoXY(35,16);
-		clreol;
-		write('Cycletime Tz=',(time2/1000):5:2,' ms =',DurchlaufeProSec:5,' CPS ');
-{$endif}
-	end;	
-end;
 
 
 procedure run_awl_menu;
@@ -118,7 +93,7 @@ begin
   writeln(z[5]:5,' ',z[6]:5,' ',z[7]:5,' ',z[8]:5,' ');
   gotoxy (13,15);
 {$endif}
-  write(analog_in[1]:7,' ',analog_in[2]:7,' ',analog_in[3]:7,' ',analog_in[4]:7);
+  write(analog_in[1]:10,' ',analog_in[2]:10,' ',analog_in[3]:10,' ',analog_in[4]:10);
 
   writeln('');
 
