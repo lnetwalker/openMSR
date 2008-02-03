@@ -23,7 +23,7 @@ uses 	dos,crt,porting,printer,popmenu,browse,PhysMach,
 {$i ./kop.pas}
 
 { new platform: Zaurus = Linux on ARM CPU }
-{$define ZAURUS}
+{$undefine ZAURUS}
 
 procedure checkScreenSize;
 
