@@ -1,7 +1,7 @@
 
 
 
-                        S P S - SIMULATOR V 1.7.3-rc5
+                        S P S - SIMULATOR V 1.7.3-rc7
                                 SPS4Linux ( i386 )
                                   OpenSPS
                      (c) 1990-2007 by Hartmut Eilers
@@ -22,6 +22,10 @@
       Ausgabe 12/2005 wurde ein A/D Wandler auf Basis des IO Warriors 
       vorgestellt (laeuft unter Windows und Linux) .
       Die Unterstuetzung dafuer ist in Arbeit.
+
+      neu in 1.7.3-rc7 ist der Treiber für die BMCM usb-pio und usb-ad.
+      dieser Treiber ist sowhl unter Linux als auch Windows verfügbar.
+
 
       Alles zur externen Steuerung finden sie im Programm run_sps.
 
