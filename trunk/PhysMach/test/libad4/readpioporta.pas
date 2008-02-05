@@ -29,7 +29,7 @@ begin
 	new (p);
 	p:=@value;
 	{ read 10 values from port }
-	for i:=1 to 10 do begin
+	for i:=1 to 1000 do begin
 		ad_digital_in(pio,DIO1,p); 
 		writeln (value);
 	end;
