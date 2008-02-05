@@ -124,12 +124,12 @@
 
       2.1.1 Der Menuepunkt FILE
 
-          Nach Eingabe von F im Hauptmen� erscheint das Auswahlmen�
-          FILE. Sie k�nnen jetzt wieder durch Eingabe des farbig unter-
+          Nach Eingabe von F im Hauptmenü erscheint das Auswahlmenu
+          FILE. Sie koennen jetzt wieder durch Eingabe des farbig unter-
           legten Anfangsbuchstaben ,der Pfeiltasten und RETURN 
-          zwischen folgenden Punkten w�hlen :
-               N - New = l�schen des Speichers
-                   ( d.h. L�schen der aktuellen AWL im Speicher )
+          zwischen folgenden Punkten waehlen :
+               N - New = loeschen des Speichers
+                   ( d.h. Loeschen der aktuellen AWL im Speicher )
 
                L - Laden einer AWL von Disk / Platte
 
@@ -143,44 +143,44 @@
                C - wechseln des Standarddirectories
 
 
-          Alle Pfad- und Dateiangaben im Men� FILE m�ssen in der
+          Alle Pfad- und Dateiangaben im Menue FILE muessen in der
           DOS Syntax angegeben werden. ( z.B.: *.* nicht * )
           Wird kein Pfad angegeben bezieht sich der Befehl auf das
           aktuelle Laufwerk/ bzw. Pfad. ( Laufwerk ;-) ; es kommt halt
           aus der DOS Welt )
 
           Wird keine Dateinamenserweiterung angegeben wird automatisch
-          .SPS angeh�ngt.
+          .SPS angehaengt.
 
-      2.1.2 Der Men�pkt EDIT
+      2.1.2 Der Menuepkt EDIT
 
-          Nach Eingabe von E aus dem Hauptmen� befindet man sich
+          Nach Eingabe von E aus dem Hauptmenue befindet man sich
           im Editorfenster.
 
-          Es kann nun eine AWL erstellt oder ge�ndert werden.
+          Es kann nun eine AWL erstellt oder geaendert werden.
 
           Aufbau einer Zeile der AWL:
               1. Zeilennummer:
-                 Der Editor schl�gt jeweils die n�chste aktuelle
-                 Zeilennummer vor. Will man diese �bernehmen, so
-                 mu� keine neue Zeilennummer angegeben werden.
-                 Will man jedoch eine bestehende Zeile �ndern
-                 so mu� hier die entsprechende Zeilennummer ange-
-                 geben werden und die Zeile �berschrieben werden.
+                 Der Editor schlaegt jeweils die naechste aktuelle
+                 Zeilennummer vor. Will man diese uebernehmen, so
+                 muss keine neue Zeilennummer angegeben werden.
+                 Will man jedoch eine bestehende Zeile aendern
+                 so muss hier die entsprechende Zeilennummer ange-
+                 geben werden und die Zeile ueberschrieben werden.
 
-              2. Operation (max 3Stellig) enth�lt einen g�ltigen
+              2. Operation (max 3Stellig) enthaelt einen gueltigen
                  Befehl.
 
-              3. Operand (1 stellig ) enth�lt einen g�ltigen Operanden
+              3. Operand (1 stellig ) enthaelt einen gueltigen Operanden
 
-              4. Parameter ( max 65535 ) enth�lt den Parameter eines
+              4. Parameter ( max 65535 ) enthaelt den Parameter eines
                  Befehls oder die Nummer eines Operanden.
 
               5. Kommentar ( max 22 Stellen ) ist optional und nur zu
                  Dokumentationszwecken.
 
 
-          Alle Komponenten einer Zeile werden ohne Zwischenr�ume
+          Alle Komponenten einer Zeile werden ohne Zwischenraeume
           direkt eingegeben.
           Bsp.: 18 ue1Eingang 1 = Starttaste
 
@@ -197,62 +197,65 @@
           Jede Zeile wird mit RETURN bzw. ENTER abgeschlossen.
           Solange eine Zeile nicht abgeschlossen ist kann sie
           mit BACKSPACE korrigiert werden.
-          Nach Abschlu� einer Zeile kann diese nur durch
-          �berschreiben ge�ndert werden.
+          Nach Abschluss einer Zeile kann diese nur durch
+          ueberschreiben geaendert werden.
 
           Folgende Tasten haben im Editor eine Bedeutung:
 
-          EINFG: Einf�gen einer Zeile in die AWL. Nach Eingabe der
+          EINFG: Einfuegen einer Zeile in die AWL. Nach Eingabe der
               Zeilennummer wird an dieser Stelle eine Zeile ein-
-              gef�gt deren Inhalt der NOP Befehl ( No Operation )
-              ist. Diese Zeile kann durch �berschreiben ge�ndert
+              gefuegt deren Inhalt der NOP Befehl ( No Operation )
+              ist. Diese Zeile kann durch ueberschreiben geaendert
               werden.
 
-          ENTF: L�schen einer Zeile in der AWL . Nach Angabe der
-              Zeilennummer wird diese Zeile gel�scht, alle nach-
+          ENTF: Loeschen einer Zeile in der AWL . Nach Angabe der
+              Zeilennummer wird diese Zeile geloescht, alle nach-
               folgenden zeilen werden um eine Position verschoben.
 
           Die Sprungziele bei den Sprungbefehlen werden automatisch
-          angepa�t.
+          angepasst.
 
-          CURSOR UP/DOWN Zeilenweises bl�ttern durch die AWL
+          CURSOR UP/DOWN Zeilenweises blaettern durch die AWL
 
-          PAGE   UP/DOWN Seitenweises bl�ttern durch die AWL
+          PAGE   UP/DOWN Seitenweises blaettern durch die AWL
 
-          BACKSPACE Zeichen links vom Cursoor l�schen
+          BACKSPACE Zeichen links vom Cursoor loeschen
 
-          RETURN Zeile abschlie�en
+          RETURN Zeile abschliessen
 
           ESC Editor verlassen.
 
-      2.1.4 Der Men�punkt RUN
+      2.1.4 Der Menuepunkt RUN
 
-          Durch Eingabe von R im Hauptmen� wird eine AWL gestartet.
+          Durch Eingabe von R im Hauptmenue wird eine AWL gestartet.
           Auf dem Bildschirm erscheint ein Fenster in dem der Zustand
           aller
                - MARKER
                - TIMER
                - COUNTER
-               - EING�NGE
-               - AUSG�NGE 
+               - EINGAENGE
+               - AUSGAENGE 
 	           - Analoge Eingaenge (Joystick) angezeigt wird,
           sowie die Information ob die Steuerung INTERN oder EXTERN
           arbeitet sowie die sog. Zykluszeit. Diese gibt an, wie lange
           ein AWL Durchlauf durchschnittlich dauert.
           Die Zykluszeit wird auch als Kommentar in die letzte Zeile der
-          AWL eingesezt. An Hand der Zykluszeit kann die Verz�gerungs-
+          AWL eingesezt. An Hand der Zykluszeit kann die Verzoegerungs-
           zeit der Timer berechnet werden.
           Die Zykluszeit unter Linux stimmt nur sehr, sehr grob
           nicht drauf verlassen!
 
           Eine AWL wird solange immer wieder abgearbeitet bis ESC be-
-          t�tigt wird.
+          taetigt wird.
 
           Folgende Tasten haben eine Bedeutung:
 
           1-8 Bei Interner Steuerung wird mit jedem Tastendruck der
                 Zustand des jeweiligen Einganges getoggelt.
-
+          Shift 1-8 toggeln der Eingaenge E9-16
+          q-i Zaehler 1-8 decrementieren
+          a-f Anlog In 1-4 incremetieren
+          c toggeln zwischen interner und externer Steuerung
 
       2.1.5 Menupunkt DOCU
 
@@ -377,12 +380,14 @@
            gibt es unter anderem bei Decision Computer
 
            Neben der PIO funktioniert ausserdem der Printerport sowie
-           die IO Warrior Serie von Code Mercanaries als Ein-Ausgabe Einheit.
+           die IO Warrior Serie von Code Mercanaries sowie von bmcm
+           die usb-pio und usb-ad als Ein-Ausgabe Einheit.
 
            Bei Verwendung des Dil/NetPC ist Port 0 Eingang und Port1
            Ausgang, Port 0 wird auch fuer die Softcounter genommen.
 
-           Zur analogen Datenerfassung steht der Joystick Port zur Verfuegung.
+           Zur analogen Datenerfassung steht der Joystick Port und die usb_ad
+           von bmcm zur Verfuegung.
 
            Alle Ein- und Ausgaenge haben TTL Pegel.
 
@@ -399,13 +404,14 @@
            100ms Timer T5-T12.
 
            Falls die Zykluszeit die Timebasis ueberschreitet, laufen die
-           Timer zu langsam !
+           Timer zu langsam ! Siehe auch Bermerkungen am Ende des Documents
 
 
       3.3 Konfiguration
 
        Zur Konfiguration editieren Sie die Datei /etc/sps.cfg
        mit dem Editor Ihrer Wahl.
+       zur Konfiguration der Hardware bitte README lesen.
 
       4. Beispiele zur Syntax
 
@@ -607,9 +613,15 @@
     Benutzung der Software enstanden sind Haftbar gemacht werden kann.
 
 
-    ACHTUNG: Benutzung des SPS Simulators unter LINUX!!!
-          Sie muessen  beachten, dass unter LINUX
+    ACHTUNG: Benutzung des SPS Simulators und der Zykluszeit
+          Sie muessen  beachten, dass bei einem normalen Computer
           die Zykluszeit nicht konstant ist (Multitasking!!!)
+          das heisst auch die AWL laeuft unterschiedlich schnell.
+          Achtung die Zykluszeit muss auch schnell genug sein um
+          alles Signalwechsel zu erkennen ! Signalaenderungen muessen
+          mindestens 2 mal so lange wie die Zykluszeit sein, damit 
+          sie korrekt erkannt werden koennen.
+ 
 
           Steuerungen im allgemeinen: Bitte immer Vorsorge treffen
           was eine Steuerung "macht" wenn der Rechner, das Programm
