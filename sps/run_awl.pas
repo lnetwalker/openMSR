@@ -247,15 +247,14 @@ procedure run_awl;                 { abarbeiten einer AWL }
 
 begin                              {hp run_awl}
 	if not(programm) then exit;
+	esc:=false;
 	TimeRuns:=150;
-	PhysMachInit;
-	PhysMachLoadCfg('.run_sps.cfg');
 	run_awl_menu;
 	repeat
 		check_keyboard;
 		if ( extern ) then begin
 	    		PhysMachReadDigital;               	{ INPUTS lesen                    }
-			PhysMachReadAnalog;					{ analoge inputs lesen			  }
+			PhysMachReadAnalog;			{ analoge inputs lesen		  }
   			PhysMachCounter;                   	{ TIMER / ZAHLER aktualisieren    }
 		end
 		else 
@@ -263,25 +262,27 @@ begin                              {hp run_awl}
 		PhysMachTimer;
 		interpret;
 		if ( extern ) then
-	   		PhysMachWriteDigital;                     	{ OUTPUTS ausgeben                }
+	   		PhysMachWriteDigital;                     { OUTPUTS ausgeben                }
 		print_in_out;
 		toggle_internal_clock(marker[62],marker[63],marker[64]);
 		if watchdog > awl_max then esc:=true;
 		RPMs;
 	until esc;
 
+	//if esc then write(#7);
+
 	window (2,2,screenx,screeny);textcolor(black);textbackground(black);clrscr;
 	
 	if watchdog > awl_max then begin
-        textcolor(black);textbackground(white);
-        my_wwindow (10,10,40,15,'[WATCHDOG]','<bel.taste>',true);
-        sound(220);delay(200);nosound;
-        writeln ('  RUNTIME-ERROR IN AWL');
-        writeln ('  Zykluszeit �berschritten ');
-        write ('  weiter mit <bel. taste> !!!!');
-        repeat
-        until keypressed;
-        readkey;
-        window (10,10,40,15);textcolor(black);textbackground(black);clrscr;
-    end
+		textcolor(black);textbackground(white);
+		my_wwindow (10,10,40,15,'[WATCHDOG]','<bel.taste>',true);
+		sound(220);delay(200);nosound;
+		writeln ('  RUNTIME-ERROR IN AWL');
+		writeln ('  Zykluszeit �berschritten ');
+		write ('  weiter mit <bel. taste> !!!!');
+		repeat
+		until keypressed;
+		readkey;
+		window (10,10,40,15);textcolor(black);textbackground(black);clrscr;
+	end
 end;                               { **** ENDE RUN_AWL ****}
