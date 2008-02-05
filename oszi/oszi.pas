@@ -9,9 +9,10 @@ program oszi;
 
 { $Id$ }
 
-uses qgtk2;
+uses qgtk2,PhysMach;
 
-var i,
+var 
+	i,
 	xmitte,ymitte,
 	timebase,
 	Raster,
@@ -36,6 +37,8 @@ var i,
 
 	Farbe			: Array [1..8] of LongInt = (qRed,qAqua,qBlue,qYellow,qPurple,qWhite,qBrown,qGray);
 
+	YcMax,Yrmax		: LongInt;
+
 
 procedure oncreate;
 
@@ -58,10 +61,28 @@ end;
 
 
 
-function GetNewValue(value:integer): integer;
+function GetNewValue(value:integer): Integer;
+var
+	Yc	: real;
+	Yc2	: integer;
+
 begin
 	{ read a new value and normalize it to this coordinate system }
-	GetNewValue:=random(maxx-10)+1+5;
+	PhysMachReadAnalog;
+	writeln('analog_in[',value,']=',analog_in[value]);
+	// see CoordinateTransformation.txt
+	//       Yr + Yrmax
+	//yc = -------------- *  Ycmax 
+	//         2*Yrmax
+	Yc:=((analog_in[value]+Yrmax)/(2*Yrmax))*maxy;
+	writeln('Yc[',value,']=',Yc);
+	//     (Yc-Ycmax)*-1
+	//Yc'=---------------*Yc'max
+	//     	Ycmax
+	yc:=analog_in[value];
+	Yc2:=round((Yc-Yrmax)*-1/(Yrmax)*maxy);
+	writeln('Yc2[',value,']=',Yc2);
+	GetNewValue:=Yc2;
 	//GetNewValue:=round(sin(value)*(maxy/4))+ymitte;
 end;
 
@@ -83,7 +104,7 @@ begin
 		for i:=1 to NoOfInputs do begin
 			{ get next value from A/D device }
 			{ and draw a line from current coordinates to new ones }
-			y:=GetNewValue(x);
+			y:=GetNewValue(i);
 
 			qsetClr(Farbe[i]);
 			qline(ox[i],oy[i],x,y);
@@ -133,11 +154,17 @@ begin
 	maxy:=480;
 	PixelPerTimeBase:=20;
 	Timer:=100;
+	Yrmax:=2147483647;
+
 
 	xmitte:=round(int(maxx/2));
 	ymitte:=round(int(maxy/2));
 	timebase:=0;
-	randomize;
+
+	// initialize Hardware
+	PhysMachInit;
+	PhysMachloadCfg('.oszi.cfg');
+	writeln('detected Hardware: ',HWPlatform);
 	
 	qstart('Oszi', nil, nil);
 	TimerValue:=qbutton('Timebase',  @onTimebase);
