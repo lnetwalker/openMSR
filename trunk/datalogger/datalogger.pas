@@ -15,6 +15,7 @@ const
 	version='V 0.1';
 	TimeLengthPixel=8;	// gibt an wieviel pixel eine Zeiteinheit lang ist
 	SignalHight=8;
+	debug=false;
 
 var 
 	maxx,maxy,
@@ -81,7 +82,7 @@ begin
 	for x:=1 to 8 do begin
     		str(x,ch);
 	 	z:=(x+3)*yfakt;
-		writeln('x=',x,' z=',z);
+		if debug then writeln('x=',x,' z=',z);
 		qdrawtext(xfakt,z,'S'+ch);
 		qline(xOffset,z+1,maxx,z+1);
 
