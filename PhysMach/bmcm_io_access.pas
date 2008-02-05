@@ -38,7 +38,7 @@ uses libadp,strings;					{ use the c library }
 
 const	
 	bmcm_max  	= 4;			{ max number of bmcm devices which are supported }
-	debug     	= true;
+	debug     	= false;
 
 type 
 	PCardinal = ^Cardinal;
@@ -69,7 +69,7 @@ begin
 	p:=@value;			{ let it show to value }
 	
 	{$ifndef ZAURUS }
-	ad_digital_in(devices[dev],io_port+1,p);   { read the value }
+	ad_digital_in(devices[dev],AD_CHA_TYPE_DIGITAL_IO or io_port+1,p);   { read the value }
 	if debug then writeln('BMCM read device: ',devices[dev],' Port: ',io_port+1,' value=',value);
 	{$endif}
 
@@ -112,16 +112,16 @@ var
 	
 begin
 	{ extract the device number as key to the device handle }
-	dev:=round(io_port/10)+1;
+	dev:=round(io_port/10);
 	{ extract the port }
 	io_port:=round(frac(io_port/10)*10);
 	
 	(* write the data to device *)
 	if (debug) then
-		write ('Value=',byte_value,' ');
+		writeln ('Write data to ',devices[dev],' port ',io_port+1,' Value=',byte_value,' ');
 
 	{$ifndef ZAURUS}
-	ad_digital_out(devices[dev],io_port+1,byte_value);
+	ad_digital_out(devices[dev],AD_CHA_TYPE_DIGITAL_IO or io_port+1,byte_value);
 	{$endif}
 
 end;
@@ -131,13 +131,12 @@ function bmcm_hwinit(initstring:string):boolean;
 var
 	i		: byte;
 	initdata 	: array[1..5] of string;
-	direction	: LongInt;
+	direction	: byte;
 	DeviceName	: String;
-	pDeviceName	: PChar;
+	p		: PChar;
 
 
 begin
-
 	{ example init string }
 	{ usb-pio:0:$00000000:$ffffffff,$ffff0000}
 	{ we have 5 datafields delimited by : }
@@ -153,12 +152,12 @@ begin
 	else
 		DeviceName:=initdata[1];
 	if debug then writeln('DeviceName=',DeviceName);
-	StrPCopy(pDeviceName,DeviceName);
+	StrPCopy(p,DeviceName);
 
 	if debug then writeln('open device: ',DeviceName);
 
 	{$ifndef ZAURUS}
-	devices[cnt]:=ad_open(pDeviceName);
+	devices[cnt]:=ad_open(p);
 	if debug then writeln('Device=',cnt,' DeviceName=',DeviceName,' device Handle=',devices[cnt]);
 
 	if (devices[cnt]=-1) then begin
@@ -172,12 +171,14 @@ begin
 		for i:=1 to 3 do begin
 			val(initdata[i],direction);
 			{$ifndef ZAURUS}
+			if debug then writeln ('Setting Direction of ',devices[cnt],' Port ',i,' to ',direction);
 			ad_set_line_direction(devices[cnt],i,direction);
 			{$endif}
 		end;
 	end;
 	{ increment next device counter }
 	inc(cnt);
+	//dispose(pDeviceName);
 end;
 
 
