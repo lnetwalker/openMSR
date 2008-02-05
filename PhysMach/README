@@ -6,7 +6,7 @@ counters.
 
 
 These properties can be mapped with a config file to different real hardware devices
-like the printerport, joystick, PIO, IO Warrior or DIL/Net PC.
+like the printerport, joystick, PIO, IO Warrior,bmcm usb devices or DIL/Net PC.
 
 You can write your programs using the resources of the PhysMach and use those real hardware
 without even knowing how to really program them. 
@@ -48,6 +48,72 @@ Joystick		->		generell Linux specific drivers for analog joystick interface
 Printer Port	->		nothings special except that your program needs to run Suid root
 PIO ( ISA )		->		nothings special except that your program needs to run Suid root
 DIL/Net PC		->		nothings special except that your program needs to run Suid root
+BMCM USB devices (pio/ad)		installed drivers
 
 For easy testing there is also included a driver which generates random signals.
+
+the Program PhysMachTest is a test tool for your configuartion. load your config an read or write to
+the ports by using the commands r and w. type h for a list of commands and syntax.
+
+Configuration file syntax:
+
+Most Hardware devices are Port oriented, which means that 8 Bits are
+grouped together. Therefore PhysMach does exactly that kind of grouping
+for all internal defined variables like Inputs, Outputs or Counters.
+This is called  a io_group. io_group 1 are input lines 1 to 8 of PhysMach
+io_group 2 are 9 to 16, io_group 3 are 17 to 24 and so on.
+same for all other kinds of variables like analog_in or counters and outputs.
+
+There are two commands to configure a hardware device:
+DEVICE Select the type of driver for a address group and init driver
+PORT specify address values for the PORTS
+
+
+Syntax of the DEVICE command
+# example of possible devices and their initstring
+# programm PIO to A in, B out, C in
+# DEVICE!P!$307:$99
+
+# possible devices are: I = IO Warrior 40
+#			D = DIL/NetPC DNP1486
+#			P = 8255 based ISA Slot PIO
+#			L = printer port
+#			R = Random
+#			J = Joystick
+#			H = HTTP
+#			B = BMCM devices like usb pio, usb ad etc
+
+#DEVICE!P!$307:$99		# the PIO needs the config port and the configuration value
+#DEVICE!I!dummy
+#DEVICE!L!dummy
+#DEVICE!D!dummy
+#DEVICE!R!dummy
+#DEVICE!J!/dev/js0		# joystick device file
+#DEVICE!H!http://www.server.com/path/to/read/data?ADDRESS:http://www.server.com/path/to/write/data?ADDRESS
+#DEVICE!B!usb-pio:/dev/ttyACM0:$ffffffff:$ffffffff:$ffffffff:
+#DEVICE!B!usb-ad:/dev/ttyACM1::::
+
+
+BMCM Devices Initstring notes:
+DEVICE!B![usb-pio|usb-ad]:device:port a:port b:port c:
+
+IN/OUT selection usb-pio:
+port a b c bedeuted das mask bit d.h. ob der port eingang oder Ausgang ist
+port mask = 0 bedeutet port ist Ausgang
+port mask = 255 bedeutet port ist Eingang
+
+beim usb-ad sind die Richtungen fest vorgegeben:
+Port A ist Eingang ( 4 Bits )
+Port B ist Ausgang ( 4 Bits )
+
+Syntax of the PORT command
+#generic config lines
+#PORT![I|O|C|A|U]!iogroup!Address!devicetype
+#	 I=input
+#	 O=output
+#	 C=counter
+#	 A=analog in
+#	 U=analog out
+see examples in PhysMach.cfg
+
 
