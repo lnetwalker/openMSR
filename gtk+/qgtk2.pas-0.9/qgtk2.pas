@@ -201,6 +201,7 @@ procedure qpicFromXpm_d(data : ppgchar; var pic : qpic);
 procedure qupdateRect(x, y, w, h : integer);
 
 procedure qtimerstart(interval : longint;  proc : tprocedure  );
+procedure qtimerstop(interval : longint);
 
 function qsecwindow(caption: string) : qWidget;
 procedure qshowsec(secwind : qwidget);
@@ -247,6 +248,7 @@ var window, boxH, boxV, fileselw, fontselw, colselw,
     fujcolor, oldcolor : array [0..3] of gdouble;
     qfontname0a,  qfontname1a,   fontnold : string;
     
+	TimerStop : integer;
 
     Gdkwin:PGdkWindow;
 
@@ -932,10 +934,13 @@ end;
 procedure qtimerstart(interval : longint;  proc : tprocedure  );
 begin
 timerproc:=proc;
-gtk_timeout_add( interval, @timercallback , nil );
+TimerStop:=gtk_timeout_add( interval, @timercallback , nil );
 end;
 
-
+procedure qtimerstop(interval : longint );
+begin
+	gtk_timeout_remove(TimerStop);
+end;
 
 
 
