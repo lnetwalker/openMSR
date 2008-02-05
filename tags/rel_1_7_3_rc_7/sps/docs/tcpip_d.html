@@ -1,0 +1,248 @@
+<HTML>
+<META NAME="AUTHOR" CONTENT="Andreas Hoerstemeier">
+<META NAME="LANGUAGE" CONTENT="english">
+<HEAD>
+<TITLE>TCP/IP Komponenten</TITLE>
+</HEAD>
+<body>
+<BODY background="images/slate.gif">
+<map name="map">
+  <area coords="3,3,47,17"    href="tcpip_d.htm"> 
+  <area coords="51,3,89,17"   href="icmp_d.htm">   
+  <area coords="93,3,131,17"  href="grid_d.htm">   
+  <area coords="135,3,173,17" href="moon_d.htm">
+  <area coords="177,3,220,17" href="jpeg_d.htm">
+
+  <area coords="7,22,36,49"   href="delphi_d.htm">
+  <area coords="54,22,472,49"   href="files/tcpip02.zip">
+</map>
+<TABLE BORDER=0>
+<TR>
+	<TD ALIGN="CENTER" VALIGN="TOP"><img src="images/tabtcpip.gif" usemap="#map" width=516 height=56 border=0></TD>
+	<TD ALIGN="RIGHT" VALIGN="TOP" WIDTH="100">
+	  <a href=#about>Allgemein</a><br>
+	  <a href=#books>Literatur</a><br>
+	  <a href=#links>Links</a><br>
+	  <a href=#bugs>Bugs</a><br>
+	  <a href=#history>Versionen</a></TD>
+</TR>
+</TABLE>
+<p>
+<a name=about>
+<font size=4>Allgemein</font><br>
+Zu Zeiten von Delphi 2 und 3 gab es keine brauchbaren freien Internet-Komponenten
+für Delphi, die OCXe hätte Borland lieber weggelassen. Zufällig entdeckte ich
+damals ein sehr guten <a href=#books>Buch</a> über die TCP/IP-Programmierung mit
+Delphi, mit dem ich binnen weniger Wochen eine ganze Reihe von Komponenten lauffähig
+hatte. All die meist benutzten Dienste habe ich implementiert 
+- Finger (Client und Server), HTTP (inklusive "post", Unterstützung für Proxies, und
+basic authentication), FTP,
+time, RExec, RSh, lpr,
+POP3, SMTP und Mail (inklusive MIME für Dateianhänge), sowie NNTP und News.
+Da Version 0.2 der Komponenten schon sehr stabil liefen, habe ich danach
+damit angefangen, sie auf asynchrone Winsock-Aufrufe umzubauen - was sich aber
+als Büchse der Pandora herausstellte, denn dadurch wurden die Komponenten sehr
+viel aufwendiger und instabiler. So habe ich sie auch auf Zeitmangel nicht so
+stabil bekommen, daß ich sie guten Gewissens veröffentlichen konnte - und außerdem
+gibt es mittlerweile auch einige andere Komponente, u.a. die Open Source Indy
+Komponenten.
+<p>
+Aber natürlich ist das letzte stabile Release weiterhin verfügbar, zusammen
+mit einem Patch der die wichtigsten Bugs korrigiert.
+Ebenfalls im Patch-Archiv enthalten ist eine Fassung der Unit <tt>winsock</tt>,
+die sowohl statisches als auch dynamisches Laden der DLL erlaubt.
+Allerdings sollte diese Unit nur mit Delphi 1 oder 2 verwendet werden,
+ansonsten bekommt man sehr schnell Package-Inkompatibilitäten.
+<p>
+<a href="files/tcpip02.zip"><img src="images/download.gif" width=32 height=32 border=0>TCP/IP Komponenten V0.2</a> (Zip-Archive, 80kB)<br>
+<a href="files/tcp022.zip"><img src="images/download.gif" width=32 height=32 border=0>Patch (0.22)</a> (Zip-Archiv, 37kB)<br>
+<p>
+<a name=books>
+<font size=4>References</font>
+<table>
+<tr valign=top>
+<td>
+<a target=_top href=http://www.amazon.de/exec/obidos/ASIN/0789707322/andreashorste-21>
+<img src="http://images-eu.amazon.com/images/P/0789707322.01.MZZZZZZZ.jpg" border=0 width=93 height=140></a>
+</td>
+<td>
+<a target=_top href=http://www.amazon.de/exec/obidos/ASIN/0789707322/andreashorste-21>
+<i>Building Internet Applications with Delphi 2</i></a> von Davis Chapman et.al.<br>
+Que Publishing, ISBN 0789707322
+</td><td>
+Leider ist dies Buch schon lange nicht mehr verfügbar, und die Autoren haben auch
+keine Neuauflage geschrieben, so daß es Glücksache ist dies Buch noch irgendwo
+zu bekommen. Entgegen dem Buchtitel läßt es sich auch mit anderen Delphi-Versionen
+verwenden, nur das Kapitel über die Netscape-API dürfte ziemlich obsolete sein.
+Dabei ist das Buch mehr für den fortgeschrittenen Programmierer geschrieben, der 
+direkt auf der Protokoll-Ebene programmieren möchte, nicht für denenigen, der nur
+fertige Internet-Komponenten verwenden will.
+</td></tr>
+<tr valign=top>
+<td>
+<a target=_top href="http://www.amazon.de/exec/obidos/ASIN/3935042078/andreashorste-21">
+<img src="http://images-eu.amazon.com/images/P/3935042078.03.MZZZZZZZ.jpg" border=0 width=95 height=140></a>
+</td>
+<td>
+<a target=_top href="http://www.amazon.de/exec/obidos/ASIN/3935042078/andreashorste-21">
+<i>Delphi für das Internet</i></a> von Lino Tadros, Lance Bullock, Steve Teixeira<br>
+Software & Support, ISBN 3935042078
+</td><td>
+Steve Texeira ist schon seit längerem als Autor des 
+<a target=_top href="http://www.amazon.de/exec/obidos/ASIN/0672321157/andreashorste-21">
+Delphi Developers Guide</a> bekannt, einem sehr guten Buch das deutlich über dem
+üblichen Niveau der Delphi-Einsteiger-Bücher liegt und damit auch die Tiefen der
+Programmierung behandelt. Daher klingt dieses in Kürze erscheinende Buch sehr
+vielversprechend und könnte ein Ersatz für obiges Buch werden - besonders positiv ist daß es eine deutsche Ausgabe geben wird. Nur leider verzögert sich das
+Buch schon seit einem Jahr, im Moment ist die englische Ausgabe
+<a target=_top href="http://www.amazon.de/exec/obidos/ASIN/1556228015/andreashorste-21">
+Delphi/Kylix Internet Developer's Guide
+</a> für Februar 2003 angekündigt.
+</td></tr>
+</table>
+<p>
+<a name=links>
+<font size=4>Links</font>
+<ul>
+<li><a href="http://www.nevrona.com/Indy/">Indy</a> ist eine sehr ausführliche
+Sammlung von Internet-Komponenten, die seit Delphi 6 sogar von Borland direkt
+mitgeliefert wird.
+<li><a href="http://www.overbyte.be" target=_top>François Piette</a>
+hat eine weitere Sammlung von Internet-Komponenten
+<li><a href="http://www.pbear.com" target=_top>Dave Baldwin's</a> Shareware HTML Komponente
+für alles was ein einfacher Browser so braucht
+<li><a href="http://www.sockets.com" target=_top>Sockets.Com</a>
+haben alle Winsock-Specifikationen, Beispielcode (C++) und
+sonstige Dokumentation, z.B. über Microsoft's ICMP.DLL.
+</ul>
+<p>
+<a name=bugs>
+<font size=4>Bugs of V0.2</font>
+<ul>
+<li>Compiliert nicht mit Delphi 4 (und höher)<br>
+Die folgende Stelle erzeugt beim Compilieren mit Delphi 4 einen Fehler.
+<pre>
+(*$ifndef ver100 *)
+  temp_socket:=Winsock.Accept(Socket,LocalAddress,x);
+(*$else *)       { Delphi 3 ARGH! }
+  temp_socket:=Winsock.Accept(Socket,@LocalAddress,@x);
+(*$endif *)
+</pre>
+Grund ist das mit Delphi 3 geänderte Interface der <tt>accept</tt>-Funktion,
+jedoch funktioniert die Unterscheidung zwischen den beiden Versionen
+mittels des <tt>ifdef</tt> nicht mehr mit Delphi 4. Die schnelle Lösung:
+den <tt>(*$ifdef ver100*)</tt> durch <tt>(*$ifdef ver120*)</tt> (bzw. das
+jeweilige Äquivalent) ersetzen.
+Allerdings compiliert es dann nicht mehr mit Delphi 3.
+<li>T_FTP kann unter Umständen die Datenverbindung nicht aufbauen<br>
+Wenn mehr als eine IP-Adresse im System gültig ist (z.B. bei einem
+lokalen Netz und einer RAS-Verbindung zum Internet) kann es vorkommen,
+daß beim FTP-Kommando <tt>PORT</tt> die falsche IP-Adresse übermittelt
+wird, zu der der Server dann nicht verbinden kann.<br>
+<i>Fix:</i> In der Methode <tt>t_ftp.Get_datasocket</tt> einfach die
+Zeile
+<pre>
+   ip:=my_ip_address;
+</pre>
+mit diesem Code ersetzen
+<pre>
+  l:=SizeOf(LocalAddress);
+  if winsock.GetSockName(f_comm_socket,LocalAddress,l)&lt;&gt;SOCKET_ERROR then
+    ip:=LocalAddress.Sin_addr.S_addr
+  else
+    ip:=my_ip_address;
+</pre>
+und bei den Variablendeklarationen dieser Methode diese beiden hinzufügen
+<pre>
+var
+  l: longint;
+  LocalAddress: TSockAddr;
+</pre>
+<li>T_SMTP und T_NNTP erzeugen beim Vernichten eine Schutzverltzung<br>
+Die folgenden Zeilen jeweils als erste in <tt>T_Mail.destroy</tt>
+<pre>
+if f_smtp&lt;&gt;NIL then
+  f_smtp.RemoveFromNotify(self);
+</pre>
+bzw. <tt>T_News.destroy</tt> einfügen
+<pre>
+if f_nntp&lt;&gt;NIL then
+  f_nntp.RemoveFromNotify(self);
+</pre>
+<li>T_HHTP holt eine falsche oder garkeine Seite<br>
+Dieses Problem tritt bei virtuellen Webservern auf, bei denen der eigentliche
+HTTP-Aufruf die komplette URL anstatt einer relativen enthalten muß.
+Obwohl T_HHTP standardmäßig nur die relative URL benutzt, kann
+man ihn dazu zwingen, die gesamte URL zu benutzen indem man die
+Eigenschaft <tt>proxy</tt> entsprechend setzt. Z.B. für
+<a href=http://www.hoerstemeier.com>www.hoerstemeier.com</a> muß
+<tt>proxy</tt> auf <tt>www.hoerstemeier.com:80</tt> gesetzt werden.
+Einige Server verlangen das eigentlich erst mit HTTP1.1 definierte
+Headerfeld "Host", um dieses mitzusenden in <tt>t_http.sendrequest</tt>
+die folgende Zeile als zweite Zeile (hinter dem <tt>SendCommand</tt>) einfügen
+<pre>
+SendCommand('Host: '+f_hostname);
+</pre>
+Wird ein richtiger Proxy benutzt ist dieses nicht nötig.
+</ul>
+Die folgenden Bugs sind mit dem <a href="files/tcp022.zip">Update</a>
+behoben, wer mag kann natürlich die folgenden Patches benutzen.
+<ul>
+<li>ftp.upload schickt keine Daten oder nur 32k
+<li>Entfernen eines SMTP/NNTP, das mit einer Mail/News Komponente verknüpft ist, erzeugt eine Schutzverletzung<br>
+<i>Workaround:</i> Beim Löschen von Komponenten die Reihenfolge T_Mime, T_Mail/T_News, T_SMTP/T_NNTP einhalten.
+<li>Löschen von Komponenten oder Beenden von Programmen erzeugt in Delphi 1 einen Laufzeitfehler 210<br>
+<i>Workaround:</i> die Zeile <tt>dispatch(Msg)</tt> in <tt>t_tcpip.WndProc</tt> auskommentieren
+<li>RExec funktioniert nicht<br>
+<i>Workaround:</i> Beim Usernamen ein #0 als erstes Zeichen hinzufügen
+<li>RExec/RSh: der Antwort-Stream beginnt mit einem #0, welches ein einfaches assign verhindert<br>
+<i>Workaround:</i> das erste Zeichen des Streams überlesen, z.B. mit dem folgenden Code:
+<pre>
+var c:char;
+
+TMemoryStream(RExec1.stream).Read(c,1);
+if c=#0 then
+  TMemoryStream(RExec1.stream).seek(1,0)
+else
+  TMemoryStream(RExec1.stream).seek(0,0);
+memo1.loadFromStream(REXec1.stream);
+</pre>
+<li>RExec/RSh setzen den Stream nicht wieder auf den Anfang zurück<br>
+<i>Workaround:</i>vor jedem Aufruf der <tt>action</tt>-Methode ein
+<tt>TMemoryStream(RExec1.Stream).Seek(0,0)</tt> machen.
+<li>Komponenten hängen wenn Windows heruntergefahren wird<br>
+Die <tt>WM_QUERYCLOSESESSION</tt> Message wird nicht richtig bearbeitet<br>
+<i>Work around:</i> Den folgenden Code in <tt>t_tcpip.wndproc</tt> einfügen:
+<pre>
+if msg.msg=wm_queryendsession then
+  msg.result:=1;
+</pre>
+<li>Delphi 3 wird instabil (Allgemeine Schutzverletzungen, Laufzeitfehler)<br>
+Grund: <tt>AddExitProc</tt> macht mit packages Probleme<br>
+<i>Workaround:</i> Die Datei <tt>ip_misc.pas</tt> aus dem <a href=files/tcp022.zip>Patch</a> nehmen.
+</ul>
+<p>
+<a name=history>
+<font size=4>Versionsgeschichte</font>
+<table>
+<tr><th align=center>Date</th><th>Version</th><th align=left>Changes</th></tr>
+<tr valign=top><td>1997-05-21</td><td align=center>0.1b</td>
+  <td>erste veröffentlichte Version, TTime, THTTP, TFTP, TSMTP,
+      TNNTP, TPop3, TRExec, TMail, TNews, TMime, TFinger,
+      TFingerD, Tlpr</td></tr>
+<tr valign=top><td>1997-07-02</td><td align=center>0.2b</td>
+  <td>Bugfixes<br>
+      OnTrace-Events hinzugefügt
+      </td></tr>
+</table>
+<p>
+Letzte Änderung 2002-04-17
+<script src="http://www.google-analytics.com/urchin.js" type="text/javascript">
+</script>
+<script type="text/javascript">
+_uacct = "UA-67591-1";
+urchinTracker();
+</script>
+</BODY>
+</HTML>
+<!--@\\\0002000501000501-->
