@@ -1,9 +1,0 @@
-Atmel support
-
-Ziel ist es ein run_sps binary zu erstellen, dass auf den möglichst kleinsten
-Atmels läuft.
-
-Die AWL wird precompiled in das run_sps binary gepatched.
-Eine Web App ermöglicht die Erzeugung eines SPS Images.
-Dort wird der Atmel Typ gewählt, die AWL hochgeladen, und nach ersten checks
-wird die AWL compiliert und in das entsprechende binary gepatch.
