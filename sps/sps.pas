@@ -23,7 +23,7 @@ uses 	dos,crt,porting,printer,popmenu,browse,PhysMach,
 {$i ./kop.pas}
 
 { new platform: Zaurus = Linux on ARM CPU }
-{$undefine ZAURUS}
+{$undef ZAURUS}
 
 procedure checkScreenSize;
 
@@ -124,6 +124,7 @@ begin
            checkScreenSize;
            Highlighted:=red;
            balken(balken_pkte,6,copy_right,auswahl);
+		gotoxy(70,1);write(Auswahl);
            case Auswahl of
                'F' : fileservice;
                'E' : edit;
@@ -161,6 +162,9 @@ begin
 end;                               {**** ENDE  HAUPTMENU **** }
 
 begin                              { SPS_SIMULATION }
+	PhysMachInit;
+	PhysMachLoadCfg('.run_sps.cfg');
+	PhysMachWriteDigital;
      for i := 1 to anweismax do begin
            anweisung[i]:=anweis[i];
            if (length(anweis[i]) < 3) then begin
