@@ -1,0 +1,86 @@
+
+Qgtk2.pas - tutorial
+
+All the demo programs and also your own programs you need to compile
+with freepascal using the command: fpc program.pas.
+For  M$ win32 it is necessary to have gtk2 dll libraries.
+
+
+
+1. HelloWord
+
+Try the program qhello.pas
+
+ uses qgtk2;
+ begin
+ qstart('Hello Word!', nil, nil);
+ qLabel('Hello word with');
+ qButton('QUIT button', @qDestroy);
+ qGo;
+ end.
+
+The procedure qstart inicializes gtk2 and creates the main window.
+The procedures qLabel a qButton create a label and a button.
+The procedure qGo starts the main gtk2 program loop.
+
+
+
+2. qpack.pas
+
+If you call the procedures of the components (qlabel, qbutton, ...)
+the components are placed side by side in one row from left to right in 
+the order they have been called.
+After the call of the procedure qNextRow the following components are placed
+in the next row.
+The procedure qFrame enables to place the components in the collumns.
+
+The other posibilities are shown in the program qpack2.pas.
+
+
+
+3. qdialog.pas
+
+The program qdialog shows usage of menus, dialogs and secondary windows.
+The menu is created by the procedure qMnu and qSubmnu.
+
+The selection of colors, files and fonts can be done with the procedures
+qColselect, qFileselect and qFontselect. Your own simple dialogs you can 
+create using procedures qdialog and qinput.
+
+The procedure qsecwindow creates a new window. All the subsequent call 
+of the procedures of the components as qlabel, qbutton, ... create the 
+components in the new window.  
+The components you can place in the same way as in the main window using
+procedures qNextRow, qFrame, ... 
+The new window is invisible, you need to show it with the procedure qshowsec
+or qshowsecmodal. You can hide it again with the procedure qhidesec.
+
+
+
+4. The other components
+
+Usage of the components qlist a qtext is shown in the programs qlist.pas 
+and qtext.pas.
+The special component qDrawArea can be only one in all the program,
+it is created by the procedure qDrawStart. It allows you to draw the essential
+graphics and to show xpm pictures, it supports the movement of the pictures 
+without blinking and with the transparent color, it enables to react on 
+the position and click of the mouse.
+Some possibilities you can see in the program camels.pas.
+
+
+
+5. The other possibilities
+
+The program qmainit.pas shows how the call of the procedure qMainIter 
+allows to the program to communicate with the user all the time although 
+a long calculations are running.
+
+The unit qgtk2.pas do not support the radio buttons. One of the possibilities 
+how to solve this problem you can see in the program qradio.pas.
+
+The components qgtk2.pas can be used together with direct call 
+of the gtk2 procedures. It is shown in qgtkmy.pas
+ 
+The program viewxpm is a simple viewer of  xpm pictures. 
+
