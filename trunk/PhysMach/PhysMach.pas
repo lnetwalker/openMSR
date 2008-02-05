@@ -34,7 +34,7 @@ var
 	timer			: array[1..tim_max]	 of boolean;
 	t			: array[1..tim_max]	 of word;	 
 	z			: array[1..cnt_max]	 of word;
-	analog_in		: array[1..analog_max]   of LongInt;
+	analog_in		: array[1..analog_max]   of Cardinal;
 
 	HWPlatform		: string;
 
@@ -42,6 +42,14 @@ var
 	durchlauf,
 	durchlauf100		: word;
 
+	i_address,
+	o_address,
+	c_address,
+	a_address		: array [1..group_max] of LongInt; 
+	i_devicetype,
+	o_devicetype,
+	c_devicetype,
+	a_devicetype 		: array [1..group_max] of char;
 
 
 procedure PhysMachInit;
@@ -69,21 +77,11 @@ uses
 
 const
 	debugFlag 		= false;
+	debug			= false;
 	power			: array [0..7] of byte =(1,2,4,8,16,32,64,128);
 
 var
 	x			: word;
-
-	i_address,
-	o_address,
-	c_address,
-	a_address		: array [1..group_max] of LongInt; 
-	i_devicetype,
-	o_devicetype,
-	c_devicetype,
-	a_devicetype 		: array [1..group_max] of char;
-
-
 
 
 procedure PhysMachloadCfg(cfgFilename : string);
@@ -205,7 +203,7 @@ begin
 		timer[x]:=false;
 		t[x]:=0;
 	end;
-	{ the devicetype n/c means unconfigured }
+	{ the devicetype - means unconfigured }
 	for x:=1 to group_max do begin 
 		i_devicetype[x]:='-';
 		o_devicetype[x]:='-';
@@ -282,6 +280,7 @@ begin
 		end;   
 		io_group:=round(int(x/8)+1);
 		if (o_devicetype[io_group] <> '-') then 
+			if debug then writeln('writing device ',o_devicetype[io_group],' Addr ',o_address[io_group],' Value ',wert);
 			case o_devicetype[io_group] of
 {$ifdef LINUX}
 				'D'	: dil_write_ports(o_address[io_group],wert);
@@ -314,26 +313,37 @@ begin
 	x:=1;
 	repeat
 		io_group:=round(int(x/8)+1);
-		if (c_devicetype[io_group] <> '-') then 
+		if (c_devicetype[io_group] <> '-') then begin 
+
+			if debug then writeln('reading Counter type ',c_devicetype[io_group],' Adresse ',c_address[io_group]);
+
 			{ ZAEHLEReingaenge lesen  }
 			case c_devicetype[io_group] of
 {$ifdef LINUX}
-				'D'	: dil_read_ports(i_address[io_group]);
-				'L'	: lp_read_ports(i_address[io_group]);
-				'P'	: pio_read_ports(i_address[io_group]);
-				'J'	: joy_read_ports(i_address[io_group]);
+				'D'	: wert:=dil_read_ports(c_address[io_group]);
+				'L'	: wert:=lp_read_ports(c_address[io_group]);
+				'P'	: wert:=pio_read_ports(c_address[io_group]);
+				'J'	: wert:=joy_read_ports(c_address[io_group]);
 {$endif}
-				'R' 	: rnd_read_ports(i_address[io_group]);
-				'I'	: iow_read_ports(i_address[io_group]);
-				'H' 	: http_read_ports(i_address[io_group]);
-				'B' 	: bmcm_read_ports(i_address[io_group]);
+				'R' 	: wert:=rnd_read_ports(c_address[io_group]);
+				'I'	: wert:=iow_read_ports(c_address[io_group]);
+				'H' 	: wert:=http_read_ports(c_address[io_group]);
+				'B' 	: wert:=bmcm_read_ports(c_address[io_group]);
 			end
+		end
 		else
 			wert:=0;
-			
+		
+		if debug then begin
+			writeln('Countervalue=',wert);
+			for c:=1 to 8 do write(' ',zust[c]);
+			writeln;
+		end;
+
 		for c:=1 to 8 do begin
+			{ zust[n] ist jeweils der vorherige Wert }
 			if wert mod 2 = 0 then zust[c+x-1]:=false 			{ wenn low dann 0 speichern	}
-			else
+			else	{ zust[] ist high }
 				if not(zust[c+x-1]) then begin 				{ wenn pos. Flanke am Eingang }
 					zust[c+x-1]:=true;		  		{ dann 1 speichern			}
 					if z[c+x-1]>0 then z[c+x-1]:=z[c+x-1]-1;	{ und ISTwert herunterz�en } 
@@ -343,7 +353,7 @@ begin
 		end;
 		x:=x+8;
 	until ( x > cnt_max );
-	for c:=1 to cnt_max do  if z[c]=0 then zahler[c]:=true;
+	//for c:=1 to cnt_max do  if z[c]=0 then zahler[c]:=true;
 end;                               { **** ENDE COUNT_DOWN ****       }
 
 
