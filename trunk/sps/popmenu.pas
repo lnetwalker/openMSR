@@ -9,6 +9,8 @@ Unit PopMenu;
 
 INTERFACE
 
+{$undef ZAURUS}
+
 {$ifdef LINUX}
 uses crt,linux,dos;
 {$endif}
@@ -73,6 +75,7 @@ const
 			{ these values are computed now, but screenx and }
 			{ screeny are used as fallbacks if the actual size }
 			{ can't be determined }
+	debug = false;
 
 var dummy,position     : byte;    { dummy fuer mausposition }
     return,escape      : boolean; { linke / rechte maustaste }
@@ -321,7 +324,7 @@ begin
      clrscr;
      //cursor_off;
      for i:= 0 to NrOfItems-1 do PrintLine(i*ItemWidth+1,1,Items[i+1],ItemWidth);
-     gotoxy(GetScreenMaxX-length(info)-1,1);write(info);
+     if debug then gotoxy(GetScreenMaxX-length(info)-1,1);write(info);
      textbackground(ForeGround);textcolor(BackGround);
 	 Highlighted:=green;
      PrintLine(1,1,Items[1],ItemWidth);
