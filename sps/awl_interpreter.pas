@@ -322,7 +322,7 @@ begin
 			inc(token);
 			anweis:=anweisung[token];
 		until (aktuell=anweis) or (token>anweismax);
-		if ( debug ) then writeln ('Nr ',k,' aktuell ',aktuell,'  Token: ',token);
+		//if ( debug ) then writeln ('Nr ',k,' aktuell ',aktuell,'  Token: ',token);
 		case token of
 			1..6:	verkn;					{ UN( .. O(	}
 			7:	zuweisen;				{ =      	}
@@ -344,7 +344,7 @@ begin
 			24:	execute;                		{ $		}
 			25:	;					{ PE		}
 			26,27:	jump;					{ JP,SP		}
-			28,29	: cond_jump;				{ JC,SPB	}
+			28,29:	cond_jump;				{ JC,SPB	}
 			30:	;					{ EP		}
 			31:	verkn;					{ AN(		}
 			32:	verkn;					{ AN		}
