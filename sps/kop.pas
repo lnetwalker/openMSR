@@ -38,6 +38,9 @@ begin
 	Zeile:='|-';
 	Beschriftung:='  ';
 	new(kop_pointer);
+	kop_pointer^.zeil:='';
+	kop_pointer^.vor:=nil;
+
 	repeat
 		token:=0;
 		repeat
