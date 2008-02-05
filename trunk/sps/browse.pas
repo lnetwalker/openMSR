@@ -9,11 +9,11 @@ interface
 type	
 		string76 = string[76];
 		doc_pointer = ^doc_record;
-      	doc_record = record
-                     zeil : string[76];
-                     nach,
-                     vor  : doc_pointer;
-                   end;
+		doc_record = record
+			zeil : string[76];
+			nach,
+			vor  : doc_pointer;
+		end;
 
 procedure browsetext (header: string; start :doc_pointer;x1,y1,x2,y2:word);
 procedure ReadListFromFile(fqfn:string;var start:doc_pointer);
