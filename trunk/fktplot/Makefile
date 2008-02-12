@@ -10,12 +10,13 @@ OBJECTS=fktplot
 all: $(OBJECTS)
 
 
+
 # the physical Machine access layer
-fktplot: 	
-	fpc -gl -Fu../sps/ fktplot.pas
+fktplot:	fktplot.pas
+	fpc -gl -Fu../gtk+/qgtk2.pas-0.9 fktplot
 
 clear:
-	-rm Pfktplot
+	-rm fktplot
 			
 clean :
 	-rm *.ppu
