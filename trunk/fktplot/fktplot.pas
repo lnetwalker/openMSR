@@ -3,66 +3,71 @@ program fktplot;
 uses qgtk2,FunctionSolver;
 
 
-const version = '0.1';
-      datum   = '12/02/2008';
-      anzahl  = 240;
+const 
+	version = '0.1';
+	datum   = '12/02/2008';
+	anzahl  = 240;
 	debug = false;
 	GetScreenMaxX=800;
 	GetSCreenMaxY=480;
 
-var formel       : string80;
-    xmin,xmax,dx,
-    yfact,ymin,
-    ymax,maxy    : real;
-    y,x          : array[1..240] of real;
-    zahlen       : array30;
-    funk         : token;
-    i,j,k,xfact,
-    y_axis,
-    zero_line,
-    x_rand,y_rand,
-    y_ver        : integer;
-    x_wert,y_wert: string[6];
-    ende         : boolean;
+var 
+	formel       : string80;
+	xmin,xmax,dx,
+	yfact,ymin,
+	ymax,maxy    : real;
+	y,x          : array[1..240] of real;
+	zahlen       : array30;
+	funk         : token;
+	i,j,k,xfact,
+	y_axis,
+	zero_line,
+	x_rand,y_rand,
+	y_ver        : integer;
+	x_wert,y_wert: string[6];
+	ende         : boolean;
 
 
 
-   procedure holparm;
-   begin
-      writeln('Programmende durch Formel=ende');
-      write('Formel : Y=');readln(formel);
-      for i:= 1 to length(formel) do formel[i]:=upcase(formel[i]);
-      if formel='ENDE' then begin
-         halt(0);
-      end;
-      write('XMIN   : ');readln(xmin);
-      repeat
-         write('XMAX   : ');readln(xmax);
-      until xmax > xmin;
-   end;
+procedure holparm;
+begin
+	writeln('Programmende durch Formel=ende');
+	write('Formel : Y=');
+	readln(formel);
+	for i:= 1 to length(formel) do formel[i]:=upcase(formel[i]);
+	if formel='ENDE' then begin
+		halt(0);
+	end;
+	write('XMIN   : ');
+	readln(xmin);
+	repeat
+		write('XMAX   : ');
+		readln(xmax);
+	until xmax > xmin;
+end;
 
-   procedure funktionswerte_berechnen;
+procedure funktionswerte_berechnen;
 
-   begin
-     dx:=(xmax-xmin)/(anzahl-2);
-     ymax:=0;
-     ymin:=0;
-     x[1]:=xmin;
-     for i:=1 to anzahl do begin
-        y[i]:=fx(x[i],funk,zahlen);
-        if FSfm<>0 then begin
-		write(#7);
-		writeln('ERROR : ',FSerr_msg[FSfm]);
-        end;
-        if debug then writeln(i,' ',x[i],' ',y[i]);
-        if y[i]>ymax then ymax:=y[i];
-        if y[i]<ymin then ymin:=y[i];
-        x[i+1]:=x[i]+dx;
-     end;
-     if ymax>abs(ymin) then maxy:=2*ymax
-                       else maxy:=2* abs(ymin);
-     if debug then writeln('maxy=',maxy);
-   end;
+begin
+	dx:=(xmax-xmin)/(anzahl-2);
+	ymax:=0;
+	ymin:=0;
+	x[1]:=xmin;
+	for i:=1 to anzahl do begin
+		y[i]:=fx(x[i],funk,zahlen);
+		if FSfm<>0 then begin
+			write(#7);
+			writeln('ERROR : ',FSerr_msg[FSfm]);
+		end;
+		if debug then writeln(i,' ',x[i],' ',y[i]);
+		if y[i]>ymax then ymax:=y[i];
+		if y[i]<ymin then ymin:=y[i];
+		x[i+1]:=x[i]+dx;
+	end;
+	if ymax>abs(ymin) then maxy:=2*ymax
+	else maxy:=2* abs(ymin);
+	if debug then writeln('maxy=',maxy);
+end;
 
 
 procedure funktion_zeichnen;
