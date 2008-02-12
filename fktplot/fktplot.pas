@@ -1,6 +1,6 @@
 program fktplot;
 
-uses crt,popmenu,autograf,graph;
+uses qgtk2;
 
 
 type string80 = string [80];
@@ -8,13 +8,14 @@ type string80 = string [80];
      array30  = array [1..30] of real;
      token    = array [1..80] of integer;
 
-const version = '2.0';
-      datum   = '05/01/91';
+const version = '0.1';
+      datum   = '12/02/2008';
       anzahl  = 240;
+	debug = false;
+	GetScreenMaxX=800;
+	GetSCreenMaxY=480;
 
 var formel       : string80;
-    graphdriver,
-    graphmode    : integer;
     xmin,xmax,dx,
     yfact,ymin,
     ymax,maxy    : real;
@@ -31,36 +32,18 @@ var formel       : string80;
     ende         : boolean;
 
 
-
-   procedure titelbild;
-   begin
-     textbackground(black);textcolor(white);clrscr;
-     textbackground(white);textcolor(black);
-     cursor_off;
-     wwindow(20,10,60,14,'','',true);
-     writeln('   Funktionsplot V ',version,' vom ',datum);
-     write  ('         Copyright by HuSoft');
-     delay (30);
-     cursor_on;
-   end;
-
-
-
    procedure holparm;
    begin
-      cursor_on;
       writeln('Programmende durch Formel=ende');
       write('Formel : Y=');readln(formel);
       for i:= 1 to length(formel) do formel[i]:=upcase(formel[i]);
       if formel='ENDE' then begin
-         cursor_on;
          halt(0);
       end;
       write('XMIN   : ');readln(xmin);
       repeat
          write('XMAX   : ');readln(xmax);
       until xmax > xmin;
-      cursor_off;
    end;
 
    procedure fehler(fcode:byte);
@@ -79,11 +62,6 @@ var formel       : string80;
        err_msg[9]:='Funktion nur zwischen -1< x <1 definiert';
        err_msg[10]:='Division durch null';
        err_msg[11]:='Radikant <= null';
-       textcolor(red); textbackground(white);
-       wwindow(10,5,50,10,'[ FEHLER ]','<RETURN>',true);
-       write(#7);
-       gotoxy(5,3);writeln(err_msg[fcode]);
-       readln;
    end;
 
 
@@ -134,7 +112,7 @@ var formel       : string80;
        wort:='';
        zahl:=0;
        expo:=1.0;
-       while ord(zeile[zeig])=32 do inc(zeig);      (* BLANKS bergehen     *)
+       while ord(zeile[zeig])=32 do inc(zeig);      (* BLANKS ï¿½bergehen     *)
        ascii:=ord(zeile[zeig]);
        case ascii of
 
@@ -218,7 +196,7 @@ var formel       : string80;
          funk[k]:=0;
          Zahlen[k]:=0;
      end;
-     for k:=21 to 80 do funk[k]:=0;          (* l”schen                    *)
+     for k:=21 to 80 do funk[k]:=0;          (* lï¿½schen                    *)
      ifkt:=1;
      iz:=4;
      klammer:=0;
@@ -524,99 +502,107 @@ var formel       : string80;
            if (y[i]>fehler+450) and (y[i]<fehler+550) then fm:=11;
            exit;
         end;
-        writeln(i,' ',x[i],' ',y[i]);
+        if debug then writeln(i,' ',x[i],' ',y[i]);
         if y[i]>ymax then ymax:=y[i];
         if y[i]<ymin then ymin:=y[i];
         x[i+1]:=x[i]+dx;
      end;
      if ymax>abs(ymin) then maxy:=2*ymax
                        else maxy:=2* abs(ymin);
-     writeln('maxy=',maxy);
-     readln
+     if debug then writeln('maxy=',maxy);
    end;
 
 
-   procedure funktion_zeichnen;
+procedure funktion_zeichnen;
 
-      procedure koordinatenkreuz_malen;
+	var
+		oldx,oldy,maxx,maxy		:word;
 
-         procedure  beschriftung;
-         begin
-             formel:='Y='+formel;
-             settextjustify(centertext,toptext);
-             j:=trunc(240*xfact/2-length(formel)/2+y_rand);
-             k:=2;
-             outtextxy(j,k,formel);
-             (* Y-Achse *)
-             settextjustify(lefttext,centertext);
-             for i:=3 downto -3 do begin
-               k:=getmaxy-Y_rand-trunc((i*maxy/6)*yfact+zero_line)+y_ver;
-               line(x_rand-4,k,x_rand+4,k);
-               if i<>0 then str(i*maxy/6:6:3,y_wert)
-                       else Y_wert:=' 0.00';
-               outtextxy(0,k,y_wert);
-             end;
-             (* X-Achse *)
-             settextjustify(centertext,bottomtext);
-             i:=0;
-             j:=x_rand;
-             k:=getmaxy-y_rand+y_ver+24;
-             str(x[1]:4:2,x_wert);
-             outtextxy(j,k,x_wert);
-             repeat
-                inc(i,40);
-                j:=i*xfact+x_rand;
-                k:=getmaxy-y_rand+y_ver;
-                line (j,k+8,j,k+12);
-                str(x[i]:6:3,x_wert);
-                outtextxy(j,k+24,x_wert);
-             until i=240;
+
+begin
+       oldy:=GetScreenMaxY-y_rand-trunc(y[1]*yfact+zero_line)+y_ver;
+       oldx:=x_rand;
+	j:=oldx;
+       for i:=2 to anzahl do begin
+		k:=GetScreenMaxY-y_rand-trunc(y[i]*yfact+zero_line)+y_ver;
+		inc(j,xfact);
+		qline(oldx,oldy,j,k);
+		oldx:=j;
+		oldy:=k;
+       end;
+end;
+
+
+procedure onCreate;
+
+	procedure  beschriftung;
+	begin
+		formel:='Y='+formel;
+		j:=10;
+		k:=20;
+		qdrawtext(j,k,formel);
+		(* Y-Achse *)
+		for i:=3 downto -3 do begin
+			k:=GetScreenMaxY-Y_rand-trunc((i*maxy/6)*yfact+zero_line)+y_ver;
+			qline(x_rand-4,k,x_rand+4,k);
+			if i<>0 then str(i*maxy/6:6:3,y_wert)
+			else Y_wert:=' 0.00';
+			qdrawtext(0,k,y_wert);
+		end;
+		(* X-Achse *)
+		i:=0;
+		j:=x_rand;
+		k:=GetScreenMaxY-y_rand+y_ver+24;
+		str(x[1]:4:2,x_wert);
+		qdrawtext(j,k,x_wert);
+		repeat
+			inc(i,40);
+			j:=i*xfact+x_rand;
+			k:=GetScreenMaxY-y_rand+y_ver;
+			qline (j,k+8,j,k+12);
+			str(x[i]:6:3,x_wert);
+			qdrawtext(j,k+24,x_wert);
+		until i=240;
          end;
 
 
-      begin
-          line(x_rand,0+y_ver,x_rand,y_axis+20+y_ver);
-          line(x_rand,y_axis+20+y_ver,xfact*anzahl+x_rand+10,y_axis+20+y_ver);
-          setlinestyle(dashedln,0,normwidth);
-          line(x_rand,zero_line+y_ver,xfact*anzahl+x_rand+10,zero_line+y_ver);
-          setlinestyle(solidln,0,normwidth);
-          beschriftung;
-      end;
+begin
+	x_rand:=60;
+	y_rand:=80;
+	y_ver:=15;
+	xfact:=trunc((GetScreenMaxX-80)/anzahl);
+	yfact:=(GetScreenMaxY-y_rand-20)/maxy;
+	y_axis:=GetScreenMaxY-y_rand-10;
 
-   begin
-       initgraph(graphdriver,graphmode,'c:\pascal\grafik');
-       x_rand:=60;
-       y_rand:=80;
-       y_ver:=15;
-       xfact:=trunc((getmaxx-80)/anzahl);
-       yfact:=(getmaxy-y_rand-20)/maxy;
-       zero_line:=trunc((getmaxy-y_rand)/2);
-       y_axis:=getmaxy-y_rand-10;
-       koordinatenkreuz_malen;
-       k:=getmaxy-y_rand-trunc(y[1]*yfact+zero_line)+y_ver;
-       j:=x_rand;
-       moveto(j,k);
-       for i:=2 to anzahl do begin
-           k:=getmaxy-y_rand-trunc(y[i]*yfact+zero_line)+y_ver;
-           inc(j,xfact);
-           lineto(j,k);
-       end;
-       readln;
-       closegraph;
-   end;
+	{ white Background }
+	qsetClr( qWhite );
+	qfillrect( 0, 0,GetScreenMaxX-1, GetScreenMaxY-1);
+	qsetClr( qBlack );
+	qrect(0,0,GetScreenMaxX-1,GetScreenMaxY-1);
+
+	{ Nulllinie berechnen }
+	zero_line:=trunc((GetScreenMaxY-y_rand)/2);
+
+	{ Y-Achse zeichnen }
+	qline(x_rand,0+y_ver,x_rand,GetScreenMaxY-y_rand);
+
+	{ X Achse zeichnen }
+	qline(x_rand,y_axis+20+y_ver,xfact*anzahl+x_rand+10,y_axis+20+y_ver);
+	qline(x_rand,zero_line+y_ver,xfact*anzahl+x_rand+10,zero_line+y_ver);
+	beschriftung;
+	funktion_zeichnen;
+end;
+
+
+
+
 
 begin
-     cursor_off;
-     graphdriver:=detect;
-     ende:=false;
-     titelbild;
-     repeat
-        window(1,1,80,25);
-        textbackground(black);textcolor(white);clrscr;
+	qstart('Fktplot  '+version+' '+datum, nil, nil);
         holparm;
         codier(formel,funk,zahlen,fm);
         if fm=0 then funktionswerte_berechnen;
-        if fm=0 then funktion_zeichnen;
-        if fm<>0 then fehler(fm);
-     until ende;
+        if fm=0 then qdrawstart(800,480, @onCreate,nil, nil);
+
+	qgo;
 end.
