@@ -5,7 +5,7 @@ unit FunctionSolver;
 { this unit implements everything needed to evaluate	}
 { formulars and calculate them				}
 { exported funtions are					}
-{ FSInit, codier and FX					}
+{ codier and FX						}
 { codier gets the formular as string			}
 { and returns the formular in two arrays suitable	}
 { for FX to calculate the result			}
@@ -24,7 +24,6 @@ var
 	FSerr_msg : array [1..11] of string[40];
 
 
-procedure FSInit();
 procedure codier(formel:string80;var funk:token;var zahlen:array30);
 function FX (x : real;funk : token;zahlen : array30):real;
 
@@ -499,5 +498,5 @@ end;      (* ENDE Prozedur CODIER                                       *)
 
 
 begin
-
+	FSInit();
 end.
