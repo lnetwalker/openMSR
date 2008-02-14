@@ -10,6 +10,9 @@ unit FunctionSolver;
 { and returns the formular in two arrays suitable	}
 { for FX to calculate the result			}
 
+
+{ $Id$ }
+
 interface
 
 type 
