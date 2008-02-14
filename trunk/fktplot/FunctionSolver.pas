@@ -132,7 +132,7 @@ begin
 				end;
 	
 			94 : 	begin
-					typ:=5;                             (* Hoch-Zeichen         *)
+					typ:=5;                             (* Hoch-Zeichen ^        *)
 					inc(zeig);
 				end;
 	
