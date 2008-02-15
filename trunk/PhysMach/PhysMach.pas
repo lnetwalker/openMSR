@@ -23,7 +23,7 @@ const
 	akku_max		= 16;
 	cnt_max			= 16;
 	tim_max			= 16;
-	analog_max		= 16;
+	analog_max		= 64;
 
 var
 	marker 			: array[1..marker_max]   of boolean;
@@ -70,10 +70,11 @@ uses
 		bmcm_io_access,
 {$endif}
 {$ifdef newio }
-		iowkit_io_access;
+		iowkit_io_access,
 {$else}
-		iow_io_access;
+		iow_io_access,
 {$endif}
+		exec_io_access;
 
 const
 	debugFlag 		= false;
@@ -138,13 +139,17 @@ begin
 						rnd_hwinit(initstring);
 						HWPlatform:=HWPlatform+',Random ';
 					  end;	
-				'H' : begin
+				'H' 	: begin
 						http_hwinit(initstring);
 						HWPlatform:=HWPlatform+',HTTP ';
 					  end;
-				'B' : begin
+				'B'	: begin
 						bmcm_hwinit(initstring);
 						HWPlatform:=HWPlatform+',BMCM-USB-Device ';
+					  end;
+				'E'	: begin
+						exec_hwinit(initstring);
+						HWPlatform:=HWPlatform+',ext. APP  ';
 					  end;
 			end;	
 			
@@ -237,6 +242,7 @@ begin
 				'I'	: wert:=iow_read_ports(i_address[io_group]);
 				'H' 	: wert:=http_read_ports(i_address[io_group]);
 				'B' 	: wert:=bmcm_read_ports(i_address[io_group]);
+				'E'	: wert:=exec_read_ports(i_address[io_group]);
 			end	
 		else
 			wert:=0;
@@ -292,6 +298,7 @@ begin
 				'I'	: iow_write_ports(o_address[io_group],wert);
 				'H' 	: http_write_ports(o_address[io_group],wert);
 				'B' 	: bmcm_write_ports(o_address[io_group],wert);
+				'E'	: exec_write_ports(o_address[io_group],wert);
 			end;	
 		x:=x+8;
 	until ( x > io_max );
@@ -329,6 +336,7 @@ begin
 				'I'	: wert:=iow_read_ports(c_address[io_group]);
 				'H' 	: wert:=http_read_ports(c_address[io_group]);
 				'B' 	: wert:=bmcm_read_ports(c_address[io_group]);
+				'E'	: wert:=exec_read_ports(c_address[io_group]);
 			end
 		end
 		else
@@ -372,6 +380,7 @@ begin
 				'B' 	: analog_in[x]:=bmcm_read_analog(a_address[x]);
 {$endif}
 				'H'	: analog_in[x+1]:=http_read_ports(a_address[x],x);
+				'E'	: analog_in[x+1]:=exec_read_analog(a_address[x+1]);
 			end;
 		if (debugFlag) then writeln('Analog_in[',x+1,']=',analog_in[x+1]);
 		inc(x);
