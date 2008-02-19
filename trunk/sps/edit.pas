@@ -344,8 +344,7 @@ end;                               { **** ENDE STEUER ****}
 begin
      checkeof :=false;
      textzeile:='';
-     saved_text:='';                                                                                         
-     cursor_on;
+     saved_text:='';
      textbackground(green);textcolor(black);
      my_wwindow(GetScreenMaxX-28,3,GetScreenMaxX-2,GetScreenMaxY-1,'[HELP]','',true);
      writeln(' EDITOR - Control :');
@@ -370,6 +369,7 @@ begin
      write  ('  $ / NOP / EN,PE,EP');
      textbackground(lightgray);textcolor(Black);
      my_wwindow(1,2,GetScreenMaxX-30,GetScreenMaxY,'[EDIT]','<ESC>',false);
+     cursor_on;
      zeile:=1;spalte:=5;
      zeilnum:=1;
      if programm then begin
@@ -417,8 +417,8 @@ begin
         repeat
         until keypressed;
      end;
-     window (1,2,screenx,screeny);textbackground(black);textcolor(black);
+     window (1,1,GetScreenMaxX,GetScreenMaxY);textbackground(black);textcolor(black);
      clrscr;
-     cursor_off;
+     //cursor_off;
 end;                               { ***** ENDE EDIT ****}
 
