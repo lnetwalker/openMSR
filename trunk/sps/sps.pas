@@ -32,6 +32,7 @@ begin
      screeny:=GetScreenMaxY;
      if ((screenx<minScreenX) or (screeny<minScreenY)) then
      begin
+	write(#7);
      	writeln('Screen is too small - minimum Screensize is',minScreenX,' x ',minScreenY);
      	halt(2);
      end;
@@ -121,10 +122,11 @@ begin
      copy_right:='(c) H. Eilers';
      repeat
            BackGround:=lightgray;ForeGround:=Black;
+		{ check wether screen size has changed }
            checkScreenSize;
            Highlighted:=red;
            balken(balken_pkte,6,copy_right,auswahl);
-		gotoxy(70,1);write(Auswahl);
+
            case Auswahl of
                'F' : fileservice;
                'E' : edit;
@@ -136,6 +138,9 @@ begin
                   sound(220); delay(200); nosound;
               end;
            end;
+	{ open a maximum sized window get get a blank screen after resizing window }
+	window(1,1,GetScreenMaxX,GetScreenMaxY);
+	clrscr;
      until auswahl='Q';
      if sicher then begin
         save_screen;
@@ -151,10 +156,10 @@ begin
            taste:=upcase(readkey);
         until (taste='Y') or (taste='N');
         cursor_off;
-        restore_screen;
+        restore_screen(trunc(screenx/2-18),trunc(screeny/2-3),trunc(screenx/2+18),trunc(screeny/2+3));
         if taste='Y' then begin
 			textbackground(black);textcolor(black);
-			window(1,2,screenx,screeny);
+			window(1,2,GetScreenMaxX,GetScreenMaxY);
 			clrscr;
 			menu;
 		end;	
@@ -165,6 +170,7 @@ begin                              { SPS_SIMULATION }
 	PhysMachInit;
 	PhysMachLoadCfg('.run_sps.cfg');
 	PhysMachWriteDigital;
+	popmenuInit(minScreenX,minScreenY);
      for i := 1 to anweismax do begin
            anweisung[i]:=anweis[i];
            if (length(anweis[i]) < 3) then begin
@@ -191,11 +197,11 @@ begin                              { SPS_SIMULATION }
      sicher:=false;
      name:='NONAME.SPS';
      delay(4000);
-     window(trunc(screenx/2-25),trunc(screeny/2-2),trunc(screenx/2+25),trunc(screeny/2+2));
+     window(trunc(screenx/2-25),trunc(screeny/2-2),trunc(screenx/2+26),trunc(screeny/2+2));
      textbackground(black);textcolor(black);clrscr;
      menu;
      {closegraph;}
-     window (1,1,screenx,screeny);
+     window (1,1,GetScreenMaxX,GetScreenMaxY);
      textcolor(white);textbackground(black); clrscr;
      normvideo;
      cursor_on;
