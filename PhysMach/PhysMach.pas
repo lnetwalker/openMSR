@@ -380,7 +380,7 @@ begin
 				'B' 	: analog_in[x]:=bmcm_read_analog(a_address[x]);
 {$endif}
 				'H'	: analog_in[x+1]:=http_read_ports(a_address[x],x);
-				'E'	: analog_in[x+1]:=exec_read_analog(a_address[x+1]);
+				'E'	: analog_in[x]:=exec_read_analog(a_address[x]);
 			end;
 		if (debugFlag) then writeln('Analog_in[',x+1,']=',analog_in[x+1]);
 		inc(x);
