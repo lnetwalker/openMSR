@@ -38,7 +38,7 @@ uses qgtk2,libadp,strings;					{ use the c library }
 
 const	
 	bmcm_max  	= 4;			{ max number of bmcm devices which are supported }
-	debug     	= true;
+	debug     	= false;
 
 type 
 	PCardinal = ^Cardinal;
