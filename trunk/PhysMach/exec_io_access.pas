@@ -43,7 +43,7 @@ begin
 end;
 
 const
-	debug=true;
+	debug=false;
 
 var
 	RunCmd	: array[1..4] of string;
@@ -82,7 +82,7 @@ begin
 			'0' :	inc(k);			{ 0 merken }
 			' ' :	if debug then writeln('blank detected ');	{ blanks ignorieren }
 		else							{ fehlerhafter return wert }
-			writeln('exe_io_access ERROR: wrong return value ',ReturnValue,' from command ',RunCmd[dev]);
+			if debug then writeln('exe_io_access ERROR: wrong return value ',ReturnValue,' from command ',RunCmd[dev]);
 		end;
 		inc(i);
 	end;
@@ -143,7 +143,7 @@ begin
 	inc(cnt);
 	i:=1;
 	while i <= length(initdata) do begin
-		write(initdata[i]);
+		if debug then write(initdata[i]);
 		if (initdata[i]=':') then initdata[i]:=' ';
 		inc(i);
 	end;
