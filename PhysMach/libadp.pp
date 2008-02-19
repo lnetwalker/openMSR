@@ -3,10 +3,6 @@ unit libadp;
 interface
 
 
-{$ifdef LINUX}
-uses
-  oldlinux;
-{$endif}
 
 {
   Automatically converted by H2Pas 1.0.0 from libad-p.h
