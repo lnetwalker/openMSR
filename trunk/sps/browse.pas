@@ -158,6 +158,7 @@ begin
            gotoxy(1,y2-9);
            write(SuchWort,'  found, to continue search press any key');
            write(', STOP <ESC>');
+	//popmsg(45,1,'Suche','  found, to continue search press any key');
            textcolor(white);
            tasten:=readkey;
         end;
