@@ -1,7 +1,7 @@
 Unit joy_io_access;
 
 { diese Unit stellt Funktionen zum I/O Access auf		} 
-{ den Joystick zur Verfügung                              	}	
+{ den Joystick zur Verfï¿½gung                              	}	
 { If you have improvements please contact me at 		}
 { hartmut@eilers.net						}
 { all code is copyright by Hartmut Eilers and released under	}
@@ -62,7 +62,7 @@ begin
 			read(f,JoyStick);
 		until (( JoyStick.JoyType = buttondata ) and ( JoyStick.JoyNumber = i ));
 		if debug then writeln('Counter: ',i,'JoyStick.JoyType : ',JoyStick.JoyType,'JoyStick.JoyNumber : ',JoyStick.JoyNumber,' JoyStick.JoyValue : ',JoyStick.JoyValue);
-		if (JoyStick.JoyValue = 1) then buttonvalue:=buttonvalue+2**i;
+		//if (JoyStick.JoyValue = 1) then buttonvalue:=buttonvalue+2**i;
 	end;
 	if debug then writeln('ButtonValue : ',buttonvalue);
 	buttonvalue:=buttonvalue or $F0;
