@@ -1,6 +1,9 @@
 program PhysMachTest;
 
-uses qgtk2,PhysMach,strings;
+uses PhysMach,strings;
+
+{ compile with fpc -Fu.. -Fu../../gtk+/qgtk2.pas-0.9/  -gl PhysMachTest.pas }
+
 
 const
 	debug	= false;
