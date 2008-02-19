@@ -33,12 +33,12 @@ function bmcm_hwinit(initstring:string):boolean;
 
 implementation
 {$ifndef ZAURUS}
-uses libadp,strings;					{ use the c library }
+uses qgtk2,libadp,strings;					{ use the c library }
 {$endif}
 
 const	
 	bmcm_max  	= 4;			{ max number of bmcm devices which are supported }
-	debug     	= false;
+	debug     	= true;
 
 type 
 	PCardinal = ^Cardinal;
@@ -133,7 +133,8 @@ var
 	initdata 	: array[1..5] of string;
 	direction	: byte;
 	DeviceName	: String;
-	p		: PChar;
+	pc		: PChar;
+	x		: char;
 
 
 begin
@@ -141,6 +142,9 @@ begin
 	{ usb-pio:0:$00000000:$ffffffff,$ffff0000}
 	{ we have 5 datafields delimited by : }
 	{ for easy handling this string is divided in array values }
+	x:=' ';
+	new(pc);
+	pc^:=x;
 	for i:=1 to 5 do begin
 		initdata[i]:=copy(initstring,1,pos(':',initstring)-1);
 		initstring:=copy(initstring,pos(':',initstring)+1, length(initstring));
@@ -152,12 +156,12 @@ begin
 	else
 		DeviceName:=initdata[1];
 	if debug then writeln('DeviceName=',DeviceName);
-	StrPCopy(p,DeviceName);
+	StrPCopy(pc,DeviceName);
 
 	if debug then writeln('open device: ',DeviceName);
 
 	{$ifndef ZAURUS}
-	devices[cnt]:=ad_open(p);
+	devices[cnt]:=ad_open(pc);
 	if debug then writeln('Device=',cnt,' DeviceName=',DeviceName,' device Handle=',devices[cnt]);
 
 	if (devices[cnt]=-1) then begin
@@ -178,7 +182,7 @@ begin
 	end;
 	{ increment next device counter }
 	inc(cnt);
-	//dispose(pDeviceName);
+	dispose(pc);
 end;
 
 
