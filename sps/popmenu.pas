@@ -12,7 +12,7 @@ INTERFACE
 {$undef ZAURUS}
 
 {$ifdef LINUX}
-uses crt,linux,dos;
+uses crt,linux,dos,baseunix,termio;
 {$endif}
 
 {$ifdef WIN32}
@@ -28,21 +28,22 @@ type string80=string[80];
      Popup_Choice = array [1..12] of string20;
      Balken_choice = array [1..6] of string9;
 
-const p_up = #72;
-      p_dw = #80;
-	  p_le = #75;
-	  p_re = #77;
-      esc  = #27;
-      enter= #13;
-	  tab  = #9;
+const 
+	p_up = #72;
+	p_dw = #80;
+	p_le = #75;
+	p_re = #77;
+	esc  = #27;
+	enter= #13;
+	tab  = #9;
+	ErrorMaxX=109;
+	ErrorMaxY=29;
       	
 var BackGround,ForeGround,Highlighted : byte;
-    startseg                          : word;
-{    regs                              : registers;}
     screen_buffer                     : array[0..3999] of byte;
 
 procedure save_screen;
-procedure restore_screen;
+procedure restore_screen(x1,y1,x2,y2:word);
 procedure cursor_off;
 procedure cursor_on;
 procedure my_wwindow(x1,y1,x2,y2:byte;uber,unter:string12;shadow:boolean);
@@ -54,7 +55,8 @@ procedure dropdown(x,y:byte;uber:string12;Items:Popup_Choice;
 procedure Balken(Items:balken_choice;NrOfItems:byte;info:string15;
                  var choice:char);
 function filebrowser( startpath:string80;titel:string;dialogtype:char):string80;
-
+procedure popmenuInit(x,y:word);
+procedure popmsg(lang,hoch:word;uber:string12;msg:string);
 
 IMPLEMENTATION
 
@@ -70,16 +72,22 @@ type
 
 
 const 	
-	screenx = 80;	{ this is the max screen width should be computed }
-	screeny = 25;	{ this is the max screen height should be computed }
-			{ these values are computed now, but screenx and }
-			{ screeny are used as fallbacks if the actual size }
-			{ can't be determined }
 	debug = false;
 
-var dummy,position     : byte;    { dummy fuer mausposition }
-    return,escape      : boolean; { linke / rechte maustaste }
+var 
+	dummy,position		: byte;    { dummy fuer mausposition }
+	return,escape		: boolean; { linke / rechte maustaste }
+	minScreenX 		: word; { minimum window size x }
+	minScreenY		: word; {  minimum screen size y }
+	WinInfo			: TWinSize;
+	MyConsoleBuf		: Pointer;
 
+
+procedure popmenuInit(x,y:word);
+begin
+	minScreenX:=x;
+	minScreenY:=y;
+end;
 
 function ShowTextList(zeiger:doc_pointer;zeilen:word):doc_pointer;
 var line_cnt	: word;
@@ -102,35 +110,54 @@ begin
 end;
 
 
+{ For Linux I got a method to find updated sizes }
+{ for the rest the variables are read }
+{ Linux as currently a bug when resizing windows }
+{ see tag LINUXBUG }
 
 function GetScreenMaxX:word;
 var	number : word;
 begin
 	val(getenv('COLUMNS'),number);
-	if (number <= 0) then GetScreenMaxX:=screenx
-	else GetScreenMaxX:=number;
+	//gotoxy(1,1);write (number);
+	if (number <=minScreenX) then GetScreenMaxX:=minScreenX
+	else begin
+		{$ifdef LINUX}
+		if ( (fpioctl(TextRec(Output).Handle,TIOCGWINSZ,@Wininfo)>=0)) then
+			number:=Wininfo.ws_col;
+		{ LINUXBUG }
+		if number>ErrorMaxX then number:=ErrorMaxX;
+		{ /LINUXBUG }
+		{$endif}
+		GetScreenMaxX:=number;
+	end;
 end;
 
 function GetScreenMaxY:word;
 var	number : word;
 begin
 	val(getenv('LINES'),number);
-	if  (number <= 0) then GetScreenMaxY:=screeny
-	else GetScreenMaxY:=number;
+	if  (number <= minScreenY) then GetScreenMaxY:=minScreenY
+	else begin
+		{$ifdef LINUX}
+		if ( (fpioctl(TextRec(Output).Handle,TIOCGWINSZ,@Wininfo)>=0)) then
+			number:=Wininfo.ws_row;
+		{ LINUXBUG }
+		if number>ErrorMaxY then number:=ErrorMaxY;
+		{ /LINUXBUG }
+		{$endif}
+		GetScreenMaxY:=number;
+	end;
 end;
 
 procedure save_screen;
-{var  i : word;}
 begin
-{     for i:=0 to 3999 do}
-{         screen_buffer[i]:=mem[startseg:i];}
+	//SaveScreenRegion(1,1,GetScreenMaxX,GetScreenMaxy,myConsoleBuf);
 end;
 
-procedure restore_screen;
-{var  i : word;}
+procedure restore_screen(x1,y1,x2,y2:word);
 begin
-{     for i:=0 to 3999 do}
-{         mem[startseg:i]:=screen_buffer[i];}
+	//RestoreScreenRegion(x1,y1,x2,y2,myConsoleBuf);
 end;
 
 
@@ -143,6 +170,7 @@ begin
 
 	{$ifdef LINUX}
 	write(#27'[?25l');
+	//write(#27'[?1c');
 	{$endif}
 end;                               { **** ENDE CURSOR_OFF **** }
 
@@ -156,65 +184,113 @@ begin
 
 	{$ifdef LINUX}
 	write(#27'[?25h');
+	//write(#27'[?16;0;16c');
 	{$endif}
 end;                               { **** ENDE CURSOR_ON **** }
 
-
-
-
-
-procedure my_wwindow (x1,y1,x2,y2:byte;uber,unter:string12;shadow:boolean);
-
-{ erzeugen eines windows mit rahmen, �berschrift, unterschrift und schatten }
 
 procedure schatten (x1,y1,x2,y2:byte);  { schattierung zeichnen }
 
 var i               : byte;
 
 begin
-   for i:=2 to y2-y1+1 do begin       { rechten schatten }
-       gotoxy(x2-x1+1,i);
+   for i:=y1 to y2 do begin       { rechten schatten }
+       gotoxy(x2+1,i);
        write('#');
    end;
-   for i:=2 to x2-x1+1 do begin       { linken schatten  }
-       gotoxy(i,y2-y1+1);
+   for i:=x1+1 to x2+1 do begin       { unteren schatten  }
+       gotoxy(i,y2+1);
        write('#');
    end;
 end;
 
 
-var i               : byte;
+procedure frame(x1,y1,x2,y2: word;uber,unter:string12);
+
+var i		: word;
 
 begin
-     if shadow then window(x1,y1,x2+1,y2+1)
-     else window(x1,y1,x2,y2);
-     for i:=2 to x2-x1-1 do begin            { waagrechte linie zeichnen }
-         gotoxy(i,1);
+     for i:=x1 to x2-1 do begin            { waagrechte linie zeichnen }
+         gotoxy(i,y1);
          write ('-');                        { oben }
-         gotoxy(i,y2-y1);
+         gotoxy(i,y2);
          write('-');                         { unten }
      end;
-     for i:=2 to y2-y1-1 do begin            { senkrechte linie zeichnen }
-         gotoxy(1,i);
+     for i:=y1 to y2-1 do begin            { senkrechte linie zeichnen }
+         gotoxy(x1,i);
          write('|');                         { links }
-         gotoxy(x2-x1,i);
+         gotoxy(x2,i);
          write('|');                         { rechts }
      end;
-     gotoxy(1,1);                            { ecken zeichnen }
+     gotoxy(x1,y1);                            { ecken zeichnen }
      write('+');
-     gotoxy(x2-x1,1);
+     gotoxy(x1,y2);
      write('+');
-     gotoxy(1,y2-y1);
+     gotoxy(x2,y1);
      write('+');
-     gotoxy(x2-x1,y2-y1);
+     gotoxy(x2,y2);
      write('+');
-     gotoxy(2,1);                            { �berschrift }
+     gotoxy(x1+2,y1);                            { �berschrift }
      write(uber);
-     gotoxy(x2-x1-length(unter)-1,y2-y1);    { unterschrift }
+     gotoxy(x2-length(unter)-1,y2);    { unterschrift }
      write(unter);
-     if shadow then schatten(x1,y1,x2,y2);   { schatten }
-     window(x1+1,y1+1,x2-2,y2-2);            { schreibfl�che erzeugen und }
-     clrscr;                                 { l�schen }
+end;
+
+procedure popmsg(lang,hoch:word;uber:string12;msg:string);
+
+var
+	xmitte,ymitte,
+	x1,y1,
+	x2,y2,
+	j,k		: word;
+
+begin
+	{ mitte des verfügbaren Bildschirms }
+	xmitte:=trunc(GetScreenMaxX/2);
+	ymitte:=trunc(GetScreenMaxY/2);
+
+	{ obere linke ecke berechnen }
+	x1:=xmitte-trunc(lang/2);
+	y1:=ymitte-trunc(hoch/2);
+
+	{ untere rechte ecke berechnen }
+	x2:=x1+lang;
+	y2:=y1+hoch;
+
+	{ Bildschirm speichern}
+	save_screen;
+	{ fensterrahmen zeichnen }
+	frame(x1,y1,x2+1,y2+1,uber,'any key');
+	schatten(x1,y1+1,x2+1,y2+1);
+
+	{ Fenster löschen }
+	gotoxy(x1+1,y1+1);
+	for j:=x1+1 to x2-2 do
+		for k:=y1+1 to y2-2 do begin
+			gotoxy(j,k);
+			write(' ');
+		end;
+	
+	gotoxy(x1+1,y1+1); write(msg);
+	repeat
+	until keypressed;
+	readkey;
+
+	{ Bildschirm wieder herstellen }
+	restore_screen(x1-3,y1-3,x2+3,y2+3);
+end;
+
+
+procedure my_wwindow (x1,y1,x2,y2:byte;uber,unter:string12;shadow:boolean);
+
+{ erzeugen eines windows mit rahmen, �berschrift, unterschrift und schatten }
+
+begin
+	window(x1,y1,x2,y2);
+	frame (1,1,x2-x1,y2-y1,uber,unter);
+	if shadow then schatten(1,2,x2-x1,y2-y1);   { schatten }
+	window(x1+1,y1+1,x2-2,y2-2);            { schreibfl�che erzeugen und }
+	clrscr;                                 { l�schen }
 end;                               { **** ENDE WWINDOW **** }
 
 
@@ -301,37 +377,42 @@ begin
      until taste =enter;
 end;
 
-procedure balken(Items:balken_choice;NrOfItems:byte;info:string15;
-                 var choice:char);
+procedure balken(Items:balken_choice;NrOfItems:byte;info:string15;var choice:char);
 
 var i,
     spalte,Altespalte    : byte;
     Taste,Pfeil          : char;
     Help                 : string1;
-	ItemWidth            : byte;
-
+	ItemWidth		: byte;
+	currX,currY		:word;
 
 
 begin
 {$ifdef ZAURUS}
-	 Itemwidth:=6;
+	Itemwidth:=6;
 {$else}
-	 ItemWidth:=9;
+	ItemWidth:=9;
 {$endif}
-     textbackground(backGround);textcolor(foreground);
-	 Highlighted:=red;
-     window (1,1,GetScreenMaxX,1);
-     clrscr;
-     //cursor_off;
-     for i:= 0 to NrOfItems-1 do PrintLine(i*ItemWidth+1,1,Items[i+1],ItemWidth);
-     if debug then gotoxy(GetScreenMaxX-length(info)-1,1);write(info);
-     textbackground(ForeGround);textcolor(BackGround);
-	 Highlighted:=green;
-     PrintLine(1,1,Items[1],ItemWidth);
-     help:=copy(Items[1],1,1);
-     choice:=help[1];
-     spalte:=1;
+	currX:=0;
      repeat
+	if (currX<>GetScreenMaxX) or (currY<>GetScreenMaxY) then begin
+		window(1,1,1024,1024);
+		textbackground(backGround);textcolor(foreground);
+		Highlighted:=red;
+		currX:=GetScreenMaxX;
+		currY:=GetScreenMaxY;
+		window (1,1,currX,1);
+		clrscr;
+		//cursor_off;
+		for i:= 0 to NrOfItems-1 do PrintLine(i*ItemWidth+1,1,Items[i+1],ItemWidth);
+		gotoxy(GetScreenMaxX-length(info)-1,1);write(info);
+		textbackground(ForeGround);textcolor(BackGround);
+		Highlighted:=green;
+		PrintLine(1,1,Items[1],ItemWidth);
+		help:=copy(Items[1],1,1);
+		choice:=help[1];
+		spalte:=1;
+	end;
            Taste := ReadKey;
            altespalte:=spalte;
            if ord(taste) = 0 then begin;
@@ -482,7 +563,5 @@ end;
 
 
 begin
-     startseg:=$b800;
-{     if Graph_mode=hga then startseg:=$b000;}
 	Highlighted:=red;
 end.
