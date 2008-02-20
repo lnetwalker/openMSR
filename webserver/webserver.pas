@@ -29,13 +29,18 @@ unit webserver;
 { 17.10.2006 started the unit webserver from pswebserver code		}
 {		     currently only GET requests are supported				}
 { 12.11.2006 added registration of special URLs through callback	}
+{ 18.11.2006 added sending of variable data to the embedding process}
 
 interface
 
+
 procedure start_server(address:string;port:word;doc_root,logfile:string);
 procedure SetupSpecialURL(URL:string;proc : tprocedure);
+procedure SetupVariableHandler(proc: tprocedure);
 procedure SendPage(myPage : AnsiString);
 procedure serve_request;
+function GetURL:string;
+function GetParams:string;
 procedure stop_server();
 
 
@@ -54,6 +59,7 @@ implementation
 	
 const 
 	LocalAddress = '127.0.0.1';
+	debug = false;
 	
 var
 
@@ -100,8 +106,9 @@ var
 	// DOCUMENT ROOT
 	DocRoot			: string;
 
-	{ the requested URL, the File to serve and the response }
-	URL,SpecialURL	: String;
+	{ the requested URL, the File to serve and the send data}
+	URL,params,
+	SpecialURL		: String;
 	G				: file of byte;
 
 	header,page,
@@ -118,14 +125,34 @@ var
 	// LOG-File
 	LOG				: text;
 
-	ServingRoutine 	: tprocedure;
+	ServingRoutine,
+	VariableHandler	: tprocedure;
+
+	// this variable is just used to convert numerics to string
+	blubber			: string;
+
+
+procedure writeLOG(MSG: string);
+begin
+	writeln(LOG,MSG);
+end;
+
 
 procedure SetupSpecialURL(URL:string;proc : tprocedure);
 begin
 	if proc <> nil then ServingRoutine:=proc;
 	if URL <> '' then SpecialURL:=URL;
+	writeLOG('registered special URL'+URL);
 end;
 	
+
+procedure SetupVariableHandler(proc : tprocedure);
+begin
+	if proc <> nil then VariableHandler:=proc;
+	writeLOG('registered Variable Handler');
+end;
+
+
 procedure start_server(address:string;port:word;doc_root,logfile:string);
 
 begin
@@ -134,10 +161,11 @@ begin
 	rewrite(LOG);
 
 	{ Initialization}
-	writeln(LOG,'PWS Pascal Web Server - starting server...');
+	writeLOG('PWS Pascal Web Server - starting server...');
 	if (port=0) then port:=10080;
 	if (address='') then address:=LocalAddress;
-	writeln(LOG,'using port=',port,' address=',address);
+	str(port,blubber);
+	writeLOG('using port='+blubber+' address='+address);
 	DocRoot:=doc_root;
 	BufCnt:=1;
 	reqCnt:=0;
@@ -151,7 +179,7 @@ begin
 		srv_addr.sin_port := htons(port);
 		srv_addr.sin_addr.S_addr := StrToAddr(Address);
         { Inititialize WINSOCK }
-		if WSAStartup($101, GInitData) <> 0 then writeln (LOG,'Error init Winsock');
+		if WSAStartup($101, GInitData) <> 0 then writeLOG('Error init Winsock');
 	{$endif}
 	
 	{ Create socket }
@@ -163,29 +191,29 @@ begin
 	{$else}
 		NON_BLOCK:=1;
 		Result:=ioctlsocket(sock,FIONBIO,@NON_BLOCK);
-		if ( Result=SOCKET_ERROR ) then writeln(LOG,'setting NON_BLOCK failed :(');
+		if ( Result=SOCKET_ERROR ) then writeLOG('setting NON_BLOCK failed :(');
 	{$endif}
 	
 	// Binding the server
-	writeln(LOG,'Binding port..');
+	writeLOG('Binding port..');
 	{$ifdef LINUX}
 		if not bind(sock, srv_addr, sizeof(srv_addr)) then begin
-			writeln(LOG,'!! Error in bind().');
+			writeLOG('!! Error in bind().');
 			halt;
 		end;
 	{$else}
 		if (bind(sock, srv_addr, SizeOf(srv_addr)) <> 0) then  begin
-			writeln(LOG,'!! Error in bind');
+			writeLOG('!! Error in bind');
 			halt;
 		end;
 	{$endif}
 	
 	// Listening on port
-	writeln(LOG,'listen..');
+	writeLOG('listen..');
 	{$ifdef LINUX}
 		listen(sock, max_connections);
 	{$else}
-		if (listen(sock, max_connections) = SOCKET_ERROR) then writeln(LOG,'listen() failed with error ', WSAGetLastError());
+		if (listen(sock, max_connections) = SOCKET_ERROR) then writeLOG('listen() failed with error '+ WSAGetLastError());
 	{$endif}
 end;
 
@@ -207,14 +235,16 @@ begin
 	str(PageSize,TRespSize);
 	header:=header+TRespSize;
 	header:=header+chr(10);
-	writeln(LOG,'DocSize: ',PageSize);
-	writeln(LOG,'Header: ',header);
-	writeln(LOG,'/Header');
+	str(PageSize,blubber);
+	writeLOG('DocSize: '+blubber);
+	writeLOG('Header: '+header);
+	writeLOG('/Header');
 
 	// Sending response
-	writeln(LOG,'serving data...');
+	writeLOG('serving data...');
 	{$ifdef LINUX}
-		writeln(LOG,'BufCnt=',BufCnt);
+		str(BufCnt,blubber);
+		writeLOG('BufCnt='+blubber);
 		{ if I send the header and the page together }
 		{ firefox has a problem and display nothing }
 		writeln(sout,header);
@@ -233,51 +263,54 @@ begin
 		sendString:=header+myPage;
 		{ copy string to send into the send buffer }
 		for i:=1 to length(sendString) do FCharBuf[i]:=sendString[i];
-		writeln(LOG,'respSize: ',length(sendString));
+		writeLOG('respSize: '+length(sendString));
 		Result:=send(ConnSock,@FCharBuf[1],length(sendString),0);
-		if ( Result=SOCKET_ERROR ) then writeln(LOG,'send Data failed :(');
+		if ( Result=SOCKET_ERROR ) then writeLOG('send Data failed :(');
 		Shutdown(ConnSock, 2);
 	{$endif}
-	writeln(LOG,'finished request..., connection closed');
+	writeLOG('finished request..., connection closed');
 	BufCnt:=1;
 end;
 
 procedure process_request;
+var Paramstart	: word;
+
 begin
-	writeln(LOG,'reading request....');
+	writeLOG('reading request....');
 	// Reading whole request -> accept on socket, then read requested data
 
-	writeln(LOG,'accept connection');
+	writeLOG('accept connection');
 	{$ifdef LINUX}
-		if not accept(sock, cli_addr, sin, sout) then writeln(LOG,'!! Connection error in accept().');
+		if not accept(sock, cli_addr, sin, sout) then writeLOG('!! Connection error in accept().');
 	{$else}
 		addr_len:=SizeOf(cli_addr);
 		ConnSock:=accept(sock, @cli_addr,@addr_len);
 		if ( ConnSock=INVALID_SOCKET) then
-			writeln(LOG,'accept failed');
+			writeLOG('accept failed');
 	{$endif}
 
 	reqSize:=0;
-	writeln(LOG,'reading request data');
+	writeLOG('reading request data');
 	repeat
 		{ actually we should switch to blocking mode here, }
 		{ because it is possible that some amount of time  }
 		{ is between the connect and the request           }
 		{$ifdef LINUX}
 			readln(sin, buff);
-			writeln (LOG,'Req[',BufCnt,']=',buff);
+			str(BufCnt,blubber);
+			writeLOG('Req['+blubber+']='+buff);
 			post[BufCnt] := buff;
 			reqSize:=reqSize+length(post[BufCnt]);
 			inc(BufCnt);
 		{$else}
 			RecBufSize:=recv(ConnSock,@FCharBuf[1],SizeOf(FCharBuf),0);
-			if (RecBufSize=SOCKET_ERROR) then writeln (LOG,'socket error during read ',WSAGetLastError);
+			if (RecBufSize=SOCKET_ERROR) then writeLOG('socket error during read '+WSAGetLastError);
 			buff:=copy(FCharBuf,1,RecBufSize);
 			BufCnt:=1;
 			{ Request zerlegen und in array post zeile fuer Zeile speichern }
 			repeat
 				post[BufCnt]:=copy(buff,1,pos(chr(10),buff)-1);
-				writeln(LOG,'Req[',BufCnt,']=',post[BufCnt]);
+				writeLOG('Req['+BufCnt+']='+post[BufCnt]);
 				buff:=copy(buff,pos(chr(10),buff)+1,length(buff));
 				inc(BufCnt);
 			until length(buff)<1;
@@ -286,8 +319,10 @@ begin
 	until length(buff)<1;
 
 	inc(reqCnt);
-	writeln(LOG,'# of Requests : ',reqCnt);
-	writeln(LOG,'requestSize: ',reqSize);
+	str(reqCnt,blubber);
+	writeLOG('# of Requests : '+blubber);
+	str(reqSize,blubber);
+	writeLOG('requestSize: '+blubber);
 
 	{ processing the request }
 
@@ -297,6 +332,14 @@ begin
 	{ request type is ignored it's always GET assumed }
 	URL:=copy(post[1],pos('/',post[1]),length(post[1]));
 	URL:=copy(URL,1,pos(' ',URL)-1);
+	Paramstart:=pos('?',URL);
+
+	if ( Paramstart <> 0 ) then begin
+		// this URL has parameters
+		params:=copy(URL,Paramstart,length(URL));
+		URL:=copy(URL,1,Paramstart-1);
+		if VariableHandler<>nil then VariableHandler;
+	end;
 
 	// set Content Type
 	if (pos('jpg',URL)<>0) then
@@ -310,7 +353,7 @@ begin
 
 	else begin
 		URL:=DocRoot+URL;			// add current dir as Document root
-		writeln(LOG,'requested URL=',URL);
+		writeLOG('requested URL='+URL);
 
 		{ now open the file, read and serve it }
 		{$i-}
@@ -328,7 +371,7 @@ begin
 		else begin  { file not found }
 			page:='<html><body>Error: 404 Document not found</body></html>';
 			status:='404 Not Found';
-			writeln(LOG,'Error 404 doc ',URL,' not found');
+			writeLOG('Error 404 doc '+URL+' not found');
 		end;
 
 		SendPage(page);
@@ -361,9 +404,20 @@ begin
 		TimeVal.tv_sec:=0;
 		TimeVal.tv_usec:=0;
 		Result:=Select(0, @FDRead, nil, nil, @TimeVal);
-		if Result = SOCKET_ERROR then writeln(LOG,'ERROR=',WSAGetLastError);
+		if Result = SOCKET_ERROR then writeLOG('ERROR='+WSAGetLastError);
 		if (Result > 0) then process_request;
 	{$endif}
+end;
+
+function GetURL:string;
+begin
+	GetURL:=URL;
+end;
+
+
+function GetParams:string;
+begin
+	GetParams:=params;
 end;
 
 
@@ -372,7 +426,7 @@ begin
 	// Closing listening socket
 	shutdown(sock, 2);
 	// Shutting down
-	writeln(LOG,'shuting down pwserver...');
+	writeLOG('shuting down pwserver...');
 end;
 
 end.
