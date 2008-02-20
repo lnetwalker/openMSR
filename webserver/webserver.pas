@@ -3,33 +3,33 @@
 {$H+}{$MODE OBJFPC}
 unit webserver;
 
-{ (c) 2006 by Hartmut Eilers < hartmut@eilers.net					}
-{ distributed  under the terms of the GNU GPL V 2					}
+{ (c) 2006 by Hartmut Eilers < hartmut@eilers.net				}
+{ distributed  under the terms of the GNU GPL V 2				}
 { see http://www.gnu.org/licenses/gpl.html for details				}
 { derived from the original work of pswebserver (c) by 				}
-{ Vladimir Sibirov													}
+{ Vladimir Sibirov								}
 
-{ simple embeddable HTTP server for FPC Pascal for Linux and		}
+{ simple embeddable HTTP server for FPC Pascal for Linux and			}
 { Windows, using non-blocking socket I/O to easy fit and			}
-{ integrate in different programs 									}
+{ integrate in different programs 						}
 { tested on Win 32  W2K Advanced Server and Debian Linux 			}
-{ can serve static HTML Pages and Images and special dynamic		}
-{ content provided by the embedding program							}
-{ see example program pwserver.pas for information about usage		}
+{ can serve static HTML Pages and Images and special dynamic			}
+{ content provided by the embedding program					}
+{ see example program pwserver.pas for information about usage			}
 
-{ History: 															}
-{ 15.03.2006 startet with Vladimirs Code 							}
+{ History: 									}
+{ 15.03.2006 startet with Vladimirs Code 					}
 { 17.03.2006 running non Block http server on linux 				}
 { 20.03.2006 startet porting to win32 using winsock 				}
 { 24.03.2006 WINSOCK code works including read of request 			}
-{ 27.03.2006 WINSOCK code works 									}
-{ 02.04.2006 serving of simple text pages work 						}
-{ 03.04.2006 cleaned code, tested with firefox and konqueror -> ok 	}
-{   	     wget doesn't receive anything :( 						}
-{ 17.10.2006 started the unit webserver from pswebserver code		}
-{		     currently only GET requests are supported				}
-{ 12.11.2006 added registration of special URLs through callback	}
-{ 18.11.2006 added sending of variable data to the embedding process}
+{ 27.03.2006 WINSOCK code works 						}
+{ 02.04.2006 serving of simple text pages work 					}
+{ 03.04.2006 cleaned code, tested with firefox and konqueror -> ok 		}
+{   	     wget doesn't receive anything :( 					}
+{ 17.10.2006 started the unit webserver from pswebserver code			}
+{		     currently only GET requests are supported			}
+{ 12.11.2006 added registration of special URLs through callback		}
+{ 18.11.2006 added sending of variable data to the embedding process		}
 
 interface
 
@@ -47,7 +47,7 @@ procedure stop_server();
 implementation
 
 {$ifdef LINUX}
-	uses sockets, crt, inetaux, oldlinux;
+	uses sockets, crt, inetaux, BaseUnix, Unix;
 {$else}
 	uses winsock,crt,inetaux;
 {$endif}
@@ -187,7 +187,7 @@ begin
 
 	{ set socket to non blocking mode }
 	{$ifdef LINUX}
-		fcntl(sock,F_SetFd,Open_NonBlock);
+		FpFcntl(sock,F_SetFd,MSG_DONTWAIT);
 	{$else}
 		NON_BLOCK:=1;
 		Result:=ioctlsocket(sock,FIONBIO,@NON_BLOCK);
