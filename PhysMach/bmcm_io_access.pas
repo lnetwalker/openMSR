@@ -33,7 +33,7 @@ function bmcm_hwinit(initstring:string):boolean;
 
 implementation
 {$ifndef ZAURUS}
-uses qgtk2,libadp,strings;					{ use the c library }
+uses libadp,strings;					{ use the c library }
 {$endif}
 
 const	
