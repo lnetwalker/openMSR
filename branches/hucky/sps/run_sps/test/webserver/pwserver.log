@@ -1,0 +1,449 @@
+PWS Pascal Web Server - starting server...
+using port=10080 address=127.0.0.1
+Binding port..
+listen..
+registered special URL/status/index.html
+registered Variable Handler
+reading request....
+accept connection
+reading request data
+Req[1]=GET /test.htm HTTP/1.1
+Req[2]=User-Agent: Mozilla/5.0 (compatible; Konqueror/3.5; Linux) KHTML/3.5.2 (like Gecko) Kubuntu 6.06 Dapper
+Req[3]=Referer: http://localhost:10080/index.html
+Req[4]=Accept: text/html, image/jpeg, image/png, text/*, image/*, */*
+Req[5]=Accept-Encoding: x-gzip, x-deflate, gzip, deflate
+Req[6]=Accept-Charset: iso-8859-1, utf-8;q=0.5, *;q=0.5
+Req[7]=Accept-Language: en
+Req[8]=Host: localhost:10080
+Req[9]=Connection: Keep-Alive
+Req[10]=
+# of Requests : 1
+requestSize: 388
+requested URL=./docroot//test.htm
+DocSize: 726
+Header: HTTP/1.0 200 OK
+Connection: close
+MIME-Version: 1.0
+Server: PWS/alpha
+Content-Type: text/html
+Content-length: 726
+
+/Header
+serving data...
+BufCnt=11
+finished request..., connection closed
+reading request....
+accept connection
+reading request data
+Req[1]=GET /images/test.jpg HTTP/1.1
+Req[2]=User-Agent: Mozilla/5.0 (compatible; Konqueror/3.5; Linux) KHTML/3.5.2 (like Gecko) Kubuntu 6.06 Dapper
+Req[3]=Referer: http://localhost:10080/test.htm
+Req[4]=Accept: image/png, image/jpeg, video/x-mng, image/jp2, image/gif;q=0.5,*/*;q=0.1
+Req[5]=Accept-Encoding: x-gzip, x-deflate, gzip, deflate
+Req[6]=Accept-Charset: iso-8859-1, utf-8;q=0.5, *;q=0.5
+Req[7]=Accept-Language: en
+Req[8]=Host: localhost:10080
+Req[9]=Connection: Keep-Alive
+Req[10]=
+# of Requests : 2
+requestSize: 411
+requested URL=./docroot//images/test.jpg
+DocSize: 35642
+Header: HTTP/1.0 200 OK
+Connection: close
+MIME-Version: 1.0
+Server: PWS/alpha
+Content-Type: image/jpeg
+Content-length: 35642
+
+/Header
+serving data...
+BufCnt=11
+finished request..., connection closed
+reading request....
+accept connection
+reading request data
+Req[1]=GET /status/index.html HTTP/1.1
+Req[2]=User-Agent: Mozilla/5.0 (compatible; Konqueror/3.5; Linux) KHTML/3.5.2 (like Gecko) Kubuntu 6.06 Dapper
+Req[3]=Referer: http://localhost:10080/test.htm
+Req[4]=Accept: text/html, image/jpeg, image/png, text/*, image/*, */*
+Req[5]=Accept-Encoding: x-gzip, x-deflate, gzip, deflate
+Req[6]=Accept-Charset: iso-8859-1, utf-8;q=0.5, *;q=0.5
+Req[7]=Accept-Language: en
+Req[8]=Host: localhost:10080
+Req[9]=Connection: Keep-Alive
+Req[10]=
+# of Requests : 3
+requestSize: 395
+DocSize: 115
+Header: HTTP/1.0 200 OK
+Connection: close
+MIME-Version: 1.0
+Server: PWS/alpha
+Content-Type: text/html
+Content-length: 115
+
+/Header
+serving data...
+BufCnt=11
+finished request..., connection closed
+reading request....
+accept connection
+reading request data
+Req[1]=GET /index.html HTTP/1.1
+Req[2]=User-Agent: Mozilla/5.0 (compatible; Konqueror/3.5; Linux) KHTML/3.5.2 (like Gecko) Kubuntu 6.06 Dapper
+Req[3]=Referer: http://localhost:10080/status/index.html
+Req[4]=Accept: text/html, image/jpeg, image/png, text/*, image/*, */*
+Req[5]=Accept-Encoding: x-gzip, x-deflate, gzip, deflate
+Req[6]=Accept-Charset: iso-8859-1, utf-8;q=0.5, *;q=0.5
+Req[7]=Accept-Language: en
+Req[8]=Host: localhost:10080
+Req[9]=Connection: Keep-Alive
+Req[10]=
+# of Requests : 4
+requestSize: 397
+requested URL=./docroot//index.html
+DocSize: 837
+Header: HTTP/1.0 200 OK
+Connection: close
+MIME-Version: 1.0
+Server: PWS/alpha
+Content-Type: text/html
+Content-length: 837
+
+/Header
+serving data...
+BufCnt=11
+finished request..., connection closed
+reading request....
+accept connection
+reading request data
+Req[1]=GET /doc.htm HTTP/1.1
+Req[2]=User-Agent: Mozilla/5.0 (compatible; Konqueror/3.5; Linux) KHTML/3.5.2 (like Gecko) Kubuntu 6.06 Dapper
+Req[3]=Referer: http://localhost:10080/index.html
+Req[4]=Accept: text/html, image/jpeg, image/png, text/*, image/*, */*
+Req[5]=Accept-Encoding: x-gzip, x-deflate, gzip, deflate
+Req[6]=Accept-Charset: iso-8859-1, utf-8;q=0.5, *;q=0.5
+Req[7]=Accept-Language: en
+Req[8]=Host: localhost:10080
+Req[9]=Connection: Keep-Alive
+Req[10]=
+# of Requests : 5
+requestSize: 387
+requested URL=./docroot//doc.htm
+DocSize: 4598
+Header: HTTP/1.0 200 OK
+Connection: close
+MIME-Version: 1.0
+Server: PWS/alpha
+Content-Type: text/html
+Content-length: 4598
+
+/Header
+serving data...
+BufCnt=11
+finished request..., connection closed
+reading request....
+accept connection
+reading request data
+Req[1]=GET /status/index.html?any=1&Data=2 HTTP/1.1
+Req[2]=User-Agent: Mozilla/5.0 (compatible; Konqueror/3.5; Linux) KHTML/3.5.2 (like Gecko) Kubuntu 6.06 Dapper
+Req[3]=Referer: http://localhost:10080/index.html
+Req[4]=Accept: text/html, image/jpeg, image/png, text/*, image/*, */*
+Req[5]=Accept-Encoding: x-gzip, x-deflate, gzip, deflate
+Req[6]=Accept-Charset: iso-8859-1, utf-8;q=0.5, *;q=0.5
+Req[7]=Accept-Language: en
+Req[8]=Host: localhost:10080
+Req[9]=Connection: Keep-Alive
+Req[10]=
+# of Requests : 6
+requestSize: 410
+DocSize: 128
+Header: HTTP/1.0 200 OK
+Connection: close
+MIME-Version: 1.0
+Server: PWS/alpha
+Content-Type: text/html
+Content-length: 128
+
+/Header
+serving data...
+BufCnt=11
+finished request..., connection closed
+reading request....
+accept connection
+reading request data
+Req[1]=GET /index.html HTTP/1.1
+Req[2]=User-Agent: Mozilla/5.0 (compatible; Konqueror/3.5; Linux) KHTML/3.5.2 (like Gecko) Kubuntu 6.06 Dapper
+Req[3]=Referer: http://localhost:10080/status/index.html?any=1&Data=2
+Req[4]=Accept: text/html, image/jpeg, image/png, text/*, image/*, */*
+Req[5]=Accept-Encoding: x-gzip, x-deflate, gzip, deflate
+Req[6]=Accept-Charset: iso-8859-1, utf-8;q=0.5, *;q=0.5
+Req[7]=Accept-Language: en
+Req[8]=Host: localhost:10080
+Req[9]=Connection: Keep-Alive
+Req[10]=
+# of Requests : 7
+requestSize: 410
+requested URL=./docroot//index.html
+DocSize: 837
+Header: HTTP/1.0 200 OK
+Connection: close
+MIME-Version: 1.0
+Server: PWS/alpha
+Content-Type: text/html
+Content-length: 837
+
+/Header
+serving data...
+BufCnt=11
+finished request..., connection closed
+reading request....
+accept connection
+reading request data
+Req[1]=GET /status/index.html HTTP/1.1
+Req[2]=User-Agent: Mozilla/5.0 (compatible; Konqueror/3.5; Linux) KHTML/3.5.2 (like Gecko) Kubuntu 6.06 Dapper
+Req[3]=Referer: http://localhost:10080/index.html
+Req[4]=Accept: text/html, image/jpeg, image/png, text/*, image/*, */*
+Req[5]=Accept-Encoding: x-gzip, x-deflate, gzip, deflate
+Req[6]=Accept-Charset: iso-8859-1, utf-8;q=0.5, *;q=0.5
+Req[7]=Accept-Language: en
+Req[8]=Host: localhost:10080
+Req[9]=Connection: Keep-Alive
+Req[10]=
+# of Requests : 8
+requestSize: 397
+DocSize: 128
+Header: HTTP/1.0 200 OK
+Connection: close
+MIME-Version: 1.0
+Server: PWS/alpha
+Content-Type: text/html
+Content-length: 128
+
+/Header
+serving data...
+BufCnt=11
+finished request..., connection closed
+reading request....
+accept connection
+reading request data
+Req[1]=GET /index.html HTTP/1.1
+Req[2]=User-Agent: Mozilla/5.0 (compatible; Konqueror/3.5; Linux) KHTML/3.5.2 (like Gecko) Kubuntu 6.06 Dapper
+Req[3]=Referer: http://localhost:10080/status/index.html
+Req[4]=Accept: text/html, image/jpeg, image/png, text/*, image/*, */*
+Req[5]=Accept-Encoding: x-gzip, x-deflate, gzip, deflate
+Req[6]=Accept-Charset: iso-8859-1, utf-8;q=0.5, *;q=0.5
+Req[7]=Accept-Language: en
+Req[8]=Host: localhost:10080
+Req[9]=Connection: Keep-Alive
+Req[10]=
+# of Requests : 9
+requestSize: 397
+requested URL=./docroot//index.html
+DocSize: 837
+Header: HTTP/1.0 200 OK
+Connection: close
+MIME-Version: 1.0
+Server: PWS/alpha
+Content-Type: text/html
+Content-length: 837
+
+/Header
+serving data...
+BufCnt=11
+finished request..., connection closed
+reading request....
+accept connection
+reading request data
+Req[1]=GET /images/test.jpg HTTP/1.1
+Req[2]=User-Agent: Mozilla/5.0 (compatible; Konqueror/3.5; Linux) KHTML/3.5.2 (like Gecko) Kubuntu 6.06 Dapper
+Req[3]=Referer: http://localhost:10080/index.html
+Req[4]=Accept: text/html, image/jpeg, image/png, text/*, image/*, */*
+Req[5]=Accept-Encoding: x-gzip, x-deflate, gzip, deflate
+Req[6]=Accept-Charset: iso-8859-1, utf-8;q=0.5, *;q=0.5
+Req[7]=Accept-Language: en
+Req[8]=Host: localhost:10080
+Req[9]=Connection: Keep-Alive
+Req[10]=
+# of Requests : 10
+requestSize: 395
+requested URL=./docroot//images/test.jpg
+DocSize: 35642
+Header: HTTP/1.0 200 OK
+Connection: close
+MIME-Version: 1.0
+Server: PWS/alpha
+Content-Type: image/jpeg
+Content-length: 35642
+
+/Header
+serving data...
+BufCnt=11
+finished request..., connection closed
+reading request....
+accept connection
+reading request data
+Req[1]=GET /test.htm HTTP/1.1
+Req[2]=User-Agent: Mozilla/5.0 (compatible; Konqueror/3.5; Linux) KHTML/3.5.2 (like Gecko) Kubuntu 6.06 Dapper
+Req[3]=Referer: http://localhost:10080/index.html
+Req[4]=Accept: text/html, image/jpeg, image/png, text/*, image/*, */*
+Req[5]=Accept-Encoding: x-gzip, x-deflate, gzip, deflate
+Req[6]=Accept-Charset: iso-8859-1, utf-8;q=0.5, *;q=0.5
+Req[7]=Accept-Language: en
+Req[8]=Host: localhost:10080
+Req[9]=Connection: Keep-Alive
+Req[10]=
+# of Requests : 11
+requestSize: 388
+requested URL=./docroot//test.htm
+DocSize: 726
+Header: HTTP/1.0 200 OK
+Connection: close
+MIME-Version: 1.0
+Server: PWS/alpha
+Content-Type: text/html
+Content-length: 726
+
+/Header
+serving data...
+BufCnt=11
+finished request..., connection closed
+reading request....
+accept connection
+reading request data
+Req[1]=GET /index.html HTTP/1.1
+Req[2]=User-Agent: Mozilla/5.0 (compatible; Konqueror/3.5; Linux) KHTML/3.5.2 (like Gecko) Kubuntu 6.06 Dapper
+Req[3]=Referer: http://localhost:10080/test.htm
+Req[4]=Accept: text/html, image/jpeg, image/png, text/*, image/*, */*
+Req[5]=Accept-Encoding: x-gzip, x-deflate, gzip, deflate
+Req[6]=Accept-Charset: iso-8859-1, utf-8;q=0.5, *;q=0.5
+Req[7]=Accept-Language: en
+Req[8]=Host: localhost:10080
+Req[9]=Connection: Keep-Alive
+Req[10]=
+# of Requests : 12
+requestSize: 388
+requested URL=./docroot//index.html
+DocSize: 837
+Header: HTTP/1.0 200 OK
+Connection: close
+MIME-Version: 1.0
+Server: PWS/alpha
+Content-Type: text/html
+Content-length: 837
+
+/Header
+serving data...
+BufCnt=11
+finished request..., connection closed
+reading request....
+accept connection
+reading request data
+Req[1]=GET /test.htm HTTP/1.1
+Req[2]=User-Agent: Mozilla/5.0 (compatible; Konqueror/3.5; Linux) KHTML/3.5.2 (like Gecko) Kubuntu 6.06 Dapper
+Req[3]=Referer: http://localhost:10080/index.html
+Req[4]=Accept: text/html, image/jpeg, image/png, text/*, image/*, */*
+Req[5]=Accept-Encoding: x-gzip, x-deflate, gzip, deflate
+Req[6]=Accept-Charset: iso-8859-1, utf-8;q=0.5, *;q=0.5
+Req[7]=Accept-Language: en
+Req[8]=Host: localhost:10080
+Req[9]=Connection: Keep-Alive
+Req[10]=
+# of Requests : 13
+requestSize: 388
+requested URL=./docroot//test.htm
+DocSize: 726
+Header: HTTP/1.0 200 OK
+Connection: close
+MIME-Version: 1.0
+Server: PWS/alpha
+Content-Type: text/html
+Content-length: 726
+
+/Header
+serving data...
+BufCnt=11
+finished request..., connection closed
+reading request....
+accept connection
+reading request data
+Req[1]=GET /index.html HTTP/1.1
+Req[2]=User-Agent: Mozilla/5.0 (compatible; Konqueror/3.5; Linux) KHTML/3.5.2 (like Gecko) Kubuntu 6.06 Dapper
+Req[3]=Referer: http://localhost:10080/test.htm
+Req[4]=Accept: text/html, image/jpeg, image/png, text/*, image/*, */*
+Req[5]=Accept-Encoding: x-gzip, x-deflate, gzip, deflate
+Req[6]=Accept-Charset: iso-8859-1, utf-8;q=0.5, *;q=0.5
+Req[7]=Accept-Language: en
+Req[8]=Host: localhost:10080
+Req[9]=Connection: Keep-Alive
+Req[10]=
+# of Requests : 14
+requestSize: 388
+requested URL=./docroot//index.html
+DocSize: 837
+Header: HTTP/1.0 200 OK
+Connection: close
+MIME-Version: 1.0
+Server: PWS/alpha
+Content-Type: text/html
+Content-length: 837
+
+/Header
+serving data...
+BufCnt=11
+finished request..., connection closed
+reading request....
+accept connection
+reading request data
+Req[1]=GET /test.htm HTTP/1.1
+Req[2]=User-Agent: Mozilla/5.0 (compatible; Konqueror/3.5; Linux) KHTML/3.5.2 (like Gecko) Kubuntu 6.06 Dapper
+Req[3]=Referer: http://localhost:10080/index.html
+Req[4]=Accept: text/html, image/jpeg, image/png, text/*, image/*, */*
+Req[5]=Accept-Encoding: x-gzip, x-deflate, gzip, deflate
+Req[6]=Accept-Charset: iso-8859-1, utf-8;q=0.5, *;q=0.5
+Req[7]=Accept-Language: en
+Req[8]=Host: localhost:10080
+Req[9]=Connection: Keep-Alive
+Req[10]=
+# of Requests : 15
+requestSize: 388
+requested URL=./docroot//test.htm
+DocSize: 726
+Header: HTTP/1.0 200 OK
+Connection: close
+MIME-Version: 1.0
+Server: PWS/alpha
+Content-Type: text/html
+Content-length: 726
+
+/Header
+serving data...
+BufCnt=11
+finished request..., connection closed
+reading request....
+accept connection
+reading request data
+Req[1]=GET /index.html HTTP/1.1
+Req[2]=User-Agent: Mozilla/5.0 (compatible; Konqueror/3.5; Linux) KHTML/3.5.2 (like Gecko) Kubuntu 6.06 Dapper
+Req[3]=Referer: http://localhost:10080/test.htm
+Req[4]=Accept: text/html, image/jpeg, image/png, text/*, image/*, */*
+Req[5]=Accept-Encoding: x-gzip, x-deflate, gzip, deflate
+Req[6]=Accept-Charset: iso-8859-1, utf-8;q=0.5, *;q=0.5
+Req[7]=Accept-Language: en
+Req[8]=Host: localhost:10080
+Req[9]=Connection: Keep-Alive
+Req[10]=
+# of Requests : 16
+requestSize: 388
+requested URL=./docroot//index.html
+DocSize: 837
+Header: HTTP/1.0 200 OK
+Connection: close
+MIME-Version: 1.0
+Server: PWS/alpha
+Content-Type: text/html
+Content-length: 837
+
+/Header
+servi
