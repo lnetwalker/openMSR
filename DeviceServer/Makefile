@@ -10,8 +10,8 @@ all: $(OBJECTS)
 
 
 # the physical Machine access layer
-DeviceServer: 	
-	fpc -gl -Fu../webserver -Fu../PhysMach DeviceServer.pas
+DeviceServer: 	DeviceServer.pas
+	fpc -gl -Fu../webserver -Fu../PhysMach DeviceServer.pas -Mdelphi
 
 clear:
 	-rm *.ppu
