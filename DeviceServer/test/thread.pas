@@ -1,5 +1,5 @@
 {$mode objfpc}  
-{$threading on}  
+ 
  
 uses  
   sysutils {$ifdef unix},cthreads{$endif} ;  
@@ -22,7 +22,7 @@ var
 begin  
   Writeln('thread ',longint(p),' started');  
   thri:=0;  
-  while (thri
+  while (thri) do
     begin  
     s:=s+'1';  
     inc(thri);  
