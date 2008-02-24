@@ -34,7 +34,7 @@ unit webserver;
 interface
 
 
-procedure start_server(address:string;port:word;doc_root,logfile:string);
+procedure start_server(address:string;port:word;BlockMode: Boolean;doc_root,logfile:string);
 procedure SetupSpecialURL(URL:string;proc : tprocedure);
 procedure SetupVariableHandler(proc: tprocedure);
 procedure SendPage(myPage : AnsiString);
@@ -47,7 +47,7 @@ procedure stop_server();
 implementation
 
 {$ifdef LINUX}
-	uses sockets, crt, inetaux, BaseUnix, Unix;
+	uses sockets, crt,inetaux, BaseUnix, Unix;
 {$else}
 	uses winsock,crt,inetaux;
 {$endif}
@@ -59,7 +59,8 @@ implementation
 	
 const 
 	LocalAddress = '127.0.0.1';
-	debug = false;
+	debug = true;
+	MaxUrl = 25;
 	
 var
 
@@ -107,9 +108,11 @@ var
 	DocRoot			: string;
 
 	{ the requested URL, the File to serve and the send data}
-	URL,params,
-	SpecialURL		: String;
-	G				: file of byte;
+	params,URL		: string;
+	SpecialURL		: array[1..MaxUrl] of String;
+	UrlPointer		: byte;
+
+	G			: file of byte;
 
 	header,page,
 	CType			: AnsiString;
@@ -120,13 +123,13 @@ var
 	status			: string;
 
 	// Request size
-	reqSize,reqCnt	: word;
+	reqSize,reqCnt		: word;
 
 	// LOG-File
-	LOG				: text;
+	LOG			: text;
 
-	ServingRoutine,
-	VariableHandler	: tprocedure;
+	ServingRoutine		: array[1..MaxUrl] of tprocedure;
+	VariableHandler		: tprocedure;
 
 	// this variable is just used to convert numerics to string
 	blubber			: string;
@@ -140,8 +143,9 @@ end;
 
 procedure SetupSpecialURL(URL:string;proc : tprocedure);
 begin
-	if proc <> nil then ServingRoutine:=proc;
-	if URL <> '' then SpecialURL:=URL;
+	if proc <> nil then ServingRoutine[UrlPointer]:=proc;
+	if URL <> '' then SpecialURL[UrlPointer]:=URL;
+	inc(UrlPointer);
 	writeLOG('registered special URL'+URL);
 end;
 	
@@ -153,7 +157,7 @@ begin
 end;
 
 
-procedure start_server(address:string;port:word;doc_root,logfile:string);
+procedure start_server(address:string;port:word;BlockMode: Boolean;doc_root,logfile:string);
 
 begin
 	// open logfile
@@ -183,17 +187,19 @@ begin
 	{$endif}
 	
 	{ Create socket }
-	sock := socket(PF_INET, SOCK_STREAM, 0);
+	sock := fpsocket(PF_INET, SOCK_STREAM, 0);
 
-	{ set socket to non blocking mode }
-	{$ifdef LINUX}
-		FpFcntl(sock,F_SetFd,MSG_DONTWAIT);
-	{$else}
-		NON_BLOCK:=1;
-		Result:=ioctlsocket(sock,FIONBIO,@NON_BLOCK);
-		if ( Result=SOCKET_ERROR ) then writeLOG('setting NON_BLOCK failed :(');
-	{$endif}
-	
+	if not(BlockMode) then begin
+		{ set socket to non blocking mode }
+		{$ifdef LINUX}
+			FpFcntl(sock,F_SetFd,MSG_DONTWAIT);
+		{$else}
+			NON_BLOCK:=1;
+			Result:=ioctlsocket(sock,FIONBIO,@NON_BLOCK);
+			if ( Result=SOCKET_ERROR ) then writeLOG('setting NON_BLOCK failed :(');
+		{$endif}
+	end;
+
 	// Binding the server
 	writeLOG('Binding port..');
 	{$ifdef LINUX}
@@ -211,7 +217,7 @@ begin
 	// Listening on port
 	writeLOG('listen..');
 	{$ifdef LINUX}
-		listen(sock, max_connections);
+		fplisten(sock, max_connections);
 	{$else}
 		if (listen(sock, max_connections) = SOCKET_ERROR) then writeLOG('listen() failed with error '+ WSAGetLastError());
 	{$endif}
@@ -273,7 +279,7 @@ begin
 end;
 
 procedure process_request;
-var Paramstart	: word;
+var Paramstart,i	: word;
 
 begin
 	writeLOG('reading request....');
@@ -347,11 +353,13 @@ begin
 	else
 		CType:='Content-Type: text/html'+chr(10);
 
-	if (URL=SpecialURL) then begin
-		if ServingRoutine <> nil then ServingRoutine
-	end
-
-	else begin
+	i:=0;
+	repeat
+		inc(i);
+		if (URL=SpecialURL[i]) then 
+			if ServingRoutine[i] <> nil then ServingRoutine[i];
+	until (i=MaxUrl) or (URL=SpecialURL[i]);
+	if not(URL=SpecialURL[i]) then begin
 		URL:=DocRoot+URL;			// add current dir as Document root
 		writeLOG('requested URL='+URL);
 
@@ -424,9 +432,11 @@ end;
 procedure stop_server;
 begin
 	// Closing listening socket
-	shutdown(sock, 2);
+	fpshutdown(sock, 2);
 	// Shutting down
 	writeLOG('shuting down pwserver...');
 end;
 
+begin
+	UrlPointer:=1;
 end.
