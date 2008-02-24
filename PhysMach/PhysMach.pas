@@ -283,7 +283,7 @@ begin
 		 		write (ausgang[k+x],' ');
 		 		if (k=0 ) then writeln;
 			end;		
-		end;   
+		end;
 		io_group:=round(int(x/8)+1);
 		if (o_devicetype[io_group] <> '-') then 
 			if debug then writeln('writing device ',o_devicetype[io_group],' Addr ',o_address[io_group],' Value ',wert);
