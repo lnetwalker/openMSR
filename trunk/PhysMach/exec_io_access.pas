@@ -52,29 +52,18 @@ var
 
 
 
-function exec_read_ports(io_port:longint):byte;
-{ execute the program, the output must be in the form 'n n n n n n n n' with n=[1|0] }
+function BinToInt(binval:string):Integer;
 var
-	ReturnValue		: string;
-	ReturnValueLength,i,k	: integer;
-	wert,dev		: byte;
-
+	i,k,wert	: Integer;
 begin
-	{ extract the device number as key to the device handle }
-	dev:=round(io_port/10);
-	{ extract the port }
-	io_port:=round(frac(io_port/10)*10);	{ will be ignored, currently just one port }
-
-	ReturnValue:=RunCommand(ReturnValueLength,RunCmd[dev]);	{ externes Programm ausführen }
-	ReturnValueLength:=length(ReturnValue);
 	i:=1;
 	k:=1;
 	wert:=0;
-	while i <= ReturnValueLength do begin				{ wert errechnen }
+	while i <= length(binval) do begin				{ wert errechnen }
 
 		if debug then writeln('exec_io_access exec_read_ports Loop: char_pointer=',i,' BinCalcPointer=',k,' Value=',wert);
  
-		case ReturnValue[i] of
+		case binval[i] of
 			'1' : 	begin			{ 1 speichern }
 					wert:=wert+power[k];
 					inc(k);
@@ -82,11 +71,30 @@ begin
 			'0' :	inc(k);			{ 0 merken }
 			' ' :	if debug then writeln('blank detected ');	{ blanks ignorieren }
 		else							{ fehlerhafter return wert }
-			if debug then writeln('exe_io_access ERROR: wrong return value ',ReturnValue,' from command ',RunCmd[dev]);
+			if debug then writeln('exec_io_access ERROR: wrong return value ',binval);
 		end;
 		inc(i);
 	end;
-	exec_read_ports:=wert;
+	BinToInt:=wert;
+end;
+
+
+
+function exec_read_ports(io_port:longint):byte;
+{ execute the program, the output must be in the form 'n n n n n n n n' with n=[1|0] }
+var
+	ReturnValue		: string;
+	dev			: byte;
+	dummy			: LongInt;
+
+begin
+	{ extract the device number as key to the device handle }
+	dev:=round(io_port/10);
+	{ extract the port }
+	io_port:=round(frac(io_port/10)*10);	{ will be ignored, currently just one port }
+
+	ReturnValue:=RunCommand(dummy,RunCmd[dev]);	{ externes Programm ausführen }
+	exec_read_ports:=BinToInt(ReturnValue);
 end;
 
 
