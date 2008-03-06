@@ -1,16 +1,16 @@
 unit PhysMach;
 
-{ (c) 2006 by Hartmut Eilers < hartmut@eilers.net					}
-{ distributed  under the terms of the GNU GPL V 2					}
-{ see http://www.gnu.org/licenses/gpl.html for details				}
+{ (c) 2006 by Hartmut Eilers < hartmut@eilers.net			}
+{ distributed  under the terms of the GNU GPL V 2			}
+{ see http://www.gnu.org/licenses/gpl.html for details			}
 
 { This unit builds a physical I/O Machine with the following		}
-{ features (see the max values below for the amounts ) :			}
-{ Digital In/Outputs, Digital Markers, Timers, Counters				}
+{ features (see the max values below for the amounts ) :		}
+{ Digital In/Outputs, Digital Markers, Timers, Counters			}
 { It is also an abstract layer to access the above mentioned		}
 { Resources. It supports different I/O Hardware ( see List of		}
 { imported units below.and is platform independant currently		}
-{ Linux and windows on PC Hardware is supported						}
+{ Linux and windows on PC Hardware is supported				}
 
 { $Id$S }
 
@@ -18,7 +18,7 @@ interface
 
 const
 	io_max			= 128;
-	group_max   		= round(io_max/8);
+	group_max		= round(io_max/8);
 	marker_max		= 255;
 	akku_max		= 16;
 	cnt_max			= 16;
@@ -88,7 +88,7 @@ var
 procedure PhysMachloadCfg(cfgFilename : string);
 var
 	f				: text;
-	zeile		   		: string[80];
+	zeile		   		: string[180];
 	initdevice			: char;
 	initstring			: string;
 	dir				: shortString;
@@ -379,7 +379,7 @@ begin
 				'J' 	: analog_in[x+1]:=joy_read_ports(a_address[x],x);
 				'B' 	: analog_in[x]:=bmcm_read_analog(a_address[x]);
 {$endif}
-				'H'	: analog_in[x+1]:=http_read_ports(a_address[x],x);
+				'H'	: analog_in[x+1]:=http_read_ports(a_address[x]);
 				'E'	: analog_in[x]:=exec_read_analog(a_address[x]);
 			end;
 		if (debugFlag) then writeln('Analog_in[',x+1,']=',analog_in[x+1]);
