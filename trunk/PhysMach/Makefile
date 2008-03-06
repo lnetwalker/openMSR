@@ -13,7 +13,7 @@ all: $(OBJECTS)
 
 # the physical Machine access layer
 physmach: 	
-	fpc -gl -Futest/libad4 -Fu../divLibs/pwu-1.6.0.2-src/main/ PhysMach.pas
+	/usr/bin/fpc -gl -Futest/libad4 -Fu../divLibs/pwu-1.6.0.2-src/main/ PhysMach.pas
 
 clear:
 	-rm PhysMach.ppu
