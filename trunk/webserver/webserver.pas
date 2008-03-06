@@ -138,6 +138,7 @@ var
 procedure writeLOG(MSG: string);
 begin
 	writeln(LOG,MSG);
+	flush(LOG);
 end;
 
 
@@ -225,11 +226,15 @@ end;
 
 
 procedure SendPage(myPage : AnsiString);
+var
+	i 		: byte;
+
 begin
 	PageSize:=length(myPage);
+	if status='' then status:='200 ok';
 
 	{ generate the header }
-	header:='HTTP/1.0 '+status+chr(10);
+	header:='HTTP/1.1 '+status+chr(10);
 	header:=header+'Connection: close'+chr(10);
 	header:=header+'MIME-Version: 1.0'+chr(10);
 	header:=header+'Server: PWS/alpha'+chr(10);
@@ -252,9 +257,18 @@ begin
 		str(BufCnt,blubber);
 		writeLOG('BufCnt='+blubber);
 		{ if I send the header and the page together }
-		{ firefox has a problem and display nothing }
-		writeln(sout,header);
-		writeln(sout,myPage);
+		{ firefox has a problem and displays nothing }
+		i:=0;
+		repeat
+			inc(i);
+		until (copy(post[i],1,10)='User-Agent');
+		if (copy(post[i],13,7)='Mozilla') then begin
+			writeln(sout,header);
+			writeln(sout,myPage);
+		end
+		else
+			writeln(sout,header+myPage+chr(10));
+
 		writeln(sout);
 
 		// Flushing output
