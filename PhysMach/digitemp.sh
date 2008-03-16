@@ -1,5 +1,5 @@
 #!/bin/bash
-
+echo "Testmessage"
 # this script is used to call digitemp and format the output
 # that can be used by PhysMach
 # (c) 2008 by Hartmut Eilers
