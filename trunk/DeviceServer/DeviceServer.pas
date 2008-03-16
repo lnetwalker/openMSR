@@ -8,6 +8,7 @@ uses PhysMach,webserver,cthreads,classes,crt;
 { It is distributed under the terms of the GNU GPL V2 see http://www.gnu.org 	}
 
 { 20.02.2008		Start of project					}
+{ 08.03.2008		changed to start one thread per device			}
 
 
 
@@ -16,7 +17,7 @@ const
 	MaxThreads=25;
 	BLOCKED=true;
 	NOTBLOCKED=false;
-	debug=true;
+	debug=false;
 	TimeOut=500;
 
 var
@@ -29,57 +30,31 @@ var
 	ByteValue	: Byte;
 	ProtectParams	: TRTLCriticalSection;
 	Power		: array [1..8] of byte =(1,2,4,8,16,32,64,128);
+	DeviceList	: DeviceTypeArray;
+	DeviceCnt,
+	NumOfThreads	: LongInt ;
 
 
 
-function DigitalWriter(p: pointer):LongInt;
+
+function DeviceHandler(p: pointer):LongInt;
+var 
+	MySelf		: LongInt;
+
 begin
-	writeln('started Digital Writer Thread..');
+	MySelf:=longint(p);
+	gotoxy(1,WhereY);
+	writeln('started Device Handler Thread..',MySelf);
 	repeat
-		PhysMachWriteDigital;
-		delay(50);
-	until shutdown=true;
-	writeln('Digital Writer going down..');
-
-end;
-
-
-function AnalogReader(p: Pointer):LongInt;
-begin
-	writeln('started Analog Reader Thread..');
-	repeat
-		PhysMachReadAnalog;
+		PhysMachIOByDevice(DeviceList[MySelf]);
 		delay(100);
 	until shutdown=true;
-	writeln('Analog Reader going down..');
+	gotoxy(1,WhereY);
+	writeln('Device Handler going down..',MySelf);
 end;
 
 
 
-function DigitalReader(p: pointer):LongInt;
-begin
-	writeln('started Digital Reader Thread..');
-	repeat
-		PhysMachReadDigital;
-		delay(90);
-	until shutdown=true;
-	writeln('Digital Reader going down..');
-end;
-
-
-
-function CounterReader(p: pointer):LongInt;
-begin
-	writeln('started Counter Reader Thread..');
-	repeat
-		PhysMachCounter;
-		delay(80);
-	until shutdown=true;
-	writeln('Counter Reader going down..');
-end;
-
-
-				{ Webserver Thread Sarts here }
 procedure embeddedWebReadParams;
 { handles any parameters in this case the prameter is always the io_group and maybe a byte_value }
 var 
@@ -207,10 +182,11 @@ function WebserverThread(p: Pointer):LongInt;
 { the real serving thread }
 
 begin
+	gotoxy(1,WhereY);
 	writeln('started Webserver Thread, going to start Server...');
 	{ start the webserver with IP, Port, Document Root and Logfile }
 	start_server('127.0.0.1',10080,BLOCKED,'./docroot/','./pwserver.log');
-	writeln;writeln('Webserver started, ready to serve');
+	gotoxy(1,WhereY);writeln('Webserver started, ready to serve');
 
 	{ register the variable handler }
 	SetupVariableHandler(@embeddedWebReadParams);
@@ -225,7 +201,7 @@ begin
 		delay(100);
 	until Shutdown=true;
 
-	writeln('Webserver going down..');
+	gotoxy(1,WhereY);writeln('Webserver going down..');
 	WebserverThread:=0;
 
 end;					{ Webserver Thread end }
@@ -237,39 +213,31 @@ begin					{ Main program }
 	PhysMachloadCfg('DeviceServer.cfg');
 	writeln('detected Hardware: ',HWPlatform);
 	PhysMachWriteDigital;
+	// get list of installed devices
+	DeviceList:=PhysMachGetDevices;
 
 	Counter:=0;
 	InitCriticalSection(ProtectParams);
 
-	// start threads
-	i:=1;
-	writeln('starting AnalogReader..');
-	ThreadName[i]:='AnalogReader';
-	//ThreadHandle[i]:=BeginThread(@AnalogReader,pointer(i));
+	// start threads for every configured device one thread
+	NumOfThreads:=1;
+	for DeviceCnt:=1 to DeviceTypeMax do begin
+		if DeviceList[DeviceCnt]<>'-' then begin
+			writeln('starting DeviceHandler for Device:',DeviceList[DeviceCnt]);
+			ThreadName[NumOfThreads]:='DeviceHandler '+DeviceList[DeviceCnt];
+			ThreadHandle[NumOfThreads]:=BeginThread(@DeviceHandler,pointer(NumOfThreads));
 
-	inc(i);
-	writeln('starting DigitalReader..');
-	ThreadName[i]:='DigitalReader';
-	ThreadHandle[i]:=BeginThread(@DigitalReader,pointer(i));
+			inc(NumOfThreads);
+		end;
+	end;
 
-	inc(i);
-	writeln('starting CounterReader..');
-	ThreadName[i]:='CounterReader';
-	//ThreadHandle[i]:=BeginThread(@CounterReader,pointer(i));
-
-	inc(i);
-	writeln('starting DigitalWriter..');
-	ThreadName[i]:='DigitalWriter';
-	ThreadHandle[i]:=BeginThread(@DigitalWriter,pointer(i));
-
-	inc(i);
 	writeln('Starting Webserver Thread...');
-	ThreadName[i]:='Webserver';
-	ThreadHandle[i]:=BeginThread(@WebserverThread,pointer(i));
+	ThreadName[NumOfThreads]:='Webserver';
+	ThreadHandle[NumOfThreads]:=BeginThread(@WebserverThread,pointer(NumOfThreads));
 
 	// fool around and wait for the end
 	repeat
-		delay(500);
+		delay(TimeOut);
 		repeat
 		until keypressed;
 	until readkey='e';
@@ -278,11 +246,9 @@ begin					{ Main program }
 	shutdown:=true;
 
 	// wait for threads to finish
-	//WaitForThreadTerminate(ThreadHandle[1],TimeOut);
-	WaitForThreadTerminate(ThreadHandle[2],TimeOut);
-	//WaitForThreadTerminate(ThreadHandle[3],TimeOut);
-	WaitForThreadTerminate(ThreadHandle[4],TimeOut);
-	WaitForThreadTerminate(ThreadHandle[5],TimeOut);
+
+	for i:=1 to NumOfThreads do
+		WaitForThreadTerminate(ThreadHandle[i],TimeOut);
 
 	DoneCriticalSection(ProtectParams);
 
