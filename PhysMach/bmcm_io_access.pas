@@ -70,7 +70,8 @@ begin
 	p:=@value;			{ let it show to value }
 	
 	{$ifndef ZAURUS }
-	repeat until not(DeviceInUse);
+	{ this is a real bad hack to protect the device accessed by more than one thread }
+	//repeat until not(DeviceInUse);
 	DeviceInUse:=true;
 	ad_digital_in(devices[dev],AD_CHA_TYPE_DIGITAL_IO or io_port+1,p);   { read the value }
 	if debug then writeln('BMCM read device: ',devices[dev],' Port: ',io_port+1,' value=',value);
@@ -101,7 +102,7 @@ begin
 	p:=@value;			{ let it show to value }
 	
 	{$ifndef ZAURUS }
-	repeat until not(DeviceInUse);
+	//repeat until not(DeviceInUse);
 	DeviceInUse:=true;
 	ad_discrete_in(devices[dev],AD_CHA_TYPE_ANALOG_IN or (io_port+1),0,p);   { read the value }
 	if debug then writeln('BMCM read analog device : ',devices[dev],' Port: ',io_port+1,' value=',value);
@@ -128,7 +129,7 @@ begin
 		writeln ('Write data to ',devices[dev],' port ',io_port+1,' Value=',byte_value,' ');
 
 	{$ifndef ZAURUS}
-	repeat until not(DeviceInUse);
+	//repeat until not(DeviceInUse);
 	DeviceInUse:=true;
 	ad_digital_out(devices[dev],AD_CHA_TYPE_DIGITAL_IO or io_port+1,byte_value);
 	DeviceInUse:=false;
@@ -183,7 +184,7 @@ begin
 	if (initdata[1]='usb-pio') then begin
 		{ setting line direction for port i $f means read, $0 means write for the bit }
 		for i:=1 to 3 do begin
-			val(initdata[i],direction);
+			val(initdata[i+2],direction);
 			{$ifndef ZAURUS}
 			if debug then writeln ('Setting Direction of ',devices[cnt],' Port ',i,' to ',direction);
 			ad_set_line_direction(devices[cnt],i,direction);
