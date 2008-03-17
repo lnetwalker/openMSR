@@ -1,10 +1,8 @@
-# make SPS for Linux
+# make PhysMach for Linux
 #
 # Copyright (c) 1999 by Hartmut Eilers
 # 
 # Just do a "make all", and, when you're finished, a make clean. 
-# to remake a part do "make sps" for the ide
-# and a "make run_sps" for the runtime modules
 
 OBJECTS=physmach
 
