@@ -188,7 +188,7 @@ begin
 			'J' 	: analog_in[IOGroup]:=joy_read_ports(a_address[IOGroup]);
 			'B' 	: analog_in[IOGroup]:=bmcm_read_analog(a_address[IOGroup]);
 {$endif}
-			'H'	: analog_in[IOGroup]:=http_read_ports(a_address[IOGroup]);
+			'H'	: analog_in[IOGroup]:=http_read_analog(a_address[IOGroup]);
 			'E'	: analog_in[IOGroup]:=exec_read_analog(a_address[IOGroup]);
 		end;
 	if (debugFlag) then writeln('Analog_in[',IOGroup,']=',analog_in[IOGroup]);
