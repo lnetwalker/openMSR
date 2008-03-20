@@ -1,6 +1,6 @@
 //{$Id$}
 
-{$H+}{$MODE OBJFPC}
+{$MODE OBJFPC}{$H+}
 unit webserver;
 
 { (c) 2006 by Hartmut Eilers < hartmut@eilers.net				}
