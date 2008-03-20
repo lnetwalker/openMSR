@@ -47,7 +47,6 @@ var
 	devices		: array[1..bmcm_max] of longint;	{ array with the device handles }
 	cnt		: byte;					{ the counter for the divces }
 	p 		: PCardinal;				{ pointer to that value }
-	DeviceInUse	: Boolean;
 
 
 function bmcm_read_ports(io_port:longint):byte;
@@ -72,10 +71,8 @@ begin
 	{$ifndef ZAURUS }
 	{ this is a real bad hack to protect the device accessed by more than one thread }
 	//repeat until not(DeviceInUse);
-	DeviceInUse:=true;
 	ad_digital_in(devices[dev],AD_CHA_TYPE_DIGITAL_IO or io_port+1,p);   { read the value }
 	if debug then writeln('BMCM read device: ',devices[dev],' Port: ',io_port+1,' value=',value);
-	DeviceInUse:=false;
 	{$endif}
 
 	bmcm_read_ports:=value;
@@ -103,10 +100,8 @@ begin
 	
 	{$ifndef ZAURUS }
 	//repeat until not(DeviceInUse);
-	DeviceInUse:=true;
 	ad_discrete_in(devices[dev],AD_CHA_TYPE_ANALOG_IN or (io_port+1),0,p);   { read the value }
 	if debug then writeln('BMCM read analog device : ',devices[dev],' Port: ',io_port+1,' value=',value);
-	DeviceInUse:=false;
 	{$endif}
 
 	bmcm_read_analog:=value;
@@ -130,9 +125,7 @@ begin
 
 	{$ifndef ZAURUS}
 	//repeat until not(DeviceInUse);
-	DeviceInUse:=true;
 	ad_digital_out(devices[dev],AD_CHA_TYPE_DIGITAL_IO or io_port+1,byte_value);
-	DeviceInUse:=false;
 	{$endif}
 
 end;
@@ -199,7 +192,6 @@ end;
 
 begin
 	new (p);			{ generate pointer }
-	DeviceInUse:=false;
 	{ reset the device counter to ensure that device handles are stored correctly }
 	cnt:=0;
 end.
