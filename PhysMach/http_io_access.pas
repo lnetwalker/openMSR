@@ -16,8 +16,8 @@ INTERFACE
 
 
 function http_read_ports(io_port:longint):byte;
-//function http_read_ports(io_port:longint;byte_value:byte):integer;
 function http_write_ports(io_port:longint;byte_value:byte):byte;
+function http_read_analog(io_port:longint):Cardinal;
 function http_hwinit(initdata:string):boolean;
 
 implementation
@@ -31,18 +31,23 @@ const
 	debug		= false;
 
 var
-	R_URL,W_URL		: string;
-
+	R_URL,W_URL		: array[1..4] of String;
+	cnt			: byte;
 	
 function http_read_ports(io_port:longint):byte;
 
 var	
 	TmpVal,TmpStrg	: string;
+	dev		: byte;
 	
 
 begin
+	{ extract the device number as key to the device handle }
+	dev:=round(io_port/10);
+	{ extract the port }
+	io_port:=round(frac(io_port/10)*10);
 	str(io_port,TmpStrg);
-	TmpStrg:=R_URL+TmpStrg;
+	TmpStrg:=R_URL[dev]+TmpStrg;
 	{$ifndef ZAURUS}
 	TmpVal:=deHTML(HttpGet(TmpStrg));
 	{$endif}
@@ -50,38 +55,73 @@ begin
 	http_read_ports:=BinToInt(TmpVal);
 end;
 
-{
-function http_read_ports(io_port:longint;byte_value:byte):integer;
-var	
-	TmpVal,TmpStrg	: string;
-
-begin
-	str(io_port,TmpStrg);
-	TmpStrg:=R_URL+TmpStrg;
-}	{$ifndef ZAURUS}
-{	TmpVal:=HttpGet(TmpStrg);
-}	{$endif}
-{	if debug then writeln('http_read_ports(',TmpStrg,') returned ',TmpVal);
-	val(TmpVal,http_read_ports);	
-end;
-}
 
 	
 function http_write_ports(io_port:longint;byte_value:byte):byte;	
 
 var	
 	TmpVal,TmpStrg,Params	: string;
+	dev			: byte;
 
 begin
 	{ Params= Ioport,byte_value }
+	{ extract the device number as key to the device handle }
+	dev:=round(io_port/10);
+	{ extract the port }
+	io_port:=round(frac(io_port/10)*10);
 	str(io_port,TmpStrg);
 	Params:=TmpStrg+',';
 	str(byte_value,TmpStrg);
 	Params:=Params+TmpStrg;
 	{$ifndef ZAURUS}
-	TmpVal:=HttpGet(W_URL+Params);
+	TmpVal:=HttpGet(W_URL[dev]+Params);
 	{$endif}
 	val(TmpVal,http_write_ports);	
+end;
+
+
+function http_read_analog(io_port:longint):Cardinal;
+var
+	ReturnValue,TmpStrg		: string;
+	ReturnArray			: array[1..8] of string;
+	ReturnValueLength,i,k		: integer;
+	wert				: Cardinal;
+	dev				: byte;
+	cmd				: AnsiString;
+
+begin
+	if debug then writeln('http_io_access io_port=',io_port);
+	{ extract the device number as key to the device handle }
+	dev:=round(io_port/10);
+	{ extract the port }
+	io_port:=round(frac(io_port/10)*10);
+
+	str(io_port,TmpStrg);
+	TmpStrg:=R_URL[dev]+TmpStrg;
+	{$ifndef ZAURUS}
+	ReturnValue:=deHTML(HttpGet(TmpStrg));
+	{$endif}
+	if debug then writeln('http_read_analog(',TmpStrg,') returned ',ReturnValue);
+	ReturnValueLength:=length(ReturnValue);
+	if debug then writeln('http_io_access read device port: ',io_port,' ReturnValue : ',ReturnValue,' length ',ReturnValueLength);
+
+
+	i:=1;			{ marker for positions }
+	k:=1;			{ counter for the values }
+	wert:=0;
+	repeat			{ übergehe alle werte bis zum gewünschten }
+		// remove leadin blank
+		if ReturnValue[1]=' ' then ReturnValue:=copy(ReturnValue,2,length(ReturnValue));
+		i:=pos(' ',ReturnValue);
+		if (i=0) then ReturnArray[k]:=copy(ReturnValue,1,length(ReturnValue))
+		else          ReturnArray[k]:=copy(ReturnValue,1,i-1);
+		ReturnValue:=copy(ReturnValue,i+1,length(ReturnValue));
+		if debug then writeln('ReturnValue=',ReturnValue,' ReturnArray[',k,']=',ReturnArray[k]);
+		inc(k);
+	until (k>io_port);// or (i>ReturnValueLength);
+	val(ReturnArray[io_port],wert);
+	http_read_analog:=wert;
+
 end;
 
 
@@ -90,12 +130,14 @@ var
 	delim : integer;
 
 begin
+	inc(cnt);
 	delim:=pos('§',initdata);
-	R_URL:=copy(initdata,1,delim-1);
-	W_URL:=copy(initdata,delim+2,length(initdata)-1-delim-2);
-	if debug then writeln('http_hwinit: R_URL=',R_URL,' W_URL=',W_URL);
+	R_URL[cnt]:=copy(initdata,1,delim-1);
+	W_URL[cnt]:=copy(initdata,delim+1,length(initdata)-1);
+	if debug then writeln('http_hwinit: R_URL=',R_URL[cnt],' W_URL=',W_URL[cnt]);
 end;
 
 
 begin
+	cnt:=0;
 end.
