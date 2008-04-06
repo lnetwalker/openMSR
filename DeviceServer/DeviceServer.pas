@@ -177,7 +177,6 @@ var
 	Trenner		: Byte;
 
 begin
-	EnterCriticalSection(ProtectParams);
 	Url:=GetURL;
 
 	{ Fragezeichen Abschneiden }
@@ -193,7 +192,7 @@ begin
 		val(copy(Params,Trenner+1,Length(Params)-Trenner),ByteValue);
 	end;
 
-	LeaveCriticalSection(ProtectParams);
+
 
 	if debug then begin
 		writeln('embeddedWeb:> Got Parameters');
@@ -314,7 +313,9 @@ begin
 	SetupSpecialURL('/digital/write.html',@SaveDigitalValues);
 
 	repeat
+		EnterCriticalSection(ProtectParams);
 		serve_request;
+		LeaveCriticalSection(ProtectParams);
 		delay(100);
 		inc(ThreadCnt[MySelf]);
 	until Shutdown=true;
