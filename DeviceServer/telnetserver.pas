@@ -167,6 +167,7 @@ end;
 
 
 begin
+	InterpreterProc:=nil;
 	// setup signal handler for quit
 	new(na);
 	new(oa);
