@@ -11,7 +11,7 @@ all: $(OBJECTS)
 
 # the datalogger runtime module	
 datalogger:	datalogger.pas
-	fpc -gl -Fu../gtk+/qgtk2.pas-0.9 -Fu../PhysMach datalogger 
+	/usr/local/bin/fpc -gl -Fu../divLibs/pwu-1.6.0.2-src/main/ -Fu../gtk+/qgtk2.pas-0.9 -Fu../PhysMach datalogger 
 
 clear: 
 	-rm datalogger
