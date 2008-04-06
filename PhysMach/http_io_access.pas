@@ -76,6 +76,7 @@ begin
 	{$ifndef ZAURUS}
 	TmpVal:=HttpGet(W_URL[dev]+Params);
 	{$endif}
+	if debug then writeln('http_write_ports: URL=',W_URL[dev]+Params);
 	val(TmpVal,http_write_ports);	
 end;
 
@@ -133,7 +134,9 @@ begin
 	inc(cnt);
 	delim:=pos('§',initdata);
 	R_URL[cnt]:=copy(initdata,1,delim-1);
-	W_URL[cnt]:=copy(initdata,delim+1,length(initdata)-1);
+	initdata:=copy(initdata,delim+2,length(initdata)-2);
+	delim:=pos('§',initdata);
+	W_URL[cnt]:=copy(initdata,1,delim-1);
 	if debug then writeln('http_hwinit: R_URL=',R_URL[cnt],' W_URL=',W_URL[cnt]);
 end;
 
