@@ -66,7 +66,7 @@ var
 
 	// Listening socket
 	{$ifdef LINUX }
-		sock		: longint;
+		sock,csock	: longint;
 	{$else}
 		sock		: TSocket;
 		ConnSock	: TSocket;
@@ -82,7 +82,9 @@ var
 		srv_addr	: TInetSockAddr;
 		cli_addr	: TInetSockAddr;
 		// Conncected socket i/o
-		sin, sout	: text;
+		sin, sout,			// Descriptors for listening port
+		ccsin,ccsout	: text;		// Descriptors for client communication dynamic ports
+		Addr_len	: LongInt;
 	{$else}
 		srv_addr	: TSockAddr;
 		cli_addr	: TSockAddr;	
@@ -237,7 +239,7 @@ begin
 	header:='HTTP/1.1 '+status+chr(10);
 	header:=header+'Connection: close'+chr(10);
 	header:=header+'MIME-Version: 1.0'+chr(10);
-	header:=header+'Server: PWS/alpha'+chr(10);
+	header:=header+'Server: bonita'+chr(10);
 	{ currently the mimetype of an object is always text/html }
 	header:=header+CType;
 	header:=header+'Content-length: ';
@@ -263,20 +265,17 @@ begin
 			inc(i);
 		until (copy(post[i],1,10)='User-Agent');
 		if (copy(post[i],13,7)='Mozilla') then begin
-			writeln(sout,header);
-			writeln(sout,myPage);
+			writeln(ccsout,header);
+			writeln(ccsout,myPage);
 		end
 		else
-			writeln(sout,header+myPage+chr(10));
+			writeln(ccsout,header+myPage);
 
-		writeln(sout);
+		writeln(ccsout);
 
 		// Flushing output
-		flush(sout);
+		flush(ccsout);
 
-		// Closing connected socket
-		close(sin);
-		close(sout);
 	{$else}
 		{ note chr(10) is newline }
 		{ build the string that should be send }
@@ -296,19 +295,6 @@ procedure process_request;
 var Paramstart,i	: word;
 
 begin
-	writeLOG('reading request....');
-	// Reading whole request -> accept on socket, then read requested data
-
-	writeLOG('accept connection');
-	{$ifdef LINUX}
-		if not accept(sock, cli_addr, sin, sout) then writeLOG('!! Connection error in accept().');
-	{$else}
-		addr_len:=SizeOf(cli_addr);
-		ConnSock:=accept(sock, @cli_addr,@addr_len);
-		if ( ConnSock=INVALID_SOCKET) then
-			writeLOG('accept failed');
-	{$endif}
-
 	reqSize:=0;
 	writeLOG('reading request data');
 	repeat
@@ -316,7 +302,7 @@ begin
 		{ because it is possible that some amount of time  }
 		{ is between the connect and the request           }
 		{$ifdef LINUX}
-			readln(sin, buff);
+			readln(ccsin, buff);
 			str(BufCnt,blubber);
 			writeLOG('Req['+blubber+']='+buff);
 			post[BufCnt] := buff;
@@ -370,8 +356,12 @@ begin
 	i:=0;
 	repeat
 		inc(i);
-		if (URL=SpecialURL[i]) then 
+		if (URL=SpecialURL[i]) then begin
+			status:='200 OK';
+			str(i,blubber);
+			writeLOG('special URL['+blubber+'] detected: '+URL);
 			if ServingRoutine[i] <> nil then ServingRoutine[i];
+		end;
 	until (i=MaxUrl) or (URL=SpecialURL[i]);
 	if not(URL=SpecialURL[i]) then begin
 		URL:=DocRoot+URL;			// add current dir as Document root
@@ -408,17 +398,39 @@ procedure serve_request;
 begin
 	// Main loop accepting client connections
 	// Opening socket descriptors
+	// Reading whole request -> accept on socket, then read requested data
+
+	writeLOG('accept connection');
+	{$ifdef LINUX}
+	{$else}
+	{$endif}
+
+
+
 	{$ifdef LINUX}
 		Sock2Text(sock,sin,sout);
 		reset(sin);
 		rewrite(sout);
-	{$else}
-	
-	{$endif}
 
+		if debug then WriteLOG('Reading requests...');
+		if (SelectText(sin,10000)>0) then begin
+			Addr_len:=SizeOf(cli_addr);
+			csock:=accept(sock, cli_addr,Addr_len);
+			Sock2Text(csock,ccsin,ccsout);
+			reset(ccsin);
+			rewrite(ccsout);
+			process_request;
+			close(ccsin);
+			close(ccsout);
+			CloseSocket(csock);
+		end;
+		if debug then WriteLOG('Reading requests...done');
 
-	{$ifdef LINUX}
-		if (SelectText(sin,10000)>0) then process_request;
+		// Closing connected socket descriptors
+		if debug then WriteLOG('trying to close socket descriptors');
+		close(sin);
+		close(sout);
+		if debug then WriteLOG('closeing socket descriptors done');
 	{$else}
 		fd_zero(FDRead);
 		fd_set(sock,FDRead);
@@ -427,7 +439,13 @@ begin
 		TimeVal.tv_usec:=0;
 		Result:=Select(0, @FDRead, nil, nil, @TimeVal);
 		if Result = SOCKET_ERROR then writeLOG('ERROR='+WSAGetLastError);
-		if (Result > 0) then process_request;
+		if (Result > 0) then begin
+			addr_len:=SizeOf(cli_addr);
+			ConnSock:=accept(sock, @cli_addr,@addr_len);
+			if ( ConnSock=INVALID_SOCKET) then
+				writeLOG('accept failed');
+			process_request;
+		end;
 	{$endif}
 end;
 
