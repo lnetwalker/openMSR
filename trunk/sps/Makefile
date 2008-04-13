@@ -17,7 +17,7 @@ sps: 	sps.pas edit.pas fileserv.pas info.pas popmenu.pas run_awl.pas sps.h awl_i
 
 # the SPS runtime module	
 run_sps:	run_sps.pas awl_interpreter.pas run_awl.h
-		/usr/bin/fpc -gl -Fu../PhysMach run_sps.pas
+		/usr/bin/fpc -gl -Fu../PhysMach -Fu../PhysMach/test/libad4 -Fu../divLibs/pwu-1.6.0.2-src/main/ run_sps.pas
 
 clear:
 	-rm run_sps
