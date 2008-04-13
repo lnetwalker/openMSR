@@ -20,7 +20,7 @@ begin
 	writeln('TestCase1,  test telnetserver unit');
 	writeln('(c) by Hartmut Eilers, 2008 - released under the GPL V2 or above');
 	writeln;
-	TelnetInit('./telnet.log');
+	TelnetInit(45055,'./telnet.log');
 	TelnetSetupInterpreter(@interpreter);
 	TelnetServeRequest('Telnet TestServer'+chr(10)+'>');
 
