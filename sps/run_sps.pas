@@ -159,9 +159,11 @@ begin                              { SPS_SIMULATION           }
 		writeln (' Configured counter ports :');
 		for i:=1 to group_max do writeln(i:3,c_address[i]:6,c_devicetype[i]:6);
 	end;	
+	TimeRuns:=150;
 	writeln('AWL gestartet');
 	repeat
-		run_awl
+		run_awl;
+		delay(15);
 	until keypressed or esc;	
 	if esc then writeln('Error: Watchdog error...!');	
 end.                               { **** SPS_SIMULATION **** }
