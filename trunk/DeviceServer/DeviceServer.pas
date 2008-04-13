@@ -128,7 +128,8 @@ begin
 					TelnetWriteAnswer(ThreadName[i]+'  '+StrVal+chr(10));
 				end;
 				TelnetWriteAnswer(chr(10)+'>');
-			end;
+			end
+		else TelnetWriteAnswer('?'+chr(10)+'>');
 	end;
 
 end;
@@ -141,11 +142,11 @@ var
 begin
 	MySelf:=longint(p);
 	writeln('started Telnet Thread..',MySelf);
-	TelnetInit('./telnet.log');
+	TelnetInit(0,'./telnet.log');
 	TelnetSetupInterpreter(@interpreter);
 	repeat
 		TelnetServeRequest('Welcome to Device Server Monitor'+chr(10)+'>');	
-		delay(100);
+		//delay(100);
 		inc(ThreadCnt[MySelf]);
 	until shutdown=true;
 	writeln('Telnet Handler going down..',MySelf);
@@ -162,7 +163,7 @@ begin
 	repeat
 		if debug then writeln('call PhysMachIOByDevice(DeviceList[MySelf])=',DeviceList[MySelf],' MySelf=',MySelf);
 		PhysMachIOByDevice(DeviceList[MySelf]);
-		delay(100);
+		//delay(100);
 		inc(ThreadCnt[MySelf]);
 	until shutdown=true;
 	writeln('Device Handler going down..',MySelf);
@@ -301,7 +302,7 @@ begin
 	MySelf:=longint(p);
 	writeln('started Webserver Thread, going to start Server...');
 	{ start the webserver with IP, Port, Document Root and Logfile }
-	start_server('127.0.0.1',10080,BLOCKED,'./docroot/','./pwserver.log');
+	start_server('',10080,BLOCKED,'./docroot/','./pwserver.log');
 	writeln('Webserver started, ready to serve');
 
 	{ register the variable handler }
@@ -316,13 +317,13 @@ begin
 		EnterCriticalSection(ProtectParams);
 		serve_request;
 		LeaveCriticalSection(ProtectParams);
-		delay(100);
+		//delay(100);
 		inc(ThreadCnt[MySelf]);
 	until Shutdown=true;
 
 	writeln('Webserver going down..');
 	WebserverThread:=0;
-
+	TelnetShutDown;
 end;					{ Webserver Thread end }
 
 
@@ -364,8 +365,8 @@ begin					{ Main program }
 
 	// fool around and wait for the end
 	repeat
-		delay(TimeOut);
 		repeat
+			delay(10*TimeOut);
 		until keypressed;
 	until readkey='e';
 
