@@ -11,6 +11,10 @@ program oszi;
 
 uses qgtk2,PhysMach;
 
+const
+	debug=false;
+
+
 var 
 	i,
 	xmitte,ymitte,
@@ -37,7 +41,9 @@ var
 
 	Farbe			: Array [1..8] of LongInt = (qRed,qAqua,qBlue,qYellow,qPurple,qWhite,qBrown,qGray);
 
-	YcMax,Yrmax		: LongInt;
+	YcMax			: LongInt;
+
+	Yrmax			: Array [1..analog_max] of Cardinal;
 
 
 procedure oncreate;
@@ -69,19 +75,19 @@ var
 begin
 	{ read a new value and normalize it to this coordinate system }
 	PhysMachReadAnalog;
-	writeln('analog_in[',value,']=',analog_in[value]);
+	if debug then writeln('analog_in[',value,']=',analog_in[value]);
 	// see CoordinateTransformation.txt
 	//       Yr + Yrmax
 	//yc = -------------- *  Ycmax 
 	//         2*Yrmax
-	Yc:=((analog_in[value]+Yrmax)/(2*Yrmax))*maxy;
-	writeln('Yc[',value,']=',Yc);
+	//Yc:=((analog_in[value]+Yrmax[value])/(2*Yrmax))*maxy;
+	//writeln('Yc[',value,']=',Yc);
 	//     (Yc-Ycmax)*-1
 	//Yc'=---------------*Yc'max
 	//     	Ycmax
-	yc:=analog_in[value];
-	Yc2:=round((Yc-Yrmax)*-1/(Yrmax)*maxy);
-	writeln('Yc2[',value,']=',Yc2);
+	Yc:=analog_in[value];
+	Yc2:=round((Yc-Yrmax[value])*-1/(Yrmax[value])*maxy);
+	if debug then writeln('Yc2[',value,']=',Yc2);
 	GetNewValue:=Yc2;
 	//GetNewValue:=round(sin(value)*(maxy/4))+ymitte;
 end;
@@ -148,13 +154,16 @@ end;
 
 
 begin
-	NoOfInputs:=2;
+	NoOfInputs:=4;
 	Raster:= 40;
 	maxx:=480;
 	maxy:=480;
 	PixelPerTimeBase:=20;
-	Timer:=100;
-	Yrmax:=2147483647;
+	Timer:=250;
+	Yrmax[1]:=4294967294;
+	Yrmax[2]:=4294967294;
+	Yrmax[3]:=10000;
+	Yrmax[4]:=10000;
 
 
 	xmitte:=round(int(maxx/2));
