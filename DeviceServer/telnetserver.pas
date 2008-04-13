@@ -17,18 +17,18 @@ unit telnetserver;
 interface
 
 Procedure TelnetSetupInterpreter(proc : tprocedure);
-procedure TelnetInit(logfile:String);
+procedure TelnetInit(LPort: Word;logfile:String);
 procedure TelnetServeRequest(WelcomeMSG : String);
 Procedure TelnetWriteAnswer(Line : String);
 function  TelnetGetData:String;
+procedure TelnetShutDown;
 
 
 implementation
 
-uses sockets,BaseUnix;
+uses crt,sockets,BaseUnix,Unix;
 
 const
-	ListenPort 		: Word = $AFFE;			// decimal 45054
 	MaxConn 		= 1;
 	Size_InetSockAddr	: longint = sizeof(TInetSockAddr);
 
@@ -39,9 +39,9 @@ var
 	sin, sout 		: Text;
 	LOG			: Text;
 	InterpreterProc		: tprocedure;
-	ShutdownProc		: Boolean;
-	oa,na 			: PSigActionRec;
 	NumStr			: String;
+	ListenPort 		: Word ;
+	ShutDownProc		: Boolean;
 
 
 
@@ -85,16 +85,6 @@ begin
 end;
 
 
-Procedure DoSig(sig : Longint);cdecl;
-
-begin
-	str(sig,NumStr);
-	writeLOG('Receiving signal: '+NumStr);
-	Line:='close';
-	ShutdownProc:=true;
-end;
-
-
 Procedure TelnetSetupInterpreter(proc : tprocedure);
 begin
 	if proc <> nil then InterpreterProc:=proc;
@@ -102,8 +92,9 @@ begin
 end;
 
 
-procedure TelnetInit(logfile:String);
+procedure TelnetInit(LPort: Word;logfile:String);
 begin
+	ShutDownProc:=false;
 	// open logfile
 	assign(LOG,logfile);
 	rewrite(LOG);
@@ -111,12 +102,14 @@ begin
 	lSock := Socket(af_inet, sock_stream, 0);
 	if lSock = -1 then Error(1,'Socket error: ',socketerror);
 	
+	if LPort=0 then LPort:=ListenPort;
+
 	with sAddr do begin
 		Family := af_inet;
-		Port := htons(ListenPort);
+		Port := htons(LPort);
 		Addr := 0;
 	end;
-	
+
 	if not Bind(lSock, sAddr, sizeof(sAddr)) then Error(1,'Bind error: ',socketerror);
 	if not Listen(lSock, MaxConn) then Error(1,'Listen error: ',socketerror);
 
@@ -127,30 +120,35 @@ procedure TelnetServeRequest(WelcomeMSG : String);
 
 
 begin
-	shutdownProc:=false;
-	repeat
-		writeLOG('Waiting for connections...');
-		uSock := Accept(lSock, sAddr, Size_InetSockAddr);
-		if uSock = -1 then Error(1,'Accept error: ',socketerror);
-		writeLOG('Accepted connection from ' + AddrToStr(sAddr.Addr));
+	writeLOG('Waiting for connections...');
+	uSock := Accept(lSock, sAddr, Size_InetSockAddr);
 
-		Sock2Text(uSock, sin, sout);
+	if uSock = -1 then Error(1,'Telnet Accept error: ',socketerror);
+	// set NonBlocking IO
+	{$ifdef LINUX}
+		FpFcntl(usock,F_SetFd,MSG_DONTWAIT);
+	{$endif}
+
+	writeLOG('Accepted connection from ' + AddrToStr(sAddr.Addr));
+	Sock2Text(uSock, sin, sout);
 	
-		Reset(sin);
-		Rewrite(sout);
-		Write(sout, WelcomeMSG);
-		while not eof(sin) do begin
+	Reset(sin);
+	Rewrite(sout);
+	Write(sout, WelcomeMSG);
+	repeat
+		if SelectText(sin,10000)>0 then begin
 			Readln(sin, Line);
 			writeLOG('Heard: '+line);
 			if Line = 'close' then break;
 			if InterpreterProc <> nil then InterpreterProc;
 		end;
-	
-		Close(sin);
-		Close(sout);
-		Shutdown(uSock, 2);
-		writeLOG('Connection closed.');
-	until ShutdownProc;
+		if ShutDownProc then break;
+	until length(Line)<0;
+
+	Close(sin);
+	Close(sout);
+	Shutdown(uSock, 2);
+	writeLOG('Connection closed.');
 end;
 
 
@@ -166,20 +164,16 @@ begin
 end;
 
 
+procedure TelnetShutDown;
+begin
+	ShutDownProc:=true;
+	delay(500);
+	Shutdown(lsock,2);
+	Shutdown(usock,2);
+end;
+
+
 begin
 	InterpreterProc:=nil;
-	// setup signal handler for quit
-	new(na);
-	new(oa);
-	na^.sa_Handler:=SigActionHandler(@DoSig);
-	fillchar(na^.Sa_Mask,sizeof(na^.sa_mask),#0);
-	na^.Sa_Flags:=0;
-	{$ifdef Linux}               // Linux specific
-		na^.Sa_Restorer:=Nil;
-	{$endif}
-	IF FPSigAction(SIGTERM,na,oa) <> 0 then begin;
-		str(fpgeterrno,NumStr);
-		writeLOG('Error: '+NumStr);
-		halt(1);
-	end;
+	ListenPort:= $AFFE;			// decimal 45054
 end.
