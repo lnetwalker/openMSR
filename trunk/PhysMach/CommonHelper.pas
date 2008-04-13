@@ -23,7 +23,7 @@ const
 
 
 function RunCommand(Command: Ansistring):String;
-{ execute external command and capture output of command }
+{ execute external command and capture last line of output of command }
 var
 	fin,fout 	: text;
 	S		: AnsiString;
@@ -37,7 +37,7 @@ begin
 		writeln ('error from POpen : errno : ', fpgeterrno);
 
 	
-	while not eof (fin) do 
+	while not eof (fin) do 			// only read the last line
 		readln (fin,S);
 
 
@@ -46,11 +46,13 @@ begin
 
 	if debug then writeln('S=',S);
 
-	RunCommand := S;
+	RunCommand:=S;
 end;
 
 
 function BinToInt(binval:string):Integer;
+{ converts a string with 8 Binary values to the appropriate integer }
+{ LSB first, MSB last }
 
 var
 	i,k,wert	: Integer;
