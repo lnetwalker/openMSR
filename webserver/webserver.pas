@@ -59,7 +59,7 @@ implementation
 	
 const 
 	LocalAddress = '127.0.0.1';
-	debug = true;
+	debug = false;
 	MaxUrl = 25;
 	
 var
@@ -127,8 +127,8 @@ var
 	// Request size
 	reqSize,reqCnt		: word;
 
-	// LOG-File
-	LOG			: text;
+	// LOG-Files
+	DBG,ERR,ACC		: text;
 
 	ServingRoutine		: array[1..MaxUrl] of tprocedure;
 	VariableHandler		: tprocedure;
@@ -139,24 +139,30 @@ var
 
 procedure writeLOG(MSG: string);
 begin
-	writeln(LOG,MSG);
-	flush(LOG);
+	writeln(DBG,MSG);
+	flush(DBG);
 end;
 
+
+procedure errorLOG(MSG: string);
+begin
+	writeln(ERR,MSG);
+	flush(ERR);
+end;
 
 procedure SetupSpecialURL(URL:string;proc : tprocedure);
 begin
 	if proc <> nil then ServingRoutine[UrlPointer]:=proc;
 	if URL <> '' then SpecialURL[UrlPointer]:=URL;
 	inc(UrlPointer);
-	writeLOG('registered special URL'+URL);
+	if debug then writeLOG('registered special URL'+URL);
 end;
 	
 
 procedure SetupVariableHandler(proc : tprocedure);
 begin
 	if proc <> nil then VariableHandler:=proc;
-	writeLOG('registered Variable Handler');
+	if debug then writeLOG('registered Variable Handler');
 end;
 
 
@@ -164,29 +170,31 @@ procedure start_server(address:string;port:word;BlockMode: Boolean;doc_root,logf
 
 begin
 	// open logfile
-	assign(LOG,logfile);
-	rewrite(LOG);
+	assign(ACC,logfile);
+	rewrite(ACC);
 
 	{ Initialization}
-	writeLOG('PWS Pascal Web Server - starting server...');
+	if debug then writeLOG('PWS Pascal Web Server - starting server...');
 	if (port=0) then port:=10080;
-	if (address='') then address:=LocalAddress;
+	//if (address='') then address:=LocalAddress;
 	str(port,blubber);
-	writeLOG('using port='+blubber+' address='+address);
+	if debug then writeLOG('using port='+blubber+' address='+address);
 	DocRoot:=doc_root;
 	BufCnt:=1;
 	reqCnt:=0;
 	max_connections := 5;
 	{$ifdef LINUX}
 		srv_addr.family := AF_INET;
-		srv_addr.port := htons(port);	 
-		srv_addr.addr := StrToAddr(address);
+		srv_addr.port := htons(port);
+		if (address='') then srv_addr.addr :=0 
+		else srv_addr.addr := StrToAddr(address);
 	{$else}
 		srv_addr.sin_family := AF_INET;
 		srv_addr.sin_port := htons(port);
-		srv_addr.sin_addr.S_addr := StrToAddr(Address);
+		if (address='') then srv_addr.addr :=0 
+		else srv_addr.sin_addr.S_addr := StrToAddr(Address);
         { Inititialize WINSOCK }
-		if WSAStartup($101, GInitData) <> 0 then writeLOG('Error init Winsock');
+		if WSAStartup($101, GInitData) <> 0 then errorLOG('Error init Winsock');
 	{$endif}
 	
 	{ Create socket }
@@ -199,30 +207,30 @@ begin
 		{$else}
 			NON_BLOCK:=1;
 			Result:=ioctlsocket(sock,FIONBIO,@NON_BLOCK);
-			if ( Result=SOCKET_ERROR ) then writeLOG('setting NON_BLOCK failed :(');
+			if ( Result=SOCKET_ERROR ) then errorLOG('setting NON_BLOCK failed :(');
 		{$endif}
 	end;
 
 	// Binding the server
-	writeLOG('Binding port..');
+	if debug then writeLOG('Binding port..');
 	{$ifdef LINUX}
 		if not bind(sock, srv_addr, sizeof(srv_addr)) then begin
-			writeLOG('!! Error in bind().');
+			errorLOG('!! Error in bind().');
 			halt;
 		end;
 	{$else}
 		if (bind(sock, srv_addr, SizeOf(srv_addr)) <> 0) then  begin
-			writeLOG('!! Error in bind');
+			errorLOG('!! Error in bind');
 			halt;
 		end;
 	{$endif}
 	
 	// Listening on port
-	writeLOG('listen..');
+	if debug then writeLOG('listen..');
 	{$ifdef LINUX}
 		fplisten(sock, max_connections);
 	{$else}
-		if (listen(sock, max_connections) = SOCKET_ERROR) then writeLOG('listen() failed with error '+ WSAGetLastError());
+		if (listen(sock, max_connections) = SOCKET_ERROR) then errorLOG('listen() failed with error '+ WSAGetLastError());
 	{$endif}
 end;
 
@@ -249,15 +257,17 @@ begin
 	header:=header+TRespSize;
 	header:=header+chr(10);
 	str(PageSize,blubber);
-	writeLOG('DocSize: '+blubber);
-	writeLOG('Header: '+header);
-	writeLOG('/Header');
+	if debug then begin
+		writeLOG('DocSize: '+blubber);
+		writeLOG('Header: '+header);
+		writeLOG('/Header');
 
 	// Sending response
 	writeLOG('serving data...');
+	end;
 	{$ifdef LINUX}
 		str(BufCnt,blubber);
-		writeLOG('BufCnt='+blubber);
+		if debug then writeLOG('BufCnt='+blubber);
 		{ if I send the header and the page together }
 		{ firefox has a problem and displays nothing }
 		i:=0;
@@ -282,12 +292,12 @@ begin
 		sendString:=header+myPage;
 		{ copy string to send into the send buffer }
 		for i:=1 to length(sendString) do FCharBuf[i]:=sendString[i];
-		writeLOG('respSize: '+length(sendString));
+		if debug then writeLOG('respSize: '+length(sendString));
 		Result:=send(ConnSock,@FCharBuf[1],length(sendString),0);
-		if ( Result=SOCKET_ERROR ) then writeLOG('send Data failed :(');
+		if ( Result=SOCKET_ERROR ) then errorLOG('send Data failed :(');
 		Shutdown(ConnSock, 2);
 	{$endif}
-	writeLOG('finished request..., connection closed');
+	if debug then writeLOG('finished request..., connection closed');
 	BufCnt:=1;
 end;
 
@@ -296,7 +306,7 @@ var Paramstart,i	: word;
 
 begin
 	reqSize:=0;
-	writeLOG('reading request data');
+	if debug then writeLOG('reading request data');
 	repeat
 		{ actually we should switch to blocking mode here, }
 		{ because it is possible that some amount of time  }
@@ -304,19 +314,19 @@ begin
 		{$ifdef LINUX}
 			readln(ccsin, buff);
 			str(BufCnt,blubber);
-			writeLOG('Req['+blubber+']='+buff);
+			if debug then writeLOG('Req['+blubber+']='+buff);
 			post[BufCnt] := buff;
 			reqSize:=reqSize+length(post[BufCnt]);
 			inc(BufCnt);
 		{$else}
 			RecBufSize:=recv(ConnSock,@FCharBuf[1],SizeOf(FCharBuf),0);
-			if (RecBufSize=SOCKET_ERROR) then writeLOG('socket error during read '+WSAGetLastError);
+			if (RecBufSize=SOCKET_ERROR) then errorLOG('socket error during read '+WSAGetLastError);
 			buff:=copy(FCharBuf,1,RecBufSize);
 			BufCnt:=1;
 			{ Request zerlegen und in array post zeile fuer Zeile speichern }
 			repeat
 				post[BufCnt]:=copy(buff,1,pos(chr(10),buff)-1);
-				writeLOG('Req['+BufCnt+']='+post[BufCnt]);
+				if debug then writeLOG('Req['+BufCnt+']='+post[BufCnt]);
 				buff:=copy(buff,pos(chr(10),buff)+1,length(buff));
 				inc(BufCnt);
 			until length(buff)<1;
@@ -326,9 +336,9 @@ begin
 
 	inc(reqCnt);
 	str(reqCnt,blubber);
-	writeLOG('# of Requests : '+blubber);
+	if debug then writeLOG('# of Requests : '+blubber);
 	str(reqSize,blubber);
-	writeLOG('requestSize: '+blubber);
+	if debug then writeLOG('requestSize: '+blubber);
 
 	{ processing the request }
 
@@ -359,13 +369,13 @@ begin
 		if (URL=SpecialURL[i]) then begin
 			status:='200 OK';
 			str(i,blubber);
-			writeLOG('special URL['+blubber+'] detected: '+URL);
+			if debug then writeLOG('special URL['+blubber+'] detected: '+URL);
 			if ServingRoutine[i] <> nil then ServingRoutine[i];
 		end;
 	until (i=MaxUrl) or (URL=SpecialURL[i]);
 	if not(URL=SpecialURL[i]) then begin
 		URL:=DocRoot+URL;			// add current dir as Document root
-		writeLOG('requested URL='+URL);
+		if debug then writeLOG('requested URL='+URL);
 
 		{ now open the file, read and serve it }
 		{$i-}
@@ -383,7 +393,7 @@ begin
 		else begin  { file not found }
 			page:='<html><body>Error: 404 Document not found</body></html>';
 			status:='404 Not Found';
-			writeLOG('Error 404 doc '+URL+' not found');
+			errorLOG('Error 404 doc '+URL+' not found');
 		end;
 
 		SendPage(page);
@@ -400,7 +410,7 @@ begin
 	// Opening socket descriptors
 	// Reading whole request -> accept on socket, then read requested data
 
-	writeLOG('accept connection');
+	if debug then writeLOG('accept connection');
 	{$ifdef LINUX}
 	{$else}
 	{$endif}
@@ -438,12 +448,12 @@ begin
 		TimeVal.tv_sec:=0;
 		TimeVal.tv_usec:=0;
 		Result:=Select(0, @FDRead, nil, nil, @TimeVal);
-		if Result = SOCKET_ERROR then writeLOG('ERROR='+WSAGetLastError);
+		if Result = SOCKET_ERROR then errorLOG('ERROR='+WSAGetLastError);
 		if (Result > 0) then begin
 			addr_len:=SizeOf(cli_addr);
 			ConnSock:=accept(sock, @cli_addr,@addr_len);
 			if ( ConnSock=INVALID_SOCKET) then
-				writeLOG('accept failed');
+				errorLOG('accept failed');
 			process_request;
 		end;
 	{$endif}
@@ -466,9 +476,20 @@ begin
 	// Closing listening socket
 	fpshutdown(sock, 2);
 	// Shutting down
-	writeLOG('shuting down pwserver...');
+	if debug then writeLOG('shuting down pwserver...');
 end;
 
 begin
+	// open logfiles
+	//error Log
+	assign(ERR,'/tmp/deviceserver_err.log');
+	rewrite(ERR);
+
+	// debug Log
+	if debug then begin
+		assign(DBG,'/tmp/deviceserver_dbg.log');
+		rewrite(DBG);
+	end;
+
 	UrlPointer:=1;
 end.
