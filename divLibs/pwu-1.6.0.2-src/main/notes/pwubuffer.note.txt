@@ -1,0 +1,31 @@
+
+
+--------------------------------------------------------------------------------
+ Developer Notes
+--------------------------------------------------------------------------------
+
+ PSP 1.6.x
+ ---------
+
+ [04/MAR/2006 - L505]
+  - organized the unit almost like a fake class. reference to self is now
+    possible through the data record, since records don't have self.
+    Note where you see "self" in the code for how the trick was done.
+
+ [02/MAR/2006 - Tony]
+
+  - Finished optimizations designed to minimize calls to setlength.
+    Changed loops to load buffer to Move() calls
+    Wrote buffer chop to be called when the length of data must equal
+    buffer length.
+
+  [12/FEB/2006 - L505]
+  - Created unit to organize buffering procedures instead of hardcoding
+    setlength's and etc. in pwuMain everywhere.
+
+
+--------------------------------------------------------------------------------
+ Developer Todo
+--------------------------------------------------------------------------------
+
+

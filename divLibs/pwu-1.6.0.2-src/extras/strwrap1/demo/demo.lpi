@@ -1,0 +1,181 @@
+<?xml version="1.0"?>
+<CONFIG>
+  <ProjectOptions>
+    <PathDelim Value="\"/>
+    <Version Value="5"/>
+    <General>
+      <Flags>
+        <MainUnitHasUsesSectionForAllUnits Value="False"/>
+        <MainUnitHasCreateFormStatements Value="False"/>
+        <MainUnitHasTitleStatement Value="False"/>
+      </Flags>
+      <MainUnit Value="0"/>
+      <ActiveEditorIndexAtStart Value="1"/>
+      <IconPath Value="./"/>
+      <TargetFileExt Value=".exe"/>
+      <Title Value="demo"/>
+    </General>
+    <JumpHistory Count="17" HistoryIndex="16">
+      <Position1>
+        <Filename Value="C:\PF\coLinux\files\pascal\MyExamples\strwrap\versionF\StrWrap1.pas"/>
+        <Caret Line="208" Column="18" TopLine="201"/>
+      </Position1>
+      <Position2>
+        <Filename Value="C:\PF\coLinux\files\pascal\MyExamples\strwrap\versionF\StrWrap1.pas"/>
+        <Caret Line="410" Column="20" TopLine="371"/>
+      </Position2>
+      <Position3>
+        <Filename Value="C:\PF\coLinux\files\pascal\MyExamples\strwrap\versionF\StrWrap1.pas"/>
+        <Caret Line="349" Column="1" TopLine="302"/>
+      </Position3>
+      <Position4>
+        <Filename Value="C:\PF\coLinux\files\pascal\MyExamples\strwrap\versionF\StrWrap1.pas"/>
+        <Caret Line="381" Column="67" TopLine="351"/>
+      </Position4>
+      <Position5>
+        <Filename Value="C:\PF\coLinux\files\pascal\MyExamples\strwrap\versionF\StrWrap1.pas"/>
+        <Caret Line="380" Column="14" TopLine="341"/>
+      </Position5>
+      <Position6>
+        <Filename Value="C:\PF\coLinux\files\pascal\MyExamples\strwrap\versionF\StrWrap1.pas"/>
+        <Caret Line="372" Column="1" TopLine="342"/>
+      </Position6>
+      <Position7>
+        <Filename Value="C:\PF\coLinux\files\pascal\MyExamples\strwrap\versionF\StrWrap1.pas"/>
+        <Caret Line="895" Column="54" TopLine="843"/>
+      </Position7>
+      <Position8>
+        <Filename Value="C:\PF\coLinux\files\pascal\MyExamples\strwrap\versionF\StrWrap1.pas"/>
+        <Caret Line="109" Column="80" TopLine="95"/>
+      </Position8>
+      <Position9>
+        <Filename Value="C:\PF\coLinux\files\pascal\MyExamples\strwrap\versionF\StrWrap1.pas"/>
+        <Caret Line="381" Column="6" TopLine="342"/>
+      </Position9>
+      <Position10>
+        <Filename Value="C:\PF\coLinux\files\pascal\MyExamples\strwrap\versionF\StrWrap1.pas"/>
+        <Caret Line="221" Column="1" TopLine="143"/>
+      </Position10>
+      <Position11>
+        <Filename Value="C:\PF\coLinux\files\pascal\MyExamples\strwrap\versionF\StrWrap1.pas"/>
+        <Caret Line="382" Column="6" TopLine="343"/>
+      </Position11>
+      <Position12>
+        <Filename Value="C:\PF\coLinux\files\pascal\MyExamples\strwrap\versionF\StrWrap1.pas"/>
+        <Caret Line="385" Column="1" TopLine="343"/>
+      </Position12>
+      <Position13>
+        <Filename Value="C:\PF\coLinux\files\pascal\MyExamples\strwrap\versionF\StrWrap1.pas"/>
+        <Caret Line="392" Column="14" TopLine="353"/>
+      </Position13>
+      <Position14>
+        <Filename Value="C:\PF\coLinux\files\pascal\MyExamples\strwrap\versionF\StrWrap1.pas"/>
+        <Caret Line="371" Column="9" TopLine="353"/>
+      </Position14>
+      <Position15>
+        <Filename Value="C:\PF\coLinux\files\pascal\MyExamples\strwrap\versionF\StrWrap1.pas"/>
+        <Caret Line="219" Column="1" TopLine="157"/>
+      </Position15>
+      <Position16>
+        <Filename Value="C:\PF\coLinux\files\pascal\MyExamples\strwrap\versionF\StrWrap1.pas"/>
+        <Caret Line="255" Column="12" TopLine="216"/>
+      </Position16>
+      <Position17>
+        <Filename Value="demo.pp"/>
+        <Caret Line="221" Column="22" TopLine="152"/>
+      </Position17>
+    </JumpHistory>
+    <Units Count="5">
+      <Unit0>
+        <CursorPos X="22" Y="221"/>
+        <EditorIndex Value="0"/>
+        <Filename Value="demo.pp"/>
+        <IsPartOfProject Value="True"/>
+        <Loaded Value="True"/>
+        <TopLine Value="120"/>
+        <UnitName Value="demo"/>
+        <UsageCount Value="22"/>
+      </Unit0>
+      <Unit1>
+        <CursorPos X="71" Y="459"/>
+        <EditorIndex Value="1"/>
+        <Filename Value="C:\PF\coLinux\files\pascal\MyExamples\strwrap\versionF\StrWrap1.pas"/>
+        <Loaded Value="True"/>
+        <TopLine Value="432"/>
+        <UnitName Value="StrWrap1"/>
+        <UsageCount Value="11"/>
+      </Unit1>
+      <Unit2>
+        <CursorPos X="30" Y="24"/>
+        <Filename Value="C:\PF\coLinux\files\pascal\MyExamples\strwrap\versionE\demo\1\demotext.big.txt"/>
+        <IsPartOfProject Value="True"/>
+        <SyntaxHighlighter Value="None"/>
+        <TopLine Value="14"/>
+        <UsageCount Value="22"/>
+      </Unit2>
+      <Unit3>
+        <CursorPos X="34" Y="166"/>
+        <Filename Value="C:\PF\coLinux\files\pascal\MyExamples\strwrap\versionE\demo\1\demotext.txt"/>
+        <SyntaxHighlighter Value="None"/>
+        <TopLine Value="88"/>
+        <UsageCount Value="10"/>
+      </Unit3>
+      <Unit4>
+        <CursorPos X="71" Y="27426"/>
+        <Filename Value="demotext.big.txt"/>
+        <SyntaxHighlighter Value="None"/>
+        <TopLine Value="27409"/>
+        <UsageCount Value="10"/>
+      </Unit4>
+    </Units>
+    <PublishOptions>
+      <Version Value="2"/>
+      <IgnoreBinaries Value="False"/>
+      <IncludeFileFilter Value="*.(pas|pp|inc|lfm|lpr|lrs|lpi|lpk|sh|xml)"/>
+      <ExcludeFileFilter Value="*.(bak|ppu|ppw|o|so);*~;backup"/>
+    </PublishOptions>
+    <RunParams>
+      <local>
+        <FormatVersion Value="1"/>
+        <LaunchingApplication PathPlusParams="/usr/X11R6/bin/xterm -T 'Lazarus Run Output' -e $(LazarusDir)/tools/runwait.sh $(TargetCmdLine)"/>
+      </local>
+    </RunParams>
+  </ProjectOptions>
+  <CompilerOptions>
+    <Version Value="5"/>
+    <PathDelim Value="\"/>
+    <SearchPaths>
+      <OtherUnitFiles Value="..\..\"/>
+    </SearchPaths>
+    <CodeGeneration>
+      <Generate Value="Faster"/>
+    </CodeGeneration>
+    <Other>
+      <CompilerPath Value="$(CompPath)"/>
+    </Other>
+  </CompilerOptions>
+  <Debugging>
+    <BreakPoints Count="3">
+      <Item1>
+        <Source Value="\\Fu\l1\FPC\projects\synapse\HttpGet\LongEdition\3\UrlGet505_1.pas"/>
+        <Line Value="49"/>
+      </Item1>
+      <Item2>
+        <Source Value="\\Fu\l1\FPC\projects\psp\SourceViewer\viewsource2.pas"/>
+        <Line Value="23"/>
+      </Item2>
+      <Item3>
+        <Source Value="C:\PF\coLinux\files\pascal\svn\psp\psp-1.4.x-devel\src\units\web.pp"/>
+        <Line Value="458"/>
+      </Item3>
+    </BreakPoints>
+    <Exceptions Count="2">
+      <Item1>
+        <Name Value="ECodetoolError"/>
+      </Item1>
+      <Item2>
+        <Name Value="EFOpenError"/>
+      </Item2>
+    </Exceptions>
+  </Debugging>
+</CONFIG>

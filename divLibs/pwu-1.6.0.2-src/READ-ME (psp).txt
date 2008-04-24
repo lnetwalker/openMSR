@@ -1,0 +1,266 @@
+********************************************************************************
+
+            Powerful Web Utilities
+
+********************************************************************************
+
+Version 1.6.X of Powerful Web Utilities 
+(previously known as Pascal Server Pages)
+
+
+-------------------------------------------------------------------------------
+Introduction:
+-------------------------------------------------------------------------------
+
+The powerful web utilities are a package for FPC/Delphi and possibly  other 
+compilers in the future. The utilities focus on web programming and HTTP related 
+routines, data structures, and algorithms.
+
+See the documentation and intro at:
+ http://psp.furtopia.org/cgi-bin/psp/lufdoc/pwu-1.6.0.1/idx.cgi?file=generalindex
+
+See the API/Routines Guide and Reference at:
+ http://psp.furtopia.org/cgi-bin/psp/lufdoc/pwu-1.6.0.1/idx.cgi?file=index
+
+Whether you use PSP as a library (dynamic) or static, all standard servers such 
+as cpanel/plesk/other are supported.
+
+ 
+--------------------------------------------------------------------------------
+Setup Instructions:
+--------------------------------------------------------------------------------
+
+COMPILER - FPC version 2.0.4 is what we tested on! Make sure you have 2.0.4. It 
+probably works fine on 2.0.2 or 2.0.0 but no guarantees.
+
+Place pwu_unix.conf or pwu_win.conf in your program directory, for example:
+
+On UNIX like OS:
+  /public_html/cgi-bin/myproject/pwu_unix.conf
+  /www_root/cgi-bin/myproject2/pwu_unix.conf
+
+On Windows OS:
+  c:\apache\www\cgi-bin\myproject\pwu_win.conf
+  c:\program files\apache\www\cgi-bin\some-project\pwu_win.conf
+
+(Note: We tried to choose pwu-unix and pwu-win naming scheme, but there was 
+some sort of bug discovered with file names that contain dashes. So we resorted
+to underscores)
+
+It is recommended you work in a subdirectory from cgi-bin instead of directly 
+in /cgi-bin/yourprog.cgi, in order to keep yourself better organized. Cgi 
+programs work anywhere from cgi-bin/ including subdirectories.
+
+
+  -------------------------------------------------------------------------------
+   IF USING PWUMAIN.PAS
+  -------------------------------------------------------------------------------
+   Just place pwumain in your uses clause. 
+    1. Compile program
+    2. Upload program to server in cgi bin directory
+    3. Change permissions
+    4. Upload config file (pwu_unix.conf or pwu_win.conf), see hello.pas directory
+       for example config file or the /conf/ directory included in your download
+
+    Example program (using freepascal):
+    //................................................................//
+    program mycgi;	 {$mode objfpc}{$H+} 
+
+    uses
+	  pwumain; //no DLL, compiles functions into your cgi
+
+	begin
+	  WebWrite('<hr>');
+	  WebWrite('This is a static example ');
+	  WebWrite('Hello?');
+	  WebWrite('<hr>');
+	end.
+    //................................................................//
+
+
+
+  --------------------------------------------------------------------------------
+   IF USING DYNPWU.PAS
+  --------------------------------------------------------------------------------
+	 Same steps as above, except place dynpwu in your uses clause and..
+
+	If neccessary, compile pwu_lib.pas. You can use fpcmake and make to create
+	and rename the DLL/DSO automatically. This will compile the library. You do not
+	have to compile the library if you choose to download a prebuilt DSO/DLL.
+	If you have chosen to compile it, rename pwu_lib.dll to the current version
+	of powerful web utilities, which will be shown in your pwu_ config file on
+	line number 1. 
+
+	Example: 
+      unix: 
+	    libpwu-1.6.0.2.so 
+		libpwu-1.6.0.1.so
+		libpwu-1.6.0.0.so
+		etc.
+      windows:
+	    pwu-1.6.0.2.dll
+		pwu-1.6.0.1.dll
+		etc.
+
+
+	Upload the pwu-1.6.X.X.dll (windows) or libpwu-1.6.x.x.so (unix) to the web server 
+	and edit PWU config file to contain the library path on LINE 1.
+
+	Note: Your library file name may be named libpwu-1.6.0.1.so or libpwu-1.6.1.dll, 
+	etc. depending on what release you are using and what OS you are using. We 
+	embedded version number into the DSO/DLL to reduce version conflicts. 
+
+	The default directory for the library to load from, set up in the config file,
+	might be the local directory, or a relative directory that points to
+
+	  /cgi-bin/library/pwu/
+	   
+	You can change the directory to anything you want. However, to keep compatible
+	with other developers, use /cgi-bin/library/pwu/   
+
+	To use the major functions that make up the PSP/PWU project, just
+	add DYNPWU to your uses clause, which will pull in dynpwu.pas. If you are 
+	confused about the DLL or if you just want to compile web programs without the 
+	DLL you can always just use PWUMAIN in your uses clause instead of DYNPWU.
+	That will cause no DLL to be used. We designed PSP this way so that you can
+	avoid using the DLL if you like.
+
+	In FreePascal, your first Dynamic program should look like this:
+
+    //................................................................//
+    program mycgi; {$mode objfpc}{$H+} 
+
+	uses
+	  dynpwu; // calls functions from dll/dso
+
+	begin
+	  WebWrite('This uses functions from the DLL/DSO. ');
+	  WebWrite('Hello?');
+	end.
+
+    //................................................................//
+
+
+
+---------------------------------------------------------------------------
+About the /CGI-BIN/ directory and why it is your friend:
+---------------------------------------------------------------------------
+
+Even if you have a server that allows cgi programs to be executed outside of 
+/CGI-BIN/, it is recommended you stay in /CGI-BIN/. If you ever move to a new 
+server you will be very disappointed in the work it can take to restructure your 
+directories. If one server does not have the same set up as your old one, which 
+allowed access outside cgi-bin, you will be spending a lot of time restructuring
+the directories and files. Server portability is an issue with any web language, 
+for example php.ini can cause php programmers trouble when moving to a server. 
+
+As long as you use CGI-BIN directory you are actually more scalable and more 
+portable with PWU/PSP than if you had used PHP. Why - because with PSP/PWU you 
+make your own config files - you do not rely on php.ini. You also do not have 
+php version conflicts (php 4 vs php 5). Your CGI programs are compiled and 
+ready to move to another server without  worry, as long as you stick to using 
+cgi-bin.
+
+If you would like to make it convenient for your web vistors to type in URL's, 
+and you don't like /cgi-bin/ in the URL, consider using htaccess if you are on 
+Apache, and doing some mod_rewrite rules for your URL's. 
+
+However, as all websites grow with time, it is usually not worth the effort to 
+try and make ALL your URL's short and sweet except in special circumstances:
+For example:
+   subject.wiki.z505.com 
+Subject could be the name of the wiki page. Use HTACCESS to redirect people to 
+   z505.com/cgi-bin/wiki.cgi?subject=psp
+That way people can type in a wiki url much easier.
+
+--------------------------------------------------------------------------------
+Compilers that can use the DLL/DSO
+--------------------------------------------------------------------------------
+
+ Delphi/Kylix
+ ------------
+ It is possible to use Kylix/Delphi if a few changes are made to the sources, 
+ such as skipping the MODE OBJFPC switch and changing some '@' directives, along 
+ with skipping dynlibs unit in uses.
+
+ Qompute (possible future support)
+ ------------
+ Qompute is a language like C/C++/Pascal/Java that is geared toward hackers
+ who want to reduce repetitive stress syndrome and pinky finger cramps. It 
+ offers many advantages of C/C++/Pascal/Java with a much quicker syntax.
+ Barely any shift key or pinky finger strains are needed.
+
+ C/C++/Digital Mars D (possible future support)
+ -------------------- 
+ It is possible to make use of some PSP/PWU functions in C/C++ programs. 
+ Since some of our functions return reference counted ansistrings, there may 
+ need to be workarounds in C/C++ if importing those functions. We could have 
+ used pchars, but we decided it was more important from a maintenance 
+ perspective to use ansistrings. Pchars are not suited for web programming.
+ 
+ What is really needed is standard ansistring with a standard reference 
+ counting mechanism across compilers. Qompute, for example has agreed to use 
+ the same ansistring ref counting as FPC and Delphi. Who's next to agree on a 
+ ref counting standard? Digital Mars D? The next C++ spec? ADA?
+ For more info about why we need to enforce a standard ref counting ansistring: 
+ http://z505.com/standard-ansistring.htm
+
+ ADA/Other Languages (possible future support)
+ ---------------------------
+ It is possible to use the PWU/PSP DLL from other languages if they have
+ the ability to import a DLL into their program. Make note of the functions
+ that return ansistrings, and check to see if your compiler supports an 
+ ansistring reference counting standard as noted in the above URL, or make
+ work arounds for the ansistrings to be used as pchars.                        
+
+
+--------------------------------------------------------------------------------
+Directory Naming Scheme Changed
+--------------------------------------------------------------------------------
+
+In PSP 1.6 the directory structure has changed. All directories should use
+dashes and lower case. This is because we're sick of incompatibilites of case 
+sensitive/insensitive directories on different operating systems. The neatest 
+way to organize directories so that they work on both platforms is by using 
+dashes in the directory names.
+  /some-directory/sub/the-example/ instead of /SomeDirectory/Sub/TheExample/
+
+--------------------------------------------------------------------------------
+Unit Source File Header Notes, Legal, and License Terms
+--------------------------------------------------------------------------------
+
+Most of the PSP/PWU source code is released under the Artistic License or the
+NRCOL License (no ridiculous constraints or limits, public domain). Some of 
+the Mime Types related text files are from Apache.
+
+Longwinded comments that usually occur at the top of the source files are 
+sometimes moved into a /notes/ directory. 
+Each unit has a corresponding unit.note.txt file. We're sick of sifting through 
+source files with licenses and developer comments crammed into the top of the
+file. It is most important that source be seen when a file is opened in the 
+editor. It takes a bit of discipline to keep all the header notes and legal 
+information in a separate /note/ file but it is well worth it and easy to get 
+used to. 
+
+--------------------------------------------------------------------------------
+Getting HELP from the community
+--------------------------------------------------------------------------------
+
+The PSP/PWU mailing lists are the best place to get help. The forums aren't 
+checked as often as the mailing lists. You can sign up for the mailing list at 
+psp.furtopia.org
+
+--------------------------------------------------------------------------------
+This readme file is not as good as documentation
+--------------------------------------------------------------------------------
+
+We recommend you read the documentation as it is much more thorough than this
+readme file.
+
+Two different documentations:
+
+ http://psp.furtopia.org/cgi-bin/psp/lufdoc/pwu-1.6.0.1/idx.cgi?file=generalindex
+ http://psp.furtopia.org/cgi-bin/psp/lufdoc/pwu-1.6.0.1/idx.cgi?file=index
+
+
+
