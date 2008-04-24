@@ -1,0 +1,153 @@
+
+--------------------------------------------------------------------------------
+  Authors/Credits:
+--------------------------------------------------------------------------------
+    Trustmaster (Vladimir Sibirov),  L505 (Lars Olson)
+
+--------------------------------------------------------------------------------
+  Copyright (c) Pascal Server Pages development team.
+  See the Pascal Server Pages License for more information.
+--------------------------------------------------------------------------------
+
+ SDS 2.0.0
+ ---------
+
+  [28.MAR.2005 - L505]:
+    - made delphi5 compatible, added dummy to val() and other compatibility 
+      updates
+
+  [01.FEB.2005 - L505]:
+    - Added ExportCSV_custom function for delimiter/enclose character choices
+
+  [20.OCT.2005 - L505]:
+    - minor changes for PWU/PSP 1.5.X
+
+  [22.08.05 - Trustmaster]:
+    - added LIMIT in SELECT statements.
+
+  [18.08.05 - Trustmaster]:
+    - added REGEXP operator support, ENABLE_REGEXP compiler defination
+      enables support of this operator but I recommend not to use it without
+      need because it adds about 150kb to the executable size.
+
+  [15.08.05 - Trustmaster]:
+    - changed file sharing stuff;
+    - added import support into INSERT, added sds_import_sql function;
+    - added sds_escape and SQL-ijection protection.
+
+  [14.08.05 - Trustmaster]:
+    - added DATE, TIME and DATETIME types support;
+    - NOW macro is available for DATE, TIME and DATETIME in INSERT, UPDATE and
+    - conditions;
+    - added SELECT MAX() and SELECT MIN() syntax support;
+    - added query time calculation (is it a FPC bug, but most of the queries
+      take 0.000000000000 seconds for execution).
+
+  [13.08.05 - Trustmaster]:
+    - finally got SDS2 compiled, debugged and working. What are the changes?
+      Actually, absolutely new unit!
+
+ SDS 1.4.0
+ ---------
+  [4.06.05 - Trustmaster]:
+    - PSP2-compliancy revision.
+
+  [27.05.05 - Trustmaster]:
+    - SDS_ExportCSV, SDS_ExportSQL and SDS_ExportXML routines added.
+
+ SDS 1.3.0
+ ---------
+  [Trustmaster]:
+    - changed file format, rowcount is now defined in file header to optimise
+      SDS_NumOfRows() calls;
+    - using sds_safeline instead of httpenc to make it work a little faster;                                                             *
+    - using dynamic arrays in rows and results;
+    - code optimisations;
+    - unified table structure: ID is accessible as field[0];
+    - frequently called routines are stored in dedicated functions to avoid bugs
+      in program logic (there was such a problem).
+
+ SDS 1.2.2
+ ---------
+  [Trustmaster]:
+    - some code optimisations: speed, size and memory usage.
+
+ SDS 1.2.1
+ ---------
+   [Trustmaster]:
+    - all integer variables are defined as longints (to support large tables).                                                   *
+
+ SDS 1.2.0
+ ---------
+  [Trustmaster]:
+    - changed file format, last ID is registered in file header for every new
+      ID to be unique.
+
+ SDS 1.1.0
+ ---------
+  [Trustmaster]:
+    - memory optimisation;
+    - data is HTTP-encoded to prevent from internal errors;                                                                       *
+    - fixed some bugs;
+    - added new functions.
+
+
+--------------------------------------------------------------------------------
+  Todo
+--------------------------------------------------------------------------------
+
+  - make direct functions that access the database in a clean manner, like they
+    were in psp 1.3.0.
+
+  Comments/Ranting:
+
+    The functions currently in this unit are powerful, but prone to sql
+    injection and require extra amount of effort to maintain, since it is a full
+    fledged SQL parser.
+
+    We'd be better off if we just used simple functions which access the
+    database directly like used in PSP 1.3, but keep the SQL functionality for
+    special cases such as someone who is converting an existing small SQL
+    database over to SDS (and vice versa, i.e. dump compatibility)
+
+    I've already found miscellaneous bugs such as not being able to insert
+    certain words as fields since they conflict with the parser, i.e. the parser
+    requires way too much maintenance and needs to be constantly checked for
+    correctness as people find more and more bugs. Any scripting system or language
+    is prone to numerous bugs, all parsers are. Using functions are not prone
+    to parser bugs because you simply don't use a parser! less room for hundreds
+    of thousands of mistakes and bugs to pop up.
+
+    Web program source code is also messier when using SQL statements since they
+    pollute the source code, whereas  simple procedures/functions that access
+    the database directly are clean and neat. Take a look at the PasForum
+    source code in PSP 1.5.0. The code is extremely messier than necessary
+    simply because the source is polluted with SQL statements and scripts
+    everywhere.
+    
+    In addition to source code being polluted with SQL statements we also have
+    to go to extra efforts to protect code from SQLinjection or simple syntax
+    errors that could be caused unintentionally by a user, i.e. filtering more
+    input pollutes the web program source code further.
+    
+    In PHP one usually feels terrified that it takes a rocket scientist to get
+    a simple website running off SQL  (sure for a complex site it is okay) -
+    SDS should try to fill the void that all SQL websites are missing: make
+    a database development simple and easy, and cleaner. PHP source code
+    that is polluted with SQL scripts and statements is no better than PSP
+    with SDS sql-like statements.
+    
+    The future of SDS from my head: ease of use and clarity in source code, no
+    database server reliance, no SQL syntax reliance (but available for
+    dump compatibility). Right now SDS nearly relies on SQL syntax but it
+    should only be an option, not a reliance.
+    
+    in PSP 1.6.X we will keep the SQL parser available for compatibility
+    reasons, i.e. it is nice to be able to import/export SQL dumps and SQL
+    statements for forward/backard compatibility. But using functions that
+    access the database directly is a wiser choice for building SDS based
+    websites in normal circumstances, and much cleaner/neater.
+
+    Lars (L505)
+    
+

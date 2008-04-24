@@ -1,0 +1,236 @@
+<?xml version="1.0"?>
+<CONFIG>
+  <ProjectOptions>
+    <PathDelim Value="\"/>
+    <Version Value="5"/>
+    <General>
+      <Flags>
+        <MainUnitHasUsesSectionForAllUnits Value="False"/>
+        <MainUnitHasCreateFormStatements Value="False"/>
+        <MainUnitHasTitleStatement Value="False"/>
+      </Flags>
+      <MainUnit Value="0"/>
+      <ActiveEditorIndexAtStart Value="2"/>
+      <IconPath Value="./"/>
+      <TargetFileExt Value=".exe"/>
+      <Title Value="dirutils"/>
+    </General>
+    <JumpHistory Count="30" HistoryIndex="29">
+      <Position1>
+        <Filename Value="C:\PF\coLinux\files\pascal\svn\psp\psp-lib-1.6.X-devel\src\Extras\DirUtils\DirUtils.pas"/>
+        <Caret Line="112" Column="25" TopLine="53"/>
+      </Position1>
+      <Position2>
+        <Filename Value="C:\PF\coLinux\files\pascal\svn\psp\psp-lib-1.6.X-devel\src\Extras\DirUtils\DirUtils.pas"/>
+        <Caret Line="37" Column="71" TopLine="29"/>
+      </Position2>
+      <Position3>
+        <Filename Value="C:\PF\coLinux\files\pascal\svn\psp\psp-lib-1.6.X-devel\src\Extras\DirUtils\DirUtils.pas"/>
+        <Caret Line="75" Column="3" TopLine="42"/>
+      </Position3>
+      <Position4>
+        <Filename Value="C:\PF\coLinux\files\pascal\svn\psp\psp-lib-1.6.X-devel\src\Extras\DirUtils\DirUtils.pas"/>
+        <Caret Line="51" Column="57" TopLine="29"/>
+      </Position4>
+      <Position5>
+        <Filename Value="C:\PF\coLinux\files\pascal\svn\psp\psp-lib-1.6.X-devel\src\Extras\DirUtils\DirUtils.pas"/>
+        <Caret Line="55" Column="11" TopLine="22"/>
+      </Position5>
+      <Position6>
+        <Filename Value="C:\PF\coLinux\files\pascal\svn\psp\psp-lib-1.6.X-devel\src\Extras\DirUtils\DirUtils.pas"/>
+        <Caret Line="92" Column="18" TopLine="38"/>
+      </Position6>
+      <Position7>
+        <Filename Value="C:\PF\coLinux\files\pascal\svn\psp\psp-lib-1.6.X-devel\src\Extras\DirUtils\DirUtils.pas"/>
+        <Caret Line="55" Column="18" TopLine="22"/>
+      </Position7>
+      <Position8>
+        <Filename Value="C:\PF\coLinux\files\pascal\svn\psp\psp-lib-1.6.X-devel\src\Extras\DirUtils\DirUtils.pas"/>
+        <Caret Line="51" Column="64" TopLine="38"/>
+      </Position8>
+      <Position9>
+        <Filename Value="C:\PF\coLinux\files\pascal\svn\psp\psp-lib-1.6.X-devel\src\Extras\DirUtils\DirUtils.pas"/>
+        <Caret Line="21" Column="18" TopLine="1"/>
+      </Position9>
+      <Position10>
+        <Filename Value="C:\PF\coLinux\files\pascal\svn\psp\psp-lib-1.6.X-devel\src\Extras\DirUtils\DirUtils.pas"/>
+        <Caret Line="54" Column="57" TopLine="52"/>
+      </Position10>
+      <Position11>
+        <Filename Value="C:\PF\coLinux\files\pascal\svn\psp\psp-lib-1.6.X-devel\src\Extras\DirUtils\DirUtils.pas"/>
+        <Caret Line="53" Column="65" TopLine="33"/>
+      </Position11>
+      <Position12>
+        <Filename Value="C:\PF\coLinux\files\pascal\svn\psp\psp-lib-1.6.X-devel\src\Extras\DirUtils\DirUtils.pas"/>
+        <Caret Line="90" Column="1" TopLine="57"/>
+      </Position12>
+      <Position13>
+        <Filename Value="C:\PF\coLinux\files\pascal\svn\psp\psp-lib-1.6.X-devel\src\Extras\DirUtils\DirUtils.pas"/>
+        <Caret Line="85" Column="30" TopLine="52"/>
+      </Position13>
+      <Position14>
+        <Filename Value="C:\PF\coLinux\files\pascal\svn\psp\psp-lib-1.6.X-devel\src\Extras\DirUtils\DirUtils.pas"/>
+        <Caret Line="49" Column="59" TopLine="36"/>
+      </Position14>
+      <Position15>
+        <Filename Value="C:\PF\coLinux\files\pascal\svn\psp\psp-lib-1.6.X-devel\src\Extras\DirUtils\DirUtils.pas"/>
+        <Caret Line="1" Column="1" TopLine="1"/>
+      </Position15>
+      <Position16>
+        <Filename Value="C:\PF\coLinux\files\pascal\svn\psp\psp-lib-1.6.X-devel\src\Extras\DirUtils\DirUtils.pas"/>
+        <Caret Line="98" Column="1" TopLine="71"/>
+      </Position16>
+      <Position17>
+        <Filename Value="C:\PF\coLinux\files\pascal\svn\psp\psp-lib-1.6.X-devel\src\Extras\DirUtils\DirUtils.pas"/>
+        <Caret Line="69" Column="20" TopLine="36"/>
+      </Position17>
+      <Position18>
+        <Filename Value="C:\PF\coLinux\files\pascal\svn\psp\psp-lib-1.6.X-devel\src\Extras\DirUtils\DirUtils.pas"/>
+        <Caret Line="70" Column="40" TopLine="37"/>
+      </Position18>
+      <Position19>
+        <Filename Value="C:\PF\coLinux\files\pascal\svn\psp\psp-lib-1.6.X-devel\src\Extras\DirUtils\DirUtils.pas"/>
+        <Caret Line="71" Column="29" TopLine="38"/>
+      </Position19>
+      <Position20>
+        <Filename Value="C:\PF\coLinux\files\pascal\svn\psp\psp-lib-1.6.X-devel\src\Extras\DirUtils\DirUtils.pas"/>
+        <Caret Line="106" Column="28" TopLine="73"/>
+      </Position20>
+      <Position21>
+        <Filename Value="C:\PF\coLinux\files\pascal\svn\psp\psp-lib-1.6.X-devel\src\Extras\DirUtils\DirUtils.pas"/>
+        <Caret Line="46" Column="22" TopLine="40"/>
+      </Position21>
+      <Position22>
+        <Filename Value="C:\PF\coLinux\files\pascal\svn\psp\psp-lib-1.6.X-devel\src\Extras\DirUtils\DirUtils.pas"/>
+        <Caret Line="21" Column="18" TopLine="1"/>
+      </Position22>
+      <Position23>
+        <Filename Value="C:\PF\coLinux\files\pascal\svn\psp\psp-lib-1.6.X-devel\src\Extras\CompactUtils\CompactSysUtils.pas"/>
+        <Caret Line="80" Column="84" TopLine="69"/>
+      </Position23>
+      <Position24>
+        <Filename Value="C:\PF\coLinux\files\pascal\svn\psp\psp-lib-1.6.X-devel\src\Extras\CompactUtils\CompactSysUtils.pas"/>
+        <Caret Line="193" Column="107" TopLine="164"/>
+      </Position24>
+      <Position25>
+        <Filename Value="C:\PF\coLinux\files\pascal\svn\psp\psp-lib-1.6.X-devel\src\Extras\CompactUtils\CompactSysUtils.pas"/>
+        <Caret Line="1" Column="1" TopLine="1"/>
+      </Position25>
+      <Position26>
+        <Filename Value="C:\PF\coLinux\files\pascal\svn\psp\psp-lib-1.6.X-devel\src\Extras\CompactUtils\CompactSysUtils.pas"/>
+        <Caret Line="102" Column="1" TopLine="71"/>
+      </Position26>
+      <Position27>
+        <Filename Value="C:\PF\coLinux\files\pascal\svn\psp\psp-lib-1.6.X-devel\src\Extras\CompactUtils\CompactSysUtils.pas"/>
+        <Caret Line="6" Column="18" TopLine="1"/>
+      </Position27>
+      <Position28>
+        <Filename Value="example1.pas"/>
+        <Caret Line="17" Column="1" TopLine="1"/>
+      </Position28>
+      <Position29>
+        <Filename Value="example1.pas"/>
+        <Caret Line="54" Column="4" TopLine="1"/>
+      </Position29>
+      <Position30>
+        <Filename Value="C:\PF\coLinux\files\pascal\svn\psp\psp-lib-1.6.X-devel\src\Extras\CompactUtils\CompactSysUtils.pas"/>
+        <Caret Line="6" Column="29" TopLine="1"/>
+      </Position30>
+    </JumpHistory>
+    <Units Count="5">
+      <Unit0>
+        <CursorPos X="28" Y="6"/>
+        <EditorIndex Value="0"/>
+        <Filename Value="example1.pas"/>
+        <IsPartOfProject Value="True"/>
+        <Loaded Value="True"/>
+        <TopLine Value="1"/>
+        <UnitName Value="example1"/>
+        <UsageCount Value="20"/>
+      </Unit0>
+      <Unit1>
+        <CursorPos X="1" Y="1"/>
+        <Filename Value="dirutils.pas"/>
+        <TopLine Value="1"/>
+        <UnitName Value="dirutils"/>
+        <UsageCount Value="10"/>
+      </Unit1>
+      <Unit2>
+        <CursorPos X="39" Y="21"/>
+        <EditorIndex Value="1"/>
+        <Filename Value="C:\PF\coLinux\files\pascal\svn\psp\psp-lib-1.6.X-devel\src\Extras\DirUtils\DirUtils.pas"/>
+        <Loaded Value="True"/>
+        <TopLine Value="1"/>
+        <UnitName Value="dirutils"/>
+        <UsageCount Value="10"/>
+      </Unit2>
+      <Unit3>
+        <CursorPos X="31" Y="50"/>
+        <EditorIndex Value="2"/>
+        <Filename Value="C:\PF\coLinux\files\pascal\svn\psp\psp-lib-1.6.X-devel\src\Extras\CompactUtils\CompactSysUtils.pas"/>
+        <Loaded Value="True"/>
+        <TopLine Value="1"/>
+        <UnitName Value="CompactSysUtils"/>
+        <UsageCount Value="10"/>
+      </Unit3>
+      <Unit4>
+        <CursorPos X="1" Y="1"/>
+        <EditorIndex Value="3"/>
+        <Filename Value="C:\PF\coLinux\files\pascal\svn\psp\psp-lib-1.6.X-devel\src\Extras\CompactUtils\inc\functions_interface1.inc"/>
+        <IsPartOfProject Value="True"/>
+        <Loaded Value="True"/>
+        <TopLine Value="1"/>
+        <UsageCount Value="20"/>
+      </Unit4>
+    </Units>
+    <PublishOptions>
+      <Version Value="2"/>
+      <IgnoreBinaries Value="False"/>
+      <IncludeFileFilter Value="*.(pas|pp|inc|lfm|lpr|lrs|lpi|lpk|sh|xml)"/>
+      <ExcludeFileFilter Value="*.(bak|ppu|ppw|o|so);*~;backup"/>
+    </PublishOptions>
+    <RunParams>
+      <local>
+        <FormatVersion Value="1"/>
+        <LaunchingApplication PathPlusParams="/usr/X11R6/bin/xterm -T 'Lazarus Run Output' -e $(LazarusDir)/tools/runwait.sh $(TargetCmdLine)"/>
+      </local>
+    </RunParams>
+  </ProjectOptions>
+  <CompilerOptions>
+    <Version Value="5"/>
+    <PathDelim Value="\"/>
+    <SearchPaths>
+      <OtherUnitFiles Value="..\;..\..\compactutils\"/>
+    </SearchPaths>
+    <CodeGeneration>
+      <Generate Value="Faster"/>
+    </CodeGeneration>
+    <Other>
+      <CompilerPath Value="$(CompPath)"/>
+    </Other>
+  </CompilerOptions>
+  <Debugging>
+    <BreakPoints Count="3">
+      <Item1>
+        <Source Value="\\Fu\l1\FPC\projects\synapse\HttpGet\LongEdition\3\UrlGet505_1.pas"/>
+        <Line Value="49"/>
+      </Item1>
+      <Item2>
+        <Source Value="\\Fu\l1\FPC\projects\psp\SourceViewer\viewsource2.pas"/>
+        <Line Value="23"/>
+      </Item2>
+      <Item3>
+        <Source Value="C:\PF\coLinux\files\pascal\svn\psp\psp-1.4.x-devel\src\units\web.pp"/>
+        <Line Value="458"/>
+      </Item3>
+    </BreakPoints>
+    <Exceptions Count="2">
+      <Item1>
+        <Name Value="ECodetoolError"/>
+      </Item1>
+      <Item2>
+        <Name Value="EFOpenError"/>
+      </Item2>
+    </Exceptions>
+  </Debugging>
+</CONFIG>
