@@ -45,7 +45,6 @@ procedure TAnotherThread.execute;
 begin
   while not self.terminated do begin
 		delay(10);
-		inc(myThread.fCounter);
 		//gotoxy(10,20);clreol;
 		//write('M',MainCounter,' ');
 		//write('T',myThread.fCounter,' ');
@@ -61,7 +60,7 @@ begin
 	my2Thread:=TAnotherThread.create(false);
 	my2Thread.freeOnTerminate:=true;
 	while ( MainCounter<2000 ) do begin
-		
+		inc(myThread.fCounter);
 		gotoxy(10,22);clreol;
 		write('TC',myThread.fCounter,' MC ',MainCounter);
 		delay(15);
