@@ -2,7 +2,7 @@ program fktplot;
 
 uses qgtk2,FunctionSolver;
 
-{$Id$}
+{ $Id$ }
 
 
 const 
@@ -15,39 +15,32 @@ const
 	XFontCorr=15;		{ verschiebe Beschriftung um n pixxel nach links }
 
 var 
-	formel       : string80;
+	formel       	: string80;
 	xmin,xmax,dx,
 	yfact,ymin,
-	ymax,maxy    : real;
-	y,x          : array[1..240] of real;
-	zahlen       : array30;
-	funk         : token;
+	ymax,maxy    	: real;
+	y,x          	: array[1..240] of real;
+	zahlen       	: array30;
+	funk         	: token;
 	i,j,k,xfact,
 	y_axis,
 	zero_line,
 	x_rand,y_rand,
-	y_ver        : integer;
-	x_wert,y_wert: string[6];
-	ende         : boolean;
+	y_ver        	: integer;
+	x_wert,y_wert	: string[6];
+	ende         	: boolean;
+	CalcButton,
+	ExitButton	: qWidget;
+	calc		: Boolean;
 
 
-
-procedure holparm;
+procedure onClose;
 begin
-	writeln('Programmende durch Formel=ende');
-	write('Formel : Y=');
-	readln(formel);
-	for i:= 1 to length(formel) do formel[i]:=upcase(formel[i]);
-	if formel='ENDE' then begin
-		halt(0);
-	end;
-	write('XMIN   : ');
-	readln(xmin);
-	repeat
-		write('XMAX   : ');
-		readln(xmax);
-	until xmax > xmin;
+	if qdialog('Quit?','Yes', 'No','') =1 then begin
+		qdestroy;
+	end
 end;
+
 
 procedure funktionswerte_berechnen;
 
@@ -95,7 +88,7 @@ begin
 end;
 
 
-procedure onCreate;
+procedure onDraw;
 
 	procedure  beschriftung;
 	begin
@@ -138,12 +131,7 @@ begin
 	yfact:=(GetScreenMaxY-y_rand-20)/maxy;
 	y_axis:=GetScreenMaxY-y_rand-10;
 
-	{ white Background }
-	qsetClr( qWhite );
-	qfillrect( 0, 0,GetScreenMaxX-1, GetScreenMaxY-1);
-	qsetClr( qBlack );
-	qrect(0,0,GetScreenMaxX-1,GetScreenMaxY-1);
-
+	
 	{ Nulllinie berechnen }
 	zero_line:=trunc((GetScreenMaxY-y_rand)/2);
 
@@ -158,17 +146,37 @@ begin
 end;
 
 
+procedure onCalc;
+
+begin
+	{ white Background }
+	qsetClr( qWhite );
+	qfillrect( 0, 0,GetScreenMaxX-1, GetScreenMaxY-1);
+	qsetClr( qBlack );
+	qrect(0,0,GetScreenMaxX-1,GetScreenMaxY-1);
+
+	formel:=qinput('Formel:', formel);
+	write(formel);
+	val(qinput('X min:', ''),xmin );
+	val(qinput('X max:', ''),xmax );
+	writeln(',',xmin,',',xmax);
+	calc:=true;
+	codier(formel,funk,zahlen);
+	if FSfm=0 then funktionswerte_berechnen;
+	onDraw;
+end;
+
 
 
 
 begin
+	calc:=false;
 	qstart('Fktplot  '+version+' '+datum, nil, nil);
-	holparm;
-	codier(formel,funk,zahlen);
-	if FSfm=0 then funktionswerte_berechnen;
-	if FSfm=0 then begin
-		qdrawstart(800,480, @onCreate,nil, nil);
+	CalcButton:=qbutton('Calc',@onCalc);
+	ExitButton:=qbutton('Exit',@onClose);
+	qNextRow;
 
-		qgo;
-	end;
+	qdrawstart(800,480, @onCalc,nil, nil);
+
+	qgo;
 end.
