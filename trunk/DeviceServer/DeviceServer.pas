@@ -9,14 +9,14 @@ uses PhysMach,webserver,telnetserver,cthreads,classes,crt;
 
 { 20.02.2008		Start of project					}
 { 08.03.2008		changed to start one thread per device			}
-
+{ 18.07.2008		added comments,code clearing				}
 
 
 const
 	Forever=false;
 	MaxThreads=25;
 	BLOCKED=true;
-	NOTBLOCKED=false;
+	NONBLOCKED=false;
 	debug=false;
 	TimeOut=500;
 
@@ -36,13 +36,18 @@ var
 	NumOfThreads	: LongInt ;
 
 
-Procedure interpreter;
+Procedure TelnetInterpreter;
+
+{ callback procedure for the telnet interpreter }
+{ this is the telnet shell of the device server }
+{ it's not possible to handover any data	}
+
 var
 	Line		: String;
 	cmd,hw		: Char;
 	pa,va		: LongInt;
 	StrVal		: String;
-	AddrStr,TypStr	: String;
+	AddrStr		: String;
 	i		: Integer;
 
 begin
@@ -55,6 +60,7 @@ begin
 		val(copy(line,7,length(line)-6),va);
 	if debug then writeln('pa=',pa,' va=',va);
 	case cmd of
+		{ read command, next param is a counter input or output }
 		'R' : 	begin
 				case hw of
 						'C' :	begin
@@ -78,6 +84,7 @@ begin
 				end;
 			
 			end;
+		{ write command, next param is digital or analog output }
 		'W' :	begin
 				case hw of
 					'O' :	begin
@@ -90,6 +97,7 @@ begin
 						end;
 				end;
 			end;
+		{ help command, issue some ... }
 		'H' :	begin
 				TelnetWriteAnswer('cmd lines are build like this'+chr(10));
 				TelnetWriteAnswer('cmd hardware number [value]'+chr(10));
@@ -99,6 +107,7 @@ begin
 				TelnetWriteAnswer('Value= value needed when writing lines'+chr(10));
 				TelnetWriteAnswer(chr(10)+'>');
 			end;
+		{ dump the configuration }
 		'C' :	begin
 				// dump the configuration data
 				for i:=1 to group_max do begin
@@ -122,6 +131,7 @@ begin
 				end;
 				TelnetWriteAnswer(chr(10)+'>');
 			end;
+		{ status output }
 		'S' :	begin
 				for i:=1 to NumOfThreads do begin
 					str(ThreadCnt[i],StrVal);
@@ -129,13 +139,17 @@ begin
 				end;
 				TelnetWriteAnswer(chr(10)+'>');
 			end
-		else TelnetWriteAnswer('?'+chr(10)+'>');
+		{ unknown kommand }
+		else TelnetWriteAnswer('?'+chr(10)+'>'); { unknown command issue ?}
 	end;
 
 end;
 
 
 function TelnetThread(p: pointer):LongInt;
+{ this is the telnet thread, setup the interpreter function }
+{ and check for incomming requests }
+
 var 
 	MySelf		: LongInt;
 
@@ -143,13 +157,14 @@ begin
 	MySelf:=longint(p);
 	writeln('started Telnet Thread..',MySelf);
 	TelnetInit(0,'./telnet.log');
-	TelnetSetupInterpreter(@interpreter);
+	TelnetSetupInterpreter(@TelnetInterpreter);
 	repeat
 		TelnetServeRequest('Welcome to Device Server Monitor'+chr(10)+'>');	
 		//delay(100);
 		inc(ThreadCnt[MySelf]);
 	until shutdown=true;
 	writeln('Telnet Handler going down..',MySelf);
+	TelnetThread:=0;
 end;
 
 
@@ -167,6 +182,7 @@ begin
 		inc(ThreadCnt[MySelf]);
 	until shutdown=true;
 	writeln('Device Handler going down..',MySelf);
+	DeviceHandler:=0;
 end;
 
 
@@ -180,7 +196,7 @@ var
 begin
 	Url:=GetURL;
 
-	{ Fragezeichen Abschneiden }
+	{ Fragezeichen Abschneiden, daher ab position 2 params lesen }
 	Params:=copy(GetParams,2,Length(GetParams));;
 
 	if (pos(',',Params) = 0 ) then begin
@@ -256,6 +272,43 @@ begin
 	if debug then writeln('embeddedWeb:>Page Send, finished');
 end;
 
+procedure WriteInputValues;
+var
+	SeitenStart,SeitenEnde,Seite,Values	: string;
+	AddressBase				: word;
+	Bits					: byte;
+
+begin
+	inc(Counter);
+	SeitenStart:='<html><body>';
+	SeitenEnde:=' </body></html>';
+	Values:='';
+
+	{ set the bits in the ausgang[n] array in respect of io_group}
+	AddressBase:=IOGroup*8-8+1;
+
+	for Bits:=8 downto 1 do begin
+		if (ByteValue-Power[Bits])>=0 then begin
+			Eingang[AddressBase+Bits-1]:=true;
+			ByteValue:=ByteValue-Power[Bits];
+			Values:=Values+' 1';
+		end
+		else begin
+			Eingang[AddressBase+Bits-1]:=false;
+			Values:=Values+' 0';
+		end;
+	end;
+
+	{ return something usefull }	
+	Seite:=SeitenStart+Values+SeitenEnde;
+	if debug then writeln('embeddedWeb:>Sending Page');
+	SendPage(Seite);
+	if debug then writeln('embeddedWeb:>Page Send, finished');
+end;
+
+
+
+
 
 procedure SaveDigitalValues;
 var
@@ -312,6 +365,7 @@ begin
 	SetupSpecialURL('/analog/read.html',@DeliverAnalogValues );
 	SetupSpecialURL('/digital/read.html',@DeliverDigitalValues );
 	SetupSpecialURL('/digital/write.html',@SaveDigitalValues);
+	SetupSpecialURL('/digital/WriteInputValues.html',@WriteInputValues);
 
 	repeat
 		EnterCriticalSection(ProtectParams);
