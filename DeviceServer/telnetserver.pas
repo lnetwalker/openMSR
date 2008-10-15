@@ -26,7 +26,7 @@ procedure TelnetShutDown;
 
 implementation
 
-uses crt,sockets,BaseUnix,Unix;
+uses crt,sockets,BaseUnix,Unix,inetaux;
 
 const
 	MaxConn 		= 1;
@@ -39,31 +39,11 @@ var
 	sin, sout 		: Text;
 	LOG			: Text;
 	InterpreterProc		: tprocedure;
-	NumStr			: String;
 	ListenPort 		: Word ;
 	ShutDownProc		: Boolean;
 
 
 
-function AddrToStr(addr : LongInt) : String;
-var
-	r, s 	: String;
-	i 	: LongInt;
-begin
-	r := '';
-	for i := 0 to 3 do begin
-		Str(addr shr (i * 8) and $FF, s);
-		r := r + s;
-		if i < 3 then r := r + '.';
-	end;
-	AddrToStr := r;
-end;
-
-
-function htons(i : Integer) : Integer;
-begin
-	htons := lo(i) shl 8 or hi(i);
-end;
 
 
 procedure writeLOG(MSG: string);
