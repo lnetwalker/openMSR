@@ -75,7 +75,7 @@ uses
 		linux,
 		dil_io_access,lp_io_access,pio_io_access,
 		joy_io_access,rnd_io_access,http_io_access,
-		bmcm_io_access,
+		bmcm_io_access,funk_io_access,
 {$endif}
 {$ifdef newio }
 		iowkit_io_access,
@@ -117,6 +117,7 @@ begin
 		'H' 	: wert:=http_read_ports(Address);
 		'B' 	: wert:=bmcm_read_ports(Address);
 		'E'	: wert:=exec_read_ports(Address);
+		'F'	: wert:=funk_read_ports(Address);
 	end;
 
 	if (debugFlag) then 
@@ -175,6 +176,7 @@ begin
 			'H' 	: http_write_ports(Address,Value);
 			'B' 	: bmcm_write_ports(Address,Value);
 			'E'	: exec_write_ports(Address,Value);
+			'F'	: funk_write_ports(Address,Value);
 		end;
 	end;
 end;
@@ -318,6 +320,10 @@ begin
 				'E'	: begin
 						exec_hwinit(initstring);
 						HWPlatform:=HWPlatform+',ext. APP  ';
+					  end;
+				'F'	: begin
+						funk_hwinit(initstring);
+						HWPlatform:=HWPlatform+',Funk ';
 					  end;
 			end;
 	
