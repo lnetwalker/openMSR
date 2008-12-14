@@ -262,6 +262,7 @@ var
 	iogroup				: integer;
 	i,NumOfDevices			: Byte;
 	AlreadyInList			: Boolean;
+	DeviceNumber			: Byte;
 	
 begin
 	assign (f,cfgFilename);
@@ -272,6 +273,7 @@ begin
 		halt(1);
 	end;
 	NumOfDevices:=1;
+	DeviceNumber:=1;
 	while not(eof(f)) do begin
 		readln (f,zeile);
 		if ( copy(zeile,1,6) = 'DEVICE' ) then begin
@@ -285,40 +287,40 @@ begin
 			case initdevice of
 {$ifdef LINUX}
 				'D'	: begin
-						dil_hwinit(initstring);
+						dil_hwinit(initstring,DeviceNumber);
 						HWPlatform:=HWPlatform+',DIL/NetPC ';
 					  end;	
 				'L'	: begin
-						lp_hwinit(initstring);
+						lp_hwinit(initstring,DeviceNumber);
 						HWPlatform:=HWPlatform+',LP Port ';
 					  end;	
 				'P'	: begin
-						pio_hwinit(initstring);
+						pio_hwinit(initstring,DeviceNumber);
 						HWPlatform:=HWPlatform+',PIO 8255 ';
 					  end;	
 				'J'	: begin
-						joy_hwinit(initstring);
+						joy_hwinit(initstring,DeviceNumber);
 						HWPlatform:=HWPlatform+',Joystick ';
 					  end;	
 {$endif}
 				'I'	: begin
-						iow_hwinit(initstring);
+						iow_hwinit(initstring,DeviceNumber);
 						HWPlatform:=HWPlatform+',IO-Warrior 40 ';
 					  end;	
 				'R'	: begin
-						rnd_hwinit(initstring);
+						rnd_hwinit(initstring,DeviceNumber);
 						HWPlatform:=HWPlatform+',Random ';
 					  end;	
 				'H' 	: begin
-						http_hwinit(initstring);
+						http_hwinit(initstring,DeviceNumber);
 						HWPlatform:=HWPlatform+',HTTP ';
 					  end;
 				'B'	: begin
-						bmcm_hwinit(initstring);
+						bmcm_hwinit(initstring,DeviceNumber);
 						HWPlatform:=HWPlatform+',BMCM-USB-Device ';
 					  end;
 				'E'	: begin
-						exec_hwinit(initstring);
+						exec_hwinit(initstring,DeviceNumber);
 						HWPlatform:=HWPlatform+',ext. APP  ';
 					  end;
 				'F'	: begin
