@@ -18,7 +18,7 @@ INTERFACE
 
 function dil_read_ports(io_port:longint):byte;
 function dil_write_ports(io_port:longint;byte_value:byte):byte;
-function dil_hwinit(initdata:string):boolean;
+function dil_hwinit(initdata:string;DeviceNumber:byte):boolean;
 
 implementation
 uses linux;
@@ -58,7 +58,7 @@ begin
 end;
 
 
-function dil_hwinit(initdata:string):boolean;
+function dil_hwinit(initdata:string;DeviceNumber:byte):boolean;
 begin
 	if (debug) then writeln ('DIL: HWinit ',initdata);
 	{ initstring is a dummy !}

@@ -19,7 +19,7 @@ INTERFACE
 function joy_read_ports(io_port:longint):byte;
 function joy_read_ports(io_port:LongInt; axis : byte):integer;
 function joy_write_ports(io_port:longint;byte_value:byte):byte;
-function joy_hwinit(initdata:string):boolean;
+function joy_hwinit(initdata:string;DeviceNumber:byte):boolean;
 
 
 implementation
@@ -98,7 +98,7 @@ begin
 	joy_write_ports:=0;
 end;
 
-function joy_hwinit(initdata:string):boolean;
+function joy_hwinit(initdata:string;DeviceNumber:byte):boolean;
 { initialize everything , initdata is the FQN of the device file }
 begin
 	assign(f,initdata);

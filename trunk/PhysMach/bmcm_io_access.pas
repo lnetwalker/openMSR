@@ -21,7 +21,7 @@ INTERFACE
 function bmcm_read_ports(io_port:longint):byte;
 function bmcm_read_analog(io_port:longint):longint;
 function bmcm_write_ports(io_port:longint;byte_value:byte):byte;
-function bmcm_hwinit(initstring:string):boolean;
+function bmcm_hwinit(initstring:string:DeviceNumber:byte):boolean;
 
 { the io_port address has a special meaning: its a two digit number with the first digit }
 { addressing the usb PIO device ( eg. /dev/acm... [ range 0-3 ]) and the second digit meaning }
@@ -47,7 +47,7 @@ var
 	devices		: array[1..bmcm_max] of longint;	{ array with the device handles }
 	cnt		: byte;					{ the counter for the divces }
 	p 		: PCardinal;				{ pointer to that value }
-
+	DeviceIndex	: byte;
 
 function bmcm_read_ports(io_port:longint):byte;
 
@@ -59,7 +59,7 @@ begin
 	if debug then writeln('IO_port=',io_port);
 
 	{ extract the device number as key to device handle }
-	dev:=round(io_port/10);
+	dev:=round(io_port/10)-DeviceIndex;
 	if debug then writeln('dev=',dev);
 
 	{ extract the port }
@@ -89,7 +89,7 @@ begin
 	if debug then writeln('io_port=',io_port);
 
 	{ extract the device number as key to device handle }
-	dev:=round(io_port/16);
+	dev:=round(io_port/16)-DeviceIndex;
 	if debug then writeln('dev=',dev);
 
 	{ extract the port }

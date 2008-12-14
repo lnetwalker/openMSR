@@ -14,7 +14,7 @@ INTERFACE
 
 function pio_read_ports(io_port:longint):byte;
 function pio_write_ports(io_port:longint;byte_value:byte):byte;
-function pio_hwinit(initdata:string):boolean;
+function pio_hwinit(initdata:string;DeviceNumber:byte):boolean;
 
 {$define ZAURUS }
 implementation
@@ -49,7 +49,7 @@ begin
 end;
 
 
-function pio_hwinit(initdata:string):boolean;
+function pio_hwinit(initdata:string;DeviceNumber):boolean;
 var
         controlPort : LongInt;
         configByte  : byte;
