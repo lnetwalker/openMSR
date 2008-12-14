@@ -18,7 +18,7 @@ INTERFACE
 function http_read_ports(io_port:longint):byte;
 function http_write_ports(io_port:longint;byte_value:byte):byte;
 function http_read_analog(io_port:longint):Cardinal;
-function http_hwinit(initdata:string):boolean;
+function http_hwinit(initdata:string;DeviceNumber:byte):boolean;
 
 implementation
 uses linux,CommonHelper
@@ -33,7 +33,8 @@ const
 var
 	R_URL,W_URL		: array[1..4] of String;
 	cnt			: byte;
-	
+	DeviceIndex		: byte;
+
 function http_read_ports(io_port:longint):byte;
 
 var	
@@ -66,7 +67,7 @@ var
 begin
 	{ Params= Ioport,byte_value }
 	{ extract the device number as key to the device handle }
-	dev:=round(io_port/10);
+	dev:=round(io_port/10)-DeviceIndex;
 	{ extract the port }
 	io_port:=round(frac(io_port/10)*10);
 	str(io_port,TmpStrg);
@@ -93,7 +94,7 @@ var
 begin
 	if debug then writeln('http_io_access io_port=',io_port);
 	{ extract the device number as key to the device handle }
-	dev:=round(io_port/10);
+	dev:=round(io_port/10)-DeviceIndex;
 	{ extract the port }
 	io_port:=round(frac(io_port/10)*10);
 
@@ -126,11 +127,12 @@ begin
 end;
 
 
-function http_hwinit(initdata:string):boolean;
+function http_hwinit(initdata:string;DeviceNumber:byte):boolean;
 var
 	delim : integer;
 
 begin
+	DeviceIndex:=DeviceNumber;
 	inc(cnt);
 	delim:=pos('§',initdata);
 	R_URL[cnt]:=copy(initdata,1,delim-1);

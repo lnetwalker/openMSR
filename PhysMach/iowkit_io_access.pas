@@ -1,7 +1,7 @@
 Unit iowkit_io_access;
 
 { diese Unit stellt Funktionen zum I/O Access auf			} 
-{ die Ports des IO Warriors 40 von Code Mercanaries zur Verfügung  	}	
+{ die Ports des IO Warriors 40 von Code Mercanaries zur Verfï¿½gung  	}	
 { dabei wird die Delphi Schnittstelle des SDK benutzt 			}
 
 { If you have improvements please contact me at 			}
@@ -21,7 +21,7 @@ INTERFACE
 
 function iow_read_ports(io_port:longint):byte;
 function iow_write_ports(io_port:longint;byte_value:byte):byte;
-function iow_hwinit(initdata:string):boolean;
+function iow_hwinit(initdata:string;DeviceNumber:byte):boolean;
 
 implementation
 uses iowkit;
@@ -36,7 +36,8 @@ type TIowDevice = array [1..war_max] of IOWKIT_HANDLE;
 var	
 	IOWarrior 	: TIowDevice;
 	oldval		: array[1..war_max] of Cardinal; 
-	i			: byte;
+	i		: byte;
+	DeviceIndex	: byte;
 
 function iow_read_ports(io_port:longint):byte;
 
@@ -46,7 +47,7 @@ var
 
 begin
 	{ extract the device number }
-	device:=round(io_port/10);
+	device:=round(io_port/10)-DeviceIndex;
 	{ extract the port }
 	io_port:=round(frac(io_port/10)*10);
 	(* read the warrior *)
@@ -55,7 +56,7 @@ begin
 	
 	{ return the wanted port }
 	case io_port of
-	   	0	: iow_read_ports:=Value;
+	   	0   : iow_read_ports:=Value;
 	   	1   : iow_read_ports:=Value shr 8;
 	   	2   : iow_read_ports:=Value shr 16;
 	   	3   : iow_read_ports:=Value shr 24;
@@ -71,7 +72,7 @@ var
 	
 begin
 	{ extract the device number and build devicename }
-	dev:=round(io_port/10)+1;
+	dev:=round(io_port/10)+1-DeviceIndex;
 	{ extract the port }
 	io_port:=round(frac(io_port/10)*10);
 	
@@ -112,10 +113,13 @@ begin
 end;
 
 
-function iow_hwinit(initdata:string):boolean;
+function iow_hwinit(initdata:string;DeviceNumber:byte):boolean;
 var
 	x	: byte;
 begin
+	if (deviceNumber>war_max) then DeviceIndex:=DeviceNumber
+	else DeviceIndex:=0;
+
 	if (debug) then writeln ( 'IOW_IO: IO-Warrior initilized' );
 	for x:=1 to war_max do 
 		oldval[x]:=0;

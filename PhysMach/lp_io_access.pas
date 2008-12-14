@@ -1,6 +1,6 @@
 Unit lp_io_access;
 
-{ diese Unit stellt Funktionen zum I/O Access auf den LPT Port zur Verfügung 	}
+{ diese Unit stellt Funktionen zum I/O Access auf den LPT Port zur Verfï¿½gung 	}
 { Attention: its just a raw hack - not finished					}
 { all code is copyright by Hartmut Eilers and released under	}
 { the GNU GPL see www.gnu.org for license details		}
@@ -9,7 +9,7 @@ INTERFACE
 
 function lp_read_ports(io_port:longint):byte;
 function lp_write_ports(io_port:longint;byte_value:byte):byte;
-function lp_hwinit(initdata:string):boolean;
+function lp_hwinit(initdata:string;DeviceNumber:byte):boolean;
 
 implementation
 
@@ -43,7 +43,7 @@ begin
 	lp_write_ports:=byte_value;
 end;
 
-function lp_hwinit(initdata:string):boolean;
+function lp_hwinit(initdata:string;DeviceNumber:byte):boolean;
 begin
 
 end;
