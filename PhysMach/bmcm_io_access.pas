@@ -13,6 +13,7 @@ Unit bmcm_io_access;
 {		05.06.2007 first raw hack	( startcode is iowarrior )}
 {		12.06.2007 init read and write first hacked ( digital values only = usb-pio support)}
 
+{ $Id: }
 
 INTERFACE
 
