@@ -5,6 +5,8 @@ Unit funk_io_access;
 { all code is copyright by Hartmut Eilers and released under	}
 { the GNU GPL see www.gnu.org for license details		}
 
+{ $Id: }
+
 INTERFACE
 
 function funk_read_ports(io_port:longint):byte;
