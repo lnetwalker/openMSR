@@ -1,4 +1,7 @@
 program funktest;
+{ $Id: }
+
+
 
 uses funk_io_access;
 
