@@ -11,7 +11,7 @@ INTERFACE
 
 function funk_read_ports(io_port:longint):byte;
 function funk_write_ports(io_port:longint;byte_value:byte):byte;
-function funk_hwinit(initdata:string):boolean;
+function funk_hwinit(initdata:string;DeviceNumber:Byte):boolean;
 
 implementation
 uses crt;
@@ -25,6 +25,7 @@ const 	IOFile='/dev/port';
 	NoOfOutputs=4;		// how many outputs are used
 
 var	XmitTime	: word;
+	OldByteValue	: byte;
 
 function funk_read_ports(io_port:longint):byte;
 begin
@@ -33,40 +34,47 @@ end;
 	
 function funk_write_ports(io_port:longint;byte_value:byte):byte;	
 var 	F     		: file of byte;
-	i,OutVal	: byte;
-
+	i,k,OutVal	: byte;
+	
 begin
-	assign(F,IOFile);
-	reset(F,Sizeof(OutVal));
-	for i:=7 downto 0 do begin
-		OutVal:=255;
-		if byte_value>= power[i] then begin			// the bit is high
-			byte_value:=byte_value-power[i];
-			if i<NoOfOutputs then 				// only the lower 4 bits are used, rest is ignored
-				OutVal:=PORTBITS[i] and SWITCH_ON;	// set the bit and the on-bit  to low
-		end
-		else							// the bit is low
-			if i<NoOfOutputs then 				// only the lower 4 bits are used, rest is ignored
-				OutVal:=PORTBITS[i] and SWITCH_OFF;	// set the bit and the off-bit to low
+	if OldByteValue <> Byte_value then begin	// transmit only, if changes occurred
+		OldByteValue:=byte_value;		// save byte_value for next run
+		assign(F,IOFile);
+		reset(F,Sizeof(OutVal));
+		for k:=1 to 2 do begin			// transmit the signals twice
+			for i:=7 downto 0 do begin
+				OutVal:=255;			// always start with all high as dummy
+				if byte_value>= power[i] then begin			// the bit is high
+					byte_value:=byte_value-power[i];
+					if i<NoOfOutputs then 				// only the lower 4 bits are used, rest is ignored
+						OutVal:=PORTBITS[i] and SWITCH_ON;	// set the bit and the on-bit  to low
+				end
+				else							// the bit is low
+					if i<NoOfOutputs then 				// only the lower 4 bits are used, rest is ignored
+						OutVal:=PORTBITS[i] and SWITCH_OFF;	// set the bit and the off-bit to low
 
-		if i<NoOfOutputs then begin				// only the lower 4 bits are used, rest is ignored
-			seek(F,io_port);				// set the outputs
-			blockwrite(F,OutVal,1);	
-			delay(XmitTime);				// wait some time
-			seek(F,io_port);				// switch off the IO lines
-			blockwrite(F,255,1);
+				if i<NoOfOutputs then begin				// only the lower 4 bits are used, rest is ignored
+					seek(F,io_port);				// set the outputs
+					blockwrite(F,OutVal,1);	
+					delay(XmitTime);				// wait some time
+					seek(F,io_port);				// switch off the IO lines
+					blockwrite(F,255,1);
+				end;
+			end;
+			byte_value:=OldByteValue;	// restore byte_value, it was destroyed above
 		end;
+		close(F);
 	end;
-	close(F);
 	funk_write_ports:=byte_value;
 end;
 
-function funk_hwinit(initdata:string):boolean;
+function funk_hwinit(initdata:string;DeviceNumber:byte):boolean;
 begin
 	if length(initdata)=0 then XmitTime:=500
 	else begin
 		val(initdata,XmitTime);
 	end;
+	OldByteValue:=0;
 end;
 
 
