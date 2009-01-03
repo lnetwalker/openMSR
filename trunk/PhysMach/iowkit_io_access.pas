@@ -39,7 +39,6 @@ var
 	IOWarrior 	: TIowDevice;
 	oldval		: array[1..war_max] of Cardinal; 
 	i		: byte;
-	DeviceIndex	: byte;
 
 function iow_read_ports(io_port:longint):byte;
 
@@ -49,7 +48,7 @@ var
 
 begin
 	{ extract the device number }
-	device:=round(io_port/10)-DeviceIndex;
+	device:=round(io_port/10);
 	{ extract the port }
 	io_port:=round(frac(io_port/10)*10);
 	(* read the warrior *)
@@ -74,7 +73,7 @@ var
 	
 begin
 	{ extract the device number and build devicename }
-	dev:=round(io_port/10)+1-DeviceIndex;
+	dev:=round(io_port/10)+1;
 	{ extract the port }
 	io_port:=round(frac(io_port/10)*10);
 	
@@ -119,8 +118,6 @@ function iow_hwinit(initdata:string;DeviceNumber:byte):boolean;
 var
 	x	: byte;
 begin
-	if (deviceNumber>war_max) then DeviceIndex:=DeviceNumber
-	else DeviceIndex:=0;
 
 	if (debug) then writeln ( 'IOW_IO: IO-Warrior initilized' );
 	for x:=1 to war_max do 
