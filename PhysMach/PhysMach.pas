@@ -14,6 +14,7 @@ unit PhysMach;
 
 { $Id$ }
 
+{$define newio}
 interface
 
 const
@@ -39,7 +40,7 @@ var
 	timer			: array[1..tim_max]	 of boolean;
 	t			: array[1..tim_max]	 of word;	 
 	z			: array[1..cnt_max]	 of word;
-	analog_in		: array[1..analog_max]   of Cardinal;
+	analog_in		: array[1..analog_max]   of integer;
 
 	HWPlatform		: string;
 
@@ -324,11 +325,12 @@ begin
 						HWPlatform:=HWPlatform+',ext. APP  ';
 					  end;
 				'F'	: begin
-						funk_hwinit(initstring);
+						funk_hwinit(initstring,DeviceNumber);
 						HWPlatform:=HWPlatform+',Funk ';
 					  end;
 			end;
 	
+			inc(DeviceNumber);
 			AlreadyInList:=false;
 			for i:=1 to NumOfDevices do
 				if (DeviceList[i]=initdevice) then AlreadyInList:=true;
