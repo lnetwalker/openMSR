@@ -22,7 +22,7 @@ INTERFACE
 function bmcm_read_ports(io_port:longint):byte;
 function bmcm_read_analog(io_port:longint):longint;
 function bmcm_write_ports(io_port:longint;byte_value:byte):byte;
-function bmcm_hwinit(initstring:string:DeviceNumber:byte):boolean;
+function bmcm_hwinit(initstring:string;DeviceNumber:byte):boolean;
 
 { the io_port address has a special meaning: its a two digit number with the first digit }
 { addressing the usb PIO device ( eg. /dev/acm... [ range 0-3 ]) and the second digit meaning }
@@ -132,7 +132,7 @@ begin
 end;
 
 
-function bmcm_hwinit(initstring:string):boolean;
+function bmcm_hwinit(initstring:string;DeviceNumber:byte):boolean;
 var
 	i		: byte;
 	initdata 	: array[1..5] of string;

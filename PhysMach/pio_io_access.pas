@@ -49,7 +49,7 @@ begin
 end;
 
 
-function pio_hwinit(initdata:string;DeviceNumber):boolean;
+function pio_hwinit(initdata:string;DeviceNumber:byte):boolean;
 var
         controlPort : LongInt;
         configByte  : byte;

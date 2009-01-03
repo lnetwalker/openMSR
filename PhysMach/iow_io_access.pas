@@ -21,7 +21,7 @@ INTERFACE
 
 function iow_read_ports(io_port:longint):byte;
 function iow_write_ports(io_port:longint;byte_value:byte):byte;
-function iow_hwinit(initdata:string):boolean;
+function iow_hwinit(initdata:string;DeviceNumber:byte):boolean;
 
 implementation
 uses linux;
@@ -133,7 +133,7 @@ begin
 end;
 
 
-function iow_hwinit(initdata:string):boolean;
+function iow_hwinit(initdata:string;DeviceNumber:byte):boolean;
 var
 	x	: byte;
 begin

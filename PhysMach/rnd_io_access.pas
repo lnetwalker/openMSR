@@ -10,7 +10,7 @@ INTERFACE
 
 function rnd_read_ports(io_port:longint):byte;
 function rnd_write_ports(io_port:longint;byte_value:byte):byte;
-function rnd_hwinit(initdata:string;DeviceNumber):boolean;
+function rnd_hwinit(initdata:string;DeviceNumber:byte):boolean;
 
 implementation
 
