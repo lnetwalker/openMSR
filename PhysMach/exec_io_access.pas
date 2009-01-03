@@ -10,15 +10,15 @@ INTERFACE
 
 function exec_read_ports(io_port:longint):byte;
 function exec_write_ports(io_port:longint;byte_value:byte):byte;
-function exec_hwinit(initdata:string):boolean;
-function exec_read_analog(io_port:longint):Cardinal;
+function exec_hwinit(initdata:string;DeviceNumber:byte):boolean;
+function exec_read_analog(io_port:longint):integer;
 
 implementation
 
 uses CommonHelper;
 
 const
-	debug=false;
+	debug=true;
 
 var
 	RunCmd	: array[1..4] of AnsiString;
@@ -52,12 +52,12 @@ end;
 
 
 
-function exec_read_analog(io_port:longint):Cardinal;
+function exec_read_analog(io_port:longint):integer;
 var
 	ReturnValue			: string;
 	ReturnArray			: array[1..8] of string;
 	ReturnValueLength,i,k		: integer;
-	wert				: Cardinal;
+	wert				: integer;
 	dev				: byte;
 	cmd				: AnsiString;
 
@@ -84,7 +84,16 @@ begin
 		if debug then writeln('ReturnValue=',ReturnValue,' ReturnArray[',k,']=',ReturnArray[k]);
 		inc(k);
 	until (k>io_port);// or (i>ReturnValueLength);
-	val(ReturnArray[io_port],wert);
+	if ReturnArray[io_port][1]='-' then begin
+		ReturnArray[io_port]:=copy(ReturnArray[io_port],2,length(ReturnArray[io_port]));
+		if debug then writeln('ReturnArray[io_port]=',ReturnArray[io_port]);
+		val (ReturnArray[io_port],wert);
+		wert:=wert*-1;
+		if debug then writeln('wert=',wert);
+	end
+	else
+		val (ReturnArray[io_port],wert);
+
 	exec_read_analog:=wert;
 
 end;
@@ -92,7 +101,7 @@ end;
 
 
 
-function exec_hwinit(initdata:string):boolean;
+function exec_hwinit(initdata:string;DeviceNumber:byte):boolean;
 var
 	i		: integer;
 begin
