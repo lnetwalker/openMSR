@@ -25,7 +25,7 @@
  compile with: g++ -Wno-deprecated -L/usr/X11R6/lib -lX11  main.cc
 */
 
-/* { Id: } */
+/*  $Id$ */
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>
