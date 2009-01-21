@@ -15,6 +15,18 @@
  *                                                                         *
  ***************************************************************************/
 
+/*
+ some minor mods in 16 bit resolution for usb webcams
+ by Hartmut Eilers
+ hartmut@eilers.net
+*/
+
+/*
+ compile with: g++ -Wno-deprecated -L/usr/X11R6/lib -lX11  main.cc
+*/
+
+/*Id:*/
+
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
@@ -763,7 +775,7 @@ void o_tracing::draw_tracing_frame(){
     for(int i=0;i<2;i++)
     {   
         unsigned int my_x0=(3*x0)+((id+i)%3);
-    if (id>3) cout << ''!'' << endl;
+    if (id>3) cout << '!' << endl;
         unsigned int my_width=3*WIDTH;
 
     // Ecke links oben.
@@ -802,7 +814,7 @@ void o_tracing::draw_tracing_frame(unsigned char * my_frame){
     for(int i=0;i<2;i++)
     {   
         unsigned int my_x0=(3*x0)+((id+i)%3);
-    if (id>3) cout << ''!'' << endl;
+    if (id>3) cout << '!' << endl;
         unsigned int my_width=3*WIDTH;
 
     // Ecke links oben.
@@ -838,16 +850,16 @@ void o_tracing::draw_tracing_frame(unsigned char * my_frame){
  */
 video_out::video_out(){
     // Vorbereitungen für das X-Fenter
-    display_name = getenv(''DISPLAY''); // Einholen der Displayadresse
+    display_name = getenv("DISPLAY"); // Einholen der Displayadresse
     // Verbindungsaufbau zum X Server
     display = XOpenDisplay(display_name);
     if (display == NULL){
-        fprintf(stderr, ''Zum Display \''%s\'' konnte keiner Verbindung aufgebaut werden.'', display_name);
+        fprintf(stderr, "Zum Display %s konnte keine Verbindung aufgebaut werden.", display_name);
         exit(1);
     }
     // Ermittele die Abmessungen des (Standard) Desktop
     screen_num = DefaultScreen(display);
-    printf(''window Breite= '%d'; Höhe= '%d'\n'', WIDTH, HEIGHT);
+    printf("window Breite= %d; Höhe= %d\n", WIDTH, HEIGHT);
     // Erzeuge ein einfaches Fenster das ''child'' des root Fensters ist.
     // Das Weiß des root wird Hintergrund der child.
     // Das Fenster wird in der linken oberen Ecke plaziert.
@@ -982,9 +994,11 @@ void video_out::display_frame (unsigned char * translated_buffer,
             }
         break;      
         default:
-            cout << ''Diese Farbtiefe wird nicht unterstützt !'' << endl;
+            cout << "Diese Farbtiefe wird nicht unterstützt !" << endl;
             break;  
     }
+
+    //cout << "video_out::display_frame" << endl;
     static int first = 1;
         if (first == 1){
         ximage = XCreateImage (display, CopyFromParent, 24 /*zuvor depth*/,
@@ -1016,6 +1030,7 @@ void video_out::display_frame (unsigned char * translated_buffer,
     my_imagem.width=WIDTH;
     my_imagem.height=HEIGHT;
     my_imagem.buffer = buffer;
+    //cout << " in display_frame " << endl;
     switch(depth) {
     /*  case 8:{
             int x,y,z,k,pixel;
@@ -1053,13 +1068,14 @@ void video_out::display_frame (unsigned char * translated_buffer,
             unsigned short *word;
             word=(unsigned short *) translated_buffer;
             for(z=k=y=0;y!=my_imagem.height;y++)
-            for(x=0;x!=my_imagem.width;x++){
-                if (z == (my_imagem.width*my_imagem.height)) break;             
+            for(x=0;x!=my_imagem.width*3;x++){
+                if (z == (my_imagem.width*my_imagem.height*3)) break;             
                 // for 16 bit depth, organization 565
                 //          fprintf (stdout, ''%d - %d\n'', (imagem_t.x*imagem_t.y*imagem_t.w), z); 
-                r=my_imagem.buffer[z++] <<8;
-                g=my_imagem.buffer[z++] <<8;                      
+                
                 b=my_imagem.buffer[z++] <<8;
+		g=my_imagem.buffer[z++] <<8;                      
+                r=my_imagem.buffer[z++] <<8;
                 r &= 0xf800;
                 g &= 0xfc00;                        
                 b &= 0xf800;
@@ -1086,17 +1102,21 @@ void video_out::display_frame (unsigned char * translated_buffer,
             }
         break;      
         default:
-            cout << ''Diese Farbtiefe wird nicht unterstützt !'' << endl;
+            cout << "Diese Farbtiefe wird nicht unterstützt !" << endl;
             break;  
     }
+    //cout << " after case display depth" << endl;
     static int first = 1;
         if (first == 1){
-        ximage = XCreateImage (display, CopyFromParent, 24 /*zuvor depth*/,
+        ximage = XCreateImage (display, CopyFromParent, depth /*24*/ /*zuvor depth*/,
             ZPixmap, 0, (char *)translated_buffer, my_imagem.width,
                 my_imagem.height, bpl*8, bpl * my_imagem.width);
         first = 0;
     }
+    //cout << "XPutImgae" << endl;
+    //cout << " image width " << my_imagem.width << " height " << my_imagem.height << endl;
     XPutImage (display, win, gc, ximage, 0,0,0,0, my_imagem.width, my_imagem.height);
+    //cout << "XFlush" << endl;
     XFlush(display);
     //XDestroyImage(ximage);
 }
@@ -1118,7 +1138,7 @@ Window video_out::create_simple_window(Display* display, int width, int height, 
                             BlackPixel(display, screen_num),
                             WhitePixel(display, screen_num));
     Window root = RootWindow(display, screen_num);
-    cout << ''Root='' << root << endl;
+    cout << "Root=" << root << endl;
     // Sende alle Nachrichten und sorge so dafür, dass das
     // Fenster aktualisiert wird.
     XFlush(display);
@@ -1202,8 +1222,8 @@ int video_in::grab_open (char *device, int width, int height, int depth){
     // Ermittelung der Videoeinstellungen
     if (ioctl (video_fd, VIDIOCGCAP, &cap) < 0) return -1;
     // Typ der Karte ausgeben
-    cout << ''Kartentyp: '' << cap.name << endl;
-    cout << ''Maximale Auflösung: '' << cap.maxwidth << '' x '' << cap.maxheight << endl;  
+    cout << "Kartentyp: " << cap.name << endl;
+    cout << "Maximale Auflösung: " << cap.maxwidth << " x " << cap.maxheight << endl;
     // Test ob die Video-Auflösung vom Gerät erreicht werden kann
     if (width > cap.maxwidth || height > cap.maxheight ||
           width < cap.minwidth || height < cap.minheight)
@@ -1250,6 +1270,7 @@ int video_in::grab_open (char *device, int width, int height, int depth){
     if (ioctl (video_fd, VIDIOCGMBUF, &mbuf) < 0) return -1;
     buffer = (unsigned char *)mmap (0, mbuf.size, PROT_READ | PROT_WRITE, MAP_SHARED, video_fd, 0);
     if (buffer == (unsigned char *) -1) return -1;
+    //cout <<  "finished video_in::grab_open"  << endl;
     return 0;
 }
 
@@ -1259,6 +1280,7 @@ int video_in::grab_open (char *device, int width, int height, int depth){
  */
 unsigned char * video_in::grab_pix (void) {
 
+    //cout << "starting video_in::grab_pix " << endl;
     if (grab_frame() < 0) return 0;
     if(grab_sync() < 0) return 0;
     frame=!frame;
@@ -1379,32 +1401,32 @@ bool Menue(video_out *out, o_tracing *Objekt1, o_tracing *Objekt2, o_tracing *Ob
             }
         }// end else
         //clear();
-        cout << endl << ''Diplomarbeit - \''Kameragestützte Echtzeit Objekterkennung unter Linux\'''' << endl;
-        cout << ''von Thomas Maurer Version 1.1'' << endl << endl;
-        cout << ''Für Eingaben muss der Fokus auf dem Grafischen-Fenster liegen!'' << endl;
-        cout << ''1 = Captureframe 1 ein/aus '';
-        if (grab1) cout << ''[EIN] '';
-        else cout << ''[AUS] '';
-        cout << ''Toleranz 1 = ['' << (toleranz1*2) << ''] q=+2 / a=-2 und Mousebutton1'' << endl;
-        cout << ''2 = Captureframe 1 ein/aus '';
-        if (grab2) cout << ''[EIN] '';
-        else cout << ''[AUS] '';
-        cout << ''Toleranz 2 = ['' << (toleranz2*2) << ''] w=+2 / s=-2 und Mousebutton2'' << endl;
-        cout << ''3 = Captureframe 1 ein/aus '';
-        if (grab3) cout << ''[EIN] '';
-        else cout << ''[AUS] '';
-        cout << ''Toleranz 3 = ['' << (toleranz3*2) << ''] e=+2 / d=-2 und Mousebutton3'' << endl;
-        cout << ''t = Timing ein/aus         '';
-        if (timeing) cout << ''[EIN] '' << endl;
-        else cout << ''[AUS] '' << endl;
-        cout << ''b = Programm beenden.'' << endl << endl;
-        cout << ''Mit Mausknopf 1-3 kann je für Frame 1-3 die Threshold-Farbe gewählt werden.'' << endl;
+        cout << endl << "Diplomarbeit - Kameragestützte Echtzeit Objekterkennung unter Linux" << endl;
+        cout << "von Thomas Maurer Version 1.1" << endl << endl;
+        cout << "Für Eingaben muss der Fokus auf dem Grafischen-Fenster liegen!" << endl;
+        cout << "1 = Captureframe 1 ein/aus ";
+        if (grab1) cout << "[EIN] ";
+        else cout << "[AUS] ";
+        cout << "Toleranz 1 = [" << (toleranz1*2) << "] q=+2 / a=-2 und Mousebutton1" << endl;
+        cout << "2 = Captureframe 2 ein/aus ";
+        if (grab2) cout << "[EIN] ";
+        else cout << "[AUS] ";
+        cout << "Toleranz 2 = [" << (toleranz2*2) << "] w=+2 / s=-2 und Mousebutton2" << endl;
+        cout << "3 = Captureframe 3 ein/aus ";
+        if (grab3) cout << "[EIN] ";
+        else cout << "[AUS] ";
+        cout << "Toleranz 3 = [" << (toleranz3*2) << "] e=+2 / d=-2 und Mousebutton3" << endl;
+        cout << "t = Timing ein/aus         ";
+        if (timeing) cout << "[EIN] " << endl;
+        else cout << "[AUS] " << endl;
+        cout << "b = Programm beenden." << endl << endl;
+        cout << "Mit Mausknopf 1-3 kann je für Frame 1-3 die Threshold-Farbe gewählt werden." << endl;
         if (!first && (type==1 || type==2 || type==3)) {
-            cout << ''Button '';
-            printf(''%i: RGB=[%i][%i][%i]\n'', type ,red, green, blue);
+            cout << "Button ";
+            printf("%i: RGB=[%i][%i][%i]\n", type ,red, green, blue);
         }
         #if debug==3
-            printf(''%iR%i %iG%i %iB%i\n'',red_min, red_max, green_min, green_max, blue_min, blue_max);
+            printf("%iR%i %iG%i %iB%i\n",red_min, red_max, green_min, green_max, blue_min, blue_max);
         #endif
         first = false;
         }//end if
@@ -1435,14 +1457,14 @@ int main (int argc, char* argv[]) {
 
     switch (argc){
         case 1:
-        strcpy(device, ''/dev/video'');
-        cout << ''Keine Parameterangabe es wird \''/dev/video\'' verwendet.'' << endl;
+        strcpy(device, "/dev/video");
+        cout << "Keine Parameterangabe es wird /dev/video verwendet." << endl;
         break;
         case 2:
         strcpy(device, argv[1]);
         break;
         default:
-        cout << ''Als Parameter ist nur das Video device erlaubt z.B: \''/dev/video1\'''' << endl;
+        cout << "Als Parameter ist nur das Video device erlaubt z.B: /dev/video1" << endl;
         exit(0);
         break;      
     }
@@ -1450,7 +1472,7 @@ int main (int argc, char* argv[]) {
         video_out * out = new video_out();
         depth = out->get_depth();
     // Farbtiefe ermitteln
-    cout << ''Farbtiefe= '' << depth << '' Bit'' << endl;
+    cout << "Farbtiefe= " << depth << " Bit" << endl;
     // Abhängig von der Farbtiefe müssen später 1 bis 4 Byte pro Bildpunkt
     // allokiert werden.
     switch(depth){  
@@ -1469,7 +1491,7 @@ int main (int argc, char* argv[]) {
     // Vorbereitung zum Einfangen von Frames
     video_in * in = new video_in();
     if (in->grab_open(device, WIDTH, HEIGHT, DEPTH) < 0){
-        fprintf (stderr,''Device \''%s\'' kann nicht geöffnet werden!\n'', device);
+        fprintf (stderr,"Device %s kann nicht geöffnet werden!\n", device);
         exit(0);
     }
     // Grabbe schon mal einen ungeraden Frame
@@ -1486,7 +1508,8 @@ int main (int argc, char* argv[]) {
 
     // Schleife in der ein Bild gegrabbt und danach abgelegt wird.
     while (!break_loop){
-        if (timeing) gettimeofday(tv1 = new timeval,new timezone);
+	//cout << "running loop" << endl;
+        if (timeing) gettimeofday(tv1 = new timeval,NULL);
         for (a=0; a< 100 && break_loop==false; a++)
             {
             // Abwechselnd in die beiden Frame Buffer grabben.
@@ -1504,22 +1527,25 @@ int main (int argc, char* argv[]) {
             Objekt3->start_tracing(org_frame);
             Objekt3->draw_tracing_frame(org_frame);
                         }
-
+	    //cout << "running loop -- before Menue" << endl;
             break_loop = Menue(out, Objekt1, Objekt2, Objekt3, org_frame, grab1, grab2, grab3, timeing);
 
                 // den  Frame in X-Windows darstellen.
+	    //out << "running loop -- display a frame" << endl;
             out->display_frame(translated_buffer, depth, bpl, org_frame);
             //out->display_frame(translated_buffer, 8, bpl, Objekt1->areas_buffer);
             
             //for (unsigned int i=0;i<WIDTH*HEIGHT;i++){
             //  Objekt1->areas_buffer[i]=0;
             //}
+	    //cout << "running loop -- display a frame finished..." << endl;
         }
-        gettimeofday(tv2 = new timeval,new timezone);
+        gettimeofday(tv2 = new timeval,NULL);
+	//cout << "running loop --  before timing" << endl;
         if (timeing) {
             //cout << ''sec: '' << tv2->tv_sec - tv1->tv_sec << '' '';
             //cout << ''usec: '' << tv2->tv_usec - tv1->tv_usec << endl;
-            if (!retime) cout << ''Sekunden für 100 Bilder: '' << (float)(tv2->tv_sec - tv1->tv_sec) + (float)(((float)tv2->tv_usec - (float)tv1->tv_usec)/1000000) << endl;           
+            if (!retime) cout << "Sekunden für 100 Bilder: " << (float)(tv2->tv_sec - tv1->tv_sec) + (float)(((float)tv2->tv_usec - (float)tv1->tv_usec)/1000000) << endl;           
             retime = false;
         }
         else{
@@ -1536,3 +1562,4 @@ int main (int argc, char* argv[]) {
     delete out;
     free((void *)translated_buffer);
 }
+
