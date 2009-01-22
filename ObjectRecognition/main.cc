@@ -195,8 +195,7 @@ o_tracing::o_tracing(){
     akt_label=(WIDTH*HEIGHT/4); 
     objekt_index=0; // Index des gefundenen Objektes
     // Anlegen eines Speicherbereichs, in dem die gefundenen Flächen abgelegt werden
-    areas_buffer=(unsigned int *)malloc(WIDTH*HEIGHT*4);//mal 4 wegen 4 byte integer Werten);                       
-                                    
+    areas_buffer=(unsigned int *)malloc(WIDTH*HEIGHT*4);//mal 4 wegen 4 byte integer Werten);
     rgb_tracing=false;
     distance=400;
 
@@ -751,6 +750,8 @@ void o_tracing::tracing(){
             old_y_min = labels[objekt_index][Y_MIN];
             old_xcenter= xcenter;
             old_ycenter= ycenter;
+	    if (objekt_index<4) cout << "Objekt (" << objekt_index << ") -> (x,y)=(" << xcenter << "," << ycenter << ")" << endl;
+	    
         }   
     }   
     #if debug
@@ -769,7 +770,7 @@ void o_tracing::tracing(){
  * Diese Funktion zeichnet kleine Makierungen in die Ecken des
  * Scannfensters.
  */
-void o_tracing::draw_tracing_frame(){
+/*void o_tracing::draw_tracing_frame(){
 
 
     for(int i=0;i<2;i++)
@@ -804,7 +805,7 @@ void o_tracing::draw_tracing_frame(){
     areas_buffer[my_x0+(my_width*(y0+height-2))+width*3]=255;
         }
 }
-
+*/
 /**
  * Diese Funktion zeichnet kleine Makierungen in die Ecken des
  * Scannfensters.
@@ -814,34 +815,35 @@ void o_tracing::draw_tracing_frame(unsigned char * my_frame){
     for(int i=0;i<2;i++)
     {   
         unsigned int my_x0=(3*x0)+((id+i)%3);
-    if (id>3) cout << '!' << endl;
+    	if (id>3) cout << '!' << endl;
         unsigned int my_width=3*WIDTH;
 
-    // Ecke links oben.
-    my_frame[my_x0+(my_width*y0)]=255;
-    my_frame[my_x0+(my_width*y0)+3]=255;
-    my_frame[my_x0+(my_width*y0)+6]=255;
-    my_frame[my_x0+(my_width*(y0+1))]=255;
-    my_frame[my_x0+(my_width*(y0+2))]=255;
-    //Ecke rechts oben.
-    my_frame[my_x0+(my_width*y0)+width*3]=255;
-    my_frame[my_x0+(my_width*y0)+width*3-3]=255;
-    my_frame[my_x0+(my_width*y0)+width*3-6]=255;
-    my_frame[my_x0+(my_width*(y0+1))+width*3]=255;
-    my_frame[my_x0+(my_width*(y0+2))+width*3]=255;
-    //Ecke links unten.
-    my_frame[my_x0+(my_width*(y0+height))]=255;
-    my_frame[my_x0+(my_width*(y0+height))+3]=255;
-    my_frame[my_x0+(my_width*(y0+height))+6]=255;
-    my_frame[my_x0+(my_width*(y0+height-1))]=255;
-    my_frame[my_x0+(my_width*(y0+height-2))]=255;
-    //Ecke recht unten.
-    my_frame[my_x0+(my_width*(y0+height))+width*3]=255;
-    my_frame[my_x0+(my_width*(y0+height))+width*3-3]=255;
-    my_frame[my_x0+(my_width*(y0+height))+width*3-6]=255;
-    my_frame[my_x0+(my_width*(y0+height-1))+width*3]=255;
-    my_frame[my_x0+(my_width*(y0+height-2))+width*3]=255;
-        }
+	
+    	// Ecke links oben.
+    	my_frame[my_x0+(my_width*y0)]=255;
+    	my_frame[my_x0+(my_width*y0)+3]=255;
+    	my_frame[my_x0+(my_width*y0)+6]=255;
+    	my_frame[my_x0+(my_width*(y0+1))]=255;
+    	my_frame[my_x0+(my_width*(y0+2))]=255;
+    	//Ecke rechts oben.
+    	my_frame[my_x0+(my_width*y0)+width*3]=255;
+    	my_frame[my_x0+(my_width*y0)+width*3-3]=255;
+    	my_frame[my_x0+(my_width*y0)+width*3-6]=255;
+    	my_frame[my_x0+(my_width*(y0+1))+width*3]=255;
+    	my_frame[my_x0+(my_width*(y0+2))+width*3]=255;
+    	//Ecke links unten.
+    	my_frame[my_x0+(my_width*(y0+height))]=255;
+    	my_frame[my_x0+(my_width*(y0+height))+3]=255;
+    	my_frame[my_x0+(my_width*(y0+height))+6]=255;
+    	my_frame[my_x0+(my_width*(y0+height-1))]=255;
+    	my_frame[my_x0+(my_width*(y0+height-2))]=255;
+    	//Ecke recht unten.
+    	my_frame[my_x0+(my_width*(y0+height))+width*3]=255;
+    	my_frame[my_x0+(my_width*(y0+height))+width*3-3]=255;
+    	my_frame[my_x0+(my_width*(y0+height))+width*3-6]=255;
+    	my_frame[my_x0+(my_width*(y0+height-1))+width*3]=255;
+    	my_frame[my_x0+(my_width*(y0+height-2))+width*3]=255;
+    }
 }
 
 /**
@@ -1318,15 +1320,15 @@ void settoleranz(unsigned char red, unsigned char green, unsigned char blue,
 }
 
 /**
- * Diese Methode erzeugt auf er Console ein Menu und übernimmt das Auswerten
- * von Tastatur und Mouseeingaben von Grafischen Fenster.
+ * Diese Methode erzeugt auf der Console ein Menu und übernimmt das Auswerten
+ * von Tastatur und Mouseeingaben vom grafischen Fenster.
  */
 bool Menue(video_out *out, o_tracing *Objekt1, o_tracing *Objekt2, o_tracing *Objekt3, unsigned char * org_frame,
         bool &grab1, bool &grab2, bool &grab3, bool &timeing){
     static bool first=true;
-    static unsigned char toleranz1 = 35;
-    static unsigned char toleranz2 = 35;
-    static unsigned char toleranz3 = 35;
+    static unsigned char toleranz1 = 8;
+    static unsigned char toleranz2 = 8;
+    static unsigned char toleranz3 = 8;
     unsigned char  type, red, green, blue, red_min, red_max;
     unsigned char  green_min, green_max, blue_min, blue_max;
         KeySym key;
@@ -1428,6 +1430,7 @@ bool Menue(video_out *out, o_tracing *Objekt1, o_tracing *Objekt2, o_tracing *Ob
         #if debug==3
             printf("%iR%i %iG%i %iB%i\n",red_min, red_max, green_min, green_max, blue_min, blue_max);
         #endif
+
         first = false;
         }//end if
     return (break_loop);
