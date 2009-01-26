@@ -112,13 +112,13 @@ begin
 		'L'	: wert:=lp_read_ports(Address);
 		'P'	: wert:=pio_read_ports(Address);
 		'J'	: wert:=joy_read_ports(Address);
+		'F'	: wert:=funk_read_ports(Address);
 {$endif}
 		'R'	: wert:=rnd_read_ports(Address);
 		'I'	: wert:=iow_read_ports(Address);
 		'H' 	: wert:=http_read_ports(Address);
 		'B' 	: wert:=bmcm_read_ports(Address);
 		'E'	: wert:=exec_read_ports(Address);
-		'F'	: wert:=funk_read_ports(Address);
 	end;
 
 	if (debugFlag) then 
@@ -171,13 +171,13 @@ begin
 			'L'	: lp_write_ports(Address,Value);
 			'P'	: pio_write_ports(Address,Value);
 			'J'	: joy_write_ports(Address,Value);
+			'F'	: funk_write_ports(Address,Value);
 {$endif}
 			'R' 	: rnd_write_ports(Address,Value);
 			'I'	: iow_write_ports(Address,Value);
 			'H' 	: http_write_ports(Address,Value);
 			'B' 	: bmcm_write_ports(Address,Value);
 			'E'	: exec_write_ports(Address,Value);
-			'F'	: funk_write_ports(Address,Value);
 		end;
 	end;
 end;
