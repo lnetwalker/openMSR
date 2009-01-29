@@ -30,8 +30,8 @@ uses iowkit;
 
 
 const	
-	war_max	  	= 4;			{ max number of iowarriors which are supported }
-	debug     	= false;
+	war_max	  	= 8;			{ max number of iowarriors which are supported }
+	debug     	= true;
 
 type TIowDevice = array [1..war_max] of IOWKIT_HANDLE;
 	
@@ -51,9 +51,10 @@ begin
 	device:=round(io_port/10);
 	{ extract the port }
 	io_port:=round(frac(io_port/10)*10);
+	if ( debug ) then write('IOW_IO: r  ',device,' ',io_port,':');
 	(* read the warrior *)
-	IowKitReadImmediate(IOWarrior[device+1], Value);
-	if ( debug ) then writeln ('IOW_IO: r  ',device,' ',io_port,':',Value);
+	IowKitReadImmediate(IOWarrior[device], Value);
+	if ( debug ) then writeln (Value);
 	
 	{ return the wanted port }
 	case io_port of
@@ -118,6 +119,14 @@ function iow_hwinit(initdata:string;DeviceNumber:byte):boolean;
 var
 	x	: byte;
 begin
+	IOWarrior[1]:=IowKitOpenDevice;
+	if Assigned(IOWarrior[1]) then 
+		for i:=2 to war_max do
+			IOWarrior[i]:=IowKitGetDeviceHandle(i)
+	else begin
+		writeln('Error opening IO Warrior devices in Init');
+		halt;
+	end;
 
 	if (debug) then writeln ( 'IOW_IO: IO-Warrior initilized' );
 	for x:=1 to war_max do 
@@ -126,7 +135,4 @@ end;
 
 
 begin
-	IOWarrior[1]:=IowKitOpenDevice;
-	for i:=2 to war_max do
-		IOWarrior[i]:=IowKitGetDeviceHandle(i);
 end.
