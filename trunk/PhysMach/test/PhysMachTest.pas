@@ -7,7 +7,7 @@ uses PhysMach,strings;
 { compile with /usr/bin/fpc -Fu.. -Fu../../gtk+/qgtk2.pas-0.9/ -Fu../../divLibs/pwu-1.6.0.2-src/main/ -gl PhysMachTest.pas }
 
 const
-	debug	= true;
+	debug	= false;
 
 var
 	line			: string;
