@@ -106,31 +106,29 @@ const
 type
   // Opaque IO-Warrior handle
   IOWKIT_HANDLE = Pointer;
-  ULONG = Cardinal;
-  BOOL = byte;
 
 {$IFDEF LINK_ON_REQUEST}
 
 type
   TIowKitOpenDevice = function: IOWKIT_HANDLE; stdcall;
   TIowKitCloseDevice = procedure(devHandle: IOWKIT_HANDLE); stdcall;
-  TIowKitWrite = function(devHandle: IOWKIT_HANDLE; numPipe: ULONG;
-    buffer: PChar; length: ULONG): ULONG; stdcall;
-  TIowKitRead = function(devHandle: IOWKIT_HANDLE; numPipe: ULONG;
-    buffer: PChar; length: ULONG): ULONG; stdcall;
-  TIowKitReadNonBlocking = function(devHandle: IOWKIT_HANDLE; numPipe: ULONG;
-    buffer: PChar; length: ULONG): ULONG; stdcall;
-  TIowKitReadImmediate = function(devHandle: IOWKIT_HANDLE; var value: DWORD): BOOL; stdcall;
-  TIowKitGetNumDevs = function: ULONG; stdcall;
-  TIowKitGetDeviceHandle = function(numDevice: ULONG): IOWKIT_HANDLE; stdcall;
-  TIowKitSetLegacyOpenMode = function(legacyOpenMode: ULONG): BOOL; stdcall;
-  TIowKitGetProductId = function(devHandle: IOWKIT_HANDLE): ULONG; stdcall;
-  TIowKitGetRevision = function(devHandle: IOWKIT_HANDLE): ULONG; stdcall;
+  TIowKitWrite = function(devHandle: IOWKIT_HANDLE; numPipe: Cardinal;
+    buffer: PChar; length: Cardinal): Cardinal; stdcall;
+  TIowKitRead = function(devHandle: IOWKIT_HANDLE; numPipe: Cardinal;
+    buffer: PChar; length: Cardinal): Cardinal; stdcall;
+  TIowKitReadNonBlocking = function(devHandle: IOWKIT_HANDLE; numPipe: Cardinal;
+    buffer: PChar; length: Cardinal): Cardinal; stdcall;
+  TIowKitReadImmediate = function(devHandle: IOWKIT_HANDLE; var value: DWORD): LongBool; stdcall;
+  TIowKitGetNumDevs = function: Cardinal; stdcall;
+  TIowKitGetDeviceHandle = function(numDevice: Cardinal): IOWKIT_HANDLE; stdcall;
+  TIowKitSetLegacyOpenMode = function(legacyOpenMode: Cardinal): LongBool; stdcall;
+  TIowKitGetProductId = function(devHandle: IOWKIT_HANDLE): Cardinal; stdcall;
+  TIowKitGetRevision = function(devHandle: IOWKIT_HANDLE): Cardinal; stdcall;
   TIowKitGetThreadHandle = function(devHandle: IOWKIT_HANDLE): THandle; stdcall;
-  TIowKitGetSerialNumber = function(devHandle: IOWKIT_HANDLE; serialNumber: PWideChar): BOOL; stdcall;
-  TIowKitSetTimeout = function(devHandle: IOWKIT_HANDLE; timeout: ULONG): BOOL; stdcall;
-  TIowKitSetWriteTimeout = function(devHandle: IOWKIT_HANDLE; timeout: ULONG): BOOL; stdcall;
-  TIowKitCancelIo = function(devHandle: IOWKIT_HANDLE; numPipe: ULONG): BOOL; stdcall;
+  TIowKitGetSerialNumber = function(devHandle: IOWKIT_HANDLE; serialNumber: PWideChar): LongBool; stdcall;
+  TIowKitSetTimeout = function(devHandle: IOWKIT_HANDLE; timeout: Cardinal): LongBool; stdcall;
+  TIowKitSetWriteTimeout = function(devHandle: IOWKIT_HANDLE; timeout: Cardinal): LongBool; stdcall;
+  TIowKitCancelIo = function(devHandle: IOWKIT_HANDLE; numPipe: Cardinal): LongBool; stdcall;
   TIowKitVersion = function: PChar; stdcall;
 
 var
@@ -156,23 +154,23 @@ var
 
 function IowKitOpenDevice: IOWKIT_HANDLE; stdcall;
 procedure IowKitCloseDevice(devHandle: IOWKIT_HANDLE); stdcall;
-function IowKitWrite(devHandle: IOWKIT_HANDLE; numPipe: ULONG;
-  buffer: PChar; length: ULONG): ULONG; stdcall;
-function IowKitRead(devHandle: IOWKIT_HANDLE; numPipe: ULONG;
-  buffer: PChar; length: ULONG): ULONG; stdcall;
-function IowKitReadNonBlocking(devHandle: IOWKIT_HANDLE; numPipe: ULONG;
-  buffer: PChar; length: ULONG): ULONG; stdcall;
-function IowKitReadImmediate(devHandle: IOWKIT_HANDLE; var value: DWORD): BOOL; stdcall;
-function IowKitGetNumDevs: ULONG; stdcall;
-function IowKitGetDeviceHandle(numDevice: ULONG): IOWKIT_HANDLE; stdcall;
-function IowKitSetLegacyOpenMode(legacyOpenMode: ULONG): BOOL; stdcall;
-function IowKitGetProductId(devHandle: IOWKIT_HANDLE): ULONG; stdcall;
-function IowKitGetRevision(devHandle: IOWKIT_HANDLE): ULONG; stdcall;
+function IowKitWrite(devHandle: IOWKIT_HANDLE; numPipe: Cardinal;
+  buffer: PChar; length: Cardinal): Cardinal; stdcall;
+function IowKitRead(devHandle: IOWKIT_HANDLE; numPipe: Cardinal;
+  buffer: PChar; length: Cardinal): Cardinal; stdcall;
+function IowKitReadNonBlocking(devHandle: IOWKIT_HANDLE; numPipe: Cardinal;
+  buffer: PChar; length: Cardinal): Cardinal; stdcall;
+function IowKitReadImmediate(devHandle: IOWKIT_HANDLE; var value: DWORD): LongBool; stdcall;
+function IowKitGetNumDevs: Cardinal; stdcall;
+function IowKitGetDeviceHandle(numDevice: Cardinal): IOWKIT_HANDLE; stdcall;
+function IowKitSetLegacyOpenMode(legacyOpenMode: Cardinal): LongBool; stdcall;
+function IowKitGetProductId(devHandle: IOWKIT_HANDLE): Cardinal; stdcall;
+function IowKitGetRevision(devHandle: IOWKIT_HANDLE): Cardinal; stdcall;
 function IowKitGetThreadHandle(devHandle: IOWKIT_HANDLE): THandle; stdcall;
-function IowKitGetSerialNumber(devHandle: IOWKIT_HANDLE; serialNumber: PWideChar): BOOL; stdcall;
-function IowKitSetTimeout(devHandle: IOWKIT_HANDLE; timeout: ULONG): BOOL; stdcall;
-function IowKitSetWriteTimeout(devHandle: IOWKIT_HANDLE; timeout: ULONG): BOOL; stdcall;
-function IowKitCancelIo(devHandle: IOWKIT_HANDLE; numPipe: ULONG): BOOL; stdcall;
+function IowKitGetSerialNumber(devHandle: IOWKIT_HANDLE; serialNumber: PWideChar): LongBool; stdcall;
+function IowKitSetTimeout(devHandle: IOWKIT_HANDLE; timeout: Cardinal): LongBool; stdcall;
+function IowKitSetWriteTimeout(devHandle: IOWKIT_HANDLE; timeout: Cardinal): LongBool; stdcall;
+function IowKitCancelIo(devHandle: IOWKIT_HANDLE; numPipe: Cardinal): LongBool; stdcall;
 function IowKitVersion: PChar; stdcall;
 
 {$ENDIF LINK_ON_REQUEST}
@@ -262,18 +260,18 @@ function IowKitOpenDevice:IOWKIT_HANDLE; stdcall; external IOWKITDllName name 'I
 procedure IowKitCloseDevice(devHandle:IOWKIT_HANDLE); stdcall; external IOWKITDllName name 'IowKitCloseDevice';
 function IowKitWrite(devHandle: IOWKIT_HANDLE; numPipe: Cardinal; buffer: PChar; length: Cardinal): Cardinal; stdcall; external IOWKITDllName name 'IowKitWrite';
 function IowKitRead(devHandle: IOWKIT_HANDLE; numPipe: Cardinal;buffer: PChar; length: Cardinal): Cardinal; stdcall; external IOWKITDllName name 'IowKitRead';
-function IowKitReadImmediate(devHandle: IOWKIT_HANDLE; var value: DWORD): BOOL; stdcall; external IOWKITDllName name 'IowKitReadImmediate';
-function IowKitReadNonBlocking(devHandle: IOWKIT_HANDLE; numPipe: ULONG; buffer: PChar; length: ULONG): ULONG; stdcall; external IOWKITDllName name 'IowKitReadNonBlocking';
+function IowKitReadImmediate(devHandle: IOWKIT_HANDLE; var value: DWORD): LongBool; stdcall; external IOWKITDllName name 'IowKitReadImmediate';
+function IowKitReadNonBlocking(devHandle: IOWKIT_HANDLE; numPipe: Cardinal; buffer: PChar; length: Cardinal): Cardinal; stdcall; external IOWKITDllName name 'IowKitReadNonBlocking';
 function IowKitGetNumDevs: Cardinal; stdcall; external IOWKITDllName name 'IowKitGetNumDevs';
 function IowKitGetDeviceHandle(numDevice: Cardinal): IOWKIT_HANDLE; stdcall; external IOWKITDllName name 'IowKitGetDeviceHandle';
-function IowKitSetLegacyOpenMode(legacyOpenMode: Cardinal): BOOL; stdcall; external IOWKITDllName name 'IowKitSetLegacyOpenMode';
+function IowKitSetLegacyOpenMode(legacyOpenMode: Cardinal): LongBool; stdcall; external IOWKITDllName name 'IowKitSetLegacyOpenMode';
 function IowKitGetProductId(devHandle: IOWKIT_HANDLE): Cardinal; stdcall; external IOWKITDllName name 'IowKitGetProductId';
 function IowKitGetRevision(devHandle: IOWKIT_HANDLE): Cardinal; stdcall; external IOWKITDllName name 'IowKitGetRevision';
 function IowKitGetThreadHandle(devHandle: IOWKIT_HANDLE): THandle; stdcall; external IOWKITDllName name 'IowKitGetThreadHandle';
-function IowKitGetSerialNumber(devHandle: IOWKIT_HANDLE; serialNumber: PWideChar): BOOL; stdcall; external IOWKITDllName name 'IowKitGetSerialNumber';
-function IowKitSetTimeout(devHandle: IOWKIT_HANDLE; timeout: Cardinal): BOOL; stdcall; external IOWKITDllName name 'IowKitSetTimeout';
-function IowKitSetWriteTimeout(devHandle: IOWKIT_HANDLE; timeout: Cardinal): BOOL; stdcall; external IOWKITDllName name 'IowKitSetWriteTimeout';
-function IowKitCancelIo(devHandle: IOWKIT_HANDLE; numPipe: Cardinal): BOOL; stdcall; external IOWKITDllName name 'IowKitCancelIo';
+function IowKitGetSerialNumber(devHandle: IOWKIT_HANDLE; serialNumber: PWideChar): LongBool; stdcall; external IOWKITDllName name 'IowKitGetSerialNumber';
+function IowKitSetTimeout(devHandle: IOWKIT_HANDLE; timeout: Cardinal): LongBool; stdcall; external IOWKITDllName name 'IowKitSetTimeout';
+function IowKitSetWriteTimeout(devHandle: IOWKIT_HANDLE; timeout: Cardinal): LongBool; stdcall; external IOWKITDllName name 'IowKitSetWriteTimeout';
+function IowKitCancelIo(devHandle: IOWKIT_HANDLE; numPipe: Cardinal): LongBool; stdcall; external IOWKITDllName name 'IowKitCancelIo';
 function IowKitVersion: PChar; stdcall; external IOWKITDllName name 'IowKitVersion';
 
 {$ENDIF LINK_ON_REQUEST}
