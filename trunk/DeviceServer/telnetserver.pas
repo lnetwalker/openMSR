@@ -123,7 +123,7 @@ begin
 			if InterpreterProc <> nil then InterpreterProc;
 		end;
 		if ShutDownProc then break;
-	until length(Line)<0;
+	until false;
 
 	Close(sin);
 	Close(sout);
