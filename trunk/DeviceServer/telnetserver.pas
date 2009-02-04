@@ -12,6 +12,8 @@ unit telnetserver;
 { with modifications  by Richard Pasco			}
 { http://www.richpasco.org/mailform.html		}
 
+{ $id:$ }
+
 { 18.03.2008	Project start				}
 
 interface
