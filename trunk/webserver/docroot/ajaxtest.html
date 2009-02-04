@@ -72,7 +72,7 @@ function ReadIOData()  {
 	// Welcher DeviceServer soll benutzt werden ?
 	var Host=document.getElementById("Hostname");
 	var Adresse;
-	Adresse="http://" + Host.value + "/digital/read.html";
+	Adresse="http://" + Host.value + "/digital/ReadInputValues.html";
 
 	if (IOGroup.value != 0 ) {
 		SendRequest(Adresse,PrintState,IOGroup.value);
@@ -92,8 +92,6 @@ function IgnoreAnswer() {
 }
 
 
-//function WriteIOData() {
-//}
 
 // Diese Funktion wird bei jeder Schalteränderung getriggert und stösst den 
 // asynchronen request zum schreiben der Ausgänge an
@@ -102,7 +100,7 @@ function WriteIOData() {
 	// Welcher DeviceServer soll benutzt werden ?
 	var Host=document.getElementById("Hostname");
 	var Adresse;
-	Adresse="http://" + Host.value + "/digital/write.html";
+	Adresse="http://" + Host.value + "/digital/WriteInputValues.html";
 	// Parameters are <iogroup>,<value>
 	// compute the digital Value from array Ausgang
 	var digitalValue = 0;
@@ -156,7 +154,7 @@ function preload() {
 	// var iogroup = document.getElementById("iogroup");
 	// iogroup.value=1;
 	// Timer für kontinuierlichen AJAX Zugriff starten
-	ReloadEingangTimer = setInterval("ReadIOData()",2000);
+	ReloadEingangTimer = setInterval("ReadIOData()",200);
 	// Power initialisieren
 	power = [1,2,4,8,16,32,64,128];
 }
