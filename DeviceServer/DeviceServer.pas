@@ -1,6 +1,6 @@
 program DeviceServer;
 {$mode objfpc}
-uses PhysMach,webserver,telnetserver,cthreads,classes,crt;
+uses PhysMach,webserver,telnetserver,cthreads,classes,crt,BaseUnix;
 
 { $Id$ }
 
@@ -25,6 +25,7 @@ var
 	ThreadHandle	: array[1..MaxThreads] of LongInt;
 	ThreadName	: array[1..MaxThreads] of string;
 	ThreadCnt	: array[1..MaxThreads] of LongInt;
+	ThreadRPMs	: array[1..MaxThreads] of LongInt;
 	shutdown	: Boolean;
 	Counter		: LongInt;
 	IOGroup		: LongInt;
@@ -49,7 +50,7 @@ var
 	Line		: String;
 	cmd,hw		: Char;
 	pa,va		: LongInt;
-	StrVal		: String;
+	StrVal,RPMs	: String;
 	AddrStr		: String;
 	i		: Integer;
 
@@ -138,7 +139,8 @@ begin
 		'S' :	begin
 				for i:=1 to NumOfThreads do begin
 					str(ThreadCnt[i],StrVal);
-					TelnetWriteAnswer(ThreadName[i]+'  '+StrVal+chr(10));
+					str(ThreadRPMs[i],RPMs);
+					TelnetWriteAnswer(ThreadName[i]+'  '+StrVal+'='+RPMs+' loops/second'+chr(10));
 				end;
 				TelnetWriteAnswer(chr(10)+'>');
 			end
@@ -393,6 +395,35 @@ begin
 end;					{ Webserver Thread end }
 
 
+function StatisticsThread(p: pointer):LongInt;
+// claculates the number of threadruns for each thread
+
+var
+time1,time2,TimeDiff	: Cardinal;
+OldThreadCnt		: array[1..MaxThreads] of LongInt;
+i			: byte;
+MySelf			: LongInt;
+
+
+begin
+	MySelf:=longint(p);
+	repeat
+		// get the current time in seconds and note the counter for each thread
+		time1:=fpTime;
+		for i:=1 to MaxThreads do OldThreadCnt[i]:=ThreadCnt[i];
+		delay(60000);	// wait some time
+		// check new time and counters
+		time2:=fpTime;
+		TimeDiff:=time2-time1;
+		// calculate how much loops each thread did in one second
+		if TimeDiff > 0 then
+			for i:=1 to MaxThreads do
+				ThreadRPMs[i]:=round((ThreadCnt[i]-OldThreadCnt[i])/TimeDiff);
+		inc(ThreadCnt[MySelf]);
+	until Shutdown=true;
+end;
+
+
 // the Main program
 
 begin					{ Main program }
@@ -407,7 +438,7 @@ begin					{ Main program }
 	Counter:=0;
 	InitCriticalSection(ProtectParams);
 
-	// start threads for every configured device one thread
+	// start threads, for every configured device one thread
 	// the device servers need to be started as first thread,
 	// because of the device list index
 	NumOfThreads:=1;
@@ -421,6 +452,7 @@ begin					{ Main program }
 		end;
 	end;
 
+	// start the webserver thread
 	writeln('Starting Webserver Thread...');
 	ThreadName[NumOfThreads]:='Webserver';
 	ThreadHandle[NumOfThreads]:=BeginThread(@WebserverThread,pointer(NumOfThreads));
@@ -430,6 +462,12 @@ begin					{ Main program }
 	writeln('Starting Telnet Thread...');
 	ThreadName[NumOfThreads]:='Telnet Thread';
 	ThreadHandle[NumOfThreads]:=BeginThread(@TelnetThread,pointer(NumOfThreads));
+
+	// start the statistic thread
+	inc(NumOfThreads);
+	writeln('Starting Statistics Thread...');
+	ThreadName[NumOfThreads]:='Stats Thread';
+	ThreadHandle[NumOfThreads]:=BeginThread(@StatisticsThread,pointer(NumOfThreads));
 
 	// fool around and wait for the end
 	repeat
