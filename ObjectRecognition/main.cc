@@ -59,8 +59,8 @@
 #define HEIGHT 240 // 480 // 240 // 576 // 240 // 60
 #define DEPTH   3// 3 = 3 byte = VIDEO_PALETTE_RGB24 = RGB888 in 24bit Worten.
 #define IMGSIZE (WIDTH * HEIGHT * DEPTH)
-#define GRAY_STEP 1 //Gibt an, wie groß der Hellichkeitsunterschied
-            // zwichen 2 Flächen sein soll. Nur für Testzwecke! Sonst 1
+#define GRAY_STEP 1 // Gibt an, wie groß der Hellichkeitsunterschied
+                    // zwichen 2 Flächen sein soll. Nur für Testzwecke! Sonst 1
 //#define ARRAY_ZEILEN (WIDTH*HEIGHT/4)
 #define ARRAY_ZEILEN (WIDTH*HEIGHT*GRAY_STEP/4+1)
 #define ARRAY_SPALTEN 9 // 0-8 = 9
@@ -74,28 +74,32 @@
 #define CONNECTIONS 7
 #define ROOT   8
 
+
 /**
  * Diese Klasse enthällt Methoden für die Findung und Verfolgung von Objekten.
  */
 class o_tracing
 {
 public:
-        o_tracing();
-        ~o_tracing();
+    o_tracing();
+    ~o_tracing();
     unsigned int * areas_buffer;
     void start_tracing(unsigned char * in_org_frame);
     void set_rgb_threshold(unsigned char red_min, unsigned char red_max,
-            unsigned char green_min, unsigned char green_max,
-            unsigned char blue_min, unsigned char blue_max);
+    unsigned char green_min, unsigned char green_max,
+    unsigned char blue_min, unsigned char blue_max);
     void set_total_threshold(unsigned int distance);
 
-    void draw_tracing_frame();
-        void draw_tracing_frame(unsigned char * org_frame);
+    //void draw_tracing_frame();
+    void draw_tracing_frame(unsigned char * org_frame);
     unsigned int create_roots(unsigned int index, unsigned int root);
+    void get_center();
+    void print_object_id();
+
 private:
     unsigned int id;    
     unsigned char * org_frame;
-        // Tabelle die für das eindeutige Labeling verwendet wird.
+    // Tabelle die für das eindeutige Labeling verwendet wird.
     unsigned int labels[ARRAY_ZEILEN][ARRAY_SPALTEN];
     //unsigned int akt_label;
     unsigned int x0;
@@ -120,8 +124,8 @@ private:
     void just_count(unsigned int index1, unsigned int modulo, unsigned int quotient, unsigned int connections);
     void join_labels();
     void in_label(unsigned int index1, unsigned int index2,
-        unsigned int modulo, unsigned int quotient);
-    unsigned int get_mengendichte(unsigned int index);
+    unsigned int modulo, unsigned int quotient);
+    /*unsigned int get_mengendichte(unsigned int index);*/
 };              
 
 /**
@@ -131,7 +135,7 @@ private:
 class video_in{
 
 public:
-        video_in();
+    video_in();
     int grab_open (char *device, int width, int height, int depth);
     void grab_close (void);
     int grab_frame (int frame);         
@@ -151,32 +155,32 @@ private:
 };
 
 /**
- * Diese Klasse enthält Methoden, die für das Ausgeben von Bildern
+ * Diese Klasse enthält Methoden, die für das ausgeben von Bildern
  * auf einem X-Window-System und zur Verarbeitung von Ereignissen verwendet werden.
  */
 class video_out{
 
 public:
-        video_out();
+    video_out();
     int get_depth();
     bool get_event(unsigned char *buffer,unsigned char *type,
-        unsigned char *red, unsigned char *green, unsigned char *blue, KeySym *key);
+    unsigned char *red, unsigned char *green, unsigned char *blue, KeySym *key);
     void display_frame (unsigned char * translated_buffer, int depth, int bpl,
-        unsigned int *buffer);
+    unsigned int *buffer);
     void display_frame (unsigned char * translated_buffer,int depth, int bpl,
-        unsigned char *buffer);
+    unsigned char *buffer);
 private:
     Window create_simple_window(Display* display, int width, int height, int x, int y);
     Display* display;// Zeiger auf X Display Struktur
     int screen_num;// Nummer des Screens
     Window win;// Zeiger zum Fenster der Applikation
     char *display_name;
-    GC gc;// GC (graphics context) wird zum Zeichnen benötigt
+    GC gc;// GC (graphics context) wird zum zeichnen benötigt
     XGCValues gcv;// Enthällt Einstellungen für den GC
-    XEvent an_event;// Variable für ein Ereigniss
+    XEvent an_event;// Variable für ein Ereignis
     XImage *ximage;// XImage das im Fenster angezeigt werden soll
     void handle_button_down(XButtonEvent* button_event, unsigned char *buffer,
-        unsigned char *type, unsigned char *red, unsigned char *green, unsigned char *blue);
+    unsigned char *type, unsigned char *red, unsigned char *green, unsigned char *blue);
 
 };
 
@@ -217,11 +221,11 @@ o_tracing::~o_tracing(){
 
 /**
  * Diese Funktion durchläuft beginnend bei ihrem Einstiegspunkt
- * recrusiv den labels Teilbaum und erzeugt
+ * recursiv den labels Teilbaum und erzeugt
  * für jeden Index einen Root Eintrag.
  * Dabei ist zu beachten, dass ab dem Einstiegspunkt nur die
  * weiteren Elemente bearbeitet werden, die eine Verbindung zu dem
- * Einstiegspunkt haben. Dadurch muss dieser Alg. auf allen Indexen
+ * Einstiegspunkt haben. Dadurch muss dieser Alg. auf allen Indizes
  * gestartet werden.
  */
 unsigned int o_tracing::create_roots(unsigned int index, unsigned int root){
@@ -255,8 +259,8 @@ unsigned int o_tracing::create_roots(unsigned int index, unsigned int root){
                 labels[root][Y_MIN]=labels[index][Y_MIN];
             }
             labels[index][Y_MIN]=0;
-            }
         }
+    }
     // Es gibt einen Root
     else root = labels[index][ROOT];    
 return(root);
@@ -275,7 +279,6 @@ void o_tracing::join_labels(){
     unsigned int area_index;
     unsigned int i=0;
     unsigned int tmp=GRAY_STEP;// Compilerbug überlisten.
-//  unsigned int mengendichte=0;
     unsigned int connections=0;
     unsigned int tmp2=0;
     unsigned int md_index=0;// Index mit der höchsten Mengendichte   
@@ -284,18 +287,6 @@ void o_tracing::join_labels(){
     //zu bilden und die größte Mengendichte zu ermitteln.
     for(unsigned int i2=tmp;i2<=akt_label;i2=i2+tmp){
         create_roots(i2,i2);
-        // Der auskommentierte Bereich basiert noch auf
-        // der Technik der MENGENDICHTE. Diese wurde
-        // durch die CONNECTIONS ersetzt.
-/*      if (labels[i2][MENGE]!=0){
-            tmp2 = get_mengendichte(i2);
-            labels[i2][MENGENDICHTE]=tmp2;
-            if (tmp2 > mengendichte){
-                mengendichte = tmp2;
-                md_index = i2;
-            }
-        }
-*/
         if (labels[i2][MENGE]!=0){
             tmp2 = labels[i2][CONNECTIONS];
             if (tmp2 > connections){
@@ -315,12 +306,12 @@ void o_tracing::join_labels(){
                 }
                 else areas_buffer[area_index] = 0;
             }
-            if(i < width-1){                                                         // Nechstes Pixel Betrachten
+            if(i < width-1){                                                         // Naechstes Pixel Betrachten
                 i = i++;
                 area_index = area_index + 1;
             } else{
                 i = 0;
-                // Berich der nicht zum Subframe gehört überstpringen     
+                // Bereich der nicht zum Subframe gehört überspringen     
                 area_index = area_index + (WIDTH-width+1);      
             }   
         }while(area_index <= labels[md_index][X_MAX] +  WIDTH*(labels[md_index][Y_MAX]));
@@ -368,11 +359,10 @@ void o_tracing::just_count(unsigned int index1, unsigned int modulo, unsigned in
 /**
  * Diese Funktion erstellt eine Tabelle die für jedes Lables die Anzahl
  * der Pixel und deren äusterten Positionen in den X-Y System umfasst.
- * In in der Spalte ''index'' wird eine Verbindung zu ''wert'' geschaffen.
+ * In der Spalte ''index'' wird eine Verbindung zu ''wert'' geschaffen.
  * Dadurch wird gezeigt, dass index und wert zu einer Gruppe gehören.
  */
-void o_tracing::in_label(unsigned int index1, unsigned int index2,
-    unsigned int modulo, unsigned int quotient){
+void o_tracing::in_label(unsigned int index1, unsigned int index2, unsigned int modulo, unsigned int quotient){
     if(index1>index2){
         unsigned int tmp;
         tmp=index1;
@@ -437,7 +427,7 @@ void o_tracing::labeling (unsigned int area_index){
             pos3 = areas_buffer[area_index-(WIDTH-1)];
         }
     }
-    // pos1 + pos2 + pos3 + pos4 = 0 Das Pixel bekommt ein neuse Label
+    // pos1 + pos2 + pos3 + pos4 = 0 Das Pixel bekommt ein neues Label
     if (pos1 + pos2 + pos3 + pos4 == 0){
         (akt_label)=(akt_label)+GRAY_STEP;
         // die Anzahl und die min+max Positionen werden abgelegt
@@ -488,7 +478,7 @@ void o_tracing::labeling (unsigned int area_index){
         pos1=tmp;
     }
     // Sind Elemente von pos1-pos4 gleich, werden sie in die labels_tabelle
-    //eingetragen.
+    // eingetragen.
     if(pos1){
         areas_buffer[area_index]=pos1;
         if(pos1!=pos2){
@@ -517,7 +507,7 @@ void o_tracing::labeling (unsigned int area_index){
         }
         just_count(pos3, modulo, quotient, 2);
     }
-    //pos4 gibt es nicht da 1 von 4 schon in einer früheren
+    // pos4 gibt es nicht da 1 von 4 schon in einer früheren
     // Regel abgefangen wurde
     return;
 }
@@ -564,7 +554,7 @@ void o_tracing::threshold(){
                 // Es ist ein Hintergrund-Pixel
                 areas_buffer[area_index]=0;                 
             }
-        }else { //Tracholding mittels einer Distanz
+        }else { // Thresholding mittels einer Distanz
             tmp = org_frame[org_index+0];
             tmp = tmp + org_frame[org_index+1];
             tmp = tmp + org_frame[org_index+2];
@@ -578,9 +568,9 @@ void o_tracing::threshold(){
                 labeling(area_index);
             }
         }
-        if(i < width-1){// Nächstes Pixel Betrachten
+        if(i < width-1){  // Nächstes Pixel Betrachten
             i = i++;
-            org_index = org_index + 3;// + 3 da ein Pixel durch 3 byte dargestellt wird         
+            org_index = org_index + 3; // + 3 da ein Pixel durch 3 byte dargestellt wird         
             area_index = area_index + 1;
         } else{
             i = 0; // Bereich, der nicht zum Subframe gehört, überspringen    
@@ -590,10 +580,10 @@ void o_tracing::threshold(){
     }while(area_index <= x0 + width + WIDTH*(height+y0-1));
         // Solange nicht das letzte Subframe Pixel erreicht ist.
         // x1 + width bewegt uns auf der x-Achse bis auf den rechten                                
-        // Rand des SubFrame. Durch hieght+y1-1 ermitteln wir die Anzahl der Schritte,
+        // Rand des SubFrame. Durch height+y1-1 ermitteln wir die Anzahl der Schritte,
         // die auf der y-Achse nach unten zu gehen sind und durch die Multiplikation
         // Mit WIDTH erhalten wie die letzte Positon (rechts unten) des SubFrame.
-            // -1 verhindert, dass wir eine Zeile zu tief auskommen.
+        // -1 verhindert, dass wir eine Zeile zu tief rauskommen.
     
 #if debug==1
     cout << ''1. Durchlauf\n'';
@@ -621,8 +611,8 @@ void o_tracing::threshold(){
  * wird das gerade betrachtete Pixel als Vordergrundpixel eingestuft.
  */
 void o_tracing::set_rgb_threshold(unsigned char red_min, unsigned char red_max,
-            unsigned char green_min, unsigned char green_max,
-            unsigned char blue_min, unsigned char blue_max){
+				  unsigned char green_min, unsigned char green_max,
+				  unsigned char blue_min, unsigned char blue_max){
     this->rgb_tracing=true;
     this->red_min=red_min;
     this->red_max=red_max;
@@ -653,14 +643,14 @@ void o_tracing::start_tracing(unsigned char * in_org_frame){
     threshold();
     join_labels();
     tracing();
-        //draw_tracing_frame();
+    //draw_tracing_frame();
 }
     
 /**
  * Diese Funktion errechnet für den angegebenen Index eine
  * Mengendichte.
  * Mengendichte = MENGE²*100/((X_MAX-X_MIN+1)*(Y_MAX-Y_MIN+1)
- */
+ *
 unsigned int o_tracing::get_mengendichte(unsigned int index){
     unsigned int tmp1 = (labels[index][MENGE]);
     unsigned int tmp2 = (labels[index][X_MAX]-labels[index][X_MIN]+1)
@@ -668,33 +658,27 @@ unsigned int o_tracing::get_mengendichte(unsigned int index){
     unsigned int tmp3 = tmp1*100 / tmp2;
     unsigned int tmp4 = tmp3 * tmp1;
     return (tmp4);
-}
+}*/
 
 /**
  * Diese Methode errechnet zusammen mit der Information aus ihrem
  * vorhergehenden Aufruf die Geschwindigkeit und Richtung des zu
  * verfolgenden Objektes.
- * Weiter wird ein Scannfenster errechnet/ausgegeben, in dem das Objekt
+ * Weiter wird ein Scanfenster errechnet/ausgegeben, in dem das Objekt
  * erwartet wird.
  */
 void o_tracing::tracing(){
 
     static bool first = 1;
-/*  static unsigned int old_x_max;
-    static unsigned int old_x_min;
-    static unsigned int old_y_max;
-    static unsigned int old_y_min;
-    static unsigned int old_xcenter;
-    static unsigned int old_ycenter;*/
     unsigned int xcenter;
     unsigned int ycenter;
     int delta_x;
     int delta_y;
     int tmp_x0, tmp_y0, tmp_x1, tmp_y1;
-        unsigned int object_width;
+    unsigned int object_width;
     unsigned int objekt_height;
     // Aussenmaße des Objekts    
-        object_width=labels[objekt_index][X_MAX]-labels[objekt_index][X_MIN];
+    object_width=labels[objekt_index][X_MAX]-labels[objekt_index][X_MIN];
     objekt_height=labels[objekt_index][Y_MAX]-labels[objekt_index][Y_MIN];
     if (objekt_index==0){  // Es gibt kein Objekt
         x0=0;
@@ -722,7 +706,7 @@ void o_tracing::tracing(){
                 delta_x = xcenter-old_xcenter;
                 delta_y = ycenter-old_ycenter;
             }
-                // Errechnung des neuen Scannfenster + Bereichssicherung
+                // Errechnung des neuen Scanfenster + Bereichssicherung
                 tmp_x0=xcenter - 1 - (object_width);
             if (delta_x<0) tmp_x0 = tmp_x0 + delta_x;
             if (tmp_x0<0) x0=0;
@@ -765,50 +749,18 @@ void o_tracing::tracing(){
     }
     #endif
 }
-    
+
 /**
- * Diese Funktion zeichnet kleine Makierungen in die Ecken des
- * Scannfensters.
+ * Diese Funktion gibt die Object Id des Objektes aus
  */
-/*void o_tracing::draw_tracing_frame(){
-
-
-    for(int i=0;i<2;i++)
-    {   
-        unsigned int my_x0=(3*x0)+((id+i)%3);
-    if (id>3) cout << '!' << endl;
-        unsigned int my_width=3*WIDTH;
-
-    // Ecke links oben.
-    areas_buffer[my_x0+(my_width*y0)]=255;
-    areas_buffer[my_x0+(my_width*y0)+3]=255;
-    areas_buffer[my_x0+(my_width*y0)+6]=255;
-    areas_buffer[my_x0+(my_width*(y0+1))]=255;
-    areas_buffer[my_x0+(my_width*(y0+2))]=255;
-    //Ecke rechts oben.
-    areas_buffer[my_x0+(my_width*y0)+width*3]=255;
-    areas_buffer[my_x0+(my_width*y0)+width*3-3]=255;
-    areas_buffer[my_x0+(my_width*y0)+width*3-6]=255;
-    areas_buffer[my_x0+(my_width*(y0+1))+width*3]=255;
-    areas_buffer[my_x0+(my_width*(y0+2))+width*3]=255;
-    //Ecke links unten.
-    areas_buffer[my_x0+(my_width*(y0+height))]=255;
-    areas_buffer[my_x0+(my_width*(y0+height))+3]=255;
-    areas_buffer[my_x0+(my_width*(y0+height))+6]=255;
-    areas_buffer[my_x0+(my_width*(y0+height-1))]=255;
-    areas_buffer[my_x0+(my_width*(y0+height-2))]=255;
-    //Ecke recht unten.
-    areas_buffer[my_x0+(my_width*(y0+height))+width*3]=255;
-    areas_buffer[my_x0+(my_width*(y0+height))+width*3-3]=255;
-    areas_buffer[my_x0+(my_width*(y0+height))+width*3-6]=255;
-    areas_buffer[my_x0+(my_width*(y0+height-1))+width*3]=255;
-    areas_buffer[my_x0+(my_width*(y0+height-2))+width*3]=255;
-        }
+void o_tracing::print_object_id(){
+    cout << id;
 }
-*/
+
+
 /**
  * Diese Funktion zeichnet kleine Makierungen in die Ecken des
- * Scannfensters.
+ * Scanfensters.
  */
 void o_tracing::draw_tracing_frame(unsigned char * my_frame){
     
@@ -846,9 +798,16 @@ void o_tracing::draw_tracing_frame(unsigned char * my_frame){
     }
 }
 
+
+void o_tracing::get_center() {
+  if (id>3) cout << "!" << endl;
+  cout << "Objekt (" << id << ") -> (x0,y0)=(" << x0 << "," << y0 << ")" << endl;
+}
+
+
 /**
  * In diesem Konstruktor werden Vorbereitungen getroffen, die
- * für die Darstellung eines Grafisches Fenster nötig sind.
+ * für die Darstellung eines grafischen Fenster nötig sind.
  */
 video_out::video_out(){
     // Vorbereitungen für das X-Fenter
@@ -881,24 +840,24 @@ video_out::video_out(){
  * ansonsten false
  */
 bool video_out::get_event(unsigned char *buffer, unsigned char *type,
-        unsigned char *red, unsigned char *green, unsigned char *blue, KeySym *key){
+			  unsigned char *red, unsigned char *green, unsigned char *blue, KeySym *key){
 
     if (XCheckMaskEvent(display,ButtonPressMask | KeyPressMask, &an_event)){
         switch (an_event.type) {
-            case ButtonPress:
-        handle_button_down((XButtonEvent*)&an_event.xbutton, buffer, type, red, green, blue);
-        break;
-        case KeyPress:
-            *key = XLookupKeysym(&an_event.xkey, 0);
+	    case ButtonPress:
+		  handle_button_down((XButtonEvent*)&an_event.xbutton, buffer, type, red, green, blue);
+		  break;
+	    case KeyPress:
+		  *key = XLookupKeysym(&an_event.xkey, 0);
                         
-            //return(true);
-        break;
+		  //return(true);
+		  break;
             default: /* Ignoriere andere Ereignisse */
-        break;
-          }
-    return (true);
+		  break;
+        }
+	return (true);
     } else{
-    return (false);
+	return (false);
     }
 }
 
@@ -911,7 +870,7 @@ int video_out::get_depth(){
 }
 
 /**
- * Diese Methode füllt ein Fenster mit dem Innhalt der Integer Werte
+ * Diese Methode füllt ein Fenster mit dem Inhalt der Integer Werte
  * im Parameter buffer.
  * So kann ein Bild aus dem Speicher auf dem Monitor ausgegeben werden.
  * Bei dem Bild sollte es sich um ein 32 bit Grauwert codiertes Bild handeln.
@@ -919,11 +878,11 @@ int video_out::get_depth(){
  * unbestimmt bzw. als Modulo von 255 ausgegeben werden.
  */
 void video_out::display_frame (unsigned char * translated_buffer,
-    int depth, int bpl, unsigned int *buffer){
+			       int depth, int bpl, unsigned int *buffer){
         
     struct imagem{
-        unsigned int *buffer;
-        unsigned int width;
+	unsigned int *buffer;
+	unsigned int width;
         unsigned int height;
     };
     imagem my_imagem;
@@ -931,20 +890,7 @@ void video_out::display_frame (unsigned char * translated_buffer,
     my_imagem.height=HEIGHT;
     my_imagem.buffer = buffer;
     switch(depth) {
-    /*  case 8:{
-            int x,y,z,k,pixel;
-            for(z=k=y=0;y!=my_imagem.height;y++)
-            for(x=0;x!=my_imagem.width;x++)
-                {
-                // for grayscale-only 8 bit depth
-                // can't work in 8 bit color display
-                pixel=(my_imagem.buffer[z++]+
-                my_imagem.buffer[z++]+                      
-                my_imagem.buffer[z++])/3;
-                translated_buffer[k++]=pixel;
-                }           
-            }
-        break;*/
+
         case 8:{
             unsigned x,y,z,k;
             //unsigned buffer;
@@ -1002,11 +948,11 @@ void video_out::display_frame (unsigned char * translated_buffer,
 
     //cout << "video_out::display_frame" << endl;
     static int first = 1;
-        if (first == 1){
-        ximage = XCreateImage (display, CopyFromParent, 24 /*zuvor depth*/,
-            ZPixmap, 0, (char *)translated_buffer, my_imagem.width,
-                my_imagem.height, bpl*8, bpl * my_imagem.width);
-        first = 0;
+    if (first == 1){
+	ximage = XCreateImage (display, CopyFromParent, 24 /*zuvor depth*/,
+	    ZPixmap, 0, (char *)translated_buffer, my_imagem.width,
+	    my_imagem.height, bpl*8, bpl * my_imagem.width);
+	first = 0;
     }
     //Windows wird dargestellt
     XPutImage(display, win, gc, ximage, 0,0,0,0, my_imagem.width, my_imagem.height);
@@ -1016,13 +962,13 @@ void video_out::display_frame (unsigned char * translated_buffer,
 }
 
 /**
- * Diese Methode füllt ein Fenster mit dem Innhalt der char Werte
+ * Diese Methode füllt ein Fenster mit dem Inhalt der char Werte
  * im Parameter buffer.
  * So kann ein Bild aus dem Speicher auf dem Monitor ausgegeben werden.
  * Bei dem Bild sollte es sich um ein 24 bit RGB Farbcodiertes Bild handeln.
  */
 void video_out::display_frame (unsigned char * translated_buffer,
-    int depth, int bpl, unsigned char *buffer){
+			       int depth, int bpl, unsigned char *buffer){
     struct imagem{
         unsigned char *buffer;
         unsigned int width;
@@ -1034,20 +980,6 @@ void video_out::display_frame (unsigned char * translated_buffer,
     my_imagem.buffer = buffer;
     //cout << " in display_frame " << endl;
     switch(depth) {
-    /*  case 8:{
-            int x,y,z,k,pixel;
-            for(z=k=y=0;y!=my_imagem.height;y++)
-            for(x=0;x!=my_imagem.width;x++)
-                {
-                // for grayscale-only 8 bit depth
-                // can't work in 8 bit color display
-                pixel=(my_imagem.buffer[z++]+
-                my_imagem.buffer[z++]+                      
-                my_imagem.buffer[z++])/3;
-                translated_buffer[k++]=pixel;
-                }           
-            }
-        break;*/
         case 8:{
             unsigned x,y,z,k;
             //unsigned buffer;
@@ -1155,8 +1087,9 @@ Window video_out::create_simple_window(Display* display, int width, int height, 
  * im Textfenster ausgegeben.
  */
 void video_out::handle_button_down(XButtonEvent* button_event, unsigned char *buffer,
-        unsigned char *type, unsigned char *red, unsigned char *green, unsigned char *blue)
-    {
+                                   unsigned char *type, unsigned char *red, 
+				   unsigned char *green, unsigned char *blue){
+
     int x, y;   /* invert the pixel under the mouse. */
     //unsigned char red, green, blue;
     x = button_event->x;
@@ -1253,8 +1186,8 @@ int video_in::grab_open (char *device, int width, int height, int depth){
             buf[0].format = buf[1].format = VIDEO_PALETTE_GREY;
             break;
         case 2:
-                buf[0].format = buf[1].format = VIDEO_PALETTE_RGB565;
-                break;
+            buf[0].format = buf[1].format = VIDEO_PALETTE_RGB565;
+            break;
         case 3:
         default:
             buf[0].format = buf[1].format = VIDEO_PALETTE_RGB24;
@@ -1291,7 +1224,7 @@ unsigned char * video_in::grab_pix (void) {
 
 /**
  * Der Speicher, der für das Grabben verwendet wurde, wird wieder freigegeben
- * und der File Descriptor des Video Devide wird wieder freigegeben.
+ * und der File Descriptor des Video Device wird wieder freigegeben.
  */
 void video_in::grab_close (void) {
     munmap (buffer, mbuf.size);
@@ -1299,24 +1232,24 @@ void video_in::grab_close (void) {
 }
 
 /**
- * Diese Methode stellt mit die rot grün und blau min. max. Werte mit hilfe
+ * Diese Methode stellt mit die rot grün und blau min. max. Werte mit Hilfe
  * der Toleranz ein.
  */
 void settoleranz(unsigned char red, unsigned char green, unsigned char blue,
-        unsigned char *red_min, unsigned char *red_max, unsigned char *green_min,
-        unsigned char *green_max, unsigned char *blue_min, unsigned char *blue_max, unsigned char toleranz){
-            if (red<=255-toleranz) *red_max = red + toleranz;
-            else *red_max = 255;
-            if (red>=toleranz) *red_min = red - toleranz;
-            else *red_min = 0;
-            if (green<=255-toleranz) *green_max = green + toleranz;
-            else *green_max = 255;
-            if (green>=toleranz) *green_min = green - toleranz;
-            else *green_min = 0;
-            if (blue<=255-toleranz) *blue_max = blue + toleranz;
-            else *blue_max = 255;
-            if (blue>=toleranz) *blue_min = blue - toleranz;
-            else *blue_min = 0;
+                 unsigned char *red_min, unsigned char *red_max, unsigned char *green_min,
+                 unsigned char *green_max, unsigned char *blue_min, unsigned char *blue_max, unsigned char toleranz){
+    if (red<=255-toleranz) *red_max = red + toleranz;
+    else *red_max = 255;
+    if (red>=toleranz) *red_min = red - toleranz;
+    else *red_min = 0;
+    if (green<=255-toleranz) *green_max = green + toleranz;
+    else *green_max = 255;
+    if (green>=toleranz) *green_min = green - toleranz;
+    else *green_min = 0;
+    if (blue<=255-toleranz) *blue_max = blue + toleranz;
+    else *blue_max = 255;
+    if (blue>=toleranz) *blue_min = blue - toleranz;
+    else *blue_min = 0;
 }
 
 /**
@@ -1324,14 +1257,14 @@ void settoleranz(unsigned char red, unsigned char green, unsigned char blue,
  * von Tastatur und Mouseeingaben vom grafischen Fenster.
  */
 bool Menue(video_out *out, o_tracing *Objekt1, o_tracing *Objekt2, o_tracing *Objekt3, unsigned char * org_frame,
-        bool &grab1, bool &grab2, bool &grab3, bool &timeing){
+           bool &grab1, bool &grab2, bool &grab3, bool &timeing){
     static bool first=true;
     static unsigned char toleranz1 = 8;
     static unsigned char toleranz2 = 8;
     static unsigned char toleranz3 = 8;
     unsigned char  type, red, green, blue, red_min, red_max;
     unsigned char  green_min, green_max, blue_min, blue_max;
-        KeySym key;
+    KeySym key;
     bool break_loop = false;
     type = 0;
     if ( out->get_event(org_frame, &type, &red, &green, &blue, &key) || first ){
@@ -1394,7 +1327,7 @@ bool Menue(video_out *out, o_tracing *Objekt1, o_tracing *Objekt2, o_tracing *Ob
                     settoleranz(red, green, blue, &red_min, &red_max, &green_min, &green_max, &blue_min, &blue_max, toleranz2);
                     Objekt2->set_rgb_threshold(red_min, red_max, green_min, green_max, blue_min, blue_max);
                 break;
-                    case 3:
+                case 3:
                     settoleranz(red, green, blue, &red_min, &red_max, &green_min, &green_max, &blue_min, &blue_max, toleranz3);
                     Objekt3->set_rgb_threshold(red_min, red_max, green_min, green_max, blue_min, blue_max);
                 break;
@@ -1404,7 +1337,8 @@ bool Menue(video_out *out, o_tracing *Objekt1, o_tracing *Objekt2, o_tracing *Ob
         }// end else
         //clear();
         cout << endl << "Diplomarbeit - Kameragestützte Echtzeit Objekterkennung unter Linux" << endl;
-        cout << "von Thomas Maurer Version 1.1" << endl << endl;
+        cout << "von Thomas Maurer Version 1.1" << endl;
+	cout << "minor changes by Hartmut Eilers Version 1.2" << endl << endl;
         cout << "Für Eingaben muss der Fokus auf dem Grafischen-Fenster liegen!" << endl;
         cout << "1 = Captureframe 1 ein/aus ";
         if (grab1) cout << "[EIN] ";
@@ -1446,34 +1380,34 @@ int main (int argc, char* argv[]) {
     unsigned char * org_frame;// Zeiger auf den eingefangenen Frame
 
     bool grab1 = true;
-    bool grab2 = true;//false;
-    bool grab3 = true;//false;
+    bool grab2 = true;
+    bool grab3 = true;
     bool timeing = true; // wenn false muss die Destruktion
-            // angepasst werden -> sonst Segmentation fault
-    bool retime = false; // Wird das Timing neu gestartet wird der
-            // erste verfälschte Wert verworfen.
-    int depth;// Farbtiefe des Bildes
-    int bpl;// Anzahl von Bytes, die für die Farbtiefe benötigt werden
-    timeval *tv1, *tv2;// Variablen zur Zeiterfassung
-    int a;// Laufvariable
-    char device[200];//=''/dev/video'';
+                         // angepasst werden -> sonst Segmentation fault
+    bool retime = false; // Wird das Timing neu gestartet, wird der
+                         // erste verfälschte Wert verworfen.
+    int depth;           // Farbtiefe des Bildes
+    int bpl;             // Anzahl von Bytes, die für die Farbtiefe benötigt werden
+    timeval *tv1, *tv2;  // Variablen zur Zeiterfassung
+    int a;               // Laufvariable
+    char device[200];
 
     switch (argc){
         case 1:
-        strcpy(device, "/dev/video");
-        cout << "Keine Parameterangabe es wird /dev/video verwendet." << endl;
-        break;
+	    strcpy(device, "/dev/video");
+	    cout << "Keine Parameterangabe es wird /dev/video verwendet." << endl;
+	    break;
         case 2:
-        strcpy(device, argv[1]);
-        break;
-        default:
-        cout << "Als Parameter ist nur das Video device erlaubt z.B: /dev/video1" << endl;
-        exit(0);
-        break;      
+	    strcpy(device, argv[1]);
+	    break;
+	default:
+	    cout << "Als Parameter ist nur das Video device erlaubt z.B: /dev/video1" << endl;
+	    exit(0);
+	    break;      
     }
 
-        video_out * out = new video_out();
-        depth = out->get_depth();
+    video_out * out = new video_out();
+    depth = out->get_depth();
     // Farbtiefe ermitteln
     cout << "Farbtiefe= " << depth << " Bit" << endl;
     // Abhängig von der Farbtiefe müssen später 1 bis 4 Byte pro Bildpunkt
@@ -1504,9 +1438,9 @@ int main (int argc, char* argv[]) {
     o_tracing *Objekt2 = new o_tracing();
     o_tracing *Objekt3 = new o_tracing();
     // Einstellung des Thresholding Verfahren.
-        Objekt1->set_total_threshold(255*3-100);
-        Objekt2->set_total_threshold(255*3-100);
-        Objekt3->set_total_threshold(255*3-100);
+    Objekt1->set_total_threshold(255*3-100);
+    Objekt2->set_total_threshold(255*3-100);
+    Objekt3->set_total_threshold(255*3-100);
     //Objekt1->set_rgb_threshold(150, 255, 0, 25, 0, 25);
 
     // Schleife in der ein Bild gegrabbt und danach abgelegt wird.
@@ -1521,19 +1455,25 @@ int main (int argc, char* argv[]) {
             if (grab1){
                 Objekt1->start_tracing(org_frame);
                 Objekt1->draw_tracing_frame(org_frame);
+		Objekt1->get_center();
+		cout << "Objekt1 id=" << Objekt1->print_object_id() <<endl;
             }
             if (grab2){
                 Objekt2->start_tracing(org_frame);
                 Objekt2->draw_tracing_frame(org_frame);
-                }
+		Objekt2->get_center();
+		cout << "Objekt2 id=" << Objekt2->print_object_id() <<endl;
+	    }
             if (grab3){
-            Objekt3->start_tracing(org_frame);
-            Objekt3->draw_tracing_frame(org_frame);
-                        }
+            	Objekt3->start_tracing(org_frame);
+            	Objekt3->draw_tracing_frame(org_frame);
+		Objekt3->get_center();
+		cout << "Objekt3 id=" << Objekt3->print_object_id() <<endl;
+            }
 	    //cout << "running loop -- before Menue" << endl;
             break_loop = Menue(out, Objekt1, Objekt2, Objekt3, org_frame, grab1, grab2, grab3, timeing);
 
-                // den  Frame in X-Windows darstellen.
+            // den  Frame in X-Windows darstellen.
 	    //out << "running loop -- display a frame" << endl;
             out->display_frame(translated_buffer, depth, bpl, org_frame);
             //out->display_frame(translated_buffer, 8, bpl, Objekt1->areas_buffer);
@@ -1561,6 +1501,8 @@ int main (int argc, char* argv[]) {
     delete tv1;
     delete tv2;
     delete Objekt1;
+    delete Objekt2;
+    delete Objekt3;
     delete in;
     delete out;
     free((void *)translated_buffer);
