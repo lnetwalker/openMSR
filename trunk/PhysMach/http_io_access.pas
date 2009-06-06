@@ -90,14 +90,21 @@ var
 	wert				: Cardinal;
 	dev				: byte;
 	cmd				: AnsiString;
-
+	idx				: byte;
+	
 begin
 	if debug then writeln('http_io_access io_port=',io_port);
 	{ extract the device number as key to the device handle }
-	dev:=round(io_port/10)-DeviceIndex;
+	str(io_port,TmpStrg);
+	val(copy(TmpStrg,1,1),dev);
+	
+	//dev:=round(io_port/10)-DeviceIndex;
 	{ extract the port }
-	io_port:=round(frac(io_port/10)*10);
+	val(copy(TmpStrg,2,1),io_port);
+	//io_port:=round(frac(io_port/10)*10);
 
+        val(copy(TmpStrg,3,1),idx);
+	
 	str(io_port,TmpStrg);
 	TmpStrg:=R_URL[dev]+TmpStrg;
 	{$ifndef ZAURUS}
@@ -120,8 +127,8 @@ begin
 		ReturnValue:=copy(ReturnValue,i+1,length(ReturnValue));
 		if debug then writeln('ReturnValue=',ReturnValue,' ReturnArray[',k,']=',ReturnArray[k]);
 		inc(k);
-	until (k>io_port);// or (i>ReturnValueLength);
-	val(ReturnArray[io_port],wert);
+	until (k>idx);// or (i>ReturnValueLength);
+	val(ReturnArray[k],wert);
 	http_read_analog:=wert;
 
 end;
