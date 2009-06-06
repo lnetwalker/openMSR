@@ -154,16 +154,18 @@ end;
 
 
 begin
-	NoOfInputs:=4;
+	NoOfInputs:=6;
 	Raster:= 40;
 	maxx:=480;
 	maxy:=480;
 	PixelPerTimeBase:=20;
 	Timer:=250;
-	Yrmax[1]:=4294967294;
-	Yrmax[2]:=4294967294;
-	Yrmax[3]:=10000;
-	Yrmax[4]:=10000;
+	Yrmax[1]:=500; //4294967294;
+	Yrmax[2]:=500; //4294967294;
+	Yrmax[3]:=500;
+	Yrmax[4]:=500;
+	Yrmax[5]:=500;
+	Yrmax[6]:=500;
 
 
 	xmitte:=round(int(maxx/2));
