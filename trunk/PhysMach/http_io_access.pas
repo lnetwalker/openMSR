@@ -34,6 +34,7 @@ var
 	R_URL,W_URL		: array[1..4] of String;
 	cnt			: byte;
 	DeviceIndex		: byte;
+	AppName			: string;
 
 function http_read_ports(io_port:longint):byte;
 
