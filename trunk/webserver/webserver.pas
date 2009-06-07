@@ -47,7 +47,7 @@ procedure stop_server();
 implementation
 
 {$ifdef LINUX}
-	uses sockets, crt,inetaux, BaseUnix, Unix;
+	uses sockets, crt,inetaux, BaseUnix, Unix, dos;
 {$else}
 	uses winsock,crt,inetaux;
 {$endif}
@@ -136,7 +136,9 @@ var
 	// this variable is just used to convert numerics to string
 	blubber			: string;
 
-
+	saveaccess		: Boolean;
+	
+	
 procedure writeLOG(MSG: string);
 begin
 	writeln(DBG,MSG);
@@ -149,6 +151,25 @@ begin
 	writeln(ERR,MSG);
 	flush(ERR);
 end;
+
+
+procedure accessLOG(MSG: string);
+begin
+	if saveaccess then begin
+	    writeln(ACC,MSG);
+	    flush(ACC);
+	end;
+end;
+
+
+function IntToStr(value:LongInt):String;
+var dummy : string;
+
+begin
+	str(value,dummy);
+	IntToStr:=dummy;
+end;
+
 
 procedure SetupSpecialURL(URL:string;proc : tprocedure);
 begin
@@ -169,10 +190,13 @@ end;
 procedure start_server(address:string;port:word;BlockMode: Boolean;doc_root,logfile:string);
 
 begin
-	// open logfile
-	assign(ACC,logfile);
-	rewrite(ACC);
-
+	if logfile<>'' then begin
+	    // open logfile
+	    assign(ACC,logfile);
+	    rewrite(ACC);
+	    saveaccess:=true;
+	end;
+	
 	{ Initialization}
 	if debug then writeLOG('PWS Pascal Web Server - starting server...');
 	if (port=0) then port:=10080;
@@ -262,8 +286,8 @@ begin
 		writeLOG('Header: '+header);
 		writeLOG('/Header');
 
-	// Sending response
-	writeLOG('serving data...');
+		// Sending response
+		writeLOG('serving data...');
 	end;
 	{$ifdef LINUX}
 		str(BufCnt,blubber);
@@ -274,17 +298,20 @@ begin
 		repeat
 			inc(i);
 		until (copy(post[i],1,10)='User-Agent');
+		if debug then writeLOG('User-Agent='+copy(post[i],13,7));
 		if (copy(post[i],13,7)='Mozilla') then begin
+			if debug then writeLOG('Mozilla -> sending header,page');
 			writeln(ccsout,header);
 			writeln(ccsout,myPage);
 		end
-		else
+		else begin
+			if debug then writeLOG('other -> sending header+page');
 			writeln(ccsout,header+myPage);
-
-		writeln(ccsout);
+		end;
+		//writeln(ccsout);
 
 		// Flushing output
-		flush(ccsout);
+		//flush(ccsout);
 
 	{$else}
 		{ note chr(10) is newline }
@@ -301,9 +328,14 @@ begin
 	BufCnt:=1;
 end;
 
+
 procedure process_request;
 var Paramstart,i	: word;
-
+    UserAgent		: string;
+    jahr,mon,tag,wota 	: word;
+    std,min,sec,ms	: word;
+    TimeString		: string;
+    
 begin
 	reqSize:=0;
 	if debug then writeLOG('reading request data');
@@ -316,6 +348,7 @@ begin
 			str(BufCnt,blubber);
 			if debug then writeLOG('Req['+blubber+']='+buff);
 			post[BufCnt] := buff;
+			if copy(buff,1,11)='User-Agent:' then UserAgent:=copy(buff,12,length(buff));
 			reqSize:=reqSize+length(post[BufCnt]);
 			inc(BufCnt);
 		{$else}
@@ -398,7 +431,23 @@ begin
 
 		SendPage(page);
 	end;
-
+	{ write access log in common logfile format, that looks like:
+		78.34.183.237 - - [16/Jun/2009:15:11:09 +0200] "GET /templates/eilers.net/images/mw_menu_cap_r.png HTTP/1.1" 404 8219 "http://www.eilers.net/templates/eilers.net/css/template.css" "Mozilla/5.0 (X11; U; Linux i686; de; rv:1.9.0.10) Gecko/2009042523 Ubuntu/9.04 (jaunty) Firefox/3.0.10"                                                                            
+		78.34.183.237 - - [16/Jun/2009:15:11:09 +0200] "GET /templates/eilers.net/images/mw_menu_normal_bg.png HTTP/1.1" 404 8219 "http://www.eilers.net/templates/eilers.net/css/template.css" "Mozilla/5.0 (X11; U; Linux i686; de; rv:1.9.0.10) Gecko/2009042523 Ubuntu/9.04 (jaunty) Firefox/3.0.10"                                                                        
+		74.6.22.178 - - [16/Jun/2009:15:14:37 +0200] "GET /robots.txt HTTP/1.0" 200 304 "-" "Mozilla/5.0 (compatible; Yahoo! Slurp; http://help.yahoo.com/help/us/ysearch/slurp)"           
+		74.6.22.178 - - [16/Jun/2009:15:14:37 +0200] "GET /vrml/ HTTP/1.0" 404 8219 "-" "Mozilla/5.0 (compatible; Yahoo! Slurp/3.0; http://help.yahoo.com/help/us/ysearch/slurp)"           
+		77.180.99.188 - - [16/Jun/2009:15:15:34 +0200] "GET / HTTP/1.0" 200 10503 "-" "check_http/v1944 (nagios-plugins 1.4.11)"
+		65.55.106.161 - - [16/Jun/2009:16:01:24 +0200] "GET /vrml/ HTTP/1.1" 404 8219 "-" "msnbot/2.0b (+http://search.msn.com/msnbot.htm)"
+		77.180.99.188 - - [16/Jun/2009:16:04:05 +0200] "GET / HTTP/1.0" 200 10503 "-" "check_http/v1944 (nagios-plugins 1.4.11)"
+		65.55.51.115 - - [16/Jun/2009:16:07:23 +0200] "GET /robots.txt HTTP/1.1" 200 304 "-" "msnbot/2.0b (+http://search.msn.com/msnbot.htm)"
+		
+		field description
+		host rfc931 username date:time request statuscode bytes referrer applinformation
+	}
+	gettime(std,min,sec,ms); 
+	getdate(jahr,mon,tag,wota);
+	TimeString:='['+IntToStr(tag)+'/'+IntToStr(mon)+'/'+IntToStr(jahr)+':'+IntToStr(std)+':'+IntToStr(min)+':'+IntToStr(sec)+':'+IntToStr(ms)+']';
+	accessLog('unknown'+' - - '+TimeString+' GET "'+URL+'" '+copy(status,1,3)+' '+IntToStr(SizeOf(page))+' '+UserAgent);
 
 end;
 
@@ -411,6 +460,7 @@ begin
 	// Reading whole request -> accept on socket, then read requested data
 
 	if debug then writeLOG('accept connection');
+	
 	{$ifdef LINUX}
 	{$else}
 	{$endif}
@@ -418,10 +468,14 @@ begin
 
 
 	{$ifdef LINUX}
+	{$I-}
+		if debug then writeLOG('Sock2Text');
 		Sock2Text(sock,sin,sout);
+		if debug then writeLOG('reset');
 		reset(sin);
-		rewrite(sout);
-
+		//if debug then writeLOG('rewrite');
+		//rewrite(sout);
+{$I+}
 		if debug then WriteLOG('Reading requests...');
 		if (SelectText(sin,10000)>0) then begin
 			Addr_len:=SizeOf(cli_addr);
@@ -430,8 +484,11 @@ begin
 			reset(ccsin);
 			rewrite(ccsout);
 			process_request;
+			if debug then WriteLOG('Closing In Stream');
 			close(ccsin);
+			if debug then WriteLOG('Closing Out Stream');
 			close(ccsout);
+			if debug then WriteLOG('Closing Client Socket');
 			CloseSocket(csock);
 		end;
 		if debug then WriteLOG('Reading requests...done');
@@ -439,7 +496,7 @@ begin
 		// Closing connected socket descriptors
 		if debug then WriteLOG('trying to close socket descriptors');
 		close(sin);
-		close(sout);
+		//close(sout);
 		if debug then WriteLOG('closeing socket descriptors done');
 	{$else}
 		fd_zero(FDRead);
@@ -480,6 +537,9 @@ begin
 end;
 
 begin
+	// don't write access log
+	saveaccess:=false;
+
 	// open logfiles
 	//error Log
 	assign(ERR,'/tmp/deviceserver_err.log');
