@@ -6,12 +6,16 @@
 
 OBJECTS=oszi
 
+FPC=fpc
+
+#FPC=/usr/local/bin/fpc
+
 all: $(OBJECTS)
 
 
 # the oszi runtime module	
 oszi:	oszi.pas
-	/usr/local/bin/fpc -Fu../divLibs/pwu-1.6.0.2-src/main/ -Fu../gtk+/qgtk2.pas-0.9 -Fu../PhysMach oszi 
+	fpc -Fu../divLibs/pwu-1.6.0.2-src/main/ -Fu../gtk+/qgtk2.pas-0.9 -Fu../PhysMach oszi 
 
 clear: 
 	-rm oszi
