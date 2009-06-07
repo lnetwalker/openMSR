@@ -403,9 +403,11 @@ begin
 end;
 
 { get url with default user agent }
-function HttpGet(const url: string): string;                    
+function HttpGet(const url: string;UserAgent:string): string;                    
 begin
-  result:= HttpGet1(url, 'PWU HTTP Module');      
+  if UserAgent='' then UserAgent:='PWU HTTP Module'
+  else UserAgent:=UserAgent+'PWU HTTP Module';
+  result:= HttpGet1(url, UserAgent);      
 end;
                   
 // Returns value of server Response header
