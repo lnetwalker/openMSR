@@ -42,7 +42,7 @@ function HttpConnect(const address: string): HTTPConnection;
 function HttpCopy(const source, dest: string): boolean;
 function HttpEof(cp: HTTPConnection): boolean;
 function HttpGet1(const url, agent: string): string;
-function HttpGet(const url: string): string;
+function HttpGet(const url:string;UserAgent:string): string;
 function HttpGetHeader(cp: HTTPConnection; const name: string): string;
 function HttpRead(cp: HTTPConnection): char;
 function HttpReadLn(cp: HTTPConnection): string;
@@ -241,7 +241,7 @@ var
   data: string;
 begin
   result := false;
-  data := HttpGet(source);
+  data := HttpGet(source,'');
   if data = '' then exit(false);
   assign(fh, dest);         
   rewrite(fh);
@@ -403,10 +403,10 @@ begin
 end;
 
 { get url with default user agent }
-function HttpGet(const url: string;UserAgent:string): string;                    
+function HttpGet(const url:string;UserAgent:string): string;                    
 begin
   if UserAgent='' then UserAgent:='PWU HTTP Module'
-  else UserAgent:=UserAgent+'PWU HTTP Module';
+  else UserAgent:=UserAgent+' PWU HTTP Module';
   result:= HttpGet1(url, UserAgent);      
 end;
                   
