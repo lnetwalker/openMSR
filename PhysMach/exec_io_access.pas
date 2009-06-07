@@ -18,7 +18,7 @@ implementation
 uses CommonHelper;
 
 const
-	debug=true;
+	debug=false;
 
 var
 	RunCmd	: array[1..4] of AnsiString;
@@ -34,7 +34,7 @@ var
 
 begin
 	{ extract the device number as key to the device handle }
-	dev:=round(io_port/10);
+	dev:=trunc(io_port/10);
 	{ extract the port }
 	io_port:=round(frac(io_port/10)*10);	{ will be ignored, currently just one port }
 	if debug then writeln('exec_read_ports->io_port=',io_port,' dev=',dev);
@@ -63,7 +63,7 @@ var
 
 begin
 	{ extract the device number as key to the device handle }
-	dev:=round(io_port/10);
+	dev:=trunc(io_port/10);
 	{ extract the port }
 	io_port:=round(frac(io_port/10)*10);
 
