@@ -10,12 +10,26 @@
 // moros@sonne.tachemie.uni-leipzig.de          //
 // 21.10.1996                                   //
 // ===========================================  //
-// http://techni.tachemie.uni-leipzig.de/~jar/  //
+// http://techni.tachemie.uni-leipzig.de/jjar/jappl/meter/ //
 // http://techni.tachemie.uni-leipzig.de/       //
 // ===========================================  //
 
+// ajax code by 2009 by Hartmut Eilers
+// hartmut@eilers.net
+
 var ReloadAnalogTimer;
 var req=null;
+
+
+function pausecomp(millis)
+{
+var date = new Date();
+var curDate = null;
+
+do { curDate = new Date(); }
+while(curDate-date < millis);
+} 
+
 
 function Init()
 { 
@@ -25,8 +39,22 @@ function Init()
 
 function SetWert(Wert)
 {
-  var DF= parseFloat(Wert);
-  document.M1.SetMeter(DF); 
+      var DF= parseFloat(Wert[0]);
+      document.M1.SetMeter(DF); 
+      DF= parseFloat(Wert[1]);
+      document.M2.SetMeter(DF);
+      DF= parseFloat(Wert[2]);
+      document.M3.SetMeter(DF); 
+      DF= parseFloat(Wert[3]);
+      document.M4.SetMeter(DF);
+      DF= parseFloat(Wert[4]);
+      document.M5.SetMeter(DF); 
+      DF= parseFloat(Wert[5]);
+      document.M6.SetMeter(DF);
+      DF= parseFloat(Wert[6]);
+      document.M7.SetMeter(DF); 
+      DF= parseFloat(Wert[7]);
+      document.M8.SetMeter(DF);
 }
 
 // Initialisiert Plattformunabhängig den asynchronen Zugriff
@@ -60,16 +88,19 @@ function PrintAnalogState() {
 	if (req.readyState ==4 ) {
 		// in resonseText ist die Antwort des Servers
 		var str=req.responseText;
+		//document.getElementById("debug").value = str;
 		// remove html tags
 		str = str.replace(/<[^<>]+>/g , "");
 		// remove leading space
 		str = str.replace(/^ /, "");
 		var inputs=str.split(" ");
+		document.getElementById("debug").value = inputs
 		// nu muss hier in einer Loop jeweils die analogen werte an das Applet übergeben werden
 		for (i=0;i<8;i++) {
-			if (document.getElementById("iogroup").value-1==i) {
-				SetWert(inputs[i]);
-			}
+			//if (document.getElementById("iogroup").value-1==i) {
+				SetWert(inputs);
+				//pausecomp(1000);
+			//}
 		}
 	}
 }
@@ -100,15 +131,16 @@ function ReadAnalogData()  {
 
 </Head>
 
-<Body Background="" BGColor=#FFFFFF Text=#000000 Link=#0000FF VLink=#800080 ALink=#80FFFF onload="Init()">
+<Body Background="" BGColor=#F0F0FF Text=#000000 Link=#0000FF VLink=#800080 ALink=#80FFFF onload="Init()">
 
 <center>
  <FORM name="GETWERT" ACTION="" METHOD="GET">
  <TABLE border = 0> 
  <TR>
-  <TD> 	<font color=white>Server:Port=http://<input type=text value='localhost:10080' id="Hostname" size=25>
-	<font color=white>IO Group: <input type=text  value=0 id="iogroup" size=2 ><br>
-	<font color=white>URL to read LED: <input type=text  value='/analog/read.html' id="ANALOGURL" size=40><br>
+  <TD> 	<font color=black>Server:Port=http://<input type=text value='localhost:10080' id="Hostname" size=25>
+	<font color=black>IO Group: <input type=text  value=0 id="iogroup" size=2 ><br>
+	<font color=black>URL to read Analog IN: <input type=text  value='/analog/read.html' id="ANALOGURL" size=40><br>
+	<font color=black>Values read from Device:<input type=text value='' id=debug size=30><br>
  </TD>
  </TR>
  </TABLE> 
@@ -126,8 +158,41 @@ function ReadAnalogData()  {
  <PARAM NAME=unit     VALUE="C">
  <PARAM NAME=digital  VALUE="true">
  <PARAM NAME=analog   VALUE="true">
- <PARAM NAME=xfrom    VALUE="-1000">
- <PARAM NAME=xto      VALUE="1000">
+ <PARAM NAME=xfrom    VALUE="0">
+ <PARAM NAME=xto      VALUE="400">
+ <PARAM NAME=x        VALUE="250.0">  
+ </APPLET>
+ </TD>
+ <TD align=middle>
+ <APPLET CODE="Meter.class" NAME="M2" WIDTH=200 HEIGHT=180>
+ <PARAM NAME=header   VALUE="Temperature">
+ <PARAM NAME=unit     VALUE="C">
+ <PARAM NAME=digital  VALUE="true">
+ <PARAM NAME=analog   VALUE="true">
+ <PARAM NAME=xfrom    VALUE="0">
+ <PARAM NAME=xto      VALUE="400">
+ <PARAM NAME=x        VALUE="250.0">  
+ </APPLET>
+ </TD>
+ <TD align=middle>
+ <APPLET CODE="Meter.class" NAME="M3" WIDTH=200 HEIGHT=180>
+ <PARAM NAME=header   VALUE="Temperature">
+ <PARAM NAME=unit     VALUE="C">
+ <PARAM NAME=digital  VALUE="true">
+ <PARAM NAME=analog   VALUE="true">
+ <PARAM NAME=xfrom    VALUE="0">
+ <PARAM NAME=xto      VALUE="400">
+ <PARAM NAME=x        VALUE="250.0">  
+ </APPLET>
+ </TD>
+ <TD align=middle>
+ <APPLET CODE="Meter.class" NAME="M4" WIDTH=200 HEIGHT=180>
+ <PARAM NAME=header   VALUE="Temperature">
+ <PARAM NAME=unit     VALUE="C">
+ <PARAM NAME=digital  VALUE="true">
+ <PARAM NAME=analog   VALUE="true">
+ <PARAM NAME=xfrom    VALUE="0">
+ <PARAM NAME=xto      VALUE="400">
  <PARAM NAME=x        VALUE="250.0">  
  </APPLET>
  </TD>
@@ -135,7 +200,55 @@ function ReadAnalogData()  {
 
 
 </TR>
-</table>
+<TR>
+ <TD align=middle>
+ <APPLET CODE="Meter.class" NAME="M5" WIDTH=200 HEIGHT=180>
+ <PARAM NAME=header   VALUE="Temperature">
+ <PARAM NAME=unit     VALUE="C">
+ <PARAM NAME=digital  VALUE="true">
+ <PARAM NAME=analog   VALUE="true">
+ <PARAM NAME=xfrom    VALUE="0">
+ <PARAM NAME=xto      VALUE="400">
+ <PARAM NAME=x        VALUE="250.0">  
+ </APPLET>
+ </TD>
+ <TD align=middle>
+ <APPLET CODE="Meter.class" NAME="M6" WIDTH=200 HEIGHT=180>
+ <PARAM NAME=header   VALUE="Temperature">
+ <PARAM NAME=unit     VALUE="C">
+ <PARAM NAME=digital  VALUE="true">
+ <PARAM NAME=analog   VALUE="true">
+ <PARAM NAME=xfrom    VALUE="0">
+ <PARAM NAME=xto      VALUE="400">
+ <PARAM NAME=x        VALUE="250.0">  
+ </APPLET>
+ </TD>
+ <TD align=middle>
+ <APPLET CODE="Meter.class" NAME="M7" WIDTH=200 HEIGHT=180>
+ <PARAM NAME=header   VALUE="Temperature">
+ <PARAM NAME=unit     VALUE="C">
+ <PARAM NAME=digital  VALUE="true">
+ <PARAM NAME=analog   VALUE="true">
+ <PARAM NAME=xfrom    VALUE="0">
+ <PARAM NAME=xto      VALUE="400">
+ <PARAM NAME=x        VALUE="250.0">  
+ </APPLET>
+ </TD>
+ <TD align=middle>
+ <APPLET CODE="Meter.class" NAME="M8" WIDTH=200 HEIGHT=180>
+ <PARAM NAME=header   VALUE="Temperature">
+ <PARAM NAME=unit     VALUE="C">
+ <PARAM NAME=digital  VALUE="true">
+ <PARAM NAME=analog   VALUE="true">
+ <PARAM NAME=xfrom    VALUE="0">
+ <PARAM NAME=xto      VALUE="400">
+ <PARAM NAME=x        VALUE="250.0">  
+ </APPLET>
+ </TD>
+
+
+
+</TR></table>
 <P></P>
 
 </center>
