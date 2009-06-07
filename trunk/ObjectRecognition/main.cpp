@@ -22,7 +22,7 @@
 */
 
 /*
- compile with: g++ -Wno-deprecated -L/usr/X11R6/lib -lX11  main.cc -o ObjRec
+ compile with: g++ -Wno-deprecated -L/usr/X11R6/lib -lX11  main.cpp -o ObjRec
  start with: LD_PRELOAD=/usr/lib/libv4l/v4l1compat.so ObjRec /dev/video0
  if normal start does not work
 */
@@ -90,10 +90,10 @@ using namespace std;
  * HTTP Request Functions
  */
 
-char Domain[]="canis";
+char Domain[]="localhost";
 int  Port=10080;
 const string URL = "GET /analog/write.html?";
-const string HeaderData = " HTTP/1.1\r\nHost: canis\r\nConnection: Keep-alive\r\nUser-Agent: ObjRec\r\n\r\n";
+const string HeaderData = " HTTP/1.1\r\nHost: localhost\r\nConnection: Keep-alive\r\nUser-Agent: OpenLab Tools ObjRec 0.2\r\n\r\n";
  
 std::runtime_error CreateSocketError()
 {
@@ -926,12 +926,13 @@ void o_tracing::draw_tracing_frame(unsigned char * my_frame){
 
 
 void o_tracing::get_center() {
+
   if (id>3) cout << "!" << endl;
   #if debug
-  cout << x0 << "," << y0 ;
+  cout << old_xcenter << "," << old_ycenter ;
   #endif
   // Store position in DeviceServer
-  MakeRequest(DeviceServerIndex,x0,y0);
+  MakeRequest(DeviceServerIndex,old_xcenter,old_ycenter);
 }
 
 
