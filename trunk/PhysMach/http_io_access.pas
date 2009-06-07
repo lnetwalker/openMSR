@@ -153,5 +153,5 @@ end;
 
 begin
 	cnt:=0;
-	AppName:=ParamStr[0];
+	AppName:=ParamStr(0);
 end.
