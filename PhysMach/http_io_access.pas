@@ -50,7 +50,7 @@ begin
 	str(io_port,TmpStrg);
 	TmpStrg:=R_URL[dev]+TmpStrg;
 	{$ifndef ZAURUS}
-	TmpVal:=deHTML(HttpGet(TmpStrg));
+	TmpVal:=deHTML(HttpGet(TmpStrg,AppName));
 	{$endif}
 	if debug then writeln('http_read_ports(',TmpStrg,') returned ',TmpVal);
 	http_read_ports:=BinToInt(TmpVal);
@@ -75,7 +75,7 @@ begin
 	str(byte_value,TmpStrg);
 	Params:=Params+TmpStrg;
 	{$ifndef ZAURUS}
-	TmpVal:=HttpGet(W_URL[dev]+Params);
+	TmpVal:=HttpGet(W_URL[dev]+Params,AppName);
 	{$endif}
 	if debug then writeln('http_write_ports: URL=',W_URL[dev]+Params);
 	val(TmpVal,http_write_ports);	
@@ -108,7 +108,7 @@ begin
 	str(io_port,TmpStrg);
 	TmpStrg:=R_URL[dev]+TmpStrg;
 	{$ifndef ZAURUS}
-	ReturnValue:=deHTML(HttpGet(TmpStrg));
+	ReturnValue:=deHTML(HttpGet(TmpStrg,AppName));
 	{$endif}
 	if debug then writeln('http_read_analog(',TmpStrg,') returned ',ReturnValue);
 	ReturnValueLength:=length(ReturnValue);
@@ -152,4 +152,5 @@ end;
 
 begin
 	cnt:=0;
+	AppName:=ParamStr[0];
 end.
