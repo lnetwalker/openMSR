@@ -185,6 +185,9 @@ function ToggleSwitch(SwitchNr) {
 
 </head>
 <body bgcolor=black onload="preload()" >
+    <table>
+    <tr>
+    <td>
 	<table border=0>
 	  <tr>
 		<td align=center><img id="led1" src="images/led-green-off.jpg"></td>
@@ -207,9 +210,19 @@ function ToggleSwitch(SwitchNr) {
 		<td align=center><img id="sw8" src="images/switch-off.png" onclick="ToggleSwitch(8)"></td>
 	  </tr>
 	</table>
-	<form>
-	<font color=white>Url=http://<input type=text value='localhost:10080' id="Hostname" size=25>
-	<font color=white>IO Group: <input type=text  value=0 id="iogroup" size=2 >
-	</form>
+    </td>
+    <td>
+    <font color=white>
+      IO Group 1 gibts ein sch&ouml;nes Blinkenlights<br>
+      IO Group 2 Schalter bet&auml;tigen<br>
+      IO Group 0 ausschalten
+      </font>
+    </td>
+    </tr>
+    </table>
+    <form>
+      <font color=white>Url=http://<input type=text value='localhost:10080' id="Hostname" size=25>
+      <font color=white>IO Group: <input type=text  value=0 id="iogroup" size=2 >
+    </form>
 </body>
 <html>
