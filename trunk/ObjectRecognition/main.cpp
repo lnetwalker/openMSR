@@ -22,7 +22,9 @@
 */
 
 /*
- compile with: g++ -Wno-deprecated -L/usr/X11R6/lib -lX11  main.cc
+ compile with: g++ -Wno-deprecated -L/usr/X11R6/lib -lX11  main.cc -o ObjRec
+ start with: LD_PRELOAD=/usr/lib/libv4l/v4l1compat.so ObjRec /dev/video0
+ if normal start does not work
 */
 
 /*  $Id$ */
@@ -47,6 +49,14 @@
 #include <sys/ioctl.h>
 #include <sys/types.h>
 #include <linux/videodev.h>
+// HTTP access
+#include <stdexcept> // runtime_error
+#include <sstream>
+#include <sys/socket.h> // socket(), connect()
+#include <arpa/inet.h> // sockaddr_in
+#include <netdb.h> // gethostbyname(), hostent
+#include <errno.h> // errno
+// end HTTP access
 
 using namespace std;
 
@@ -76,6 +86,126 @@ using namespace std;
 #define CONNECTIONS 7
 #define ROOT   8
 
+/**
+ * HTTP Request Functions
+ */
+
+char Domain[]="canis";
+int  Port=10080;
+const string URL = "GET /analog/write.html?";
+const string HeaderData = " HTTP/1.1\r\nHost: canis\r\nConnection: Keep-alive\r\nUser-Agent: ObjRec\r\n\r\n";
+ 
+std::runtime_error CreateSocketError()
+{
+    std::ostringstream temp;
+    temp << "Socket-Fehler #" << errno << ": " << endl;
+    return std::runtime_error(temp.str());
+}
+
+void SendAll(int socket, const char* const buf, const int size) {
+    int bytesSent = 0; // Anzahl Bytes die wir bereits vom Buffer gesendet haben
+    do {
+	#if debug
+	cout << "Sending Data -> done " << bytesSent << " of " << size << " Bytes" << endl;
+	#endif
+        int result = send(socket, buf + bytesSent, size - bytesSent, 0);
+        if(result < 0) { 
+	// Wenn send einen Wert < 0 zurück gibt deutet dies auf einen Fehler hin.
+	    cout << "CreateSocketError" << endl;
+            throw CreateSocketError();
+        }
+        bytesSent += result;
+    } while(bytesSent < size);
+    #if debug
+    cout << "Request finished" << endl;
+    #endif
+}
+
+
+// Liest eine Zeile des Sockets in einen stringstream
+void GetLine(int socket, std::stringstream& line) {
+    for(char c; recv(socket, &c, 1, 0) > 0; line << c) {
+        if(c == '\n') {
+            return;
+        }
+    }
+    throw CreateSocketError();
+}
+
+// URL aufrufen und Antwort verwerfen
+int MakeRequest( int idx, int x, int y ) {
+    // idx ist der Index des analogen Ausganges in den
+    // x gespeichert wird, in idx+1 wird y gespeichert
+    std::ostringstream tempString;
+    tempString << URL << idx << "," << x << "," << y << HeaderData;
+    string request = tempString.str();
+    
+    
+    hostent* phe = gethostbyname(Domain);
+
+    if(phe == NULL) {
+        cout << "Host konnte nicht aufgeloest werden!" << endl;
+        return 1;
+    }
+
+    if(phe->h_addrtype != AF_INET) {
+        cout << "Ungueltiger Adresstyp!" << endl;
+        return 1;
+    }
+
+    if(phe->h_length != 4) {
+        cout << "Ungueltiger IP-Typ!" << endl;
+        return 1;
+    }
+
+    int Socket = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
+    if(Socket == -1) {
+        cout << "Socket konnte nicht erstellt werden!" << endl;
+        return 1;
+    }
+
+    sockaddr_in service;
+    service.sin_family = AF_INET;
+    service.sin_port = htons(Port); // Das HTTP-Protokoll benutzt Port 80
+
+    char** p = phe->h_addr_list; // p mit erstem Listenelement initialisieren
+    int result; // Ergebnis von connect
+    do {
+        if(*p == NULL) { // Ende der Liste
+            cout << "Verbindung fehlgschlagen!" << endl;
+            return 1;
+        }
+
+        service.sin_addr.s_addr = *reinterpret_cast<unsigned long*>(*p);
+        ++p;
+        result = connect(Socket, reinterpret_cast<sockaddr*>(&service), sizeof(service));
+    } while(result == -1);
+
+    #if debug
+    cout << "Verbindung erfolgreich!" << endl;
+    #endif
+    
+    SendAll(Socket, request.c_str(), request.size());
+
+    // empfange und verwerfe antwort
+    while(true) {
+        stringstream line;
+        try
+        {
+            GetLine(Socket, line);
+	    #if debug
+	    cout << "Reading Answer: "<< line << endl;
+	    #endif
+        }
+        catch(exception& e) // Ein Fehler oder Verbindungsabbruch
+        {
+            break; // Schleife verlassen
+        }
+    }
+    close(Socket);
+    return 0;
+}
+// end HTTP access
 
 /**
  * Diese Klasse enthällt Methoden für die Findung und Verfolgung von Objekten.
@@ -96,7 +226,7 @@ public:
     void draw_tracing_frame(unsigned char * org_frame);
     unsigned int create_roots(unsigned int index, unsigned int root);
     void get_center();
-    void print_object_id();
+    void set_object_idx(int idx);
 
 private:
     unsigned int id;    
@@ -119,7 +249,8 @@ private:
     unsigned char blue_min;
     unsigned char blue_max;
     unsigned int old_x_max, old_x_min, old_y_max, old_y_min, old_xcenter, old_ycenter;
-
+    unsigned int DeviceServerIndex;
+    
     void threshold();
     void tracing();
     void labeling (unsigned int area_index);
@@ -128,7 +259,7 @@ private:
     void in_label(unsigned int index1, unsigned int index2,
     unsigned int modulo, unsigned int quotient);
     /*unsigned int get_mengendichte(unsigned int index);*/
-};              
+};
 
 /**
  * Diese Klasse enthält Methoden, die für das Einfangen von Bildern
@@ -736,27 +867,20 @@ void o_tracing::tracing(){
             old_y_min = labels[objekt_index][Y_MIN];
             old_xcenter= xcenter;
             old_ycenter= ycenter;
-	    if (objekt_index<4) cout << "Objekt (" << objekt_index << ") -> (x,y)=(" << xcenter << "," << ycenter << ")" << endl;
+	    //if (objekt_index<4) cout << "Objekt (" << objekt_index << ") -> (x,y)=(" << xcenter << "," << ycenter << ")" << endl;
 	    
         }   
     }   
     #if debug
     if (height >= HEIGHT)
     {
-    cout << ''! heigth hat die Auflösung überschritten - in Methode tracing \n'';
+    cout << "! heigth hat die Auflösung überschritten - in Methode tracing \n";
     }
     if (width >= WIDTH)
     {
-    cout << ''! width hat die Auflösung überschritten - in Methode tracing \n'';
+    cout << "! width hat die Auflösung überschritten - in Methode tracing \n";
     }
     #endif
-}
-
-/**
- * Diese Funktion gibt die Object Id des Objektes aus
- */
-void o_tracing::print_object_id() {
-    cout << id ;
 }
 
 
@@ -803,7 +927,16 @@ void o_tracing::draw_tracing_frame(unsigned char * my_frame){
 
 void o_tracing::get_center() {
   if (id>3) cout << "!" << endl;
-  cout << "Objekt (" << id << ") -> (x0,y0)=(" << x0 << "," << y0 << ")" << endl;
+  #if debug
+  cout << x0 << "," << y0 ;
+  #endif
+  // Store position in DeviceServer
+  MakeRequest(DeviceServerIndex,x0,y0);
+}
+
+
+void o_tracing::set_object_idx(int idx) {
+    DeviceServerIndex = idx ;
 }
 
 
@@ -1381,9 +1514,9 @@ int main (int argc, char* argv[]) {
     unsigned char * translated_buffer;
     unsigned char * org_frame;// Zeiger auf den eingefangenen Frame
 
-    bool grab1 = true;
-    bool grab2 = true;
-    bool grab3 = true;
+    bool grab1 = false;
+    bool grab2 = false;
+    bool grab3 = false;
     bool timeing = true; // wenn false muss die Destruktion
                          // angepasst werden -> sonst Segmentation fault
     bool retime = false; // Wird das Timing neu gestartet, wird der
@@ -1445,6 +1578,11 @@ int main (int argc, char* argv[]) {
     Objekt3->set_total_threshold(255*3-100);
     //Objekt1->set_rgb_threshold(150, 255, 0, 25, 0, 25);
 
+    // Einstellung der DeviceServer Index Variablen
+    Objekt1->set_object_idx(11);
+    Objekt2->set_object_idx(13);    
+    Objekt3->set_object_idx(15);
+    
     // Schleife in der ein Bild gegrabbt und danach abgelegt wird.
     while (!break_loop){
 	//cout << "running loop" << endl;
@@ -1457,26 +1595,35 @@ int main (int argc, char* argv[]) {
             if (grab1){
                 Objekt1->start_tracing(org_frame);
                 Objekt1->draw_tracing_frame(org_frame);
+		#if debug
+		  cout << "Objekt1 (x,y)=(";
+		#endif		  
 		Objekt1->get_center();
-		cout << "Objekt1 id=";
-		Objekt1->print_object_id();
-                cout << endl;
-            }
+		#if debug
+		  cout << ")" << endl;
+		#endif
+	    }
             if (grab2){
                 Objekt2->start_tracing(org_frame);
                 Objekt2->draw_tracing_frame(org_frame);
+		#if debug
+		  cout << "Objekt2 (x,y)=(";
+		#endif
 		Objekt2->get_center();
-		cout << "Objekt2 id=" ;
-		Objekt2->print_object_id();
-		cout << endl;
+  		#if debug
+		  cout << ")" << endl;
+		#endif
 	    }
             if (grab3){
             	Objekt3->start_tracing(org_frame);
             	Objekt3->draw_tracing_frame(org_frame);
+		#if debug
+		  cout << "Objekt3 (x,y)=(";
+		#endif
 		Objekt3->get_center();
-		cout << "Objekt3 id=" ;
-		Objekt3->print_object_id();
-		cout <<  endl;
+		#if debug
+		  cout << ")" << endl;
+		#endif
             }
 	    //cout << "running loop -- before Menue" << endl;
             break_loop = Menue(out, Objekt1, Objekt2, Objekt3, org_frame, grab1, grab2, grab3, timeing);
