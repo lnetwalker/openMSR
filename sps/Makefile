@@ -28,3 +28,19 @@ clean :
 	-rm *.o
 	-rm *.s
 	-rm $(OBJECTS)
+	
+build :
+	-rm ../build/sps/awls/WerkzeugmaschineNT/*
+	-rm ../build/sps/awls/*
+	-rm ../build/sps/*
+	-cp awls/WerkzeugmaschineNT/werkzeugmaschine2.pdf ../build/sps/awls/WerkzeugmaschineNT/
+	-cp awls/WerkzeugmaschineNT/werkzeugmaschine2.sps ../build/sps/awls/WerkzeugmaschineNT/
+	-cp awls/* ../build/sps/awls/
+	-cp LICENSE ../build/sps/
+	-cp README ../build/sps/
+	-cp sps ../build/sps/
+	-cp sps.cfg ../build/sps/
+	-cp sps.doc ../build/sps/
+	-cp sps-d.doc ../build/sps/
+	-cp sps-e.doc ../build/sps/
+	
