@@ -22,3 +22,8 @@ clean :
 	-rm *.o
 	-rm *.s
 	-rm $(OBJECTS)
+
+build :
+	-rm ../build/datalogger/*
+	-cp datalogger ../build/datalogger/
+	-cp .datalogger.cfg ../build/datalogger/
