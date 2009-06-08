@@ -1,0 +1,315 @@
+The Instructions for the usage of qgtk2.pas
+
+
+
+1. The main program structure
+
+procedure qstart(wcaption : string; onkey, ondestroy : Tprocedure);
+procedure qdestroy;
+procedure qGo; 
+
+- qStart initializes gtk and creates the main window qMainWindow with 
+  the caption wcaption.
+  The procedure onkey is processed on the key press, the pressed character you
+  can find in the variable qkey, the code of the key is in the variable 
+  qkeykode. The codes of Esc, Enter and arrows are in the constants 
+  qkEnter, qkEsc, qkUp, qkLeft...
+  The procedure ondestroy takes place when you try to terminate the program; 
+  if you set the variable qCanDestroy false the program doesn't terminate.
+  The command qdestroy terminates the program, the procedure qGo starts 
+  the main gtk program loop.
+
+
+
+2. The menu and the placing of the component
+
+procedure qmnu(caption : string);  
+procedure qsubmnu(caption : string; proc : tprocedure); 
+     
+- The procedure qmnu creates one item in the menu. If you click on it you can
+  see the items defined by the calling of the subsequent procedures qSubmnu.
+  When you call qsubmnu you need to refer to the procedure proc begining with 
+  the character @. (Similarly proc in the procedure qButton and etc.)
+  If the caption of the submenu item starts with a dash the item will be 
+  separate by a horizontal line from the other items. 
+  (See tutorial -qdialog.pas)
+
+
+procedure qNextRow; 
+procedure qNextRowResize; 
+procedure qNextRowLeft; 
+procedure qseparator;  
+procedure qFrame;    
+procedure qEndFrame;  
+    
+-  The procedures serve for placing the components in the window.
+   The components are placed by the calling of their procedures (qlabel,
+   qbutton, ...) side by side in one row from left to right in the order they
+   are called.
+   If you call the procedure qNextRow the following components are placed
+   in next row.
+   The procedure qFrame allows you to place components in collumns.
+   The procedure qFrame starts the new collumn. If you want to place 
+   the following components in the collumn one under the other you 
+   have to separate them by qNextRow.
+   The procedure qEndFrame ends the collumn and next components are
+   placed in a row under the collumns. 
+   (See tutorial, qpack.pas and qpack2.pas.)
+
+
+
+3. The label and the edit input
+
+function qlabel( caption :string) : qWidget;
+function qlabelWrap(caption :string; width : integer) : qWidget;
+procedure qlabelset(labl : qWidget ; caption: string);
+    
+- qlabel creates a label, qlabelWrap creates a label with more than one line
+  and given width. 
+  qlabelset sets a new text for given label.
+
+
+function qlabelXpm( xpmFile :string) : qWidget;
+function qlabelXpm_d(Data : ppgchar) : qWidget;
+    
+- creates a label with a picture read from xpm file or from the data contained
+  in program unit created by the program xpm2pas.
+
+
+function qedit(text: string) : qWidget;
+procedure qeditset(edit : qWidget ; text: string);
+function qeditget(edit : qWidget) : string;
+
+- Edit input line
+
+
+
+4. Buttons
+
+function qbutton( caption : string; proc : tprocedure  ) : qWidget;
+function qbuttonXpm(xpmFile, hint : string; proc : tprocedure  ) : qWidget;
+function qbuttonXpm_d(Data: ppgchar; hint: string; proc: tprocedure): qWidget;
+
+-The button with a caption or with a xpm picture (the picture is from xpm file
+  or from the data contained in program unit created by the program xpm2pas).
+
+
+function qbuttonToggle( caption : string; proc : tprocedure  ) : qWidget;
+function qToggleGetA(button : qWidget) : boolean;
+procedure qToggleSetA(button : qWidget);
+procedure qToggleSetN(button : qWidget);
+
+- The toggle button, qToggleGetA is true if the button is active (pressed),
+  qToggleSetA sets the button as active and qToggleSetN sets the button
+  nonactive.
+
+
+
+5. The text
+
+function qtext(width, height : integer; onchange : Tprocedure) : qWidget;
+function qtextlength(txt : qWidget) : longint; 
+procedure qtextsetp(txt : qWidget; i : longint);
+function qtextgetp(txt : qWidget) : longint; 
+procedure qtextinsert( txt : qWidget; text : string);
+procedure qtextdel(txt : qWidget; startp, endp : longint); 
+procedure qtextaddline( txt : qWidget; text : string); 
+function qtextstring(txt : qWidget; startp, endp : longint) : string; 
+procedure qtextsel(txt : qWidget; startp, endp : longint);
+procedure qtextcopy(txt : qWidget); 
+procedure qtextpaste(txt : qWidget); 
+procedure qtextcut(txt : qWidget); 
+function qtextSelEnd(txt : qWidget): longint; 
+function qtextSelStart(txt : qWidget): longint; 
+procedure qtextApplyFont(txt : qWidget); 
+procedure qtextSetEdit(txt : qWidget); 
+procedure qtextSetNoEdit(txt : qWidget); 
+function qtextload(txt : qWidget; filename : string) : boolean; 
+function qtextsave(txt : qWidget; filename : string) : boolean;
+
+- The edit text area. 
+  The procedure qtextsetp sets the cursor on the i characters from the begining.
+  The procedure qtextinsert inserts a string on the cursor position
+  The qtextaddline adds a line to the end of the text.
+  The startp and the endp in procedures qtextdel, qtextstring and qtextsel
+  is the begining and the end of the text area (endp=-1 means to the end
+  of the file).
+  The procedure qtextsel selects a text area, qtextcopy copies it to 
+  the clipboard,
+  qtextSelStart and the qtextSelEnd returns the position of the begining 
+  and the end of the selected text.
+  The font in the component is given by the variable qfontname (qfontname is set
+  in the dialog qFontSelect or by the function qFont. You can also have 
+  set the font name in the variable qfontname0 before you call qStart or qFont.)
+  The procedure qtextSetNoEdit sets the text read only.
+
+
+
+6. The list
+
+function qlist(width, height:integer; sorted: boolean;
+                   onchange, on2click :tprocedure ) : qWidget;
+procedure qlistAdd(list: qWidget; text : string);   
+procedure qlistInsert(list: qWidget; text : string);  
+procedure qlistDelRow(list: qWidget);  
+procedure qlistClear(list: qWidget); 
+function qlistItem(list: qWidget) : string; 
+procedure qlistselect(list: qWidget; row : integer); 
+function qlistselrow(list : qWidget) : integer; 
+function qlistrowcount(list : qWidget) : integer;
+
+- The list allows you to select one line, on change of the line the procedure
+  onchange occurs, when you double click on the line (or press <enter> ) 
+  the procedure on2click occurs. Details see qlist.pas.
+
+
+
+7. The dialogs
+
+function qFileselect(caption: string; filename:string ): string; 
+function qFontSelect(caption: string ) : string; {set qgdkfont, return fontname}
+function qClrSelect(caption: string) : longint;  {RRRGGGBBB,  999000000 is red}
+function qdialog(message, but1capt, but2capt, but3capt : string): integer;
+function qinput(message, inputstr : string): string;
+
+- various dialogs. qdialog returns the number of the pressed button, 
+  qinput returns a modified string inputstr. Details see qdialog.pas.
+
+
+
+8. Another procedures
+
+procedure qshow(widget : qWidget); 
+procedure qhide(widget : qWidget);
+procedure qsetfocus(wid: qwidget);
+function qsecwindow(caption: string) : qWidget;
+procedure qshowsec(secwind : qwidget); 
+procedure qshowsecmodal(secwind : qwidget); 
+procedure qhidesec(secwind : qwidget); 
+procedure qtimerstart(interval : longint;  proc : tprocedure  );
+procedure qMainIter;
+function qprogress(width :integer): qWidget;
+procedure qprogressSet(progress:qwidget; percent:integer); {percent 1..100}
+procedure qshowW32console; 
+procedure qhideW32console;
+
+- qshow and qhide shows or hides the component,
+  qsetfocus sets the focus on the component (only for qedit, qtext and qlist),
+  qsecwindow creates a secondary window; to show or hide it you can 
+  use qshowsec and qhidesec.
+  qtimestart runs a procedure after an interval in ms
+  qMainIter allows to run the gtk program loop during longer calculations 
+  and the user enviroment is still active. See qmainit.pas.
+  qshowW32console and qhideW32onsole is reasonable only in M$ Win32
+  and it shows or hides a DOS window from which is the program running 
+  and to which it writes error messages.
+
+
+
+9. The graphics
+
+procedure qdrawstart(width, height : integer; 
+           onstart, procclick, procmove : tprocedure ); 
+function qsetClr(rgb : longint ) : boolean;      {RRRGGGBBB,  999000000 is red}
+procedure qpoint( x, y : integer );  
+procedure qrect( x, y, width, height : integer );  
+procedure qfillrect( x, y, width, height  : integer);
+procedure qfillellipse( x, y, width, height  : integer); 
+procedure qellipse( x, y, width, height  : integer); 
+procedure qline( x1, y1, x2, y2: integer ); 
+procedure qfont(size:integer); 
+procedure qdrawtext(x,y : integer; s : string);  
+procedure qdrawpic(x, y  : integer; pic: qpic );  
+procedure qgetpic(x,y, width, height  : integer; var pic : qpic ); 
+procedure qpicFromXpm(xpmfile : string; var pic : qpic); 
+procedure qpicFromXpm_d(data : ppgchar; var pic : qpic); 
+procedure qupdateRect(x, y, w, h : integer);
+
+- qdrawstart creates a component qdrawArea which can be only one 
+  in the program..
+  The procedure onstart occurs in the begining after the graphics 
+  initialization.
+  the procedures procclick and procmove runs with the mouse click 
+  on the qdrawArea or with the mouse movement and they fill variables qx,
+  qy and qmousebut.
+  The procedures draw with the color set in qsetClr. You can use constants
+  qWhite, qBlack, qRed, qGreen, qBlue,  qYellow, qGray, qPurple, 
+  qAqua and qBrown.
+  qdrawtext uses a font given by the variable qfontname.
+  (before you call qStart or qFont you can set the variable qfontname0,
+  for instance qfontname0:='Sans Bold 12';)
+  Xpm pictures you can have in variables of the type qpic
+  In the pictures drawn by the procedure qdrawpic you can have 
+  the transparent color as well.
+  If you set the variable qAutoupdate as false, you have to show every
+  changes by the procedure qupdateRect (it is suitable if more changes
+  at a time occurs)
+
+
+
+10.  The moveable objects in the front of graphics
+
+qfgobj = object
+  constructor newFromXpm(fname : string; x, y, width, height : integer);
+  constructor newFromXpm_d(data:ppgchar; x, y, width, height : integer);
+  procedure  setPic(Pic : qpic);  
+  procedure move(x,y : integer);   
+  procedure show;   
+  procedure hide;  
+  procedure tobk;   
+  procedure tofg;  
+  destructor free;  
+end;
+
+- the objects support the transparent color, and do not blink if they are moved
+  You need declare- var picobj : qfgobj;
+  create-           picobj.newFromXpm('pic.xpm', 10, 20, 64, 64);
+  show-             picobj.show;
+  move-             picobj.move(15, 20);
+  change-           picobj.setPic(pic);
+   (pic you can create for instance with the procedure qpicFromXpm)
+  to send it behind another objects-    picobj.tobk;
+  ...
+  See camel.pas  
+
+
+
+11. The aid program xpm2pas
+
+It converts xpm pictures to program unit. The pictures will be compilled
+into the program and they needn't be in separated files.
+The xpm pictures need to have less than 8000 colors and to be narrower
+than 127 pixels.
+If the color count is less than 90 colors the width can be 255 pixels or less.
+You can put more than one picture into one unit, the unit will be named
+xpmpic.pas.
+If a procedure needs a xpm data you will refer to them by "nameofXpmFile_d"
+
+
+
+12. Notes about utf-8 and iso-8859-2 charset encoding
+
+Gtk and qgtk2.pas support Unicode encoding utf-8.
+If you want to use nonascii characters and the system doesn't use 
+encoding utf-8 fully, it is necessary to set variable  pas_encoding. 
+If there is locale using iso-8859-2 encoding in Linux and  you want 
+to use this encoding in a program source code and in its inputs 
+and outputs, then you need set  pas_encoding:=e_8859_2. 
+(In M$ windows set pas_encoding:=e_1250)
+(see qlocale.pas)
+
+
+
+13. License: GNU GENERAL PUBLIC LICENSE 
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or  
+(at your option) any later version.  
+
+This program is distributed in the hope that it will be useful,   
+but WITHOUT ANY WARRANTY; without even the implied warranty of  
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+  (c) 2002-2005 Jirka Bubenicek  -  hebrak@yahoo.com

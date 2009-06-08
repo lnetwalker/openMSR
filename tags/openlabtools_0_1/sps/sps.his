@@ -1,0 +1,207 @@
+Ver 1.7.3-rc4 07.05.2007 the iodrivers are now located in the unit PhysMach
+	which will be an independent project from now on
+
+Ver 1.7.3 complete rewrite of the iodrivers and run_sps
+	got back to one codebase 
+
+
+ver 1.7.1  30.12.2001 fixed default path for directory listing in the ide from
+	*.SPS to *
+	fixed minor bug with text color in the directory listing
+	( both filserv.pas procedure inhalt )
+
+ver 1.7.1  24.11.2001 back in town; after moving from Belgium to Aachen,Germany
+	and repairing my notebook, I'm continuing with work. Still no internet access :(
+
+ver 1.7.1  21.08.2001 started unit io_access.pas for the access of the hardware
+	started with implementation of LPT and DIL/NetPC. erased port_a - port_c and 
+	control_port variables
+
+ver 1.7.1  21.08.2001 started to insert syslog messages in dilPC/run_sps.pas
+
+ver 1.7.1  21.08.2001 inserted the Build Date and SPS Version through
+	compiler directive in sps.h
+
+ver 1.7.1  14.08.2001 ported run_sps v 1.7.0 to DIL/NetPC just a first dirty hack
+	see dilPC/* for infos.
+
+ver 1.7.1  12.03.2001 changed the logic of seeking for a config file.
+	first sps is seeking for the file /etc/sps.cfg. if this file
+	does not exist it seeks for sps.cfg in the current path. if
+	even this file is not found, execution stops with an error.
+
+ver 1.7.1  06.03.2001 tuned the whole app with functions GetScreenMaxX and GetScreenMaxY
+	made alle the windows and menues that they size and positions themselves
+	regarding the actual size of the terminal. You have to export the Env Vars
+	LINES and COLUMNS to make this work. screenx and screeny are now private
+	vars of popmenu.pas . they are computed by reading the env vars. If anything
+	goes wrong they default to 80 cols and 25 lines. GetScreenMaxX and GetScreenMaxY
+	are exported by popmenu.pas .
+
+ver 1.7.1  27.02.2001 added screenx and screeny to popmenu.pas as the maxim width and height of the 
+	screen. these constants should be computed at runtime. background is, that
+	I work on the ability to open windows in the max size, the terminal can offer.
+	started work on nonfixed size windows.
+	done in info.pas, edit.pas, run_awl.pas
+		
+ver 1.7.1  27.02.2001 fixed a bug in the search. the search doesn't crashes anymore, even if nothing is found
+
+ver 1.7.1  14.01.2001 deutsche doku aktualisiert.
+        englische docu ist noch nicht up to date
+	
+ver 1.7.1  28.10.2000
+	Analogverarbeitung eingebaut ( siehe Bsp. adtest.sps )
+	Aufruf externer Programme eingebaut
+	cfg file auf /etc/sps.cfg geaendert
+	makefile verbessert
+	sps.h eingeführt ( code modularisierung )
+	Anweisungsarrays anweisung und anweis zusammengeführt (sps.pas ,edit.pas )
+	daraus resultierende Änderungen im Bytecode Interpreter durchgeführt
+	Os shell und Konfiguration entfernt
+	Was fehlt: IO Access auf HArdware!!!!!
+	Druckerverwaltung
+	
+ver 1.7 LINUX ß 0.2 6.12.97
+
+         probleme mit darstellung im term (leere fenster, blinken)
+         behoben. Problem lag an:
+		1, Hintergrundfarbe = weiss  --->  blinken
+                2, Black Konstante in pascal crt unit
+                   entspricht weiss im term  --->  leere fenster
+
+
+         Allgemein verwendete Units: dos,crt,linux,printer
+
+
+
+ver 1.7 Linux ß 0.1 28.10.97
+                     Portierung auf Linux begonnen!
+                     neue Unit porting.pp begonnen, hierin wird gesammelt
+                     was portiert werden muss.
+
+                     Ganz kritisch: val prozedur wird fast ausschliesslich
+                            mit bytes benutzt, das ist oft falsch!!!
+
+                     gettime gibt keine ms aus, daher ist zykluszeit
+                     ein naeherungswert!! Zykluszeit wird nicht in den
+                     Kommentar der letzten Zeile geschrieben!
+
+                     main Programm:
+                     sps.pp
+
+                     Units:
+                     autograf.pp     - Grafiktreiber einbinden
+                                       im Moment deaktiviert
+                                       uses graph
+
+                     environ.pp      - Strings ins Environment des Programmes
+                                       eintragen.
+                                       funtionen: addstring und delstring
+                                           durch auskommentieren entschärft
+                                       wird nur für OS-Shell benötigt,
+                                       daher wahrscheinlich obsolet
+					uses dos,crt
+
+                     getgraph.pp     - erkennung der installierten Grafikkarte
+                                       im Moment deaktiviert, wahrscheinlich
+                                       obsolet
+					uses dos,crt
+
+                     mouse.pp        - mousefunktionen fuer Textmode bei DOS
+                                       im Moment durch auskommentieren ent-
+                                       schaerft, wahrscheinlich obsolet
+					uses dos
+
+                     popmenu.pp      - popup und balkenmenüs, weitgehend
+                                       portiert, savescreen und restorescreen
+                                       auskommentiert; Farbproblematik!!
+					uses crt,linux,mouse,dos
+
+                     porting.pp      - hier hat sich alles angesammelt,
+                                       was im Code sein muss damit er prin-
+                                       zipiell compilierbar wird.
+
+                     Include files:
+                     hardcopy.pp     - erzeugt eine grafikhardcopy des screens
+                                       compiliert ohne Fehler! Funktion
+                                       unbekannt !!
+ 
+                     fileserv.pp     - enthält alle Funktionen des
+                                       Menüpunktes File; weitgehend portiert,
+                                       OS-Shell und ausdruck unbearbeitet!
+
+                     edit.pp         - enthält den Editor der IDE
+                                       weitgehend portiert, Tastenbedienung
+                                       umgestellt, bugs keine bekannt
+
+                     run_awl.pp      - simulation der Steuerung, alle Grafik-
+                                       funktionen auskommentiert bzw. dummy-
+                                       routinen in porting.pp , Tastatur-
+                                       steuerung umgebaut
+
+                     info.pp         - Anzeige der Dokumentation, weitgehend
+                                       portiert, bekannter bug, bei Suche
+                                       über Ende der Dokumentation fehler
+                                       'segmentation fault'
+
+
+ver 1.7 27/09/93     erkennung von windows eingefuegt sps.pas
+		     [SPS] in Prompt bei os-shell eingebaut
+         6/11/93     dokumentation um hinweis dosshell , os/2 erweitert
+                     fehler beim suchen in info.pas bereinigt.
+
+was fehlt:
+	  zusatzprogramme einbinden
+	  spscfg zur menuegefuehrten installation
+	  infoseiten zu awls
+	  unterstuetzung der conrad io-karten
+	  analogverarbeitung
+	  a020 aeg - unterstuetzung
+
+ver 1.7 23/09/93     grafikerkennung durch eigene routinen ersetzt
+		     detectgraph.. erst bei aufruf run_awl!
+		     in allen units grafikerkennung geaendert!
+		     delay in sps.pas bei prgstart verkuerzt
+
+
+
+ver 1.7 24/08/93     mouse in info und edit eingebaut
+
+ver 1.7 19/10/92    beginn der version 1.7
+				     ausserdem controlportadresse auf none
+				     ueberpruefung eingefuehrt
+				     bei none ist pio false
+				     in sps und run_awl kontrolle auf pio
+				     in portausgaben eingefuegt.
+				     heap auf 100k erhoeht damit docfile
+				     mehr platz hat.
+		     awl_max auf 500 erhoeht.
+		     aufbau konfigfile geaendert
+
+
+ver 1.5 05/07/92        in module run_awl zykluszeit berechnung korrigiert
+
+
+ver 1.5 24/06/92        menupunkt DOCU eingefuegt mit suchfunktion
+
+ver 1.5 14/06/92        neue unit popmenu mit mausunterstuetzung integriert
+			    im inc 'fileservice' suche nach comspec integriert
+
+ver 1.5 ??/06/92        beginn der version 1.5
+
+
+ver 1.4 ??/??/91        farbgebung geandert
+			    info im editor erweitert
+			    bug bei rueckkehr aus grafikmodus entfernt
+
+
+ver 1.3 02/11/90        aus 'util' unit popmenu erstellt und eingebaut
+			    rest von 'util' in 'hardcopy' umbenannt
+
+ver 1.2 30/10/90        schattierung der fenster in 'util' eingebaut
+
+ver 1.2 19/10/90        unit autograf eingebaut
+				konstanten version und datum eingebaut
+				configurstionsfile eingefuhrt
+				input_pot aus 'util' geloescht
+

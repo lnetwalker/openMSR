@@ -1,0 +1,23 @@
+--------------------------------------------------------------------------------
+ Developer Notes
+--------------------------------------------------------------------------------
+
+ PSP 1.6.x
+ ---------
+
+  [12/MAR/2006 - Trustmaster]
+  - ported due to the new coding standard.
+
+ PSP 1.5.x
+ ---------
+
+  [ 10/OCT/2005 -L505 ]
+
+    -Modified, converted, and refactored entire unit for PWU .
+     PWU is derived from the PSP project, but has different goals.
+
+--------------------------------------------------------------------------------
+ Developer Todo
+--------------------------------------------------------------------------------
+
+  - improve Win32 support.
