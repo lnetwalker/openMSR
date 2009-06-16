@@ -24,12 +24,12 @@ clean :
 	-rm $(OBJECTS)
 
 build:
-	-rm ../build/DeviceServer/*
-	-rm ../build/DeviceServer/docroot/*
-	-rm ../build/DeviceServer/docroot/images/*
+	-mkdir ../build/DeviceServer/docroot
+	-mkdir ../build/DeviceServer/docroot/images
 	-cp docroot/images/*.jpg ../build/DeviceServer/docroot/images/
 	-cp docroot/images/*.png ../build/DeviceServer/docroot/images/
 	-cp docroot/*.html  ../build/DeviceServer/docroot/
+	-cp docroot/Meter* ../build/DeviceServer/docroot/
 	-cp DeviceServer ../build/DeviceServer/
 	-cp DeviceServer.cfg ../build/DeviceServer/
 	-cp digi*.sh ../build/DeviceServer/
