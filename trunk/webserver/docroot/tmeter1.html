@@ -1,0 +1,172 @@
+<HTML>
+
+<Head>
+<Title>Test Meter-Applet</Title>
+<script language="Javascript">
+<!--
+// ============================================ //
+// TEST: Meter-Applet                           //
+// Ralf Moros                                   //
+// moros@sonne.tachemie.uni-leipzig.de          //
+// 21.10.1996                                   //
+// ===========================================  //
+// http://techni.tachemie.uni-leipzig.de/~jar/  //
+// http://techni.tachemie.uni-leipzig.de/       //
+// ===========================================  //
+
+
+function Init()
+{ var WERT=50.0;
+  document.forms[0]._WERT.value = WERT;
+  document.M1.SetMeter(WERT);
+  document.M2.SetMeter(WERT);
+  document.M3.SetMeter(WERT); 
+  document.M4.SetMeter(WERT);
+  document.M5.SetMeter(WERT); 
+  document.M6.SetMeter(WERT);
+  document.M7.SetMeter(WERT); 
+}
+
+function SetWert(form)
+{var DF= parseFloat(form._WERT.value);
+ document.M1.SetMeter(DF); 
+ document.M2.SetMeter(DF);
+ document.M3.SetMeter(DF);
+ document.M4.SetMeter(DF);
+ document.M5.SetMeter(DF);
+ document.M6.SetMeter(DF);
+ document.M7.SetMeter(DF);
+
+}
+
+
+
+//-->
+</script>
+
+
+
+</Head>
+
+<Body Background="" BGColor=#FFFFFF Text=#000000 Link=#0000FF VLink=#800080 ALink=#80FFFF onload="Init()">
+
+<center>
+ <FORM name="GETWERT" ACTION="" METHOD="GET">
+ <TABLE border = 0> 
+ <TR>
+  <TD align=right>X</TD>
+  <TD align=left><input name="_WERT" value="50.0" size="5"></TD>
+  <TD align=right>Set X</TD> 
+  <TD align=left><input type="button" name="S" value="SET" onclick="SetWert(this.form)"> 
+  </TD>
+ </TR>
+ </TABLE> 
+ </FORM> 
+</center>
+<BR><BR>
+
+
+<center>  
+<table border=0>
+<TR>
+ <TD align=middle>
+ <APPLET CODE="Meter.class" NAME="M1" WIDTH=100 HEIGHT=80>
+ <PARAM NAME=header   VALUE="U-Meter">
+ <PARAM NAME=unit     VALUE="V">
+ <PARAM NAME=digital  VALUE="true">
+ <PARAM NAME=analog   VALUE="true">
+ <PARAM NAME=xfrom    VALUE="0">
+ <PARAM NAME=xto      VALUE="100">
+ <PARAM NAME=x        VALUE="50.0">  
+ </APPLET>
+ </TD>
+
+ <TD align=middle>
+ <APPLET CODE="Meter.class" NAME="M2" WIDTH=100 HEIGHT=80>
+ <PARAM NAME=header   VALUE="U-Meter">
+ <PARAM NAME=unit     VALUE="V">
+ <PARAM NAME=digital  VALUE="false">
+ <PARAM NAME=analog   VALUE="true">
+ <PARAM NAME=xfrom    VALUE="0">
+ <PARAM NAME=xto      VALUE="100">
+ <PARAM NAME=x        VALUE="50.0">  
+ </APPLET>
+ </TD>
+
+ <TD align=middle>
+ <APPLET CODE="Meter.class" NAME="M3" WIDTH=100 HEIGHT=80>
+ <PARAM NAME=header   VALUE="U-Meter">
+ <PARAM NAME=unit     VALUE="V">
+ <PARAM NAME=digital  VALUE="true">
+ <PARAM NAME=analog   VALUE="false">
+ <PARAM NAME=xfrom    VALUE="0">
+ <PARAM NAME=xto      VALUE="100">
+ <PARAM NAME=x        VALUE="50.0">  
+ </APPLET>
+ </TD>
+
+ <TD align=middle rowspan=2>
+ <APPLET CODE="Meter.class" NAME="M7" WIDTH=200 HEIGHT=150>
+ <PARAM NAME=header   VALUE="X">  
+ <PARAM NAME=unit     VALUE="V">
+ <PARAM NAME=digital  VALUE="true">
+ <PARAM NAME=analog   VALUE="true">
+ <PARAM NAME=xfrom    VALUE="0">
+ <PARAM NAME=xto      VALUE="100">
+ <PARAM NAME=x        VALUE="50.0">  
+ <PARAM NAME=hbgcol   VALUE="yellow">
+ <PARAM NAME=hfgcol   VALUE="cyan">
+ <PARAM NAME=abgcol   VALUE="black">
+ <PARAM NAME=afgcol   VALUE="red">
+ <PARAM NAME=dbgcol   VALUE="blue">
+ <PARAM NAME=dfgcol   VALUE="white">
+ <PARAM NAME=errcol   VALUE="magenta">      
+ </APPLET>
+ </TD> 
+
+</TR>
+<TR>
+ <TD align=middle>
+ <APPLET CODE="Meter.class" NAME="M4" WIDTH=100 HEIGHT=80>
+ <PARAM NAME=unit     VALUE="V">
+ <PARAM NAME=digital  VALUE="true">
+ <PARAM NAME=analog   VALUE="true">
+ <PARAM NAME=xfrom    VALUE="0">
+ <PARAM NAME=xto      VALUE="100">
+ <PARAM NAME=x        VALUE="50.0">  
+ </APPLET>
+ </TD>
+
+
+ <TD align=middle>
+ <APPLET CODE="Meter.class" NAME="M5" WIDTH=100 HEIGHT=80>
+ <PARAM NAME=header   VALUE="U-Meter"> 
+ <PARAM NAME=xfrom    VALUE="10">
+ <PARAM NAME=xto      VALUE="90">
+ <PARAM NAME=x        VALUE="50.0">  
+ </APPLET>
+ </TD>
+
+ <TD align=middle>
+ <APPLET CODE="Meter.class" NAME="M6" WIDTH=100 HEIGHT=80>
+ <PARAM NAME=unit     VALUE="V">
+ <PARAM NAME=digital  VALUE="true">
+ <PARAM NAME=analog   VALUE="false">
+ <PARAM NAME=xfrom    VALUE="0">
+ <PARAM NAME=xto      VALUE="100">
+ <PARAM NAME=x        VALUE="50.0">  
+ </APPLET>
+ </TD>
+
+
+</TR>
+</table>
+<P></P>
+
+</center>
+
+
+
+</Body>
+
+</HTML>

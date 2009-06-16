@@ -1,0 +1,289 @@
+<HTML>
+
+<Head>
+<Title>Test Meter-Applet</Title>
+<script language="Javascript">
+<!--
+// ============================================ //
+// TEST: Meter-Applet                           //
+// Ralf Moros                                   //
+// moros@sonne.tachemie.uni-leipzig.de          //
+// 21.10.1996                                   //
+// ===========================================  //
+// http://techni.tachemie.uni-leipzig.de/~jar/  //
+// http://techni.tachemie.uni-leipzig.de/       //
+// ===========================================  //
+var head    = "X";
+    unit    = "V";
+    digital = "true";  
+    analog  = "true";
+    xmin    = 0.0;
+    xmax    = 100;
+    xinit   = 0.0;
+
+    hbg     = "Gray";
+    hfg     = "Black";
+    abg     = "Gray";
+    afg     = "Black";
+    dbg     = "Gray";
+    dfg     = "Black";    
+    err     = "Red";  
+
+function Init()
+{ var WERT=50.0;
+  document.forms[1]._WERT.value      = WERT;
+  document.umeter.SetMeter(WERT);
+
+  document.forms[0]._head.value      = head;
+  document.forms[0]._unit.value      = unit;
+  document.forms[0]._digital.value   = digital;
+  document.forms[0]._analog.value    = analog;
+  document.forms[0]._xmin.value      = xmin;
+  document.forms[0]._xmax.value      = xmax;
+  document.forms[0]._xinit.value     = xinit;
+
+  document.umeter.SetParameter(head,unit,digital,analog,
+                               xmin,xmax,xinit);
+  
+}
+
+function SetWert(form)
+{var DF= parseFloat(form._WERT.value);
+ document.umeter.SetMeter(DF);
+
+}
+
+function SetPar(form)
+{head    = form._head.value;
+ unit    = form._unit.value;
+ digital = form._digital.value;
+ analog  = form._analog.value;
+ xmin    = parseFloat(form._xmin.value);
+ xmax    = parseFloat(form._xmax.value);
+ xinit   = parseFloat(form._xinit.value);
+ document.umeter.SetParameter(head,unit,digital,analog,
+                              xmin,xmax,xinit);
+ 
+}
+
+function SetCol(form)
+{Idx = form._HBGColor.selectedIndex;
+ hbg = form._HBGColor.options[Idx].value;
+ Idx = form._HFGColor.selectedIndex;
+ hfg = form._HFGColor.options[Idx].value;
+ Idx = form._DBGColor.selectedIndex;
+ dbg = form._DBGColor.options[Idx].value;
+ Idx = form._DFGColor.selectedIndex;
+ dfg = form._DFGColor.options[Idx].value;
+ Idx = form._ABGColor.selectedIndex;
+ abg = form._ABGColor.options[Idx].value;
+ Idx = form._AFGColor.selectedIndex;
+ afg = form._AFGColor.options[Idx].value;
+ Idx = form._ERRColor.selectedIndex;
+ err = form._ERRColor.options[Idx].value;
+ document.umeter.SetColors(hbg,hfg,abg,afg,dbg,dfg,err); 
+} 
+
+//-->
+</script>
+
+
+
+</Head>
+
+<Body Background="" BGColor=#FFFFFF Text=#000000 Link=#0000FF VLink=#800080 ALink=#80FFFF onload="Init()">
+
+
+<center>
+<table border=0 width=100%>
+<Form name="GETPARAMETER" ACTION="" METHOD="GET">
+
+<TR>
+<TD align=right>Header</TD>
+<TD align=left><input name="_head" value="X" size="8"></TD>  
+<TD align=right>BGColor</TD>
+<TD align=left>
+ <select name="_HBGColor" size="1">
+  <option value="White">white
+  <option value="Black">black
+  <option selected value="LightGray">lightgray
+  <option value="Gray">gray  
+  <option value="DarkGray">darkgray
+  <option value="Red">red
+  <option value="Green">green
+  <option value="Blue">blue
+  <option value="Yellow">yellow
+  <option value="Magenta">magenta
+  <option value="Cyan">cyan
+  <option value="Pink">pink
+  <option value="Orange">orange  
+ </select> 
+</TD>
+<TD align=right>FGColor</TD>
+<TD align=left>
+ <select name="_HFGColor" size="1">
+  <option value="White">white
+  <option selected value="Black">black
+  <option value="LightGray">lightgray
+  <option value="Gray">gray  
+  <option value="DarkGray">darkgray
+  <option value="Red">red
+  <option value="Green">green
+  <option value="Blue">blue
+  <option value="Yellow">yellow
+  <option value="Magenta">magenta
+  <option value="Cyan">cyan
+  <option value="Pink">pink
+  <option value="Orange">orange  
+ </select> 
+</TD>
+</TR>
+
+<TR>
+<TD align=right>Digital</TD>
+<TD align=left><input name="_digital" value="true" size="5"></TD>  
+<TD align=right>BGColor</TD>
+<TD align=left>
+ <select name="_DBGColor" size="1">
+  <option value="White">white
+  <option value="Black">black
+  <option selected value="LightGray">lightgray
+  <option value="Gray">gray  
+  <option value="DarkGray">darkgray
+  <option value="Red">red
+  <option value="Green">green
+  <option value="Blue">blue
+  <option value="Yellow">yellow
+  <option value="Magenta">magenta
+  <option value="Cyan">cyan
+  <option value="Pink">pink
+  <option value="Orange">orange  
+ </select> 
+</TD>
+<TD align=right>FGColor</TD>
+<TD align=left>
+ <select name="_DFGColor" size="1">
+  <option value="White">white
+  <option selected value="Black">black
+  <option value="LightGray">lightgray
+  <option value="Gray">gray  
+  <option value="DarkGray">darkgray
+  <option value="Red">red
+  <option value="Green">green
+  <option value="Blue">blue
+  <option value="Yellow">yellow
+  <option value="Magenta">magenta
+  <option value="Cyan">cyan
+  <option value="Pink">pink
+  <option value="Orange">orange  
+ </select> 
+</TD>
+</TR>
+
+<TR>
+<TD align=right>Analog</TD>
+<TD align=left><input name="_analog" value="true" size="5"></TD>
+<TD align=right>BGColor</TD>
+<TD align=left>
+ <select name="_ABGColor" size="1">
+  <option value="White">white
+  <option value="Black">black
+  <option selected value="LightGray">lightgray
+  <option value="Gray">gray  
+  <option value="DarkGray">darkgray
+  <option value="Red">red
+  <option value="Green">green
+  <option value="Blue">blue
+  <option value="Yellow">yellow
+  <option value="Magenta">magenta
+  <option value="Cyan">cyan
+  <option value="Pink">pink
+  <option value="Orange">orange  
+ </select> 
+</TD>
+<TD align=right>FGColor</TD>
+<TD align=left>
+ <select name="_AFGColor" size="1">
+  <option value="White">white
+  <option selected value="Black">black
+  <option value="LightGray">lightgray
+  <option value="Gray">gray  
+  <option value="DarkGray">darkgray
+  <option value="Red">red
+  <option value="Green">green
+  <option value="Blue">blue
+  <option value="Yellow">yellow
+  <option value="Magenta">magenta
+  <option value="Cyan">cyan
+  <option value="Pink">pink
+  <option value="Orange">orange  
+ </select> 
+</TD>
+</TR>
+
+
+<TR>
+<TD align=right>OutOfRange Col.</TD>
+<TD align=left>
+ <select name="_ERRColor" size="1">
+  <option value="White">white
+  <option value="Black">black
+  <option value="LightGray">lightgray
+  <option value="Gray">gray  
+  <option value="DarkGray">darkgray
+  <option selected value="Red">red
+  <option value="Green">green
+  <option value="Blue">blue
+  <option value="Yellow">yellow
+  <option value="Magenta">magenta
+  <option value="Cyan">cyan
+  <option value="Pink">pink
+  <option value="Orange">orange  
+ </select> 
+</TD>
+
+<TD align=right>Unit</TD>
+<TD align=left colspan=3><input name="_unit" value="V" size="4"></TD>
+
+
+</TR>
+
+
+
+<TR>
+<TD align=right>Xmin</TD>
+<TD align=left><input name="_xmin" value="0" size="5"></TD>  
+<TD align=right>Xmax</TD>
+<TD align=left><input name="_xmax" value="100" size="5"></TD>
+<TD align=right>Xinit</TD>
+<TD align=left><input name="_xinit" value="10" size="8"></TD>  
+</TR>
+
+
+<TR>
+<TD align=right valign=top><input type="button" name="SP" value="Set Par" onclick="SetPar(this.form)"></TD>
+<TD valign=top><input type="button" name="SC" value="Set Color" onclick="SetCol(this.form)"></TD>
+</FORM>
+
+<FORM name="GETWERT" ACTION="" METHOD="GET">
+<TD align=right valign=top>X:</TD>
+<TD align=left valign=top><input name="_WERT" value="50.0" size="5"></TD> 
+<TD align=right valign=top><input type="button" name="SX" value="SET X" onclick="SetWert(this.form)"> 
+</TD>
+</FORM> 
+<TD align=middle>
+<APPLET CODE="Meter.class" NAME="umeter" WIDTH=100 HEIGHT=80>
+</APPLET>
+</TD>
+</TR>
+</table>
+</center>
+<BR></BR>
+
+
+
+
+
+</Body>
+
+</HTML>
