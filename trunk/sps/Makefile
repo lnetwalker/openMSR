@@ -30,9 +30,8 @@ clean :
 	-rm $(OBJECTS)
 	
 build :
-	-rm ../build/sps/awls/WerkzeugmaschineNT/*
-	-rm ../build/sps/awls/*
-	-rm ../build/sps/*
+	-mkdir ../build/sps/awls
+	-mkdir ../build/sps/awls/WerkzeugmaschineNT
 	-cp awls/WerkzeugmaschineNT/werkzeugmaschine2.pdf ../build/sps/awls/WerkzeugmaschineNT/
 	-cp awls/WerkzeugmaschineNT/werkzeugmaschine2.sps ../build/sps/awls/WerkzeugmaschineNT/
 	-cp awls/* ../build/sps/awls/
