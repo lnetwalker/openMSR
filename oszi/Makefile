@@ -28,6 +28,5 @@ clean :
 	-rm $(OBJECTS)
 
 build:
-	-rm ../build/oszi/*
 	-cp oszi ../build/oszi/
 	-cp .oszi.cfg ../build/oszi/
