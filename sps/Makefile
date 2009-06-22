@@ -38,6 +38,8 @@ build :
 	-cp LICENSE ../build/sps/
 	-cp README ../build/sps/
 	-cp sps ../build/sps/
+	-cp .run_sps.cfg ../build/sps/
+	-cp run_sps ../build/sps/
 	-cp sps.cfg ../build/sps/
 	-cp sps.doc ../build/sps/
 	-cp sps-d.doc ../build/sps/
