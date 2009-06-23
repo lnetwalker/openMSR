@@ -42,6 +42,15 @@ begin
 end;
 
 
+function uppercase(s:string):string;
+
+begin
+	for i:=1 to length(s) do
+		if s[i] in ['a'..'z'] then s[i]:=chr(ord(s[i])-32);
+	uppercase:=s;
+end;
+
+
 procedure funktionswerte_berechnen;
 
 begin
@@ -61,10 +70,11 @@ begin
 		if y[i]<ymin then ymin:=y[i];
 		x[i+1]:=x[i]+dx;
 		inc(i);
+		if debug then writeln('i=',i,' anzahl=',anzahl);
 	until (i>anzahl) or (FSfm<>0);
 	if ymax>abs(ymin) then maxy:=2*ymax
 	else maxy:=2* abs(ymin);
-	if debug then writeln('maxy=',maxy);
+	if debug then writeln('funktionswerte_berechnen: maxy=',maxy);
 end;
 
 
@@ -124,11 +134,14 @@ procedure onDraw;
 
 
 begin
+	if debug then writeln('onDraw:  maxy=',maxy);
 	x_rand:=60;
 	y_rand:=80;
 	y_ver:=55;
-	xfact:=trunc((GetScreenMaxX-80)/anzahl);
-	yfact:=(GetScreenMaxY-y_rand-20)/maxy;
+	if anzahl<>0 then xfact:=trunc((GetScreenMaxX-80)/anzahl)
+	else xfact:=trunc(GetScreenMaxX-80);
+	if maxy<>0 then yfact:=(GetScreenMaxY-y_rand-20)/maxy
+	else yfact:=(GetScreenMaxY-y_rand-20);
 	y_axis:=GetScreenMaxY-y_rand-10;
 
 	
@@ -159,10 +172,14 @@ begin
 	write(formel);
 	val(qinput('X min:', ''),xmin );
 	val(qinput('X max:', ''),xmax );
-	writeln(',',xmin,',',xmax);
+	if debug then writeln(',',xmin,',',xmax);
 	calc:=true;
+	if debug then writeln('formel=',formel);
+	formel:=uppercase(formel);
+	if debug then writeln('formel=',formel);
 	codier(formel,funk,zahlen);
-	if FSfm=0 then funktionswerte_berechnen;
+	if FSfm=0 then funktionswerte_berechnen
+	else writeln('Error ',FSfm,' ',FSerr_msg[FSfm]);
 	onDraw;
 end;
 
