@@ -32,6 +32,8 @@ function FX (x : real;funk : token;zahlen : array30):real;
 
 implementation
 
+const		debug = false;
+
 procedure FSInit();
 
 begin
@@ -67,7 +69,8 @@ var
 function woklass(wort:string5):byte;
 (*   Decodieren und Klassifizieren eines Wortes                       *)
 const 
-	namen : array[1..17] of string5
+	NumberOfElements=17;
+	namen : array[1..NumberOfElements] of string5
                   = ('EXP  ','LN   ','LOG  ','SIN  ','COS  ','TAN  ','ASIN ',
                      'ACOS ','ATAN ','SINH ','COSH ','TANH ','SQRT ','ABS  ',
                      'PI   ','E    ','X    ');
@@ -78,8 +81,8 @@ begin
 	z:=0;
 	repeat
 		inc(z);
-	until (wort=namen[z]) or (z=18);
-	if z=18 then woklass:=99
+	until (wort=namen[z]) or (z=NumberOfElements+1);
+	if z=NumberOfElements+1 then woklass:=99
 	else woklass:=z+13;
 end;
 (*   ENDE  FUNCTION WOKLASS                                            *)
@@ -102,6 +105,7 @@ begin
 	expo:=1.0;
 	while ord(zeile[zeig])=32 do inc(zeig);      (* BLANKS �bergehen     *)
 	ascii:=ord(zeile[zeig]);
+	if debug then writeln('Zeile[',zeig,']=',zeile[zeig],' ascii=',ascii);
 	case ascii of
 	
 			40 : 	begin
@@ -139,45 +143,47 @@ begin
 					inc(zeig);
 				end;
 	
-		else begin
-			puffer:=zeig;
-			while (ascii>=48) and (ascii<=57) do begin
-				inc(zeig);
-				ascii:=ord(zeile[zeig]);
-			end;
-			if puffer <> zeig then begin
-				typ:=11;
-				if zeile[zeig]='.' then begin
-					val(copy(zeile,puffer,zeig-puffer),vzahl,err);
+			else begin
+				puffer:=zeig;
+				while (ascii>=48) and (ascii<=57) do begin
 					inc(zeig);
 					ascii:=ord(zeile[zeig]);
-					puffer:=zeig;
-					while (ascii>=48) and (ascii<=57) do begin
+				end;
+				if puffer <> zeig then begin		// Es ist eine Zahl
+					typ:=11;
+					if zeile[zeig]='.' then begin
+						val(copy(zeile,puffer,zeig-puffer),vzahl,err);
+						inc(zeig);
+						ascii:=ord(zeile[zeig]);
+						puffer:=zeig;
+						while (ascii>=48) and (ascii<=57) do begin
+							inc(zeig);
+							ascii:=ord(zeile[zeig]);
+						end;
+						val(copy(zeile,puffer,zeig-puffer),nzahl,err);
+						for i:=1 to zeig-puffer do 
+							expo:=expo*0.1;
+						zahl:=vzahl+nzahl*expo;
+					end
+					else val(copy(zeile,puffer,zeig-puffer),zahl,err);
+				end
+				else begin		// es ist eine Funktion e.g. cos,sin oä
+					if debug then writeln( 'bassym: funktion detected, wort=',wort,' ascii=',ascii);
+					while (ascii>=65) and (ascii<=90) do begin
+						wort:=wort+chr(ascii);
 						inc(zeig);
 						ascii:=ord(zeile[zeig]);
 					end;
-					val(copy(zeile,puffer,zeig-puffer),nzahl,err);
-					for i:=1 to zeig-puffer do 
-						expo:=expo*0.1;
-					zahl:=vzahl+nzahl*expo;
-				end
-				else val(copy(zeile,puffer,zeig-puffer),zahl,err);
-			end
-			else begin
-				while (ascii>=65) and (ascii<=90) do begin
-					wort:=wort+chr(ascii);
-					inc(zeig);
-					ascii:=ord(zeile[zeig]);
-				end;
-				if puffer<>zeig then begin
-					lang:=length(wort);
-					if lang < 5 then 
-						for i:=lang to 5 do 
-							wort:=wort+' ';
-					typ:=10;
+					if debug then writeln( 'bassym: wort=',wort);
+					if puffer<>zeig then begin
+						lang:=length(wort);
+						if lang < 5 then 
+							for i:=lang to 5 do 
+								wort:=wort+' ';
+						typ:=10;
+					end;
 				end;
 			end;
-		end;
 	end;
 end;   (* ENDE PROZEDUR Bassym                                        *)
 
@@ -197,13 +203,13 @@ begin
 	opernd:=true;
 	repeat
 		bassym (formel,i,ftyp,fwort,fzahl);
-		(*       writeln(fzahl);*)
-		if (ftyp=10) or (ftyp=11) then begin
+		if debug then writeln('Formel=',formel,' i=',i,' ftyp=',ftyp,' fwort=',fwort,'fzahl=',fzahl);
+		if (ftyp=10) or (ftyp=11) then begin		// funktion oder Zahl
 			if not opernd then begin
 				FSfm:=1;
 				exit;
 			end;
-			if ftyp=10 then begin
+			if ftyp=10 then begin			// funktion
 				klasse:=woklass(fwort);
 				if (klasse>13) and (klasse<28) then begin
 					funk[ifkt]:=klasse+256*klammer;
@@ -211,19 +217,19 @@ begin
 				end
 				else
 					case klasse of
-						28 : 	begin
+						28 : 	begin				// PI
 								funk[ifkt]:=-2;
 								inc(ifkt);
 								opernd:=false;
 								zahlen[2]:=pi;
 							end;
-						29 :	begin
+						29 :	begin				// E
 								funk[ifkt]:=-3;
 								inc(ifkt);
 								opernd:=false;
 								zahlen[3]:=exp(1);
 							end;
-						30 : 	begin
+						30 : 	begin				// X
 								funk[ifkt]:=-1;
 								inc(ifkt);
 								opernd:=false;
@@ -234,7 +240,7 @@ begin
 						end
 					end
 			end
-			else begin
+			else begin			// eine Zahl
 				zahlen[iz]:=fzahl;
 				funk[ifkt]:=-iz;
 				inc(iz);
