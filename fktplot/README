@@ -8,3 +8,31 @@ the following math funktions are implemented
 
 you can use () to change the preceding of operators
 
+usage:
+
+here is the interface section of the unit FunctionSolver
+
+interface
+
+type 
+	string80 = string [80];
+	string5  = string [5];
+	array30  = array [1..30] of real;
+	token    = array [1..80] of integer;
+
+
+var
+	FSfm	: byte;
+	FSerr_msg : array [1..11] of string[40];
+
+
+procedure codier(formel:string80;var funk:token;var zahlen:array30);
+function FX (x : real;funk : token;zahlen : array30):real;
+
+calculating any formula is a two step process
+  1 encode the formular with first syntax check using codier
+  2 calculate the function results using FX
+  
+you can check the variable FSfm after each call  if its not zero
+there is an error, use FSerr_msg[FSfm] to get a usable message.
+  
