@@ -13,7 +13,7 @@ all: $(OBJECTS)
 
 # the physical Machine access layer
 fktplot:	fktplot.pas FunctionSolver.pas
-	fpc -gl -Fu../gtk+/qgtk2.pas-0.9 fktplot
+	fpc -gl -Fu../gtk+/qgtk2.pas-0.9/ fktplot
 
 clear:
 	-rm fktplot
