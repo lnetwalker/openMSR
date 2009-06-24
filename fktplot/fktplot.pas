@@ -42,15 +42,6 @@ begin
 end;
 
 
-function uppercase(s:string):string;
-
-begin
-	for i:=1 to length(s) do
-		if s[i] in ['a'..'z'] then s[i]:=chr(ord(s[i])-32);
-	uppercase:=s;
-end;
-
-
 procedure funktionswerte_berechnen;
 
 begin
@@ -174,9 +165,6 @@ begin
 	val(qinput('X max:', ''),xmax );
 	if debug then writeln(',',xmin,',',xmax);
 	calc:=true;
-	if debug then writeln('formel=',formel);
-	formel:=uppercase(formel);
-	if debug then writeln('formel=',formel);
 	codier(formel,funk,zahlen);
 	if FSfm=0 then funktionswerte_berechnen
 	else writeln('Error ',FSfm,' ',FSerr_msg[FSfm]);
