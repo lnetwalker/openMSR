@@ -34,6 +34,17 @@ implementation
 
 const		debug = false;
 
+
+function uppercase(s:string):string;
+var 	i : word;
+
+begin
+	for i:=1 to length(s) do
+		if s[i] in ['a'..'z'] then s[i]:=chr(ord(s[i])-32);
+	uppercase:=s;
+end;
+
+
 procedure FSInit();
 
 begin
@@ -194,6 +205,7 @@ begin
 		Zahlen[k]:=0;
 	end;
 	for k:=21 to 80 do funk[k]:=0;          (* l�schen                    *)
+	formel:=uppercase(formel);
 	ifkt:=1;
 	iz:=4;
 	klammer:=0;
