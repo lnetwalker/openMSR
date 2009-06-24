@@ -2,7 +2,7 @@ program OpenLabCalc;
 
 uses PhysMach,FunctionSolver,crt;
 
-{ $id:$ }
+{ $Id$ }
 
 { 24.06.2009	start of program }
 
