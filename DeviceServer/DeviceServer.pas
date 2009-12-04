@@ -1,6 +1,6 @@
 program DeviceServer;
 {$mode objfpc}
-uses PhysMach,webserver,telnetserver,cthreads,classes,crt,BaseUnix;
+uses cthreads,PhysMach,webserver,telnetserver,classes,crt,BaseUnix;
 
 { $Id$ }
 
@@ -10,14 +10,14 @@ uses PhysMach,webserver,telnetserver,cthreads,classes,crt,BaseUnix;
 { 20.02.2008		Start of project					}
 { 08.03.2008		changed to start one thread per device			}
 { 18.07.2008		added comments,code clearing				}
-
+{ 23.07.2009		DeliverDigitalInputValues accepts more than one IOGroup }
 
 const
 	Forever=false;
 	MaxThreads=25;
 	BLOCKED=true;
 	NONBLOCKED=false;
-	debug=false;
+	debug=true;
 	TimeOut=500;
 
 var
@@ -217,7 +217,7 @@ begin
 	else begin
 		Trenner:=pos(',',Params);
 		val(copy(Params,1,Trenner-1),IOGroup);
-		val(copy(Params,Trenner+1,Length(Params)-Trenner),ByteValue);
+		val(copy(Params,Trenner+1,Length(Params)),ByteValue);
 	end;
 
 
@@ -309,24 +309,50 @@ end;
 procedure DeliverDigitalInputValues;
 { this procedure reads the corresponding inputs and delivers the values via html }
 var
-	SeitenStart,SeitenEnde,Seite,Values	: string;
+	SeitenStart,SeitenEnde,Seite,Values,
+	Params					: string;
 	AddressBase				: word;
-	Bits					: byte;
+	Bits,Trenner,Loops,i			: byte;
+	IOGroupList				: array [1..64] of byte;
 
 begin
 	inc(Counter);
 	SeitenStart:='<html><body>';
 	SeitenEnde:=' </body></html>';
 	Values:='';
+	Loops:=1;
+	
+	{ more than one parameter means, that more IO Groups are read }
+	//if ( ByteValue <> 0 ) then begin
+		{ first we need to reread the parameter List }
+		Params:=copy(GetParams,2,Length(GetParams));
+		repeat
 
-	AddressBase:=IOGroup*8-8;
+			if debug then writeln('DeliverDigitalValues  Params=',Params);
 
-	if debug then writeln('DeliverDigitalValues AddressBAse=',AddressBase);
+			Trenner:=pos(',',Params);
+			if (Trenner = 0 ) then Trenner:=1		// read the last param correctly
+			else Trenner:=Trenner-1; 
+			val(copy(Params,1,Trenner),IOGroupList[Loops]);
+			inc(Loops);
+			Params:=copy(Params,Trenner+2,Length(Params));
+		until ( length(Params)  = 0 );
+	//end
+	//else
+	//	IOGroupList[1]:=IOGroup;
+	
+	for i:=1 to Loops-1 do begin
+		IOGroup:=IOGroupList[i];
+	      
+		AddressBase:=IOGroup*8-8;
 
-	for Bits:=1 to 8 do
-		if eingang[AddressBase+Bits] then Values:=Values+' '+'1'
-		else Values:=Values+' '+'0';
+		if debug then writeln('DeliverDigitalValues AddressBAse=',AddressBase);
 
+		for Bits:=1 to 8 do
+			if eingang[AddressBase+Bits] then Values:=Values+' '+'1'
+			else Values:=Values+' '+'0';
+
+	end;
 	Seite:=SeitenStart+Values+SeitenEnde;
 
 	if debug then writeln('embeddedWeb:>Sending Page');
@@ -334,6 +360,66 @@ begin
 
 	if debug then writeln('embeddedWeb:>Page Send, finished');
 end;
+
+
+
+procedure DeliverDigitalOutputValues;
+{ this procedure reads the corresponding outputs and delivers the values via html }
+var
+	SeitenStart,SeitenEnde,Seite,Values,
+	Params					: string;
+	AddressBase				: word;
+	Bits,Trenner,Loops,i			: byte;
+	IOGroupList				: array [1..64] of byte;
+
+begin
+	inc(Counter);
+	SeitenStart:='<html><body>';
+	SeitenEnde:=' </body></html>';
+	Values:='';
+	Loops:=1;
+	
+	{ more than one parameter means, that more IO Groups are read }
+	//if ( ByteValue <> 0 ) then begin
+		{ first we need to reread the parameter List }
+		Params:=copy(GetParams,2,Length(GetParams));
+		repeat
+
+			if debug then writeln('DeliverDigitalOutputValues  Params=',Params);
+
+			Trenner:=pos(',',Params);
+			if (Trenner = 0 ) then Trenner:=1		// read the last param correctly
+			else Trenner:=Trenner-1; 
+			val(copy(Params,1,Trenner),IOGroupList[Loops]);
+			inc(Loops);
+			Params:=copy(Params,Trenner+2,Length(Params));
+		until ( length(Params)  = 0 );
+	//end
+	//else
+	//	IOGroupList[1]:=IOGroup;
+	
+	for i:=1 to Loops-1 do begin
+		IOGroup:=IOGroupList[i];
+	      
+		AddressBase:=IOGroup*8-8;
+
+		if debug then writeln('DeliverDigitalOutputValues AddressBAse=',AddressBase);
+
+		for Bits:=1 to 8 do
+			if ausgang[AddressBase+Bits] then Values:=Values+' '+'1'
+			else Values:=Values+' '+'0';
+
+	end;
+	Seite:=SeitenStart+Values+SeitenEnde;
+
+	if debug then writeln('embeddedWeb:>Sending Page');
+	SendPage(Seite);
+
+	if debug then writeln('embeddedWeb:>Page Send, finished');
+end;
+
+
+
 
 procedure WriteInputValues;
 // this procedure writes the values to the corresponding inputs
@@ -388,7 +474,7 @@ begin
 	Values:='';
 
 	{ set the bits in the ausgang[n] array in respect of io_group}
-	AddressBase:=IOGroup*8-8+1;
+	AddressBase:=IOGroup*8-8;
 
 	for Bits:=8 downto 1 do begin
 		if (ByteValue-Power[Bits])>=0 then begin
@@ -432,6 +518,7 @@ begin
 	SetupSpecialURL('/digital/ReadInputValues.html',@DeliverDigitalInputValues );
 	SetupSpecialURL('/digital/WriteOutputValues.html',@WriteOutputValues);
 	SetupSpecialURL('/digital/WriteInputValues.html',@WriteInputValues);
+	SetupSpecialURL('/digital/ReadOutputValues.html',@DeliverDigitalOutputValues );
 
 	repeat
 		EnterCriticalSection(ProtectParams);
