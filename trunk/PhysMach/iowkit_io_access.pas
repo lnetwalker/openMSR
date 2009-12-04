@@ -18,7 +18,7 @@ INTERFACE
 { the io_port address has a special meaning: its a two digit number with the first digit }
 { addressing the io warrior device ( eg. /dev/usb/iowarrior1 [ range 1-8 ]) and the second digit meaning }
 { which of the four eight bit ports should be read ( range 0-3 ) }
-{ address 13 read the second iowarrior  and returns the value of port 3 }
+{ address 13 read the first iowarrior  and returns the value of port 3 }
 { the ranges are not checked ! }
 
 function iow_read_ports(io_port:longint):byte;
@@ -40,7 +40,7 @@ var
 	oldval		: array[1..war_max] of Cardinal; 
 	OldInValue	: array[1..war_max] of Cardinal;
 	i		: byte;
-
+	FastAccess	: boolean;
 
 
 function iow_read_ports(io_port:longint):byte;
@@ -56,17 +56,35 @@ begin
 	device:=round(io_port/10);
 	{ extract the port }
 	io_port:=round(frac(io_port/10)*10);
-	if ( debug ) then write(IOWKIT_REPORT_SIZE,' IOW_IO: r  ',device,' ',io_port,':');
-	(* read the warrior *)
-	Report.Value:=0;
-	Result:=IowKitReadNonBlocking(IOWarrior[device],IOW_PIPE_IO_PINS,@Report,IOWKIT_REPORT_SIZE);
-	//IowKitReadImmediate(IOWarrior[device], Value);
-	if (Result>0) then begin
-		Value:=Report.Value;
-		OldInValue[device]:=Value;
+	if FastAccess then begin
+	  // optimize the hardware access and read all ports in one call 32 Bit wide
+	  if  io_port=0 then begin
+	    if ( debug ) then write(IOWKIT_REPORT_SIZE,' IOW_IO: r  ',device,' ',io_port,':');
+	    (* read the warrior *)
+	    Report.Value:=0;
+	    Result:=IowKitReadNonBlocking(IOWarrior[device],IOW_PIPE_IO_PINS,@Report,IOWKIT_REPORT_SIZE);
+	    //IowKitReadImmediate(IOWarrior[device], Value);
+	    if (Result>0) then begin
+		    Value:=Report.Value;
+		    OldInValue[device]:=Value;
+	    end
+	    else	Value:=OldInValue[device];
+	  end  
 	end
-	else	Value:=OldInValue[device];
-
+	else begin
+	    // access the hardware port wide ( 8 Bit ) witch mean 4 accesses to read all inputs
+	    if ( debug ) then write(IOWKIT_REPORT_SIZE,' IOW_IO: r  ',device,' ',io_port,':');
+	    (* read the warrior *)
+	    Report.Value:=0;
+	    Result:=IowKitReadNonBlocking(IOWarrior[device],IOW_PIPE_IO_PINS,@Report,IOWKIT_REPORT_SIZE);
+	    //IowKitReadImmediate(IOWarrior[device], Value);
+	    if (Result>0) then begin
+		    Value:=Report.Value;
+		    OldInValue[device]:=Value;
+	    end
+	    else	Value:=OldInValue[device];	
+	end;
+	
 	if ( debug ) then writeln (Value);
 	{ return the wanted port }
 	case io_port of
@@ -99,19 +117,19 @@ begin
 		write ('io_port=',io_port,' ovalue0=',byte_value,' ');
 	case io_port of
 		0	:	begin
-					ovalue:=(byte_value       ) or $FFFFFF00;
+					ovalue:=(byte_value       );
 					oldval[dev]:=oldval[dev] and $FFFFFF00;
 				end;	
 		1	:	begin
-					ovalue:=(byte_value shl  8) or $FFFF00FF;
+					ovalue:=(byte_value shl  8);
 					oldval[dev]:=oldval[dev] and $FFFF00FF;
 				end;	
 		2	:	begin
-					ovalue:=(byte_value shl 16) or $FF00FFFF;
+					ovalue:=(byte_value shl 16);
 					oldval[dev]:=oldval[dev] and $FF00FFFF;
 				end;	
 		3	:	begin
-					ovalue:=(byte_value shl 24) or $00FFFFFF;
+					ovalue:=(byte_value shl 24);
 					oldval[dev]:=oldval[dev] and $00FFFFFF;
 				end;	
 	end;
@@ -123,10 +141,21 @@ begin
 	oldval[dev]:=ovalue;
 	if (debug) then writeln ('oldval2=',oldval[dev]);
 	if (debug) then writeln ('IOW_IO: w  ',dev,' ', io_port,':',ovalue);
-	{ write out }
-	Report.ReportID:=0;
-	Report.Value:=ovalue;
-	IowKitWrite(IOWarrior[dev],IOW_PIPE_IO_PINS,@Report,IOWKIT_REPORT_SIZE);
+	if FastAccess then 
+	  // access the hardware in 32 Bit, one call for all
+	  if io_port = 3 then begin
+	    { write out }
+	    Report.ReportID:=0;
+	    Report.Value:=ovalue;
+	    IowKitWrite(IOWarrior[dev],IOW_PIPE_IO_PINS,@Report,IOWKIT_REPORT_SIZE);
+	  end
+	else begin
+	  // access the hardware in 8 Bit ehich means 4 calls
+	    { write out }
+	    Report.ReportID:=0;
+	    Report.Value:=ovalue;
+	    IowKitWrite(IOWarrior[dev],IOW_PIPE_IO_PINS,@Report,IOWKIT_REPORT_SIZE);
+	end;
 end;
 
 
@@ -135,6 +164,8 @@ function iow_hwinit(initdata:string;DeviceNumber:byte):boolean;
 var
 	x	: byte;
 begin
+	if initdata = 'optimized' then FastAccess:=true
+	else FastAccess:=false;
 	IowKitSetLegacyOpenMode(IOW_OPEN_SIMPLE);
 	IOWarrior[1]:=IowKitOpenDevice;
 	if Assigned(IOWarrior[1]) then 
@@ -147,7 +178,7 @@ begin
 
 	if (debug) then writeln ( 'IOW_IO: IO-Warrior initilized' );
 	for x:=1 to war_max do begin 
-		oldval[x]:=$FF;
+		oldval[x]:=$FFFFFFFF;
 		OldInValue[x]:=0;
 	end;
 end;
