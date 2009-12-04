@@ -35,15 +35,17 @@ end;
 function funk_write_ports(io_port:longint;byte_value:byte):byte;	
 var 	F     		: file of byte;
 	i,k,OutVal	: byte;
+	AllBitsSet	: byte;
 	
 begin
+	AllBitsSet:=255;
 	if OldByteValue <> Byte_value then begin	// transmit only, if changes occurred
 		OldByteValue:=byte_value;		// save byte_value for next run
 		assign(F,IOFile);
 		reset(F,Sizeof(OutVal));
 		for k:=1 to 2 do begin			// transmit the signals twice
 			for i:=7 downto 0 do begin
-				OutVal:=255;			// always start with all high as dummy
+				OutVal:=AllBitsSet;			// always start with all high as dummy
 				if byte_value>= power[i] then begin			// the bit is high
 					byte_value:=byte_value-power[i];
 					if i<NoOfOutputs then 				// only the lower 4 bits are used, rest is ignored
@@ -58,7 +60,7 @@ begin
 					blockwrite(F,OutVal,1);	
 					delay(XmitTime);				// wait some time
 					seek(F,io_port);				// switch off the IO lines
-					blockwrite(F,255,1);
+					blockwrite(F,AllBitsSet,1);
 				end;
 			end;
 			byte_value:=OldByteValue;	// restore byte_value, it was destroyed above
