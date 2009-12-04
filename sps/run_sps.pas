@@ -35,7 +35,7 @@ program runsps;
 
 uses 	
 {$ifdef LINUX }
-	unix,oldlinux,
+	unix,linux,
 {$endif}
 	dos,crt,PhysMach;
 
@@ -50,7 +50,7 @@ const
 	Platform = ' Windows ';
 {$endif}	
 	ProgNamVer  =' RUN_SPS  for'+Platform+version+' '+datum+' ';
-	Copyright   ='      (c)  1989 - 2008 by Hartmut Eilers ';
+	Copyright   =' (c)  1989 - 2009 by Hartmut Eilers ';
 
 var
 	i					: integer;
@@ -142,7 +142,7 @@ begin                              { SPS_SIMULATION           }
 	{ set a very nice priority }
 
 	{$ifdef LINUX}
-	nice(20);
+	//nice(20);
 	{$endif}
 	PhysMachInit;
 	PhysMachloadCfg('.run_sps.cfg');
