@@ -55,7 +55,7 @@ var
 	i_devicetype,
 	o_devicetype,
 	c_devicetype,
-	a_devicetype 		: array [1..group_max] of char;
+	a_devicetype 		: array [1..analog_max] of char;
 	DeviceList		: DeviceTypeArray;
 
 
@@ -185,6 +185,7 @@ end;
 
 procedure PhysMachReadAnalogDevice(IOGroup:LongInt);
 begin
+	if debugFlag then writeln('PhysMachReadAnalogDevice: a_devicetype[',IOGroup,']=',a_devicetype[IOGroup]);
 	if (a_devicetype[IOGroup] <> '-') then
 		case a_devicetype[IOGroup] of
 {$ifdef LINUX}
@@ -314,6 +315,7 @@ begin
 					  end;	
 				'H' 	: begin
 						http_hwinit(initstring,DeviceNumber);
+						if debugFlag then writeln('http_hwinit initstring=',initstring,' DeviceNumber=',DeviceNumber);
 						HWPlatform:=HWPlatform+',HTTP ';
 					  end;
 				'B'	: begin
@@ -351,6 +353,7 @@ begin
 			{PORT!I!  1! $00!I}
 			dir:=copy(zeile,6,1);
 			val(copy(zeile,8,3),iogroup);
+			if debugFlag then writeln('PhysMachLoadCfg: dir=',dir,' iogroup=',iogroup,' addr=',copy(zeile,12,4));
 			if     ( dir = 'I' ) then begin
 				val(copy(zeile,12,4),i_address[iogroup]);
 				i_devicetype[iogroup]:=zeile[17];
@@ -378,6 +381,7 @@ end;
 
 
 procedure PhysMachInit;                    { initialisieren der physical machine }
+var x,y: byte;
 
 begin
 	if ( io_max / 8 > group_max ) then begin
@@ -404,8 +408,14 @@ begin
 		i_devicetype[x]:='-';
 		o_devicetype[x]:='-';
 		c_devicetype[x]:='-';
-		a_devicetype[x]:='-';
 	end;
+
+	for y:=1 to analog_max do begin
+		a_devicetype[y]:='-';
+		analog_in[y]:=0;
+		if debugFlag then writeln ('PhysMachInit: x=',y,' a_devicetype[',y,']=',a_devicetype[y],' analog_in[',y,']=',analog_in[y]);
+	end;
+
 	for x:=1 to DeviceTypeMax do 
 		DeviceList[x]:='-';
 
@@ -463,14 +473,15 @@ end;                               { **** ENDE COUNT_DOWN ****       }
 
 procedure PhysMachReadAnalog;				{ read analog inputs }
 var
-	x				: integer;
+	i				: byte;
 
 begin
-	x:=0;
+	i:=1;
 	repeat
-		PhysMachReadAnalogDevice(x);
-		inc(x);
-	until ( x > analog_max );
+		PhysMachReadAnalogDevice(i);
+		if debugFlag then writeln('PhysMachReadAnalog i=',i);
+		inc(i);
+	until ( i > analog_max );
 end;
 
 
