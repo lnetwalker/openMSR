@@ -17,11 +17,11 @@ INTERFACE
 
 function http_read_ports(io_port:longint):byte;
 function http_write_ports(io_port:longint;byte_value:byte):byte;
-function http_read_analog(io_port:longint):Cardinal;
+function http_read_analog(io_port:longint):LongInt;
 function http_hwinit(initdata:string;DeviceNumber:byte):boolean;
 
 implementation
-uses linux,CommonHelper
+uses SysUtils,CommonHelper,UnixUtils
 {$ifndef ZAURUS}
 ,http
 {$endif}
@@ -51,7 +51,7 @@ begin
 	str(io_port,TmpStrg);
 	TmpStrg:=R_URL[dev]+TmpStrg;
 	{$ifndef ZAURUS}
-	TmpVal:=deHTML(HttpGet(TmpStrg,AppName));
+	TmpVal:=deHTML(HttpGet1(TmpStrg,AppName));
 	{$endif}
 	if debug then writeln('http_read_ports(',TmpStrg,') returned ',TmpVal);
 	http_read_ports:=BinToInt(TmpVal);
@@ -68,7 +68,7 @@ var
 begin
 	{ Params= Ioport,byte_value }
 	{ extract the device number as key to the device handle }
-	dev:=round(io_port/10)-DeviceIndex;
+	dev:=round(io_port/10);
 	{ extract the port }
 	io_port:=round(frac(io_port/10)*10);
 	str(io_port,TmpStrg);
@@ -76,19 +76,19 @@ begin
 	str(byte_value,TmpStrg);
 	Params:=Params+TmpStrg;
 	{$ifndef ZAURUS}
-	TmpVal:=HttpGet(W_URL[dev]+Params,AppName);
+	TmpVal:=HttpGet1(W_URL[dev]+Params,AppName);
 	{$endif}
 	if debug then writeln('http_write_ports: URL=',W_URL[dev]+Params);
 	val(TmpVal,http_write_ports);	
 end;
 
 
-function http_read_analog(io_port:longint):Cardinal;
+function http_read_analog(io_port:longint):LongInt;
 var
 	ReturnValue,TmpStrg		: string;
 	ReturnArray			: array[1..8] of string;
 	ReturnValueLength,i,k		: integer;
-	wert				: Cardinal;
+	wert				: LongInt;
 	dev				: byte;
 	cmd				: AnsiString;
 	idx				: byte;
@@ -109,7 +109,7 @@ begin
 	str(io_port,TmpStrg);
 	TmpStrg:=R_URL[dev]+TmpStrg;
 	{$ifndef ZAURUS}
-	ReturnValue:=deHTML(HttpGet(TmpStrg,AppName));
+	ReturnValue:=deHTML(HttpGet1(TmpStrg,AppName));
 	{$endif}
 	if debug then writeln('http_read_analog(',TmpStrg,') returned ',ReturnValue);
 	ReturnValueLength:=length(ReturnValue);
@@ -129,7 +129,8 @@ begin
 		if debug then writeln('ReturnValue=',ReturnValue,' ReturnArray[',k,']=',ReturnArray[k]);
 		inc(k);
 	until (k>idx);// or (i>ReturnValueLength);
-	val(ReturnArray[k],wert);
+	val(ReturnArray[idx],wert);
+	if debug then writeln(' ReturnArray[',idx,']=',ReturnArray[idx],' wert=',wert);
 	http_read_analog:=wert;
 
 end;
@@ -153,5 +154,5 @@ end;
 
 begin
 	cnt:=0;
-	AppName:=ParamStr(0);
+	AppName:=ExtractFileName(ParamStr(0));
 end.
