@@ -13,11 +13,11 @@ all: $(OBJECTS)
 
 # the sps IDE
 sps: 	sps.pas edit.pas fileserv.pas info.pas popmenu.pas run_awl.pas sps.h awl_interpreter.pas run_awl.h
-	/usr/bin/fpc -gl -Fu../PhysMach -Fu../PhysMach/test/libad4 -Fu../divLibs/pwu-1.6.0.2-src/main/ sps.pas
+	fpc -gl -Fu../PhysMach -Fu../PhysMach/test/libad4 -Fu../divLibs/pwu-1.6.0.2-src/main/ sps.pas
 
 # the SPS runtime module	
 run_sps:	run_sps.pas awl_interpreter.pas run_awl.h
-		/usr/bin/fpc -gl -Fu../PhysMach -Fu../PhysMach/test/libad4 -Fu../divLibs/pwu-1.6.0.2-src/main/ run_sps.pas
+		fpc -gl -Fu../PhysMach -Fu../PhysMach/test/libad4 -Fu../divLibs/pwu-1.6.0.2-src/main/ run_sps.pas
 
 clear:
 	-rm run_sps
