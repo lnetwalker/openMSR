@@ -37,6 +37,8 @@ interface
 procedure start_server(address:string;port:word;BlockMode: Boolean;doc_root,logfile:string);
 procedure SetupSpecialURL(URL:string;proc : tprocedure);
 procedure SetupVariableHandler(proc: tprocedure);
+procedure SendHeader(Header : AnsiString);
+procedure SendChar(RespChar : Char);
 procedure SendPage(myPage : AnsiString);
 procedure serve_request;
 function GetURL:string;
@@ -259,6 +261,18 @@ begin
 end;
 
 
+procedure SendHeader(Header : AnsiString);
+begin
+	writeln(ccsout,Header);
+end;
+
+
+procedure  SendChar(RespChar: Char);
+begin
+	writeln(ccsout,RespChar);
+end;
+
+
 procedure SendPage(myPage : AnsiString);
 var
 	i 		: byte;
@@ -468,14 +482,14 @@ begin
 
 
 	{$ifdef LINUX}
-	{$I-}
+		{$I-}
 		if debug then writeLOG('Sock2Text');
 		Sock2Text(sock,sin,sout);
 		if debug then writeLOG('reset');
 		reset(sin);
 		//if debug then writeLOG('rewrite');
 		//rewrite(sout);
-{$I+}
+		{$I+}
 		if debug then WriteLOG('Reading requests...');
 		if (SelectText(sin,10000)>0) then begin
 			Addr_len:=SizeOf(cli_addr);
