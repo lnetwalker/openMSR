@@ -193,7 +193,7 @@ end;
 
 
 begin
-	NoOfInputs:=8;
+	NoOfInputs:=NoOfUsedSignals;
 	Raster:= 40;
 	maxx:=480;
 	maxy:=480;
