@@ -6,6 +6,7 @@ Unit http_io_access;
 { hartmut@eilers.net								}
 { all code is copyright by Hartmut Eilers and released under			}
 { the GNU GPL see www.gnu.org for license details				}
+{ $Id$ }
 { History:									}
 {		12.05.2007 first raw hack					}
 {		21.05.2007 should work hack					}
