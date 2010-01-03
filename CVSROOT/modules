@@ -26,3 +26,22 @@
 # spread out over the entire source repository.
 huckybin   -d .                                 hucky/bin
 radio      -d .                                 hucky/radio
+
+# the openMSR Project ist a collection of different Projects like SPS
+# or oszi and datalogger
+OpenMSRSPS 	-a	sps
+OpenMSRPhysMach	-a	PhysMach
+OpenMSRDevServ	-a	DeviceServer
+OpenMSRFktPlot	-a	fktplot
+OpenMSRDocs	-a	OpenLabDocs
+OpenMSRWWWServ	-a	webserver
+OpenMSRLAnalyzr	-a	datalogger
+OpenMSRVendor	-a	divLibs
+OpenMSRGUI	-a	gtk+
+OpenMSRObjRec	-a	ObjectRecognition
+OpenMSROszi	-a	oszi
+OpenMSRBuild	-a	build
+
+OpenMSR -a OpenMSRSPS OpenMSRPhysMach OpenMSRDevServ OpenMSRFktPlot OpenMSRDocs OpenMSRWWWServ OpenMSRLAnalyzr OpenMSRVendor OpenMSRGUI OpenMSRObjRec OpenMSROszi OpenMSRBuild
+
+
