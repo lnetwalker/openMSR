@@ -5,7 +5,7 @@ program oszi;
 { see http://www.gnu.org/licenses/gpl.html for details				}
 
 { this program may be used as an osziloscope in connection with 	}
-{ a supported A/D IO Card											}
+{ a supported A/D IO Card								}
 
 { $Id$ }
 
@@ -13,6 +13,7 @@ uses qgtk2,PhysMach;
 
 const
 	debug=false;
+	NoOfUsedSignals=8;
 
 
 var 
@@ -26,8 +27,12 @@ var
 
 	PauseButton,
 	ExitButton,
-	TimerValue		: qWidget;
+	TimerValue,
+	MaxButton,
+	GetMaxValuesWindow	: qWidget;
 
+	values			: Array [1..NoOfUsedSignals] of qWidget;
+	
 	Timer,
 	OldTimer		: word;
 
@@ -35,15 +40,17 @@ var
 
 	Background		: qpic;
 
-	ox,oy			: Array [1..8] of Integer;
+	ox,oy			: Array [1..NoOfUsedSignals] of Integer;
 
-	NoOfInputs		: byte;
+	NoOfInputs,k		: byte;
 
-	Farbe			: Array [1..8] of LongInt = (qRed,qAqua,qBlue,qYellow,qPurple,qWhite,qBrown,qGray);
+	Farbe			: Array [1..NoOfUsedSignals] of LongInt = (qRed,qAqua,qBlue,qYellow,qPurple,qWhite,qBrown,qGray);
 
 	YcMax			: LongInt;
 
-	Yrmax			: Array [1..analog_max] of Cardinal;
+	Yrmax			: Array [1..NoOfUsedSignals] of Cardinal;
+	
+	InputLabel		: String;
 
 
 procedure oncreate;
@@ -95,6 +102,7 @@ end;
 
 procedure ontimer;
 var 	x,y,i		: integer;
+	ColLabel	: String;
 begin
 	if not(Pause) then begin
 
@@ -113,6 +121,9 @@ begin
 			y:=GetNewValue(i);
 
 			qsetClr(Farbe[i]);
+			str (i,ColLabel);
+			ColLabel:='ch#'+ColLabel;
+			qdrawtext(60*i,15,ColLabel);
 			qline(ox[i],oy[i],x,y);
 			ox[i]:=x;
 			oy[i]:=y;
@@ -143,30 +154,54 @@ begin
 	if Timer > 0 then begin
 		if Timer < 2 then Timer:=2;
 		if Timer <> OldTimer then begin
-			writeln('Timebase changed try to stop timer ',OldTimer,'  ms');
+			if debug then writeln('Timebase changed try to stop timer ',OldTimer,'  ms');
 			qtimerstop(OldTimer);
 			OldTimer:=Timer;
-			writeln ( ' restarting new timer with ',Timer,' ms');
+			if debug then writeln ( ' restarting new timer with ',Timer,' ms');
 			qtimerstart(Timer, @ontimer);
 		end
 	end
 end;
 
 
+procedure onMax;
 begin
-	NoOfInputs:=6;
+	qshowsec(GetMaxValuesWindow);
+end;
+
+
+procedure AbortSetup;
+begin 
+	qhidesec(GetMaxValuesWindow); 
+end;
+
+
+procedure SaveMaxValues;
+var loop	: byte;
+begin 
+	for loop:=1 to NoOfInputs do begin 
+		val(qtextstring(values[loop],0,-1),Yrmax[loop]);
+		//if Yrmax[loop]=1 then Yrmax[loop]:=1;
+		writeln('Max for channel ',loop,' changed to ',Yrmax[loop]);
+	end;
+	qhidesec(GetMaxValuesWindow); 
+end;
+
+procedure dummy;
+begin
+end;
+
+
+begin
+	NoOfInputs:=8;
 	Raster:= 40;
 	maxx:=480;
 	maxy:=480;
 	PixelPerTimeBase:=20;
 	Timer:=250;
-	Yrmax[1]:=500; //4294967294;
-	Yrmax[2]:=500; //4294967294;
-	Yrmax[3]:=500;
-	Yrmax[4]:=500;
-	Yrmax[5]:=500;
-	Yrmax[6]:=500;
 
+	for k:=1 to NoOfInputs do 
+	    Yrmax[k]:=500; //4294967294;
 
 	xmitte:=round(int(maxx/2));
 	ymitte:=round(int(maxy/2));
@@ -180,11 +215,29 @@ begin
 	qstart('Oszi', nil, nil);
 	TimerValue:=qbutton('Timebase',  @onTimebase);
 	PauseButton:=qbuttonToggle('||', @onPause);
+	MaxButton:=qbutton('Max',@onMax);
 	ExitButton:=qbutton('Exit',@onClose);
 	qNextRow;
 
 	qdrawstart(maxx,maxy, @oncreate,nil, nil);
 	qtimerstart(Timer, @ontimer);
 
+	// window to read Max Values for the 8 channels
+	GetMaxValuesWindow:=qsecwindow('Maximum Values Setup');
+	qFrame;
+	qlabel('Enter the Maximum Values for the channels'  );
+	qNextRow;
+	for k:=1 to NoOfInputs do begin
+		str(k,InputLabel);
+		InputLabel:='Channel #' + InputLabel+'  ';
+		qlabel(InputLabel);
+		values[k]:=qtext(5,1, @dummy);
+		qNextRow;
+	end;
+	qEndFrame;
+	qseparator;
+	qbutton('exit', @AbortSetup);
+	qbutton('save', @SaveMaxValues);
+	
 	qGo;
 end.
