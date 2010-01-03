@@ -72,6 +72,6 @@ begin			// main program
 		ParseFormular(data,dest);
 		codier(data,funk,zahlen);
 		analog_in[dest]:=trunc(fx(1,funk,zahlen));
-		//PhysMachWriteAnalog;
+		PhysMachWriteAnalog;
 	until keypressed;
 end.
