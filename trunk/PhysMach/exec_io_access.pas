@@ -5,6 +5,7 @@ Unit exec_io_access;
 { Attention: its just a raw hack - not finished			}
 { all code is copyright by Hartmut Eilers and released under	}
 { the GNU GPL see www.gnu.org for license details		}
+{ $Id$ }
 
 INTERFACE
 
