@@ -1,0 +1,9 @@
+# Gambas Form File 2.0
+
+{ Form Form
+  MoveScaled(0,0,23,25)
+  Text = ("")
+  { PictureBox1 PictureBox
+    MoveScaled(9,10,4.4444,4.4444)
+  }
+}
