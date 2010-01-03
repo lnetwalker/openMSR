@@ -188,8 +188,12 @@ begin
 	writeln('started Device Handler Thread..',MySelf);
 	repeat
 		//if debug then writeln('call PhysMachIOByDevice(DeviceList[MySelf])=',DeviceList[MySelf],' MySelf=',MySelf);
-		PhysMachIOByDevice(DeviceList[MySelf]);
-		//delay(100);
+		EnterCriticalSection(ProtectParams);
+		  Try 
+		    PhysMachIOByDevice(DeviceList[MySelf]);
+		  Finally
+		    LeaveCriticalSection(ProtectParams);
+		  end;
 		inc(ThreadCnt[MySelf]);
 	until shutdown=true;
 	writeln('Device Handler going down..',MySelf);
@@ -522,9 +526,11 @@ begin
 
 	repeat
 		EnterCriticalSection(ProtectParams);
-		serve_request;
-		LeaveCriticalSection(ProtectParams);
-		//delay(100);
+		  Try 
+		    serve_request;
+		  Finally
+		    LeaveCriticalSection(ProtectParams);
+		  end;
 		inc(ThreadCnt[MySelf]);
 	until Shutdown=true;
 
