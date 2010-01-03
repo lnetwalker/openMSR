@@ -41,7 +41,8 @@ OpenMSRGUI	-a	gtk+
 OpenMSRObjRec	-a	ObjectRecognition
 OpenMSROszi	-a	oszi
 OpenMSRBuild	-a	build
+OpenMSRGambas	-a	GambasComp
 
-OpenMSR -a OpenMSRSPS OpenMSRPhysMach OpenMSRDevServ OpenMSRFktPlot OpenMSRDocs OpenMSRWWWServ OpenMSRLAnalyzr OpenMSRVendor OpenMSRGUI OpenMSRObjRec OpenMSROszi OpenMSRBuild
+OpenMSR -a OpenMSRSPS OpenMSRPhysMach OpenMSRDevServ OpenMSRFktPlot OpenMSRDocs OpenMSRWWWServ OpenMSRLAnalyzr OpenMSRVendor OpenMSRGUI OpenMSRObjRec OpenMSROszi OpenMSRBuild OpenMSRGambas
 
 
