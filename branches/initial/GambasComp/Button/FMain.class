@@ -1,0 +1,25 @@
+' Gambas class file
+PUBLIC Button_on AS Picture
+PUBLIC Button_off AS Picture
+PUBLIC state AS Boolean
+
+PUBLIC SUB _new()
+
+END
+
+PUBLIC SUB Form_Open()
+  Button_off = Picture.Load("button_off.jpg")
+  Button_on = Picture.Load("button_on.jpg")
+  state = FALSE
+  PictureBox1.Picture = Button_off
+END
+
+PUBLIC SUB PictureBox1_MouseDown()
+  IF state THEN 
+    state = FALSE
+    PictureBox1.Picture = Button_off
+  ELSE 
+    state = TRUE
+    PictureBox1.Picture = Button_on
+  ENDIF 
+END

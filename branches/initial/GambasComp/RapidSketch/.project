@@ -1,0 +1,10 @@
+# Gambas Project File 2.0
+Title=OpenLabTools RapidSketch
+Startup=FMain
+Version=0.0.1
+Library=gb.qt
+Library=gb.form
+Library=gb.net
+Library=gb.net.curl
+Library=gb.qt.ext
+TabSize=2
