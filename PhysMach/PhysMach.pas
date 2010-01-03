@@ -55,7 +55,8 @@ var
 	i_devicetype,
 	o_devicetype,
 	c_devicetype,
-	a_devicetype 		: array [1..analog_max] of char;
+	a_devicetype,
+	u_devicetype		: array [1..analog_max] of char;
 	DeviceList		: DeviceTypeArray;
 
 
@@ -65,6 +66,7 @@ procedure PhysMachWriteDigital;
 procedure PhysMachCounter;
 procedure PhysMachloadCfg(cfgFilename : string);
 procedure PhysMachReadAnalog;
+procedure PhysMachWriteAnalog;
 procedure PhysMachTimer;
 function  PhysMachGetDevices:DeviceTypeArray;
 procedure PhysMachIOByDevice(DeviceType:char);
@@ -194,6 +196,21 @@ begin
 {$endif}
 			'H'	: analog_in[IOGroup]:=http_read_analog(a_address[IOGroup]);
 			'E'	: analog_in[IOGroup]:=exec_read_analog(a_address[IOGroup]);
+		end;
+	if (debugFlag) then writeln('Analog_in[',IOGroup,']=',analog_in[IOGroup]);
+end;
+
+
+
+procedure PhysMachWriteAnalogDevice(IOGroup:LongInt);
+var dummy : byte;
+begin
+	if debugFlag then writeln('PhysMachWriteAnalogDevice: a_devicetype[',IOGroup,']=',a_devicetype[IOGroup]);
+	if (u_devicetype[IOGroup] <> '-') then
+		case u_devicetype[IOGroup] of
+			//'B' 	: bmcm_write_analog(a_address[IOGroup],analog_in[IOGroup]);
+			//'E'	: exec_write_analog(a_address[IOGroup],analog_in[IOGroup]);
+			'D' : dummy:=1; 
 		end;
 	if (debugFlag) then writeln('Analog_in[',IOGroup,']=',analog_in[IOGroup]);
 end;
@@ -370,7 +387,12 @@ begin
 			else if( dir = 'A' ) then begin
 				val(copy(zeile,12,4),a_address[iogroup]);
 				a_devicetype[iogroup]:=zeile[17];
-				if debugFlag then writeln('Analog Line=',iogroup,' Address=',a_address[iogroup]);
+				if debugFlag then writeln('Analog InLine=',iogroup,' Address=',a_address[iogroup]);
+			end
+			else if( dir = 'U' ) then begin
+				val(copy(zeile,12,4),a_address[iogroup]);
+				u_devicetype[iogroup]:=zeile[17];
+				if debugFlag then writeln('Analog OutLine=',iogroup,' Address=',a_address[iogroup]);
 			end;
 		end;
 		{ ignore everything else }		
@@ -412,6 +434,7 @@ begin
 
 	for y:=1 to analog_max do begin
 		a_devicetype[y]:='-';
+		u_devicetype[y]:='-';
 		analog_in[y]:=0;
 		if debugFlag then writeln ('PhysMachInit: x=',y,' a_devicetype[',y,']=',a_devicetype[y],' analog_in[',y,']=',analog_in[y]);
 	end;
@@ -479,6 +502,20 @@ begin
 	i:=1;
 	repeat
 		PhysMachReadAnalogDevice(i);
+		if debugFlag then writeln('PhysMachReadAnalog i=',i);
+		inc(i);
+	until ( i > analog_max );
+end;
+
+
+procedure PhysMachWriteAnalog;				{ write analog outputs }
+var
+	i				: byte;
+
+begin
+	i:=1;
+	repeat
+		PhysMachWriteAnalogDevice(i);
 		if debugFlag then writeln('PhysMachReadAnalog i=',i);
 		inc(i);
 	until ( i > analog_max );
