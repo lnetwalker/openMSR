@@ -22,7 +22,7 @@ var
 begin  
   Writeln('thread ',longint(p),' started');  
   thri:=0;  
-  while (thri) do
+  while (thri>0) do
     begin  
     s:=s+'1';  
     inc(thri);  
@@ -39,6 +39,6 @@ begin
    finished:=0;  
    for i:=1 to threadcount do  
      BeginThread(@f,pointer(i));  
-   while finished
-   Writeln(finished);  
+   while (finished=0) do
+   	Writeln(finished);  
 end.
