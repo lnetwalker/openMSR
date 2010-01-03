@@ -1,0 +1,58 @@
+# Gambas Form File 2.0
+
+{ Form Form
+  MoveScaled(0,0,51,16)
+  Text = ("")
+  { LED1 PictureBox
+    MoveScaled(7,5,3,3)
+    Background = Color.Foreground
+    Picture = Picture["led-red-off.jpg"]
+    Alignment = Align.Center
+  }
+  { URL TextBox
+    MoveScaled(1,1,47,3)
+    Text = ("http://canis:10080/digital/ReadInputValues.html?1")
+  }
+  { LED2 PictureBox
+    MoveScaled(10,5,3,3)
+    Background = Color.Foreground
+    Picture = Picture["led-red-off.jpg"]
+    Alignment = Align.Center
+  }
+  { LED3 PictureBox
+    MoveScaled(13,5,3,3)
+    Background = Color.Foreground
+    Picture = Picture["led-red-off.jpg"]
+    Alignment = Align.Center
+  }
+  { LED4 PictureBox
+    MoveScaled(16,5,3,3)
+    Background = Color.Foreground
+    Picture = Picture["led-red-off.jpg"]
+    Alignment = Align.Center
+  }
+  { LED5 PictureBox
+    MoveScaled(19,5,3,3)
+    Background = Color.Foreground
+    Picture = Picture["led-red-off.jpg"]
+    Alignment = Align.Center
+  }
+  { LED6 PictureBox
+    MoveScaled(22,5,3,3)
+    Background = Color.Foreground
+    Picture = Picture["led-red-off.jpg"]
+    Alignment = Align.Center
+  }
+  { LED7 PictureBox
+    MoveScaled(25,5,3,3)
+    Background = Color.Foreground
+    Picture = Picture["led-red-off.jpg"]
+    Alignment = Align.Center
+  }
+  { LED8 PictureBox
+    MoveScaled(28,5,3,3)
+    Background = Color.Foreground
+    Picture = Picture["led-red-off.jpg"]
+    Alignment = Align.Center
+  }
+}
