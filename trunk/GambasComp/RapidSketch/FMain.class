@@ -1,0 +1,70 @@
+' Gambas class file
+PUBLIC LED_on AS Picture
+PUBLIC LED_off AS Picture
+PUBLIC GetDigitalInputValues AS ReadDigitalInputValues
+PUBLIC MyIOGroup AS Integer
+
+
+PUBLIC SUB _new()
+
+END
+
+PUBLIC SUB Form_Open()
+
+  MyIOGroup = 1
+  ' load images for on and off state
+  LED_off = Picture.Load("led-red-off.jpg")
+  LED_on = Picture.Load("led-red-on.jpg")
+  GetDigitalInputValues = NEW ReadDigitalInputValues AS "LEDBar"
+  GetDigitalInputValues.SetParam(URL.Text, MyIOGroup)
+END
+
+
+
+PUBLIC SUB LEDBar_NewDigitalInputValue(IOGroup AS Integer, ByteData AS String[])
+
+  IF IOGroup = MyIOGroup THEN
+    'PRINT "event received"
+    IF ByteData[0] = "1" THEN 
+      LED1.Picture = LED_on
+    ELSE 
+      LED1.Picture = LED_off
+    ENDIF 
+    IF ByteData[1] = "1" THEN 
+      LED2.Picture = LED_on
+    ELSE 
+      LED2.Picture = LED_off
+    ENDIF 
+    IF ByteData[2] = "1" THEN 
+      LED3.Picture = LED_on
+    ELSE 
+      LED3.Picture = LED_off
+    ENDIF 
+    IF ByteData[3] = "1" THEN 
+      LED4.Picture = LED_on
+    ELSE 
+      LED4.Picture = LED_off
+    ENDIF 
+    IF ByteData[4] = "1" THEN 
+      LED5.Picture = LED_on
+    ELSE 
+      LED5.Picture = LED_off
+    ENDIF 
+    IF ByteData[5] = "1" THEN 
+      LED6.Picture = LED_on
+    ELSE 
+      LED6.Picture = LED_off
+    ENDIF 
+    IF ByteData[6] = "1" THEN 
+      LED7.Picture = LED_on
+    ELSE 
+      LED7.Picture = LED_off
+    ENDIF 
+    IF ByteData[7] = "1" THEN 
+      LED8.Picture = LED_on
+    ELSE 
+      LED8.Picture = LED_off
+    ENDIF 
+  ENDIF 
+    
+END
