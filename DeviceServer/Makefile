@@ -4,6 +4,12 @@
 # 
 # Just do a "make all", and, when you're finished, a make clean. 
 
+# for ARM ( Calao ) Linux
+FPC="/usr/local/bin/ppcrossarm -CfFPA  -dUSB92 -CaARMEB -CpARMV5 -darm -dFPC_ARMEL -XP/usr/local/xtools/arm-unknown-linux-uclibc/arm-unknown-linux-uclibc/bin/ -XR/usr/local/xtools/arm-unknown-linux-uclibc/arm-unknown-linux-uclibc/ -Fl/usr/local/xtools/arm-unknown-linux-uclibc/arm-unknown-linux-uclibc/sys-root/usr/lib/"
+
+# for X86 Linux
+FPC="/usr/local/bin/fpc "
+
 OBJECTS=DeviceServer
 
 all: $(OBJECTS)
@@ -11,7 +17,7 @@ all: $(OBJECTS)
 
 # the physical Machine access layer
 DeviceServer: 	DeviceServer.pas
-	/usr/local/bin/fpc -gl -Fu../webserver -Fu../PhysMach -Fu../divLibs//pwu-1.6.0.2-src/main/ DeviceServer.pas 
+	$(FPC) -gl -Fu../webserver -Fu../PhysMach -Fu../divLibs//pwu-1.6.0.2-src/main/ DeviceServer.pas 
 
 clear:
 	-rm *.ppu
@@ -22,6 +28,7 @@ clean :
 	-rm *.o
 	-rm *.s
 	-rm $(OBJECTS)
+	-rm *~
 
 build:
 	-mkdir ../build/DeviceServer/docroot
