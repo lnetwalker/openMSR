@@ -15,6 +15,7 @@ unit PhysMach;
 { $Id$ }
 
 {$define newio}
+
 interface
 
 const
@@ -78,18 +79,21 @@ uses
 		linux,
 		dil_io_access,lp_io_access,pio_io_access,
 		joy_io_access,rnd_io_access,http_io_access,
-		bmcm_io_access,funk_io_access,
+		funk_io_access,
 {$endif}
+{$ifndef USB92}
+		bmcm_io_access,
 {$ifdef newio }
 		iowkit_io_access,
 {$else}
 		iow_io_access,
 {$endif}
+{$endif}
 		exec_io_access;
 
 const
-	debugFlag 		= false;
-	debug			= false;
+	debugFlag 		= true;
+	debug			= true;
 	power			: array [0..7] of byte =(1,2,4,8,16,32,64,128);
 
 var
@@ -117,9 +121,11 @@ begin
 		'F'	: wert:=funk_read_ports(Address);
 {$endif}
 		'R'	: wert:=rnd_read_ports(Address);
-		'I'	: wert:=iow_read_ports(Address);
 		'H' 	: wert:=http_read_ports(Address);
+{$ifndef USB92}
+		'I'	: wert:=iow_read_ports(Address);
 		'B' 	: wert:=bmcm_read_ports(Address);
+{$endif}
 		'E'	: wert:=exec_read_ports(Address);
 	end;
 
@@ -176,9 +182,11 @@ begin
 			'F'	: funk_write_ports(Address,Value);
 {$endif}
 			'R' 	: rnd_write_ports(Address,Value);
-			'I'	: iow_write_ports(Address,Value);
 			'H' 	: http_write_ports(Address,Value);
+{$ifndef USB92}
+			'I'	: iow_write_ports(Address,Value);
 			'B' 	: bmcm_write_ports(Address,Value);
+{$endif}
 			'E'	: exec_write_ports(Address,Value);
 		end;
 	end;
@@ -192,7 +200,9 @@ begin
 		case a_devicetype[IOGroup] of
 {$ifdef LINUX}
 			'J' 	: analog_in[IOGroup]:=joy_read_ports(a_address[IOGroup]);
+{$ifndef USB92}
 			'B' 	: analog_in[IOGroup]:=bmcm_read_analog(a_address[IOGroup]);
+{$endif}
 {$endif}
 			'H'	: analog_in[IOGroup]:=http_read_analog(a_address[IOGroup]);
 			'E'	: analog_in[IOGroup]:=exec_read_analog(a_address[IOGroup]);
@@ -236,9 +246,11 @@ begin
 				'J'	: wert:=joy_read_ports(c_address[IOGroup]);
 {$endif}
 				'R'	: wert:=rnd_read_ports(c_address[IOGroup]);
-				'I'	: wert:=iow_read_ports(c_address[IOGroup]);
 				'H' 	: wert:=http_read_ports(c_address[IOGroup]);
+{$ifndef USB92}
+				'I'	: wert:=iow_read_ports(c_address[IOGroup]);
 				'B' 	: wert:=bmcm_read_ports(c_address[IOGroup]);
+{$endif}
 				'E'	: wert:=exec_read_ports(c_address[IOGroup]);
 			end;
 		end
@@ -322,10 +334,6 @@ begin
 						HWPlatform:=HWPlatform+',Joystick ';
 					  end;	
 {$endif}
-				'I'	: begin
-						iow_hwinit(initstring,DeviceNumber);
-						HWPlatform:=HWPlatform+',IO-Warrior 40 ';
-					  end;	
 				'R'	: begin
 						rnd_hwinit(initstring,DeviceNumber);
 						HWPlatform:=HWPlatform+',Random ';
@@ -335,10 +343,16 @@ begin
 						if debugFlag then writeln('http_hwinit initstring=',initstring,' DeviceNumber=',DeviceNumber);
 						HWPlatform:=HWPlatform+',HTTP ';
 					  end;
+{$ifndef USB92}
+				'I'	: begin
+						iow_hwinit(initstring,DeviceNumber);
+						HWPlatform:=HWPlatform+',IO-Warrior 40 ';
+					  end;	
 				'B'	: begin
 						bmcm_hwinit(initstring,DeviceNumber);
 						HWPlatform:=HWPlatform+',BMCM-USB-Device ';
 					  end;
+{$endif}
 				'E'	: begin
 						exec_hwinit(initstring,DeviceNumber);
 						HWPlatform:=HWPlatform+',ext. APP  ';
