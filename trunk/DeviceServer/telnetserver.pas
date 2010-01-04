@@ -12,7 +12,7 @@ unit telnetserver;
 { with modifications  by Richard Pasco			}
 { http://www.richpasco.org/mailform.html		}
 
-{ $id:$ }
+{ $Id$ }
 
 { 18.03.2008	Project start				}
 
@@ -81,7 +81,7 @@ begin
 	assign(LOG,logfile);
 	rewrite(LOG);
 
-	lSock := Socket(af_inet, sock_stream, 0);
+	lSock := fpSocket(af_inet, sock_stream, 0);
 	if lSock = -1 then Error(1,'Socket error: ',socketerror);
 	
 	if LPort=0 then LPort:=ListenPort;
@@ -92,8 +92,8 @@ begin
 		Addr := 0;
 	end;
 
-	if not Bind(lSock, sAddr, sizeof(sAddr)) then Error(1,'Bind error: ',socketerror);
-	if not Listen(lSock, MaxConn) then Error(1,'Listen error: ',socketerror);
+	if fpBind(lSock, @sAddr, sizeof(sAddr))<>0 then Error(1,'Bind error: ',socketerror);
+	if fpListen(lSock, MaxConn)<>0 then Error(1,'Listen error: ',socketerror);
 
 end;
 
@@ -103,7 +103,7 @@ procedure TelnetServeRequest(WelcomeMSG : String);
 
 begin
 	writeLOG('Waiting for connections...');
-	uSock := Accept(lSock, sAddr, Size_InetSockAddr);
+	uSock := fpAccept(lSock, @sAddr, @Size_InetSockAddr);
 
 	if uSock = -1 then Error(1,'Telnet Accept error: ',socketerror);
 	// set NonBlocking IO
@@ -129,7 +129,7 @@ begin
 
 	Close(sin);
 	Close(sout);
-	Shutdown(uSock, 2);
+	fpShutdown(uSock, 2);
 	writeLOG('Connection closed.');
 end;
 
@@ -150,8 +150,8 @@ procedure TelnetShutDown;
 begin
 	ShutDownProc:=true;
 	delay(500);
-	Shutdown(lsock,2);
-	Shutdown(usock,2);
+	fpShutdown(lsock,2);
+	fpShutdown(usock,2);
 end;
 
 
