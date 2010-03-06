@@ -60,6 +60,8 @@ public class LSPanel extends JPanel implements Printable {
   static final int ACTION_TEXTLABEL = 30;
   static final int ACTION_SEVENSEGMENT = 31;
   static final int ACTION_DRFF = 32;
+  static final int ACTION_DSIN = 33;
+  static final int ACTION_DSOUT = 34;
 
   public LSPanel(JLabel statusBar) {
     this.statusBar=statusBar;
@@ -114,6 +116,8 @@ public class LSPanel extends JPanel implements Printable {
       case ACTION_INLOW : statusBar.setText(I18N.getString("STATUS_INPUTLOW")); break;
       case ACTION_ADDPOINT : statusBar.setText(I18N.getString("STATUS_ADDPOINT")); break;
       case ACTION_DELPOINT : statusBar.setText(I18N.getString("STATUS_REMOVEPOINT")); break;
+      case ACTION_DSIN : g=new DSIN();break;
+      case ACTION_DSOUT : g=new DSOUT();break;
     }
 
     currentAction=a;
