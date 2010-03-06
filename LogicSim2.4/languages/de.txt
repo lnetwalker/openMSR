@@ -1,7 +1,7 @@
 [menu]
 MENU_FILE=Datei
 MENU_NEW=Neu
-MENU_OPEN=Öffnen...
+MENU_OPEN=Ã–ffnen...
 MENU_SAVE=Speichern
 MENU_SAVEAS=Speichern als...
 MENU_EXPORT=Export...
@@ -20,16 +20,16 @@ MENU_GATEDESIGN_ISO=US
 MENU_LANGUAGE=Sprache
 
 MENU_HELP=Hilfe
-MENU_ABOUT=Über LogicSim
+MENU_ABOUT=Ãœber LogicSim
 
 [context menu]
-MENU_REMOVEGATE=Gatter löschen
+MENU_REMOVEGATE=Gatter lÃ¶schen
 MENU_PROPERTIES=Eigenschaften
-MENU_DELETEMODULE=Modul löschen
+MENU_DELETEMODULE=Modul lÃ¶schen
 
 [messages]
-MESSAGE_INPUTS=Eingänge
-MESSAGE_DELETE=Wollen Sie die Datei %s wirklich löschen?
+MESSAGE_INPUTS=EingÃ¤nge
+MESSAGE_DELETE=Wollen Sie die Datei %s wirklich lÃ¶schen?
 MESSAGE_LANGUAGE_RESTART=LogicSim muss neu gestartet werden.
 MESSAGE_SAVEDIALOG=Schaltung speichern
 MESSAGE_ENTER_TIME_HIGH=Dauer High-Pegel (ms)
@@ -39,20 +39,22 @@ MESSAGE_MODULE_DESCRIPTION=Beschreibung
 MESSAGE_MODULE_LABEL=Beschriftung
 MESSAGE_MODULE_IMAGE=Bild
 MESSAGE_ENTER_LABEL=Text eingeben
-MESSAGE_REALLYNEW=Die Schaltung wurde verändert.\nWollen Sie wirklich die aktuelle Schaltung verwerfen?
+MESSAGE_REALLYNEW=Die Schaltung wurde verÃ¤ndert.\nWollen Sie wirklich die aktuelle Schaltung verwerfen?
+MESSAGE_DSIN_READURL=Die URL zum lesen der Daten
+MESSAGE_DSOUT_WRITEURL=Die URL zum schreiben der Daten
 
 [tooltip texts]
-TOOLTIP_ADDPOINT=Punkt zu Kabel hinzufügen
+TOOLTIP_ADDPOINT=Punkt zu Kabel hinzufÃ¼gen
 
 [messages in status bar]
 STATUS_INPUTNORMAL=Auf Eingang klicken, um aktuelle Einstellung zu Entfernen
 STATUS_INPUTINV=Auf Eingang klicken, um Eingangsnegator zu setzen
 STATUS_INPUTHIGH=Auf Eingang klicken, um ihn auf High zu setzen
 STATUS_INPUTLOW=Auf Eingang klicken, um ihn auf Low zu setzen
-STATUS_ADDPOINT=Auf Kabel klicken, um Punkt einzufügen
+STATUS_ADDPOINT=Auf Kabel klicken, um Punkt einzufÃ¼gen
 STATUS_REMOVEPOINT=Auf Punkt klicken, um ihn aus dem Kabel zu entfernen
 STATUS_SAVED=Schaltung %s gespeichert
-STATUS_SETINPUT=Auf Eingang klicken um Kabel dort anzuschließen
+STATUS_SETINPUT=Auf Eingang klicken um Kabel dort anzuschlieÃŸen
 STATUS_CONNECTED=angeschlossen
 STATUS_ABORTED=abgebrochen
 
@@ -64,7 +66,7 @@ ERROR_FILECORRUPTED=Falsches Dateiformat (falsche LogicSim-Version?)
 ERROR_CLASS=Java-Klasse nicht gefunden (falsche LogicSim-Version?)
 ERROR_SAVE=Fehler beim Speichern
 ERROR_MODULENOTFOUND=Konnte das Modul \n%s nicht finden\nBitte kopieren Sie das erforderliche Modul in das Verzeichnis modules.
-ERROR_APPLET=Diese Funktion steht im Applet nicht zur Verfügung.\nBitte laden Sie LogicSim herunter und starten es als Applikation.
+ERROR_APPLET=Diese Funktion steht im Applet nicht zur VerfÃ¼gung.\nBitte laden Sie LogicSim herunter und starten es als Applikation.
 
 [BUTTONS]
 BUTTON_SIMULATE=Simulieren
@@ -98,22 +100,28 @@ GATE_JKMSFF=JKMS FlipFlop
 GATE_TFF=T FlipFlop
 GATE_CLOCK=Clock
 GATE_MONOFLOP=Monoflop
-GATE_TURNONDELAY=Einschaltverzögerung
-GATE_TURNOFFDELAY=Ausschaltverzögerung
-GATE_BINARYINPUT=Binäreingabe
+GATE_TURNONDELAY=EinschaltverzÃ¶gerung
+GATE_TURNOFFDELAY=AusschaltverzÃ¶gerung
+GATE_BINARYINPUT=BinÃ¤reingabe
+GATE_DSIN=DevSrv input
+GATE_DSOUT=DevSrv output
 GATE_LCD=LCD
 GATE_SEVENSEGMENT=7-Segment-Anzeige
 GATE_TEXTLABEL=Textfeld
 
 GATE_BINARYINPUT_DISPLAYTYPE=Anzeigetyp
-GATE_BINARYINPUT_PROPERTIES=Binäreingabe Eigenschaften
+GATE_BINARYINPUT_PROPERTIES=BinÃ¤reingabe Eigenschaften
 GATE_BINARYINPUT_HEX=Hexadezimal (00..FF)
 GATE_BINARYINPUT_DEC=Dezimal (00..99)
 
+GATE_DSIN_PROPERTIES=DeviceServer Eingangs Einstellungen
+
 GATE_LCD_PROPERTIES=LCD Einstellungen
+
+GATE_DSOUT_PROPERTIES=DeviceServer Ausgangs Einstellungen
 
 GATE_MONOFLOP_PROPERTIES=MonoFlop Einstellungen
 
-GATE_TURNONDELAY_TIME=Verzögerungszeit (ms)
-GATE_TURNOFFDELAY_TIME=Verzögerungszeit (ms)
+GATE_TURNONDELAY_TIME=VerzÃ¶gerungszeit (ms)
+GATE_TURNOFFDELAY_TIME=VerzÃ¶gerungszeit (ms)
 
