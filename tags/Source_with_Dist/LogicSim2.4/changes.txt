@@ -1,0 +1,66 @@
+2009-07-16
+Polish translation by Wieslaw Soltes
+
+Version 2.4 2009-01-09
+Changes by Dieter Meier:
+* stop simulation when new file is opened
+* reset stopped simulation
+* D FlipFlop with reset
+* circuits BCD Adder and BCD Counte, modules segm1-7
+
+2009-01-02
+Export as PNG image
+
+2008-11-22
+Updated D-FlipFlop by Dieter Maier
+Swedish translation and documentation by Uwe Zimmermann
+
+2008-06-30
+changed images for DFF, JKMSFF, JKCFF
+added Dutch translation, by Ben Harkema
+
+2007-09-25
+fixed some layout problems on OS X
+
+Version 2.3.3 2007-08-02
+LogicSim can now run as applet in browser.
+Renamed lanuages files to .txt, because some webserver configurations do not like .ini files. 
+
+Version 2.3.2 2007-06-13
+Fixed bug of disappearing input-HIGH/LOW when removing a wire.
+Added Reset-Button
+
+2006-11-15
+fixed bug with unconnected inputs, these are now treated as high
+
+Version 2.3.1 2006-07-01
+added confirmation prompt on new, open and quit
+
+Version 2.3 2006-07-02
+modules can now have up to 16 inputs and outputs
+
+2006-03-07
+fixed delete key bug
+
+2006-01-19
+added Italian language and manual, created by Prof. Riccardo Bianchi
+fixed help menu
+
+Version 2.1 2006-01-02
+added internationalization support
+added support for german language
+added switch for different sets of symbols
+added ISO-symbols, created by Prof. Riccardo Bianchi
+Properties item in gate context menu is now disabled when gate has no properties
+The Switch element can now be configured to be a traditional toggle button or a click button, which ist only on as long as the mouse button is held down.
+
+2004-09-26
+added Text Labels
+
+Version 2.0 2001 
+JAVA-Version of LogicSim
+added support for "modules", you can save a circuit as module and reuse it in another circuit
+
+Version 1.0 1995-1996 
+Initial Version for Amiga, written in "PCQ-Pascal".
+http://www.tetzl.de/alogicsim.html
