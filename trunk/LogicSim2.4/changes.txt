@@ -1,3 +1,12 @@
+2010-03-06 Version 2.4-DevSrv
+added OpenMSR DeviceServer Support by Hartmut Eilers
+see http://www.openmsr.org
+* added images DSIN.gif DSOUT.gif in logicsim/images/iso and din
+* modified LSFrame.java and LSPanel.java
+* added DSOUT.java and DSIN.java
+* modified de.txt en.txt
+* added DeviceServer.lsim and wuerfel-circuit.lsim
+
 2009-07-16
 Polish translation by Wieslaw Soltes
 
