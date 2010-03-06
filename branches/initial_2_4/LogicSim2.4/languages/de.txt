@@ -1,0 +1,119 @@
+[menu]
+MENU_FILE=Datei
+MENU_NEW=Neu
+MENU_OPEN=Öffnen...
+MENU_SAVE=Speichern
+MENU_SAVEAS=Speichern als...
+MENU_EXPORT=Export...
+MENU_PRINT=Drucken...
+MENU_EXIT=Beenden
+
+MENU_MODULE=Module
+MENU_CREATEMODULE=Modul erstellen
+MENU_MODULEPROPERTIES=Modul Eigenschaften
+
+MENU_SETTINGS=Einstellungen
+MENU_PAINTGRID=Gitter zeichnen
+MENU_GATEDESIGN=Gatter Design
+MENU_GATEDESIGN_DIN=IEC
+MENU_GATEDESIGN_ISO=US
+MENU_LANGUAGE=Sprache
+
+MENU_HELP=Hilfe
+MENU_ABOUT=Über LogicSim
+
+[context menu]
+MENU_REMOVEGATE=Gatter löschen
+MENU_PROPERTIES=Eigenschaften
+MENU_DELETEMODULE=Modul löschen
+
+[messages]
+MESSAGE_INPUTS=Eingänge
+MESSAGE_DELETE=Wollen Sie die Datei %s wirklich löschen?
+MESSAGE_LANGUAGE_RESTART=LogicSim muss neu gestartet werden.
+MESSAGE_SAVEDIALOG=Schaltung speichern
+MESSAGE_ENTER_TIME_HIGH=Dauer High-Pegel (ms)
+MESSAGE_ENTER_TIME_LOW=Dauer Low-Pegel (ms)
+MESSAGE_MODULE_NAME=Modul-Name
+MESSAGE_MODULE_DESCRIPTION=Beschreibung
+MESSAGE_MODULE_LABEL=Beschriftung
+MESSAGE_MODULE_IMAGE=Bild
+MESSAGE_ENTER_LABEL=Text eingeben
+MESSAGE_REALLYNEW=Die Schaltung wurde verändert.\nWollen Sie wirklich die aktuelle Schaltung verwerfen?
+
+[tooltip texts]
+TOOLTIP_ADDPOINT=Punkt zu Kabel hinzufügen
+
+[messages in status bar]
+STATUS_INPUTNORMAL=Auf Eingang klicken, um aktuelle Einstellung zu Entfernen
+STATUS_INPUTINV=Auf Eingang klicken, um Eingangsnegator zu setzen
+STATUS_INPUTHIGH=Auf Eingang klicken, um ihn auf High zu setzen
+STATUS_INPUTLOW=Auf Eingang klicken, um ihn auf Low zu setzen
+STATUS_ADDPOINT=Auf Kabel klicken, um Punkt einzufügen
+STATUS_REMOVEPOINT=Auf Punkt klicken, um ihn aus dem Kabel zu entfernen
+STATUS_SAVED=Schaltung %s gespeichert
+STATUS_SETINPUT=Auf Eingang klicken um Kabel dort anzuschließen
+STATUS_CONNECTED=angeschlossen
+STATUS_ABORTED=abgebrochen
+
+[error messages]
+ERROR_NOMODULE=Die Schaltung ist kein Modul
+ERROR_FILENOTFOUND=Datei nicht gefunden
+ERROR_READ=Lesefehler
+ERROR_FILECORRUPTED=Falsches Dateiformat (falsche LogicSim-Version?)
+ERROR_CLASS=Java-Klasse nicht gefunden (falsche LogicSim-Version?)
+ERROR_SAVE=Fehler beim Speichern
+ERROR_MODULENOTFOUND=Konnte das Modul \n%s nicht finden\nBitte kopieren Sie das erforderliche Modul in das Verzeichnis modules.
+ERROR_APPLET=Diese Funktion steht im Applet nicht zur Verfügung.\nBitte laden Sie LogicSim herunter und starten es als Applikation.
+
+[BUTTONS]
+BUTTON_SIMULATE=Simulieren
+BUTTON_RESET=Reset
+BUTTON_REMOVE_WIRE_POINT=Punkt aus Kabel entfernen
+BUTTON_USE=Benutzen
+BUTTON_CANCEL=Abbrechen
+
+[GATES]
+GATE_SWITCH=Schalter
+GATE_SWITCH_TYPE=Schalter-Typ
+GATE_SWITCH_TOGGLE=Umschalt-Knopf
+GATE_SWITCH_CLICK=Klick-Knopf
+GATE_LED=LED
+GATE_AND=AND
+GATE_NAND=NAND
+GATE_OR=OR
+GATE_NOR=NOR
+GATE_NOT=NOT (Negator)
+GATE_XOR=XOR (Antivalenz)
+GATE_EQUIVALENCE=<-> (Equivalenz)
+GATE_NORMALINPUT=Normaler Eingang
+GATE_INPUT_INVERTER=Eingangsnegator
+GATE_INPUT_HIGH=Eingang High
+GATE_INPUT_LOW=Eingang Low
+GATE_RSFF=RS FlipFlop
+GATE_DFF=D FlipFlop
+GATE_DRFF=D FlipFlop & Reset
+GATE_JKFF=JK FF (Flankengesteuert)
+GATE_JKMSFF=JKMS FlipFlop
+GATE_TFF=T FlipFlop
+GATE_CLOCK=Clock
+GATE_MONOFLOP=Monoflop
+GATE_TURNONDELAY=Einschaltverzögerung
+GATE_TURNOFFDELAY=Ausschaltverzögerung
+GATE_BINARYINPUT=Binäreingabe
+GATE_LCD=LCD
+GATE_SEVENSEGMENT=7-Segment-Anzeige
+GATE_TEXTLABEL=Textfeld
+
+GATE_BINARYINPUT_DISPLAYTYPE=Anzeigetyp
+GATE_BINARYINPUT_PROPERTIES=Binäreingabe Eigenschaften
+GATE_BINARYINPUT_HEX=Hexadezimal (00..FF)
+GATE_BINARYINPUT_DEC=Dezimal (00..99)
+
+GATE_LCD_PROPERTIES=LCD Einstellungen
+
+GATE_MONOFLOP_PROPERTIES=MonoFlop Einstellungen
+
+GATE_TURNONDELAY_TIME=Verzögerungszeit (ms)
+GATE_TURNOFFDELAY_TIME=Verzögerungszeit (ms)
+
