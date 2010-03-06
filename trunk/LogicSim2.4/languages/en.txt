@@ -40,6 +40,8 @@ MESSAGE_MODULE_LABEL=module label
 MESSAGE_MODULE_IMAGE=module image
 MESSAGE_ENTER_LABEL=Enter Label
 MESSAGE_REALLYNEW=The circuit has been modified.\nDo you really want to discard the current circuit?
+MESSAGE_DSIN_READURL=The URL to read data
+MESSAGE_DSOUT_WRITEURL=The URL to write data
 
 [tooltip texts]
 TOOLTIP_ADDPOINT=add point to wire
@@ -101,6 +103,8 @@ GATE_MONOFLOP=Monoflop
 GATE_TURNONDELAY=turn on delay
 GATE_TURNOFFDELAY=turn off delay
 GATE_BINARYINPUT=binary input
+GATE_DSIN=DevSrv input
+GATE_DSOUT=DevSrv output
 GATE_LCD=LCD
 GATE_SEVENSEGMENT=7-segment display
 GATE_TEXTLABEL=Text Label
@@ -110,7 +114,12 @@ GATE_BINARYINPUT_PROPERTIES=Binary Input Properties
 GATE_BINARYINPUT_HEX=Hexadecimal (00..FF)
 GATE_BINARYINPUT_DEC=Decimal (00..99)
 
+GATE_DSIN_PROPERTIES=DeviceServer Input Properties
+
 GATE_LCD_PROPERTIES=LCD Properties
+
+GATE_DSOUT_PROPERTIES=DeviceServer Output Properties
+
 GATE_MONOFLOP_PROPERTIES=MonoFlop Properties
 
 GATE_TURNONDELAY_TIME=Enter Delay Time (ms)
