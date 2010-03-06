@@ -23,4 +23,8 @@ cvs co OpenMSR
 cd ..
 tar -czvf /tmp/$REL.tar.gz $REL
 
-#
+# clean up
+rm -rf /tmp/$REL
+
+# finished inform user
+echo " your package is saved as /tmp/"$REL
