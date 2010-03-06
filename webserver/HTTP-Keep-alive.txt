@@ -1,0 +1,58 @@
+HTTP Keep Alive
+
+  Http Keep-Alive seems to be massively misunderstood. Here's a short description of how it works, 
+  under both 1.0 and 1.1.
+
+  Http operates on what is called a request-response paradigm. This means that a _client_ generates 
+  a request for information, and passes it to the server, which answers it. In the original 
+  implementation of HTTP, each request created a new socket connection to the server, sent the request, 
+  then read from that connection to get the response.
+
+  This approach had one big advantage - it was simple. Simple to describe, simple to understand, and 
+  simple to code. It also had one big disadvantage - it was slow. So, keep-alive connections were 
+  invented for HTTP.
+
+HTTP/1.0
+
+  Under HTTP 1.0, there is no official specification for how keepalive operates. It was, in essence, 
+  tacked on to an existing protocol. If the browser supports keep-alive, it adds an additional header 
+  to the request:
+
+  Connection: Keep-Alive
+
+  Then, when the server receives this request and generates a response, it also adds a header to the 
+  response:
+
+  Connection: Keep-Alive
+
+  Following this, the connection is NOT dropped, but is instead kept open. When the client sends another 
+  request, it uses the same connection. This will continue until either the client or the server decides 
+  that the conversation is over, and one of them drops the connection.
+
+HTTP/1.1
+
+  Under HTTP 1.1, the official keepalive method is different. All connections are kept alive, unless 
+  stated otherwise with the following header:
+
+  Connection: close
+
+  The Connection: Keep-Alive header no longer has any meaning because of this.
+
+  Additionally, an optional Keep-Alive: header is described, but is so underspecified as to be meaningless. 
+  Avoid it.
+
+Not reliable
+
+  HTTP is a stateless protocol - this means that every request is independent of every other. Keep alive 
+  doesn’t change that. Additionally, there is no guarantee that the client or the server will keep the 
+  connection open. Even in 1.1, all that is promised is that you will probably get a notice that the 
+  connection is being closed. So keepalive is something you should not write your application to rely upon.
+
+KeepAlive and POST
+
+  The HTTP 1.1 spec states that following the body of a POST, there are to be no additional characters. It 
+  also states that "certain" browsers may not follow this spec, putting a CRLF after the body of the POST. 
+  Mmm-hmm. As near as I can tell, most browsers follow a POSTed body with a CRLF. There are two ways of 
+  dealing with this: Disallow keepalive in the context of a POST request, or ignore CRLF on a line by itself. 
+  Most servers deal with this in the latter way, but there's no way to know how a server will handle it 
+  without testing.
