@@ -37,19 +37,18 @@ interface
 procedure start_server(address:string;port:word;BlockMode: Boolean;doc_root,logfile:string);
 procedure SetupSpecialURL(URL:string;proc : tprocedure);
 procedure SetupVariableHandler(proc: tprocedure);
-procedure SendHeader(Header : AnsiString);
-procedure SendChar(RespChar : Char);
 procedure SendPage(myPage : AnsiString);
 procedure serve_request;
 function GetURL:string;
 function GetParams:string;
 procedure stop_server();
+function SetKeepAlive:boolean;
 
 
 implementation
 
 {$ifdef LINUX}
-	uses sockets, crt,inetaux, BaseUnix, Unix, dos;
+	uses cthreads,sockets, crt,inetaux, BaseUnix, Unix, dos;
 {$else}
 	uses winsock,crt,inetaux;
 {$endif}
@@ -138,9 +137,16 @@ var
 	// this variable is just used to convert numerics to string
 	blubber			: string;
 
-	saveaccess		: Boolean;
+	saveaccess,
+	KeepAlive		: Boolean;
 	
-	
+
+function SetKeepAlive:boolean;
+begin
+	KeepAlive:=true;
+	SetKeepAlive:=true;
+end;
+
 procedure writeLOG(MSG: string);
 begin
 	writeln(DBG,MSG);
@@ -261,17 +267,6 @@ begin
 end;
 
 
-procedure SendHeader(Header : AnsiString);
-begin
-	writeln(ccsout,Header);
-end;
-
-
-procedure  SendChar(RespChar: Char);
-begin
-	writeln(ccsout,RespChar);
-end;
-
 
 procedure SendPage(myPage : AnsiString);
 var
@@ -283,7 +278,12 @@ begin
 
 	{ generate the header }
 	header:='HTTP/1.1 '+status+chr(10);
-	header:=header+'Connection: close'+chr(10);
+	
+	if KeepAlive then
+		header:=header+'Connection: Keep-Alive'+chr(10)
+	else
+		header:=header+'Connection: close'+chr(10);
+		
 	header:=header+'MIME-Version: 1.0'+chr(10);
 	header:=header+'Server: bonita'+chr(10);
 	{ currently the mimetype of an object is always text/html }
@@ -343,7 +343,7 @@ begin
 end;
 
 
-procedure process_request;
+procedure process_request(var InHandle,OutHandle: text);
 var Paramstart,i	: word;
     UserAgent		: string;
     jahr,mon,tag,wota 	: word;
@@ -358,11 +358,15 @@ begin
 		{ because it is possible that some amount of time  }
 		{ is between the connect and the request           }
 		{$ifdef LINUX}
-			readln(ccsin, buff);
+			readln(InHandle, buff);
 			str(BufCnt,blubber);
 			if debug then writeLOG('Req['+blubber+']='+buff);
 			post[BufCnt] := buff;
 			if copy(buff,1,11)='User-Agent:' then UserAgent:=copy(buff,12,length(buff));
+			
+			// check wether connection type is keep-alive
+			if (pos('Keep-Alive',buff)<>0) then KeepAlive:=true;
+			
 			reqSize:=reqSize+length(post[BufCnt]);
 			inc(BufCnt);
 		{$else}
@@ -462,6 +466,8 @@ begin
 	getdate(jahr,mon,tag,wota);
 	TimeString:='['+IntToStr(tag)+'/'+IntToStr(mon)+'/'+IntToStr(jahr)+':'+IntToStr(std)+':'+IntToStr(min)+':'+IntToStr(sec)+':'+IntToStr(ms)+']';
 	accessLog('unknown'+' - - '+TimeString+' GET "'+URL+'" '+copy(status,1,3)+' '+IntToStr(SizeOf(page))+' '+UserAgent);
+	
+	
 
 end;
 
@@ -497,13 +503,15 @@ begin
 			Sock2Text(csock,ccsin,ccsout);
 			reset(ccsin);
 			rewrite(ccsout);
-			process_request;
-			if debug then WriteLOG('Closing In Stream');
-			close(ccsin);
-			if debug then WriteLOG('Closing Out Stream');
-			close(ccsout);
-			if debug then WriteLOG('Closing Client Socket');
-			CloseSocket(csock);
+			process_request(ccsin,ccsout);
+			if not(KeepAlive) then begin
+				if debug then WriteLOG('Closing In Stream');
+				close(ccsin);
+				if debug then WriteLOG('Closing Out Stream');
+				close(ccsout);
+				if debug then WriteLOG('Closing Client Socket');
+				CloseSocket(csock);
+			end;
 		end;
 		if debug then WriteLOG('Reading requests...done');
 
@@ -566,4 +574,7 @@ begin
 	end;
 
 	UrlPointer:=1;
+	
+	KeepAlive:=false;
+	
 end.
