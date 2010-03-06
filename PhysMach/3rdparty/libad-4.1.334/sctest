@@ -1,6 +1,0 @@
-#!/bin/bash
-
-R="${_/sctest/}"
-
-export LD_LIBRARY_PATH="${R}lib"
-${R}bin/sctest $*
