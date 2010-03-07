@@ -56,10 +56,6 @@ var
         delim       : byte;
 
 begin
-	{ allow full port access for the addressrange $300-$3FF }
-	{$ifndef ZAURUS}
-	IOperm($300,$FF,$ff);
-	{$endif}
 	{ the configport and configword are given in one string as }
 	{ parameter; address and data must be delimited by : }
 	{ eg hwinit('$307:$99'); }
@@ -69,6 +65,8 @@ begin
 	if ( debug ) then
 		writeln('Port : ',controlPort,' ',configByte);
 	{$ifndef ZAURUS}
+	{ allow full port access for the addressrange $300-$3FF }
+	IOperm(controlPort,$FF,$ff);
 	WritePort(controlPort,configByte);
 	{$endif}
 	pio_hwinit:=true;
