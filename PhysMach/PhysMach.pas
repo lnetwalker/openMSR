@@ -79,7 +79,7 @@ uses
 		linux,
 		dil_io_access,lp_io_access,pio_io_access,
 		joy_io_access,rnd_io_access,http_io_access,
-		funk_io_access,
+		funk_io_access,kolterPCI_io_access,
 {$endif}
 {$ifndef USB92}
 		bmcm_io_access,
@@ -92,8 +92,8 @@ uses
 		exec_io_access;
 
 const
-	debugFlag 		= true;
-	debug			= true;
+	debugFlag 		= false;
+	debug			= false;
 	power			: array [0..7] of byte =(1,2,4,8,16,32,64,128);
 
 var
@@ -119,6 +119,7 @@ begin
 		'P'	: wert:=pio_read_ports(Address);
 		'J'	: wert:=joy_read_ports(Address);
 		'F'	: wert:=funk_read_ports(Address);
+		'K'	: wert:=kolterPCI_read_ports(Address);
 {$endif}
 		'R'	: wert:=rnd_read_ports(Address);
 		'H' 	: wert:=http_read_ports(Address);
@@ -180,6 +181,7 @@ begin
 			'P'	: pio_write_ports(Address,Value);
 			'J'	: joy_write_ports(Address,Value);
 			'F'	: funk_write_ports(Address,Value);
+			'K'	: kolterPCI_write_ports(Address,Value);
 {$endif}
 			'R' 	: rnd_write_ports(Address,Value);
 			'H' 	: http_write_ports(Address,Value);
@@ -244,6 +246,7 @@ begin
 				'L'	: wert:=lp_read_ports(c_address[IOGroup]);
 				'P'	: wert:=pio_read_ports(c_address[IOGroup]);
 				'J'	: wert:=joy_read_ports(c_address[IOGroup]);
+				'K'	: wert:=kolterPCI_read_ports(c_address[IOGroup]);
 {$endif}
 				'R'	: wert:=rnd_read_ports(c_address[IOGroup]);
 				'H' 	: wert:=http_read_ports(c_address[IOGroup]);
@@ -332,7 +335,11 @@ begin
 				'J'	: begin
 						joy_hwinit(initstring,DeviceNumber);
 						HWPlatform:=HWPlatform+',Joystick ';
-					  end;	
+					  end;
+				'K'	: begin
+						kolterPCI_hwinit(initstring,DeviceNumber);
+						HWPlatform:=HWPlatform+'Kolter PCI I/O ';
+					  end;
 {$endif}
 				'R'	: begin
 						rnd_hwinit(initstring,DeviceNumber);
