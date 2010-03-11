@@ -24,5 +24,5 @@ clean :
 	-rm $(OBJECTS)
 
 build :
-	-cp datalogger ../build/datalogger/
-	-cp .datalogger.cfg ../build/datalogger/
+	-cp datalogger /tmp/build/datalogger/
+	-cp .datalogger.cfg /tmp/build/datalogger/
