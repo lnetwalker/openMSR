@@ -1,0 +1,34 @@
+# KDE Config File
+[KDE Desktop Entry]
+Name[fi]=Sovellus
+SwallowExec=1
+SwallowTitle=KOLTER
+Name[ru]=“…Ãœ÷≈Œ…≈
+BinaryPattern=
+Name[hr]=Program
+Name[sl]=Uporabniπki program
+Name[pl]=Aplikacja
+Name=Application
+Name[ca]=Aplicacions
+Name[it]=Applicazione
+Name[da]=Anvendelse
+MimeType=
+Name[eo]=Aplikaºoj
+Name[de]=Anwendung
+Exec=/kolter/pciad
+Name[cs]=Aplikace
+Name[sv]=Program
+Icon=kcmpci.xpm
+TerminalOptions=
+Name[sk]=Aplik·cia
+Path=
+Name[pt_BR]=Aplicativo
+Type=Application
+Name[es]=Aplicaciones
+Name[is]=Forrit
+Name[pt]=AplicaÁ„o
+Comment[de]=
+Terminal=1
+Name[no]=Applikasjon
+Name[hu]=Applik·ciÛk
+Name[ro]=Aplica˛ie

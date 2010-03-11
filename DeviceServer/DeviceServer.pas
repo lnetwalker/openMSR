@@ -18,7 +18,7 @@ const
 	MaxThreads=25;
 	BLOCKED=true;
 	NONBLOCKED=false;
-	debug=true;
+	debug=false;
 	TimeOut=500;
 
 var

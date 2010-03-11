@@ -1,0 +1,55 @@
+Kernel-Driver for Kolter 1616 PCI-IO-Card
+=========================================
+
+
+This directory contains the kerneldriver for
+one ore more Kolter 1616 pci-io-cards.
+
+Ensure, you have a Linux-kernel greater than 2.2.x 
+and the source tree of your current runnig kernel
+installed. If you don't have kernel 2.6.x or later,
+ensure that the link /usr/src/linux points to that
+kernel source tree.
+
+Then login as root and unpack the archive, compile
+kernel driver and test-program and make
+the /dev/kolter_1616.* special files:
+
+cd /usr/src
+tar -xzf kolter_1616-1.1.tgz
+cd kolter_1616-1.1
+make
+make devices
+
+
+Insert module and start the test-program:
+
+insmod ./kolter_1616.o
+or, with Kernel 2.6.x or higher,
+insmod ./kolter_1616.ko
+
+./test_1616 /dev/kolter_1616.0
+
+Now, you should be able to meassure toggling signals
+on the output-lines and recognize if some input-lines
+are altered.
+
+The modules can be installed in /lib/modules/<kernelversion>/misc
+(Kernel 2.6 and later /lib/modules/<kernelversion>/kernel/misc) by
+make install
+
+
+
+Files:
+COPYING		GPL-Copying License
+Makefile	a simple Makefile for kernel-driver and test-program
+README		guess what
+kolter_1616.c	kernel-driver
+kolter_1616.h	ioctl-commands and some inline-functions
+test_1616.c	a simple test program
+
+
+Have fun!
+
+Bernhard Kuhn <bkuhn@linux-magazin.de>, Die Aug 17 11:32:59 CEST 1999
+Klaus Schneider <klaus_snd@web.de> Wed Jan 12 16:20:51 MET 2005
