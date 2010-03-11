@@ -30,12 +30,12 @@ clean :
 	-rm *~
 
 build:
-	-mkdir ../build/DeviceServer/docroot
-	-mkdir ../build/DeviceServer/docroot/images
-	-cp docroot/images/*.jpg ../build/DeviceServer/docroot/images/
-	-cp docroot/images/*.png ../build/DeviceServer/docroot/images/
-	-cp docroot/*.html  ../build/DeviceServer/docroot/
-	-cp docroot/Meter* ../build/DeviceServer/docroot/
-	-cp DeviceServer ../build/DeviceServer/
-	-cp DeviceServer.cfg ../build/DeviceServer/
-	-cp digi*.sh ../build/DeviceServer/
+	-mkdir /tmp/build/DeviceServer/docroot
+	-mkdir /tmp/build/DeviceServer/docroot/images
+	-cp docroot/images/*.jpg /tmp/build/DeviceServer/docroot/images/
+	-cp docroot/images/*.png /tmp/build/DeviceServer/docroot/images/
+	-cp docroot/*.html  /tmp/build/DeviceServer/docroot/
+	-cp docroot/Meter* /tmp/build/DeviceServer/docroot/
+	-cp DeviceServer /tmp/build/DeviceServer/
+	-cp DeviceServer.cfg /tmp/build/DeviceServer/
+	-cp digi*.sh /tmp/build/DeviceServer/
