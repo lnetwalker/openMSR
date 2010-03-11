@@ -1,0 +1,4 @@
+export SPSHARDWARE="IO Warrior"
+export SPSVERSION=1.7.3-RC8
+export LINES=25
+export COLUMNS=80
