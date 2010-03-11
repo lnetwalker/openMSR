@@ -73,7 +73,7 @@ function  PhysMachGetDevices:DeviceTypeArray;
 procedure PhysMachIOByDevice(DeviceType:char);
 
 implementation
-
+{$define IOwarrior} 
 uses
 {$ifdef LINUX }
 		linux,
@@ -83,10 +83,12 @@ uses
 {$endif}
 {$ifndef USB92}
 		bmcm_io_access,
+{$ifdef IOwarrior}
 {$ifdef newio }
 		iowkit_io_access,
 {$else}
 		iow_io_access,
+{$endif}
 {$endif}
 {$endif}
 		exec_io_access;
@@ -124,7 +126,9 @@ begin
 		'R'	: wert:=rnd_read_ports(Address);
 		'H' 	: wert:=http_read_ports(Address);
 {$ifndef USB92}
+{$ifdef IOwarrior}
 		'I'	: wert:=iow_read_ports(Address);
+{$endif}		
 		'B' 	: wert:=bmcm_read_ports(Address);
 {$endif}
 		'E'	: wert:=exec_read_ports(Address);
@@ -186,7 +190,9 @@ begin
 			'R' 	: rnd_write_ports(Address,Value);
 			'H' 	: http_write_ports(Address,Value);
 {$ifndef USB92}
+{$ifdef IOwarrior}
 			'I'	: iow_write_ports(Address,Value);
+{$endif}
 			'B' 	: bmcm_write_ports(Address,Value);
 {$endif}
 			'E'	: exec_write_ports(Address,Value);
@@ -251,7 +257,9 @@ begin
 				'R'	: wert:=rnd_read_ports(c_address[IOGroup]);
 				'H' 	: wert:=http_read_ports(c_address[IOGroup]);
 {$ifndef USB92}
+{$ifdef IOwarrior}
 				'I'	: wert:=iow_read_ports(c_address[IOGroup]);
+{$endif}
 				'B' 	: wert:=bmcm_read_ports(c_address[IOGroup]);
 {$endif}
 				'E'	: wert:=exec_read_ports(c_address[IOGroup]);
@@ -351,10 +359,12 @@ begin
 						HWPlatform:=HWPlatform+',HTTP ';
 					  end;
 {$ifndef USB92}
+{$ifdef IOwarrior}
 				'I'	: begin
 						iow_hwinit(initstring,DeviceNumber);
 						HWPlatform:=HWPlatform+',IO-Warrior 40 ';
 					  end;	
+{$endif}
 				'B'	: begin
 						bmcm_hwinit(initstring,DeviceNumber);
 						HWPlatform:=HWPlatform+',BMCM-USB-Device ';
@@ -391,28 +401,36 @@ begin
 			{PORT!I!  1! $00!I}
 			dir:=copy(zeile,6,1);
 			val(copy(zeile,8,3),iogroup);
+			if ( copy(zeile,17,1) <> '!' ) then begin
+				writeln (' Error reading port address of Device ');
+				writeln (' the PORT Line syntax has changed' );
+				writeln (' the Address is now 5 digits in size! ');
+				halt (1);
+			end;
 			if debugFlag then writeln('PhysMachLoadCfg: dir=',dir,' iogroup=',iogroup,' addr=',copy(zeile,12,4));
 			if     ( dir = 'I' ) then begin
-				val(copy(zeile,12,4),i_address[iogroup]);
-				i_devicetype[iogroup]:=zeile[17];
+				val(copy(zeile,12,5),i_address[iogroup]);
+				writeln ('i_address[',iogroup,']=',i_address[iogroup]);
+				i_devicetype[iogroup]:=zeile[18];
 				if (debugFlag) then writeln('Input Group ',iogroup,'devicetype=',i_devicetype[iogroup]);
 			end	
 			else if( dir = 'O' ) then begin
-				val(copy(zeile,12,4),o_address[iogroup]);
-				o_devicetype[iogroup]:=zeile[17];
+				val(copy(zeile,12,5),o_address[iogroup]);
+				writeln ('o_address[',iogroup,']=',o_address[iogroup]);
+				o_devicetype[iogroup]:=zeile[18];
 			end
 			else if( dir = 'C' ) then begin
-				val(copy(zeile,12,4),c_address[iogroup]);
-				c_devicetype[iogroup]:=zeile[17];
+				val(copy(zeile,12,5),c_address[iogroup]);
+				c_devicetype[iogroup]:=zeile[18];
 			end
 			else if( dir = 'A' ) then begin
-				val(copy(zeile,12,4),a_address[iogroup]);
-				a_devicetype[iogroup]:=zeile[17];
+				val(copy(zeile,12,5),a_address[iogroup]);
+				a_devicetype[iogroup]:=zeile[18];
 				if debugFlag then writeln('Analog InLine=',iogroup,' Address=',a_address[iogroup]);
 			end
 			else if( dir = 'U' ) then begin
-				val(copy(zeile,12,4),a_address[iogroup]);
-				u_devicetype[iogroup]:=zeile[17];
+				val(copy(zeile,12,5),a_address[iogroup]);
+				u_devicetype[iogroup]:=zeile[18];
 				if debugFlag then writeln('Analog OutLine=',iogroup,' Address=',a_address[iogroup]);
 			end;
 		end;
