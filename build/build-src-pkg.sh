@@ -12,6 +12,9 @@ else
   REL=$1
 fi
 
+
+export CVSROOT=:ext:$LOGNAME@cvs.home.eilers.net:/home/cvs
+
 # make a temporary build directory
 mkdir /tmp/$REL
 cd /tmp/$REL
