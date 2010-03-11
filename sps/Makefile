@@ -30,18 +30,18 @@ clean :
 	-rm $(OBJECTS)
 	
 build :
-	-mkdir ../build/sps/awls
-	-mkdir ../build/sps/awls/WerkzeugmaschineNT
-	-cp awls/WerkzeugmaschineNT/werkzeugmaschine2.pdf ../build/sps/awls/WerkzeugmaschineNT/
-	-cp awls/WerkzeugmaschineNT/werkzeugmaschine2.sps ../build/sps/awls/WerkzeugmaschineNT/
-	-cp awls/* ../build/sps/awls/
-	-cp LICENSE ../build/sps/
-	-cp README ../build/sps/
-	-cp sps ../build/sps/
-	-cp .run_sps.cfg ../build/sps/
-	-cp run_sps ../build/sps/
-	-cp sps.cfg ../build/sps/
-	-cp sps.doc ../build/sps/
-	-cp sps-d.doc ../build/sps/
-	-cp sps-e.doc ../build/sps/
+	-mkdir /tmp/build/sps/awls
+	-mkdir /tmp/build/sps/awls/WerkzeugmaschineNT
+	-cp awls/WerkzeugmaschineNT/werkzeugmaschine2.pdf /tmp/build/sps/awls/WerkzeugmaschineNT/
+	-cp awls/WerkzeugmaschineNT/werkzeugmaschine2.sps /tmp/build/sps/awls/WerkzeugmaschineNT/
+	-cp awls/* /tmp/build/sps/awls/
+	-cp LICENSE /tmp/build/sps/
+	-cp README /tmp/build/sps/
+	-cp sps /tmp/build/sps/
+	-cp .run_sps.cfg /tmp/build/sps/
+	-cp run_sps /tmp/build/sps/
+	-cp sps.cfg /tmp/build/sps/
+	-cp sps.doc /tmp/build/sps/
+	-cp sps-d.doc /tmp/build/sps/
+	-cp sps-e.doc /tmp/build/sps/
 	
