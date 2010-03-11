@@ -21,5 +21,5 @@ clean :
 	-rm $(OBJECTS)
 
 build:
-	-cp ObjRec ../build/ObjectRecognition/
-	-cp ObjectRecognitionUsingLinux.pdf ../build/ObjectRecognition/
+	-cp ObjRec /tmp/build/ObjectRecognition/
+	-cp ObjectRecognitionUsingLinux.pdf /tmp/build/ObjectRecognition/
