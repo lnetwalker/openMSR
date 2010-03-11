@@ -1,0 +1,56 @@
+Kernel-Driver for Kolter ADDA PCI-IO-Card
+=========================================
+
+
+This directory contains the kerneldriver for
+one ore more Kolter ADDA pci-io-cards.
+
+Ensure, you have a Linux-kernel greater than 2.2.x 
+and the source tree of your current runnig kernel 
+installed. If you don't have kernel 2.6.x or later,
+ensure that the link /usr/src/linux points to that
+kernel source tree.
+
+Then login as root and unpack the archive, compile
+kernel driver and test-program and make
+the /dev/kolter_adda.* special files:
+
+cd /usr/src
+tar -xzf kolter_adda-1.1.tgz
+cd kolter_adda-1.1
+make
+make devices
+
+If Kernel 2.6.x or later is detected, the Kernel Build mechanism will be
+used automatically.
+
+Insert module and start the test-program:
+
+insmod ./kolter_adda.o
+or, with Kernel 2.6.x or higher,
+insmod ./kolter_adda.ko
+
+./test_adda /dev/kolter_adda.0 -dacramp
+
+Now, you should be able to meassure a ramp-signal
+an dac-outputs
+
+The modules can be installed in /lib/modules/<kernelversion>/misc
+(Kernel 2.6 and later /lib/modules/<kernelversion>/kernel/misc) by
+make install
+
+
+
+Files:
+COPYING		GPL-Copying License
+Makefile	a simple Makefile for kernel-driver and test-program
+README		guess what
+kolter_adda.c	kernel-driver
+kolter_adda.h	ioctl-commands and some inline-functions
+test_adda.c	a simple test program
+
+
+Have fun!
+
+Bernhard Kuhn <bkuhn@linux-magazin.de>, Die Aug 17 11:34:58 CEST 1999
+Klaus Schneider <klaus_snd@web.de> Wed Jan 12 16:20:51 MET 2005
