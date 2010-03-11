@@ -8,10 +8,13 @@ OBJECTS=physmach
 
 all: $(OBJECTS)
 
+FPC=/usr/local/bin/fpc
+FPC_FLAGS= -dLINUX -dnewio
+
 
 # the physical Machine access layer
 physmach: 	
-	fpc -gl -Futest/libad4 -Fu../divLibs/pwu-1.6.0.2-src/main/ PhysMach.pas
+	$(FPC) $(FPC_FLAGS) -gl -Futest/libad4 -Fu../divLibs/pwu-1.6.0.2-src/main/ PhysMach.pas
 
 clear:
 	-rm PhysMach.ppu
