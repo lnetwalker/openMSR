@@ -16,11 +16,11 @@ function pio_read_ports(io_port:longint):byte;
 function pio_write_ports(io_port:longint;byte_value:byte):byte;
 function pio_hwinit(initdata:string;DeviceNumber:byte):boolean;
 
-{$define ZAURUS }
+
 implementation
 uses linux
 {$ifndef ZAURUS}
-,ports
+,x86
 {$endif}
 ;
 
@@ -66,7 +66,7 @@ begin
 		writeln('Port : ',controlPort,' ',configByte);
 	{$ifndef ZAURUS}
 	{ allow full port access for the addressrange $300-$3FF }
-	IOperm(controlPort,$FF,$ff);
+	fpIOperm(controlPort,$FF,$ff);
 	WritePort(controlPort,configByte);
 	{$endif}
 	pio_hwinit:=true;
