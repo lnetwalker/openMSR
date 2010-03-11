@@ -1,6 +1,0 @@
-# Gambas Project File 2.0
-Title=Button
-Startup=FMain
-Library=gb.qt
-Library=gb.qt.ext
-Library=gb.form
