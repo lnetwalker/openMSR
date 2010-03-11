@@ -9,32 +9,42 @@ else
   REL=$1
 fi
 
-mkdir build
+if [ "$2" = "" ]; then
+  echo " please supply a target platform [linux|arm] "
+  exit 3
+else
+  ARCH=$2
+fi
+
+mkdir /tmp/build
 
 # copy libs
-mkdir build/libs
-cd build/libs
+mkdir /tmp/build/libs
+pushd /tmp/build/libs
 cp /usr/lib/libad4.so.4.1.334 .
 cp /usr/lib/libiowkit.so.1.0.5 .
-cd ../..
+popd
 
 targets="datalogger DeviceServer ObjectRecognition OpenLabDocs oszi sps"
-
+export SPSVERSION=$REL
 for i in $targets; do 
-  mkdir build/$i
+  mkdir /tmp/build/$i
   cd $i;
-  make build;
+  make BLD_ARCH=$ARCH clean
+  make BLD_ARCH=$ARCH
+  make BLD_ARCH=$ARCH build
   cd ..;
 done;
 
-cp CREDITS build/
-cp README build/
+cp CREDITS /tmp/build/
+cp README /tmp/build/
+cp CHANGES /tmp/build/
 
 mkdir $REL
-mv build/* $REL
-tar -czvf Releases/$REL.tar.gz $REL
+cp -a /tmp/build/* $REL/
+tar -czvf ../Releases/$REL.tar.gz $REL
 
-rmdir build
+rm -rf /tmp/build
 
 echo "Please check directory $REL and remove it when everything is done"
 
