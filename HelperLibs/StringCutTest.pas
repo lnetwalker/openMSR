@@ -4,7 +4,7 @@ program StringCutTest;
 { (c) 2010 by Hartmut Eilers		}
 { distributed under the terms of GPL	}
 
-{ $ID:$ }
+{ $Id$ }
 
 uses StringCut;
 
