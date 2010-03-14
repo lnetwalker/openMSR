@@ -60,6 +60,7 @@ begin
   Anzahl := 0;
   for i:=1 to length(Line) do
     if line[i] = Trenner then inc(Anzahl);
+  // add one because of the element after the last delimiter  
   GetNumberOfElements:=Anzahl+1;
 end;
 
