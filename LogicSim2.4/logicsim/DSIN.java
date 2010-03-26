@@ -51,7 +51,7 @@ public class DSIN extends Gate{
     URLConnection uc = u.openConnection();
     uc.setDoOutput(true);
     uc.setRequestProperty("Content-Type","application/x-www-form-urlencoded");
-    uc.addRequestProperty("User-Agent", "Mozilla");
+    uc.addRequestProperty("User-Agent", "Mozilla LogicSim");
     // add the query string
     // For example: String query = "username=joe&pw=secret";
     String query = "";
