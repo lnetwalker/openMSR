@@ -34,6 +34,7 @@ begin
 	{$ifndef ZAURUS}
 	ReadPort(io_port,byte_value);
 	{$endif}
+	delay(SleepTime);
 	if (debug) then writeln('Kolter_IO r : ',io_port,'=',byte_value);
 	kolterPCI_read_ports:=byte_value;
 end;
@@ -46,6 +47,7 @@ begin
 	{$ifndef ZAURUS}
 	WritePort(io_port,byte_value);
 	{$endif}
+	delay(SleepTime);
 	kolterPCI_write_ports:=0;
 end;
 
@@ -56,6 +58,12 @@ var
 
 begin
 	if debug then writeln ('KolterPCI Initstring=',initdata);
+	if ( pos(':',initdata) > 0 ) then begin
+		// it's a OptoPCI or PCI OptoRel which needs a delay
+		if (initdata[pos(':',initdata)+1] = 'd') then
+			SleepTime:=2;
+		initdata:=copy(initdata,1,pos(':',initdata)-1);
+	end;
 	val(initdata,controlPort);
 	if ( debug ) then
 		writeln('Kolter IO Device Port : ',controlPort);
@@ -74,4 +82,9 @@ end;
 
 
 begin
+	// SleepTime is a delay to give the Coils a chance to get stable
+	// This is needed for the OptoPCI, PCI OptoRel
+	// the standard case is the PCI 1616 which has no coils or OptoCoupler
+	// so we don't want any sleep at all
+	SleepTime:=0;
 end.
