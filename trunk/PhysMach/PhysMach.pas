@@ -86,7 +86,7 @@ uses
 		linux,
 		dil_io_access,lp_io_access,pio_io_access,
 		joy_io_access,rnd_io_access,http_io_access,
-		funk_io_access,kolterPCI_io_access,
+		funk_io_access,kolterPCI_io_access,kolterOpto3_io_access,
 {$endif}
 {$ifndef USB92}
 		bmcm_io_access,
