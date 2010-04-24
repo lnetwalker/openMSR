@@ -14,7 +14,14 @@ unit PhysMach;
 
 { $Id$ }
 
+{ the following defines are used in the code:				}
+{	newio	- use new IO Warrior library				}
+{	iowarrior - include iowarrior library or not			}
+{	Linux	- specific Linux ( automatically applied by compiler	}
+{	USB92	- specific code to usb9263 from Calao			}
+
 {$define newio}
+{$define iowarrior}
 
 interface
 
@@ -73,7 +80,7 @@ function  PhysMachGetDevices:DeviceTypeArray;
 procedure PhysMachIOByDevice(DeviceType:char);
 
 implementation
-{$define IOwarrior} 
+
 uses
 {$ifdef LINUX }
 		linux,
@@ -91,7 +98,7 @@ uses
 {$endif}
 {$endif}
 {$endif}
-		exec_io_access;
+		exec_io_access,StringCut;
 
 const
 	debugFlag 		= false;
@@ -297,7 +304,7 @@ end;
 procedure PhysMachloadCfg(cfgFilename : string);
 var
 	f				: text;
-	zeile		   		: string[180];
+	zeile		   		: String255;
 	initdevice			: char;
 	initstring			: string;
 	dir				: shortString;
@@ -305,6 +312,7 @@ var
 	i,NumOfDevices			: Byte;
 	AlreadyInList			: Boolean;
 	DeviceNumber			: Byte;
+	ConfigTags			: StringArray;
 	
 begin
 	assign (f,cfgFilename);
@@ -318,12 +326,20 @@ begin
 	DeviceNumber:=1;
 	while not(eof(f)) do begin
 		readln (f,zeile);
-		if ( copy(zeile,1,6) = 'DEVICE' ) then begin
+		ConfigTags:=StringSplit(zeile; '!');
+		if ( ConfigTags[1] = 'DEVICE' ) then begin
+		
+			if ( GetNumberOfElements(zeile) > 3 ) then begin
+				writeln (' Error in config file in the following line ');
+				writeln ( zeile );
+				halt (1);
+			end;
+			
 			if ( debugFlag ) then writeln ('device detected');
 			{ device line looks like }
 			{ DEVICE!P!$307:$99 }
-			initdevice:=zeile[8];
-			initstring:=copy(zeile,10,length(zeile));
+			initdevice:=ConfigTags[2];
+			initstring:=ConfigTags[3];
 			{ call the initfunction of that device }
 			if (debugFlag) then writeln('device ',initdevice,'   ',initstring);
 			case initdevice of
@@ -395,42 +411,43 @@ begin
 				halt(1);
 			end;
 		end
-		else if (copy(zeile,1,4) = 'PORT') then begin
+		else if (ConfigTags[1] = 'PORT') then begin
 			if ( debugFlag ) then writeln ('port detected');
 			{port line looks like }
 			{PORT!I!  1! $00!I}
-			dir:=copy(zeile,6,1);
-			val(copy(zeile,8,3),iogroup);
-			if ( copy(zeile,17,1) <> '!' ) then begin
-				writeln (' Error reading port address of Device ');
-				writeln (' the PORT Line syntax has changed' );
-				writeln (' the Address is now 5 digits in size! ');
+			dir:=ConfigTags[2];
+			iogroup:=ConfigTags[3];
+			if ( GetNumberOfElements(zeile) > 5 ) then begin
+				writeln (' Error in config file in the following line ');
+				writeln ( zeile );
 				halt (1);
 			end;
-			if debugFlag then writeln('PhysMachLoadCfg: dir=',dir,' iogroup=',iogroup,' addr=',copy(zeile,12,4));
+
+			if debugFlag then writeln('PhysMachLoadCfg: dir=',dir,' iogroup=',iogroup,' addr=',ConfigTags[4]);
+			
 			if     ( dir = 'I' ) then begin
-				val(copy(zeile,12,5),i_address[iogroup]);
-				writeln ('i_address[',iogroup,']=',i_address[iogroup]);
-				i_devicetype[iogroup]:=zeile[18];
+				i_address[iogroup]:=ConfigTags[4];
+				i_devicetype[iogroup]:=ConfigTags[5];
 				if (debugFlag) then writeln('Input Group ',iogroup,'devicetype=',i_devicetype[iogroup]);
 			end	
 			else if( dir = 'O' ) then begin
-				val(copy(zeile,12,5),o_address[iogroup]);
-				writeln ('o_address[',iogroup,']=',o_address[iogroup]);
-				o_devicetype[iogroup]:=zeile[18];
+				o_address[iogroup]:=ConfigTags[4];
+				o_devicetype[iogroup]:=ConfigTags[5];
+				if (debugFlag) then writeln('Output Group ',iogroup,'devicetype=',i_devicetype[iogroup]);
 			end
 			else if( dir = 'C' ) then begin
-				val(copy(zeile,12,5),c_address[iogroup]);
-				c_devicetype[iogroup]:=zeile[18];
+				c_address[iogroup]:=ConfigTags[4];
+				c_devicetype[iogroup]:=ConfigTags[5];
+				if (debugFlag) then writeln('Counter Group ',iogroup,'devicetype=',i_devicetype[iogroup]);
 			end
 			else if( dir = 'A' ) then begin
-				val(copy(zeile,12,5),a_address[iogroup]);
-				a_devicetype[iogroup]:=zeile[18];
+				a_address[iogroup]:=ConfigTags[4];
+				a_devicetype[iogroup]:=ConfigTags[5];
 				if debugFlag then writeln('Analog InLine=',iogroup,' Address=',a_address[iogroup]);
 			end
 			else if( dir = 'U' ) then begin
-				val(copy(zeile,12,5),a_address[iogroup]);
-				u_devicetype[iogroup]:=zeile[18];
+				a_address[iogroup]:=ConfigTags[4];
+				u_devicetype[iogroup]:=ConfigTags[5];
 				if debugFlag then writeln('Analog OutLine=',iogroup,' Address=',a_address[iogroup]);
 			end;
 		end;
