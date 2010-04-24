@@ -129,6 +129,7 @@ begin
 		'J'	: wert:=joy_read_ports(Address);
 		'F'	: wert:=funk_read_ports(Address);
 		'K'	: wert:=kolterPCI_read_ports(Address);
+		'O'	: wert:=kolterOpto3_read_ports(Address);
 {$endif}
 		'R'	: wert:=rnd_read_ports(Address);
 		'H' 	: wert:=http_read_ports(Address);
@@ -193,6 +194,7 @@ begin
 			'J'	: joy_write_ports(Address,Value);
 			'F'	: funk_write_ports(Address,Value);
 			'K'	: kolterPCI_write_ports(Address,Value);
+			'O'	: kolterOpto3_write_ports(Address,Value);
 {$endif}
 			'R' 	: rnd_write_ports(Address,Value);
 			'H' 	: http_write_ports(Address,Value);
@@ -260,6 +262,7 @@ begin
 				'P'	: wert:=pio_read_ports(c_address[IOGroup]);
 				'J'	: wert:=joy_read_ports(c_address[IOGroup]);
 				'K'	: wert:=kolterPCI_read_ports(c_address[IOGroup]);
+				'O'	: wert:=kolterOpto3_read_ports(c_address[IOGroup]);
 {$endif}
 				'R'	: wert:=rnd_read_ports(c_address[IOGroup]);
 				'H' 	: wert:=http_read_ports(c_address[IOGroup]);
@@ -365,6 +368,10 @@ begin
 				'K'	: begin
 						kolterPCI_hwinit(initstring,DeviceNumber);
 						HWPlatform:=HWPlatform+'Kolter PCI I/O ';
+					  end;
+				'O'	: begin
+						kolterOpto3_hwinit(initstring,DeviceNumber);
+						HWPlatform:=HWPlatform+'Kolter Opto3 ISA I/O ';
 					  end;
 {$endif}
 				'R'	: begin
