@@ -313,8 +313,10 @@ var
 	AlreadyInList			: Boolean;
 	DeviceNumber			: Byte;
 	ConfigTags			: StringArray;
+	Trenner				: char;
 	
 begin
+	Trenner:='!';
 	assign (f,cfgFilename);
 	{$I-} reset (f); {$I+}
 	if ioresult <> 0 then
@@ -326,10 +328,10 @@ begin
 	DeviceNumber:=1;
 	while not(eof(f)) do begin
 		readln (f,zeile);
-		ConfigTags:=StringSplit(zeile; '!');
+		ConfigTags:=StringSplit(zeile,Trenner);
 		if ( ConfigTags[1] = 'DEVICE' ) then begin
 		
-			if ( GetNumberOfElements(zeile) > 3 ) then begin
+			if ( GetNumberOfElements(zeile,Trenner) > 3 ) then begin
 				writeln (' Error in config file in the following line ');
 				writeln ( zeile );
 				halt (1);
@@ -338,7 +340,7 @@ begin
 			if ( debugFlag ) then writeln ('device detected');
 			{ device line looks like }
 			{ DEVICE!P!$307:$99 }
-			initdevice:=ConfigTags[2];
+			initdevice:=ConfigTags[2,1];
 			initstring:=ConfigTags[3];
 			{ call the initfunction of that device }
 			if (debugFlag) then writeln('device ',initdevice,'   ',initstring);
@@ -416,8 +418,8 @@ begin
 			{port line looks like }
 			{PORT!I!  1! $00!I}
 			dir:=ConfigTags[2];
-			iogroup:=ConfigTags[3];
-			if ( GetNumberOfElements(zeile) > 5 ) then begin
+			val(ConfigTags[3],iogroup);
+			if ( GetNumberOfElements(zeile,Trenner) > 5 ) then begin
 				writeln (' Error in config file in the following line ');
 				writeln ( zeile );
 				halt (1);
@@ -426,28 +428,28 @@ begin
 			if debugFlag then writeln('PhysMachLoadCfg: dir=',dir,' iogroup=',iogroup,' addr=',ConfigTags[4]);
 			
 			if     ( dir = 'I' ) then begin
-				i_address[iogroup]:=ConfigTags[4];
-				i_devicetype[iogroup]:=ConfigTags[5];
+				val(ConfigTags[4],i_address[iogroup]);
+				i_devicetype[iogroup]:=ConfigTags[5,1];
 				if (debugFlag) then writeln('Input Group ',iogroup,'devicetype=',i_devicetype[iogroup]);
 			end	
 			else if( dir = 'O' ) then begin
-				o_address[iogroup]:=ConfigTags[4];
-				o_devicetype[iogroup]:=ConfigTags[5];
+				val(ConfigTags[4],o_address[iogroup]);
+				o_devicetype[iogroup]:=ConfigTags[5,1];
 				if (debugFlag) then writeln('Output Group ',iogroup,'devicetype=',i_devicetype[iogroup]);
 			end
 			else if( dir = 'C' ) then begin
-				c_address[iogroup]:=ConfigTags[4];
-				c_devicetype[iogroup]:=ConfigTags[5];
+				val(ConfigTags[4],c_address[iogroup]);
+				c_devicetype[iogroup]:=ConfigTags[5,1];
 				if (debugFlag) then writeln('Counter Group ',iogroup,'devicetype=',i_devicetype[iogroup]);
 			end
 			else if( dir = 'A' ) then begin
-				a_address[iogroup]:=ConfigTags[4];
-				a_devicetype[iogroup]:=ConfigTags[5];
+				val(ConfigTags[4],a_address[iogroup]);
+				a_devicetype[iogroup]:=ConfigTags[5,1];
 				if debugFlag then writeln('Analog InLine=',iogroup,' Address=',a_address[iogroup]);
 			end
 			else if( dir = 'U' ) then begin
-				a_address[iogroup]:=ConfigTags[4];
-				u_devicetype[iogroup]:=ConfigTags[5];
+				val(ConfigTags[4],a_address[iogroup]);
+				u_devicetype[iogroup]:=ConfigTags[5,1];
 				if debugFlag then writeln('Analog OutLine=',iogroup,' Address=',a_address[iogroup]);
 			end;
 		end;
