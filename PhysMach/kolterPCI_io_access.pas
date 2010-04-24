@@ -20,13 +20,17 @@ function kolterPCI_hwinit(initdata:string;DeviceNumber:byte):boolean;
 implementation
 uses linux
 {$ifndef ZAURUS}
-,x86
+,x86,crt
 {$endif}
 ;
 
 const	
       debug             = false;
 
+var
+      SleepTime		: LongInt;
+      
+      
 function kolterPCI_read_ports(io_port:longint):byte;
 var	byte_value : byte;
 
@@ -68,7 +72,7 @@ begin
 	if ( debug ) then
 		writeln('Kolter IO Device Port : ',controlPort);
 	{$ifndef ZAURUS}
-	{ allow full port access for the addressrange controlPort to controlPort + $FF }
+	{ allow full port access for the IO Address Range ( Level=3 ) }
 	fpIoPL(3);
 	{ it seems that fpIOperm only allows config for the Ports up to $03FF
 	if ( fpIOperm(controlPort,$FF,$ff) <> 0 ) then begin
