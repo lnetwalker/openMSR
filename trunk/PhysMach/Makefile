@@ -14,7 +14,7 @@ FPC_FLAGS= -dLINUX -dnewio
 
 # the physical Machine access layer
 physmach: 	
-	$(FPC) $(FPC_FLAGS) -gl -Futest/libad4 -Fu../divLibs/pwu-1.6.0.2-src/main/ PhysMach.pas
+	$(FPC) $(FPC_FLAGS) -gl -Futest/libad4 -Fu../divLibs/pwu-1.6.0.2-src/main/ -Fu../HelperLibs PhysMach.pas
 
 clear:
 	-rm PhysMach.ppu
