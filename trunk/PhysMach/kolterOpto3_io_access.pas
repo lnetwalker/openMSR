@@ -80,7 +80,7 @@ begin
 	end;
 	}
 	{$endif}
-	kolterOpto_hwinit:=true;
+	kolterOpto3_hwinit:=true;
 end;
 
 
