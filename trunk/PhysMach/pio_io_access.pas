@@ -65,8 +65,11 @@ begin
 	if ( debug ) then
 		writeln('Port : ',controlPort,' ',configByte);
 	{$ifndef ZAURUS}
-	{ allow full port access for the addressrange $300-$3FF }
-	fpIOperm(controlPort,$FF,$ff);
+	{ allow full port access for the I/O addressrange  }
+	{ ioperm call is not sufficient because ist supports only the range to 3ff }
+	{ Thats not enough for some cards e.g. the Kolter ISA 48 ttl I/O }
+	fpIoPL(3);
+	{fpIOperm(controlPort,$FF,$ff);}
 	WritePort(controlPort,configByte);
 	{$endif}
 	pio_hwinit:=true;
