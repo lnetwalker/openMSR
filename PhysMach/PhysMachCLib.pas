@@ -55,7 +55,21 @@ end.
 // finished
 
 {
+
+// this is the interface section of the PhysMach unit.
+// these values and functions need to be exported for the c programs
+
 interface
+
+const
+	io_max			= 128;
+	group_max		= round(io_max/8);
+	marker_max		= 255;
+	akku_max		= 16;
+	cnt_max			= 16;
+	tim_max			= 16;
+	analog_max		= 64;
+	DeviceTypeMax		= 16;
 
 type
 	DeviceTypeArray		= array[1..DeviceTypeMax] of char;
