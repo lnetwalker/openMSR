@@ -39,6 +39,8 @@ var
 
 function adc12lc_read_ports(io_port:longint):byte;
 begin
+	// it could be possible to use the port A of the build in
+	// 8255 as input port, currently not used
 	adc12lc_read_ports:=0;
 end;
 
@@ -63,6 +65,8 @@ end;
 
 function adc12lc_write_ports(io_port:longint;byte_value:byte):byte;
 begin
+	// it could be possible to use the port A of the build in
+	// 8255 as output port, currently not used
 	adc12lc_write_ports:=0;
 end;
 
