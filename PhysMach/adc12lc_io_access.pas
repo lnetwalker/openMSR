@@ -22,10 +22,11 @@ function adc12lc_hwinit(initstring:string;DeviceNumber:byte):boolean;
 
 
 IMPLEMENTATION
-uses crt;
+uses linux,x86,crt;
 
 const
 	configByte = 128;
+	debug      = false;
 	
 var
 	ChannelPort	: Longint;
@@ -46,7 +47,7 @@ end;
 
 function adc12lc_read_analog(io_port:longint):longint;
 var
-	dummy 		: byte;
+	dummy,MSB,LSB 		: byte;
 	
 begin
 	{ select the Channel }
@@ -57,10 +58,10 @@ begin
 	{ wait 'till conversion is finished }
 	repeat
 	  ReadPort(StatusPort,dummy);
-	until ((dummy and 128) != 128 );
+	until ((dummy and 128) <> 128 );
 	ReadPort(ValMSB,MSB);
 	ReadPort(ValLSB,LSB);
-	adc12lc_read_analog:=int((MSB*16) + (LSB div 16));
+	adc12lc_read_analog:=round((MSB*16) + (LSB div 16));
 end;
 
 function adc12lc_write_ports(io_port:longint;byte_value:byte):byte;
@@ -74,7 +75,7 @@ function adc12lc_hwinit(initstring:string;DeviceNumber:byte):boolean;
 
 begin
 	{ the baseport is given as one string }
-	val(initdata,BasePort);
+	val(initstring,BasePort);
 	{ assign the Ports according to BasePort }
 	ChannelPort:=BasePort+1;
 	StatusPort:=BasePort+2;
