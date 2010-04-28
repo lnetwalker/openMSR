@@ -87,6 +87,7 @@ uses
 		dil_io_access,lp_io_access,pio_io_access,
 		joy_io_access,rnd_io_access,http_io_access,
 		funk_io_access,kolterPCI_io_access,kolterOpto3_io_access,
+		adc12lc_io_access,
 {$endif}
 {$ifndef USB92}
 		bmcm_io_access,
@@ -130,6 +131,7 @@ begin
 		'F'	: wert:=funk_read_ports(Address);
 		'K'	: wert:=kolterPCI_read_ports(Address);
 		'O'	: wert:=kolterOpto3_read_ports(Address);
+		'T'	: wert:=adc12lc_read_ports(Address);
 {$endif}
 		'R'	: wert:=rnd_read_ports(Address);
 		'H' 	: wert:=http_read_ports(Address);
@@ -195,6 +197,7 @@ begin
 			'F'	: funk_write_ports(Address,Value);
 			'K'	: kolterPCI_write_ports(Address,Value);
 			'O'	: kolterOpto3_write_ports(Address,Value);
+			'T'	: adc12lc_write_ports(Address,Value);
 {$endif}
 			'R' 	: rnd_write_ports(Address,Value);
 			'H' 	: http_write_ports(Address,Value);
@@ -217,6 +220,7 @@ begin
 		case a_devicetype[IOGroup] of
 {$ifdef LINUX}
 			'J' 	: analog_in[IOGroup]:=joy_read_ports(a_address[IOGroup]);
+			'T'	: analog_in[IOGroup]:=adc12lc_read_ports(a_address[IOGroup]);
 {$ifndef USB92}
 			'B' 	: analog_in[IOGroup]:=bmcm_read_analog(a_address[IOGroup]);
 {$endif}
@@ -263,6 +267,7 @@ begin
 				'J'	: wert:=joy_read_ports(c_address[IOGroup]);
 				'K'	: wert:=kolterPCI_read_ports(c_address[IOGroup]);
 				'O'	: wert:=kolterOpto3_read_ports(c_address[IOGroup]);
+				'T'	: wert:=adc12lc_read_ports(c_address[IOGroup]);
 {$endif}
 				'R'	: wert:=rnd_read_ports(c_address[IOGroup]);
 				'H' 	: wert:=http_read_ports(c_address[IOGroup]);
@@ -372,6 +377,10 @@ begin
 				'O'	: begin
 						kolterOpto3_hwinit(initstring,DeviceNumber);
 						HWPlatform:=HWPlatform+'Kolter Opto3 ISA I/O ';
+					  end;
+				'T'	: begin
+						adc12lc_hwinit(initstring,DeviceNumber);
+						HWPlatform:=HWPlatform+'Kolter ADC12LC ISA analog in ';
 					  end;
 {$endif}
 				'R'	: begin
