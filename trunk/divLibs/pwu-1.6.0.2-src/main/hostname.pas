@@ -26,7 +26,7 @@ interface
 uses 
   {$ifdef win32}
     windows,
-    sockets_patched; // patched sockets unit for win32 i/o bug in fpc 2.0.4 RTL
+    sockets;
   {$endif}
   {$ifdef unix}    
     baseunix,
