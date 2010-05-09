@@ -28,11 +28,19 @@ procedure TelnetShutDown;
 
 implementation
 
-uses crt,sockets,BaseUnix,Unix,inetaux;
+uses crt,sockets,
+{$ifdef Linux}
+	BaseUnix,Unix,
+{$endif}
+{$ifdef Windows}
+	Windows,Winsock,
+{$endif}
+	inetaux;
 
 const
 	MaxConn 		= 1;
 	Size_InetSockAddr	: longint = sizeof(TInetSockAddr);
+	debug			= false;
 
 var
 	lSock, uSock 		: LongInt;
@@ -43,15 +51,53 @@ var
 	InterpreterProc		: tprocedure;
 	ListenPort 		: Word ;
 	ShutDownProc		: Boolean;
+	// LOG-Files
+	DBG,ERR,ACC		: text;
+	saveaccess		: Boolean;
+
+{$ifdef Windows}
+	FDRead			: TFDSet;
+	sock			: TSocket;
+	Result			: integer;
+	TimeVal 		: TTimeVal;
+	addr_len	 	: u_int;
+	cli_addr		: TSockAddr;	
+	ConnSock		: TSocket;
+	RecBufSize		: integer;
+	FCharBuf		: array [1..32768] of char;
+{$endif}
 
 
+function IntToStr(value:LongInt):String;
+var dummy : string;
+
+begin
+	str(value,dummy);
+	IntToStr:=dummy;
+end;
 
 
 
 procedure writeLOG(MSG: string);
 begin
-	writeln(LOG,MSG);
-	flush(LOG);
+	writeln(DBG,MSG);
+	flush(DBG);
+end;
+
+
+procedure errorLOG(MSG: string);
+begin
+	writeln(ERR,MSG);
+	flush(ERR);
+end;
+
+
+procedure accessLOG(MSG: string);
+begin
+	if saveaccess then begin
+	    writeln(ACC,MSG);
+	    flush(ACC);
+	end;
 end;
 
 
@@ -118,12 +164,34 @@ begin
 	Rewrite(sout);
 	Write(sout, WelcomeMSG);
 	repeat
+	{$ifdef Linux}
 		if SelectText(sin,10000)>0 then begin
 			Readln(sin, Line);
 			writeLOG('Heard: '+line);
 			if Line = 'close' then break;
 			if InterpreterProc <> nil then InterpreterProc;
 		end;
+	{$endif}
+	{$ifdef Windows}
+		fd_zero(FDRead);
+		fd_set(sock,FDRead);
+		{ a timeout must be set with timeout=nil it blocks }
+		TimeVal.tv_sec:=0;
+		TimeVal.tv_usec:=0;
+		Result:=Select(0, @FDRead, nil, nil, @TimeVal);
+		if Result = SOCKET_ERROR then errorLOG('ERROR='+IntToStr(WSAGetLastError));
+		if (Result > 0) then begin
+			addr_len:=SizeOf(cli_addr);
+			ConnSock:=accept(sock, @cli_addr,@addr_len);
+			if ( ConnSock=INVALID_SOCKET) then
+				errorLOG('accept failed');
+//			process_request;
+			RecBufSize:=recv(ConnSock,@FCharBuf[1],SizeOf(FCharBuf),0);
+			if (RecBufSize=SOCKET_ERROR) then errorLOG('socket error during read '+IntToSTr(WSAGetLastError));
+			Line:=copy(FCharBuf,1,RecBufSize);
+		end;
+
+	{$endif}
 		if ShutDownProc then break;
 	until false;
 
@@ -158,4 +226,18 @@ end;
 begin
 	InterpreterProc:=nil;
 	ListenPort:= $AFFE;			// decimal 45054
+
+	// don't write access log
+	saveaccess:=false;
+
+	// open logfiles
+	//error Log
+	assign(ERR,'/tmp/deviceserver_TelnetErr.log');
+	rewrite(ERR);
+
+	// debug Log
+	if debug then begin
+		assign(DBG,'/tmp/deviceserver_TelnetDbg.log');
+		rewrite(DBG);
+	end;
 end.

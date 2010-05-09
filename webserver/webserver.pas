@@ -48,8 +48,9 @@ implementation
 
 {$ifdef LINUX}
 	uses sockets, crt,inetaux, BaseUnix, Unix, dos;
-{$else}
-	uses winsock,crt,inetaux;
+{$endif}
+{$ifdef Windows}
+	uses windows,sockets,winsock,crt,inetaux;
 {$endif}
 
 {$ifdef WIN32}
@@ -215,9 +216,9 @@ begin
 	{$else}
 		srv_addr.sin_family := AF_INET;
 		srv_addr.sin_port := htons(port);
-		if (address='') then srv_addr.addr :=0 
+		if (address='') then srv_addr.sin_addr.S_addr :=0 
 		else srv_addr.sin_addr.S_addr := StrToAddr(Address);
-        { Inititialize WINSOCK }
+		{ Inititialize WINSOCK }
 		if WSAStartup($101, GInitData) <> 0 then errorLOG('Error init Winsock');
 	{$endif}
 	
@@ -228,9 +229,10 @@ begin
 		{ set socket to non blocking mode }
 		{$ifdef LINUX}
 			FpFcntl(sock,F_SetFd,MSG_DONTWAIT);
-		{$else}
+		{$endif}
+		{$ifdef Windows}
 			NON_BLOCK:=1;
-			Result:=ioctlsocket(sock,FIONBIO,@NON_BLOCK);
+			//Result:=ioctlsocket(sock,FIONBIO,@NON_BLOCK);
 			if ( Result=SOCKET_ERROR ) then errorLOG('setting NON_BLOCK failed :(');
 		{$endif}
 	end;
@@ -251,11 +253,7 @@ begin
 	
 	// Listening on port
 	if debug then writeLOG('listen..');
-	{$ifdef LINUX}
-		fplisten(sock, max_connections);
-	{$else}
-		if (listen(sock, max_connections) = SOCKET_ERROR) then errorLOG('listen() failed with error '+ WSAGetLastError());
-	{$endif}
+	fplisten(sock, max_connections);
 end;
 
 
@@ -319,7 +317,7 @@ begin
 		sendString:=header+myPage;
 		{ copy string to send into the send buffer }
 		for i:=1 to length(sendString) do FCharBuf[i]:=sendString[i];
-		if debug then writeLOG('respSize: '+length(sendString));
+		if debug then writeLOG('respSize: '+IntToSTr(length(sendString)));
 		Result:=send(ConnSock,@FCharBuf[1],length(sendString),0);
 		if ( Result=SOCKET_ERROR ) then errorLOG('send Data failed :(');
 		Shutdown(ConnSock, 2);
@@ -335,7 +333,10 @@ var Paramstart,i	: word;
     jahr,mon,tag,wota 	: word;
     std,min,sec,ms	: word;
     TimeString		: string;
-    
+{$ifdef Windows}
+    st 			: systemtime;
+{$endif}
+
 begin
 	reqSize:=0;
 	if debug then writeLOG('reading request data');
@@ -353,13 +354,13 @@ begin
 			inc(BufCnt);
 		{$else}
 			RecBufSize:=recv(ConnSock,@FCharBuf[1],SizeOf(FCharBuf),0);
-			if (RecBufSize=SOCKET_ERROR) then errorLOG('socket error during read '+WSAGetLastError);
+			if (RecBufSize=SOCKET_ERROR) then errorLOG('socket error during read '+IntToSTr(WSAGetLastError));
 			buff:=copy(FCharBuf,1,RecBufSize);
 			BufCnt:=1;
 			{ Request zerlegen und in array post zeile fuer Zeile speichern }
 			repeat
 				post[BufCnt]:=copy(buff,1,pos(chr(10),buff)-1);
-				if debug then writeLOG('Req['+BufCnt+']='+post[BufCnt]);
+				if debug then writeLOG('Req['+IntToStr(BufCnt)+']='+post[BufCnt]);
 				buff:=copy(buff,pos(chr(10),buff)+1,length(buff));
 				inc(BufCnt);
 			until length(buff)<1;
@@ -444,8 +445,16 @@ begin
 		field description
 		host rfc931 username date:time request statuscode bytes referrer applinformation
 	}
+ {$ifdef linux} // LINUX
 	gettime(std,min,sec,ms); 
 	getdate(jahr,mon,tag,wota);
+ {$else}        // WINDOWS
+	getlocaltime( st );
+	std:= st.whour;
+	min:= st.wminute;
+	sec:= st.wsecond;
+	ms:= st.wmilliseconds;
+ {$endif} 
 	TimeString:='['+IntToStr(tag)+'/'+IntToStr(mon)+'/'+IntToStr(jahr)+':'+IntToStr(std)+':'+IntToStr(min)+':'+IntToStr(sec)+':'+IntToStr(ms)+']';
 	accessLog('unknown'+' - - '+TimeString+' GET "'+URL+'" '+copy(status,1,3)+' '+IntToStr(SizeOf(page))+' '+UserAgent);
 
@@ -498,14 +507,15 @@ begin
 		close(sin);
 		//close(sout);
 		if debug then WriteLOG('closeing socket descriptors done');
-	{$else}
+	{$endif}
+	{$ifdef Windows}
 		fd_zero(FDRead);
 		fd_set(sock,FDRead);
 		{ a timeout must be set with timeout=nil it blocks }
 		TimeVal.tv_sec:=0;
 		TimeVal.tv_usec:=0;
 		Result:=Select(0, @FDRead, nil, nil, @TimeVal);
-		if Result = SOCKET_ERROR then errorLOG('ERROR='+WSAGetLastError);
+		if Result = SOCKET_ERROR then errorLOG('ERROR='+IntToStr(WSAGetLastError));
 		if (Result > 0) then begin
 			addr_len:=SizeOf(cli_addr);
 			ConnSock:=accept(sock, @cli_addr,@addr_len);
