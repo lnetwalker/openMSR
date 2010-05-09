@@ -61,7 +61,7 @@ implementation
 uses 
   hostname, 
  {$ifdef win32}
-  sockets_patched, // patched sockets unit because of win32 I/O bug in fpc rtl
+  winsock,sockets,
  {$else}
   sockets,
  {$endif}   
