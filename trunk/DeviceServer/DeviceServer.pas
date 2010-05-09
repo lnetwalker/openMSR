@@ -1,7 +1,13 @@
 program DeviceServer;
 {$mode objfpc}
 
-uses cthreads,PhysMach,webserver,telnetserver,classes,crt,BaseUnix;
+uses 
+{$IFDEF Linux} cthreads,BaseUnix,
+{$endif}
+{$ifdef Windows}
+Windows,
+{$endif}
+PhysMach,webserver,telnetserver,classes,crt;
 
 { $Id$ }
 
@@ -540,17 +546,32 @@ time1,time2,TimeDiff	: Cardinal;
 OldThreadCnt		: array[1..MaxThreads] of LongInt;
 i			: byte;
 MySelf			: LongInt;
+{$ifdef Windows}
+      st 		: systemtime;
+{$endif}
 
 
 begin
 	MySelf:=longint(p);
 	repeat
 		// get the current time in seconds and save the counter for each thread
-		time1:=fpTime;
+		{$ifdef Linux}
+		  time1:=fpTime;
+		{$endif}
+		{$ifdef Windows}
+		  getlocaltime( st );
+		  time1:= st.wsecond;
+		{$endif}
 		for i:=1 to MaxThreads do OldThreadCnt[i]:=ThreadCnt[i];
 		delay(6000);	// wait some time
 		// check new time and counters
-		time2:=fpTime;
+		{$ifdef Linux}
+		  time2:=fpTime;
+		{$endif}
+		{$ifdef Windows}
+		  getlocaltime( st );
+		  time2:= st.wsecond;
+		{$endif}
 		TimeDiff:=time2-time1;
 		// calculate how much loops each thread did in one second
 		if TimeDiff > 0 then
@@ -559,6 +580,21 @@ begin
 		inc(ThreadCnt[MySelf]);
 	until Shutdown=true;
 end;
+
+
+function TimeControlThread(p: pointer):LongInt;
+// thread to change Input and Output variables time dependend
+var 
+	MySelf		: LongInt;
+
+begin
+	MySelf:=longint(p);
+	repeat
+	
+		inc(ThreadCnt[MySelf]);
+	until Shutdown=true;
+end;
+
 
 
 // the Main program
@@ -599,6 +635,12 @@ begin					{ Main program }
 	writeln('Starting Telnet Thread...');
 	ThreadName[NumOfThreads]:='Telnet Thread';
 	ThreadHandle[NumOfThreads]:=BeginThread(@TelnetThread,pointer(NumOfThreads));
+
+	// start the TimeControl thread
+	inc(NumOfThreads);
+	writeln('Starting TimeControl Thread...');
+	ThreadName[NumOfThreads]:='TimeCtrl Thread';
+	ThreadHandle[NumOfThreads]:=BeginThread(@TimeControlThread,pointer(NumOfThreads));
 
 	// start the statistic thread
 	inc(NumOfThreads);
