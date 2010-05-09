@@ -85,9 +85,8 @@ uses
 {$ifdef LINUX }
 		linux,
 		dil_io_access,lp_io_access,pio_io_access,
-		joy_io_access,rnd_io_access,http_io_access,
-		funk_io_access,kolterPCI_io_access,kolterOpto3_io_access,
-		adc12lc_io_access,
+		joy_io_access,funk_io_access,kolterPCI_io_access,
+		kolterOpto3_io_access,adc12lc_io_access,
 {$endif}
 {$ifndef USB92}
 		bmcm_io_access,
@@ -99,7 +98,7 @@ uses
 {$endif}
 {$endif}
 {$endif}
-		exec_io_access,StringCut;
+		http_io_access,rnd_io_access,exec_io_access,StringCut;
 
 const
 	debugFlag 		= false;
@@ -133,8 +132,8 @@ begin
 		'O'	: wert:=kolterOpto3_read_ports(Address);
 		'T'	: wert:=adc12lc_read_ports(Address);
 {$endif}
-		'R'	: wert:=rnd_read_ports(Address);
 		'H' 	: wert:=http_read_ports(Address);
+		'R'	: wert:=rnd_read_ports(Address);
 {$ifndef USB92}
 {$ifdef IOwarrior}
 		'I'	: wert:=iow_read_ports(Address);
@@ -199,8 +198,8 @@ begin
 			'O'	: kolterOpto3_write_ports(Address,Value);
 			'T'	: adc12lc_write_ports(Address,Value);
 {$endif}
-			'R' 	: rnd_write_ports(Address,Value);
 			'H' 	: http_write_ports(Address,Value);
+			'R' 	: rnd_write_ports(Address,Value);
 {$ifndef USB92}
 {$ifdef IOwarrior}
 			'I'	: iow_write_ports(Address,Value);
@@ -222,10 +221,10 @@ begin
 			'J' 	: analog_in[IOGroup]:=joy_read_ports(a_address[IOGroup]);
 			'T'	: analog_in[IOGroup]:=adc12lc_read_ports(a_address[IOGroup]);
 {$ifndef USB92}
+			'H'	: analog_in[IOGroup]:=http_read_analog(a_address[IOGroup]);
 			'B' 	: analog_in[IOGroup]:=bmcm_read_analog(a_address[IOGroup]);
 {$endif}
 {$endif}
-			'H'	: analog_in[IOGroup]:=http_read_analog(a_address[IOGroup]);
 			'E'	: analog_in[IOGroup]:=exec_read_analog(a_address[IOGroup]);
 		end;
 	if (debugFlag) then writeln('Analog_in[',IOGroup,']=',analog_in[IOGroup]);
@@ -269,8 +268,8 @@ begin
 				'O'	: wert:=kolterOpto3_read_ports(c_address[IOGroup]);
 				'T'	: wert:=adc12lc_read_ports(c_address[IOGroup]);
 {$endif}
-				'R'	: wert:=rnd_read_ports(c_address[IOGroup]);
 				'H' 	: wert:=http_read_ports(c_address[IOGroup]);
+				'R'	: wert:=rnd_read_ports(c_address[IOGroup]);
 {$ifndef USB92}
 {$ifdef IOwarrior}
 				'I'	: wert:=iow_read_ports(c_address[IOGroup]);
@@ -382,16 +381,20 @@ begin
 						adc12lc_hwinit(initstring,DeviceNumber);
 						HWPlatform:=HWPlatform+'Kolter ADC12LC ISA analog in ';
 					  end;
+				'F'	: begin
+						funk_hwinit(initstring,DeviceNumber);
+						HWPlatform:=HWPlatform+',Funk ';
+					  end;
 {$endif}
-				'R'	: begin
-						rnd_hwinit(initstring,DeviceNumber);
-						HWPlatform:=HWPlatform+',Random ';
-					  end;	
 				'H' 	: begin
 						http_hwinit(initstring,DeviceNumber);
 						if debugFlag then writeln('http_hwinit initstring=',initstring,' DeviceNumber=',DeviceNumber);
 						HWPlatform:=HWPlatform+',HTTP ';
 					  end;
+				'R'	: begin
+						rnd_hwinit(initstring,DeviceNumber);
+						HWPlatform:=HWPlatform+',Random ';
+					  end;	
 {$ifndef USB92}
 {$ifdef IOwarrior}
 				'I'	: begin
@@ -407,10 +410,6 @@ begin
 				'E'	: begin
 						exec_hwinit(initstring,DeviceNumber);
 						HWPlatform:=HWPlatform+',ext. APP  ';
-					  end;
-				'F'	: begin
-						funk_hwinit(initstring,DeviceNumber);
-						HWPlatform:=HWPlatform+',Funk ';
 					  end;
 			end;
 	
