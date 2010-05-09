@@ -10,7 +10,12 @@ unit iowkit;
 interface
 
 uses
+{$ifdef Linux}
   Linux;
+{$endif}
+{$ifdef Windows}
+  Windows;
+{$endif}  
 
 const
   // IoWarrior vendor & product IDs

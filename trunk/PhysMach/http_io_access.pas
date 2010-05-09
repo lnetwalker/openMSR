@@ -22,9 +22,12 @@ function http_read_analog(io_port:longint):LongInt;
 function http_hwinit(initdata:string;DeviceNumber:byte):boolean;
 
 implementation
-uses SysUtils,CommonHelper,UnixUtil
+uses SysUtils,CommonHelper,
+{$ifdef Linux}
+UnixUtil,
+{$endif}
 {$ifndef ZAURUS}
-,http
+http
 {$endif}
 ;
 
