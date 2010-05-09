@@ -16,7 +16,7 @@ all: $(OBJECTS)
 
 # the physical Machine access layer
 DeviceServer: 	DeviceServer.pas
-	$(FPC) $(FPC_FLAGS) -gl -Fu../webserver -Fu../PhysMach -Fu../divLibs/pwu-1.6.0.2-src/main/ DeviceServer.pas 
+	$(FPC) $(FPC_FLAGS) -gl -Fu../HelperLibs -Fu../webserver -Fu../PhysMach -Fu../divLibs/pwu-1.6.0.2-src/main/ DeviceServer.pas 
 
 clear:
 	-rm *.ppu
