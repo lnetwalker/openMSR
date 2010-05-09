@@ -16,7 +16,13 @@ function deHTML(page:AnsiString):AnsiString;
 
 implementation
 
-uses baseunix,unix;
+uses 
+{$ifdef Linux}
+baseunix,unix;
+{$endif}
+{$ifdef Windows}
+Classes, SysUtils, Process;
+{$endif}
 
 const
 	debug=false;
@@ -25,11 +31,53 @@ const
 function RunCommand(Command: Ansistring):String;
 { execute external command and capture last line of output of command }
 var
+{$ifdef Linux}
 	fin,fout 	: text;
+{$endif}	
 	S		: AnsiString;
 	Params		: Array[1..10] of AnsiString;
+{$ifdef Windows}
+	AProcess	: TProcess;
+	Buffer		: string;
+	BytesAvailable	: DWord;
+	BytesRead	: LongInt;
+{$endif}
 
 begin
+{$ifdef Windows}
+	AProcess := TProcess.Create(nil);
+	// Gibt an, welcher Befehl vom Prozess ausgeführt werden soll
+	// Lassen sie uns den FreePascal Compiler verwenden
+	AProcess.CommandLine := Command;
+ 
+	// Wir definieren eine Option, wie das Programm
+	// ausgeführt werden soll. Dies stellt sicher, dass
+	// unser Programm nicht vor Beendigung des aufgerufenen
+	// Programmes fortgesetzt wird. Außerdem geben wir an,
+	// dass wir die Ausgabe lesen wollen
+	AProcess.Options := AProcess.Options + [poWaitOnExit, poUsePipes];
+ 
+	// Startet den Prozess nachdem die Parameter entsprechend
+	// gesetzt sind
+	AProcess.Execute;
+ 
+	// Folgendes wird erst nach Beendigung von AProcess ausgeführt
+ 
+	// Die Ausgabe wird nun  gelesen
+	BytesAvailable := AProcess.Output.NumBytesAvailable;
+	BytesRead := 0;
+	while BytesAvailable>0 do begin
+		SetLength(Buffer, BytesAvailable);
+		BytesRead := AProcess.OutPut.Read(Buffer[1], BytesAvailable);
+		S := S + copy(Buffer,1, BytesRead);
+		BytesAvailable := AProcess.Output.NumBytesAvailable;
+	end;
+ 
+	// TProcess freigeben.
+	AProcess.Free;   
+{$endif}
+
+{$ifdef Linux}
 	AssignStream(fin,fout,Command,Params);
 	//popen(fin,Command,'r');
 	if debug then writeln('Command=',Command,' returned : ',fpgeterrno);
@@ -43,7 +91,7 @@ begin
 
 	pclose(fout);
 	pclose(fin);
-
+{$endif}
 	if debug then writeln('S=',S);
 
 	RunCommand:=S;
