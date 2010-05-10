@@ -16,7 +16,7 @@ uses crt,linux,dos,baseunix,termio;
 {$endif}
 
 {$ifdef WIN32}
-uses crt,dos;
+uses windows,crt,dos;
 {$endif}
 
 type string80=string[80];
@@ -79,7 +79,9 @@ var
 	return,escape		: boolean; { linke / rechte maustaste }
 	minScreenX 		: word; { minimum window size x }
 	minScreenY		: word; {  minimum screen size y }
+	{$ifdef LINUX}
 	WinInfo			: TWinSize;
+	{$endif}
 	MyConsoleBuf		: Pointer;
 
 
