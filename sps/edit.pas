@@ -144,10 +144,10 @@ begin
         { numbers found, so read the line number }
         text_dummy:=copy(textzeile,1,j-1);
         val(text_dummy,znum);
-		{ delete this part from the entered line }
+	{ delete this part from the entered line }
         delete(textzeile,1,j-1);
-		{ remember the length of the found linenumber in c }
-		c:=j-1;
+	{ remember the length of the found linenumber in c }
+	c:=j-1;
         zeilnum:=zeilnum-1;
      end;
      znr[znum]:=znum;
@@ -158,106 +158,105 @@ begin
      { special handling for execution of external programs }
      if ( textzeile[1] = '$' ) then
         { in the commandline for external programs may be chars that 	}
-		{ could be wrong interpretet as operations, so the $ command	}
-		{ is special treated here										}
+	{ could be wrong interpretet as operations, so the $ command	}
+	{ is special treated here										}
      	j:=24
      else begin	
-	 	{ check wether it is a 3 char command }
+	{ check wether it is a 3 char command }
         repeat
            inc(j);
         until (anweis[j]=copy(textzeile,1,3)) or (j>anweismax);
-		{ it wasn't a 3 char cmd so check for a 2 char cmd }
-		if (j>anweismax) then begin
-			j:=0;
-			repeat
-	           inc(j);
+	{ it wasn't a 3 char cmd so check for a 2 char cmd }
+	if (j>anweismax) then begin
+		j:=0;
+		repeat
+		    inc(j);
         	until (anweis[j]=copy(textzeile,1,2)) or (j>anweismax);
-		end;	
-		{ no 3 char nor a 2 char cmd so it must be a single char cmd }
-		if (j>anweismax) then begin
-			j:=0;
-			repeat
-	           inc(j);
-        	until (anweis[j]=textzeile[1]) or (j>anweismax);
-		end;				
-     end;	
-     operation[znum]:=anweis[j];	
-     while length(operation[znum])<3 do operation[znum]:=operation[znum]+' ';
-     delete(textzeile,1,length(anweis[j]));
-     { add the length of the operation to the counter c }
-     c:=c+length(anweis[j]);
+	end;	
+	{ no 3 char nor a 2 char cmd so it must be a single char cmd }
+	if (j>anweismax) then begin
+	    j:=0;
+	    repeat
+	      inc(j);
+	    until (anweis[j]=textzeile[1]) or (j>anweismax);
+	end;
+      end;	
+      operation[znum]:=anweis[j];	
+      while length(operation[znum])<3 do operation[znum]:=operation[znum]+' ';
+      delete(textzeile,1,length(anweis[j]));
+      { add the length of the operation to the counter c }
+      c:=c+length(anweis[j]);
      
-     { end of programm detected, so set flag that interpreter can run on that code }
-     if (j=11) or (j=25) or (j=30) then programm:=true;
+      { end of programm detected, so set flag that interpreter can run on that code }
+      if (j=11) or (j=25) or (j=30) then programm:=true;
      
-     { these operations didn't need an operand }
-     if (j=19) or (j=18)  or (j=8) or (j=21) or (j=22) or (j=23) or (j=26) or (j=27) or (j=28) or (j=29) then
-        { JI, J, K, EQ, LT, GT, SP, JP, SPB, JC }
-        operand[znum]:=' '
-     else  { these operations didn't need an operand nor a parameter }
-        if (j=1) or (j=2) or (j=5) or (j=6) or (j=24) or (j=11) or (j=14) or
+      { these operations didn't need an operand }
+      if (j=19) or (j=18)  or (j=8) or (j=21) or (j=22) or (j=23) or (j=26) or (j=27) or (j=28) or (j=29) then
+      { JI, J, K, EQ, LT, GT, SP, JP, SPB, JC }
+	operand[znum]:=' '
+      else  { these operations didn't need an operand nor a parameter }
+	if (j=1) or (j=2) or (j=5) or (j=6) or (j=24) or (j=11) or (j=14) or
 		   (j=20) or (j=25) or (j=30) or (j=31) or (j=33) then begin		
-		    { that's UN(,ON(,U(,O(,EN, ),PE,NOP,EP,AN(,A( or $ command }
-			par[znum]:= (-1);
-			operand[znum]:=' ';
-	    end	
-        else { now get the operand from the line }
+	    { that's UN(,ON(,U(,O(,EN, ),PE,NOP,EP,AN(,A( or $ command }
+	    par[znum]:= (-1);
+	    operand[znum]:=' ';
+	end	
+        else begin { now get the operand from the line }
 		{ UN,ON,=N,TE,ZR,U,O,=,S,R,A,AN or j=3,4,7,9,19,12,13,15,16,17,32,34}
-            begin
-        	operand[znum]:=textzeile[1];
-        	delete(textzeile,1,1);
-			{ inc counter because an operand is 1 char long }
-			inc(c);
+	    operand[znum]:=textzeile[1];
+	    delete(textzeile,1,1);
+	    { inc counter because an operand is 1 char long }
+	    inc(c);
         end;
      
-     { find numbers that could be usefull parameters }
-     if ( par[znum] < 0 ) then 
-     else begin
+      { find numbers that could be usefull parameters }
+      if ( par[znum] < 0 ) then 
+      else begin
 
 		{ starts the parameter with a char ? }
 		if (ord(textzeile[1])<48) or (ord(textzeile[1])>57) then
-			{ yes, ignore char ( should be J for analog input }
-			{ and take the rest as parameter }
-     		j:=1
+		  { yes, ignore char ( should be J for analog input }
+		  { and take the rest as parameter }
+		  j:=1
 		else
-			{ no, take every number as parameter }
-			j:=0;
+		  { no, take every number as parameter }
+		  j:=0;
 
 		{ search for the end of parameter ( not a number !}
-     	repeat
-        	inc(j);
-     	until (ord(textzeile[j]) < 48) or (ord(textzeile[j]) > 57);
+		repeat
+		  inc(j);
+		until (ord(textzeile[j]) < 48) or (ord(textzeile[j]) > 57);
 
 		{ is the first pos a char ? }
 		if ((ord(textzeile[1])< 48) or (ord(textzeile[1])>57)) then begin
 			{ yes, this is an analog input as parameter }
 			text_dummy:=copy(textzeile,2,j-1);
 			val(text_dummy,longInt_dummy);
-			longInt_dummy:=longInt_dummy*-1;
+			{longInt_dummy:=longInt_dummy*-1;}
 		end
 		else begin
 			{ no , everything is a number }
-     		text_dummy:=copy(textzeile,1,j-1);
+			text_dummy:=copy(textzeile,1,j-1);
 			val(text_dummy,longInt_dummy);
 		end;
-     	c:=c+j-1;
-     	par[znum]:=longInt_dummy;
-     	delete(textzeile,1,j-1);
-     end;
+		c:=c+j-1;
+		par[znum]:=longInt_dummy;
+		delete(textzeile,1,j-1);
+      end;
 
-	{ the rest is a comment }
-	 j:=length(saved_text);
-	 while (saved_text[j]=' ') do dec(j);
-     comment[znum]:=copy(saved_text,c+1,j+1-(c+1));
-     { print the formatted line }
-     gotoxy(1,wherey);
-     clreol;
-     gotoxy(1,wherey);
-     write (znr[znum]:3,' ',operation[znum],' ',operand[znum],' ');
-     {if par[znum]>=0 then write(par[znum]:5) else write('     ');}
-	 write(par[znum]:5);
-     write(' ',comment[znum]);
-     saved_text:='';
+      { the rest is a comment }
+      j:=length(saved_text);
+      while (saved_text[j]=' ') do dec(j);
+      comment[znum]:=copy(saved_text,c+1,j+1-(c+1));
+      { print the formatted line }
+      gotoxy(1,wherey);
+      clreol;
+      gotoxy(1,wherey);
+      write (znr[znum]:3,' ',operation[znum],' ',operand[znum],' ');
+      {if par[znum]>=0 then write(par[znum]:5) else write('     ');}
+      write(par[znum]:5);
+      write(' ',comment[znum]);
+      saved_text:='';
 end;                               {**** ENDE FORMATIEREN****}
 
 procedure carret;                  {erzeugen eines zeilenvorschubes}
