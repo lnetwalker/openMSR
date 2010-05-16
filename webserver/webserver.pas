@@ -46,11 +46,13 @@ procedure stop_server();
 
 implementation
 
+uses 
+	CommonHelper,crt,inetaux,sockets,
 {$ifdef LINUX}
-	uses sockets, crt,inetaux, BaseUnix, Unix, dos;
+	BaseUnix, Unix, dos;
 {$endif}
 {$ifdef Windows}
-	uses windows,sockets,winsock,crt,inetaux;
+	windows;
 {$endif}
 
 {$ifdef WIN32}
@@ -60,7 +62,7 @@ implementation
 	
 const 
 	LocalAddress = '127.0.0.1';
-	debug = false;
+	debug = true;
 	MaxUrl = 25;
 	
 var
@@ -98,6 +100,7 @@ var
 		FCharBuf	: array [1..32768] of char;
 		RecBufSize	: integer;
 		sendString	: AnsiString;
+		BytesToSend	: word;
 	{$endif}
 
 	// Buffers
@@ -163,15 +166,6 @@ begin
 end;
 
 
-function IntToStr(value:LongInt):String;
-var dummy : string;
-
-begin
-	str(value,dummy);
-	IntToStr:=dummy;
-end;
-
-
 procedure SetupSpecialURL(URL:string;proc : tprocedure);
 begin
 	if proc <> nil then ServingRoutine[UrlPointer]:=proc;
@@ -216,6 +210,7 @@ begin
 	{$else}
 		srv_addr.sin_family := AF_INET;
 		srv_addr.sin_port := htons(port);
+		// BUG ?!?
 		if (address='') then srv_addr.sin_addr.S_addr :=0 
 		else srv_addr.sin_addr.S_addr := StrToAddr(Address);
 		{ Inititialize WINSOCK }
@@ -232,7 +227,7 @@ begin
 		{$endif}
 		{$ifdef Windows}
 			NON_BLOCK:=1;
-			//Result:=ioctlsocket(sock,FIONBIO,@NON_BLOCK);
+			Result:=ioctlsocket(sock,FIONBIO,@NON_BLOCK);
 			if ( Result=SOCKET_ERROR ) then errorLOG('setting NON_BLOCK failed :(');
 		{$endif}
 	end;
@@ -253,7 +248,11 @@ begin
 	
 	// Listening on port
 	if debug then writeLOG('listen..');
+	{$ifdef Linux}
 	fplisten(sock, max_connections);
+	{$else}
+	if (listen(sock, max_connections) = SOCKET_ERROR) then errorLOG('listen() failed with error '+ IntToSTr(WSAGetLastError()));
+	{$endif}
 end;
 
 
@@ -314,11 +313,16 @@ begin
 	{$else}
 		{ note chr(10) is newline }
 		{ build the string that should be send }
-		sendString:=header+myPage;
-		{ copy string to send into the send buffer }
-		for i:=1 to length(sendString) do FCharBuf[i]:=sendString[i];
-		if debug then writeLOG('respSize: '+IntToSTr(length(sendString)));
-		Result:=send(ConnSock,@FCharBuf[1],length(sendString),0);
+		sendString:=header + chr(10) + chr(10) + myPage;
+		BytesToSend:=length(sendString);
+		if debug then begin 
+			writeLOG('respSize: '+IntToSTr(BytesToSend));
+			writeLOG('Page=' + sendString);
+		end;
+		//Result:=send(ConnSock,@header,sizeof(header),0);
+		//Result:=send(ConnSock,@myPage,sizeof(myPage),0);
+		Result:=send(ConnSock,@sendString,BytesToSend,0);
+		if debug then errorLOG(IntToSTr(Result) + ' Bytes send');
 		if ( Result=SOCKET_ERROR ) then errorLOG('send Data failed :(');
 		Shutdown(ConnSock, 2);
 	{$endif}
@@ -335,6 +339,7 @@ var Paramstart,i	: word;
     TimeString		: string;
 {$ifdef Windows}
     st 			: systemtime;
+    n			: word;
 {$endif}
 
 begin
@@ -412,6 +417,9 @@ begin
 		if debug then writeLOG('requested URL='+URL);
 
 		{ now open the file, read and serve it }
+		{$ifdef Windows}
+		for n:=1 to length(URL) do if (URL[n]='/') then URL[n]:='\';
+		{$endif}
 		{$i-}
 		assign(G,URL);
 		reset (G);
@@ -484,7 +492,7 @@ begin
 		reset(sin);
 		//if debug then writeLOG('rewrite');
 		//rewrite(sout);
-{$I+}
+	{$I+}
 		if debug then WriteLOG('Reading requests...');
 		if (SelectText(sin,10000)>0) then begin
 			Addr_len:=SizeOf(cli_addr);
@@ -516,11 +524,14 @@ begin
 		TimeVal.tv_usec:=0;
 		Result:=Select(0, @FDRead, nil, nil, @TimeVal);
 		if Result = SOCKET_ERROR then errorLOG('ERROR='+IntToStr(WSAGetLastError));
+		if debug then WriteLOG('data read');
 		if (Result > 0) then begin
+			if debug then writeLOG('analyzing data');
 			addr_len:=SizeOf(cli_addr);
 			ConnSock:=accept(sock, @cli_addr,@addr_len);
 			if ( ConnSock=INVALID_SOCKET) then
 				errorLOG('accept failed');
+			if debug then writeLOG('calling process_request');
 			process_request;
 		end;
 	{$endif}
