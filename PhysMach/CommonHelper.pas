@@ -12,11 +12,13 @@ INTERFACE
 function RunCommand(Command: AnsiString):String;
 function BinToInt(binval:string):Integer;
 function deHTML(page:AnsiString):AnsiString;
-
+procedure debugLOG(msg:string);
+function IntToStr(value:LongInt):String;
 
 implementation
 
 uses 
+crt,
 {$ifdef Linux}
 baseunix,unix;
 {$endif}
@@ -26,6 +28,25 @@ Classes, SysUtils, Process;
 
 const
 	debug=false;
+	
+var
+	LOG	: text;
+
+procedure debugLOG(msg:string);
+begin
+	gotoxy(1,WhereY);
+	writeln(msg);
+	writeln(LOG,msg);
+end;
+
+
+function IntToStr(value:LongInt):String;
+var dummy : string;
+
+begin
+	str(value,dummy);
+	IntToStr:=dummy;
+end;
 
 
 function RunCommand(Command: Ansistring):String;
@@ -155,4 +176,6 @@ end;
 
 
 begin
+	assign(LOG,'/tmp/debug.log');
+	rewrite(LOG);
 end.
