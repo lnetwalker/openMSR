@@ -335,6 +335,7 @@ begin
 	DeviceNumber:=1;
 	while not(eof(f)) do begin
 		readln (f,zeile);
+		//if debugFlag then writeln ('Read from cfg: ',zeile);
 		ConfigTags:=StringSplit(zeile,Trenner);
 		if ( ConfigTags[1] = 'DEVICE' ) then begin
 		
