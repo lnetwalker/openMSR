@@ -147,11 +147,10 @@ var
 begin
 	DeviceIndex:=DeviceNumber;
 	inc(cnt);
+	if debug then writeln('http_hwinit: cnt=',cnt,' Initdata=',initdata);
 	delim:=pos('§',initdata);
 	R_URL[cnt]:=copy(initdata,1,delim-1);
-	initdata:=copy(initdata,delim+2,length(initdata)-2);
-	delim:=pos('§',initdata);
-	W_URL[cnt]:=copy(initdata,1,delim-1);
+	W_URL[cnt]:=copy(initdata,delim+1,length(initdata));
 	if debug then writeln('http_hwinit: R_URL=',R_URL[cnt],' W_URL=',W_URL[cnt]);
 end;
 
