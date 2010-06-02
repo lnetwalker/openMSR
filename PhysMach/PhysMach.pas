@@ -20,8 +20,8 @@ unit PhysMach;
 {	Linux	- specific Linux ( automatically applied by compiler	}
 {	USB92	- specific code to usb9263 from Calao			}
 
-{$define newio}
-{$define iowarrior}
+
+
 
 interface
 
@@ -88,13 +88,13 @@ uses
 		joy_io_access,funk_io_access,kolterPCI_io_access,
 		kolterOpto3_io_access,adc12lc_io_access,
 {$endif}
+
+		
 {$ifndef USB92}
 		bmcm_io_access,
+{$ifndef MacOSX}
 {$ifdef IOwarrior}
-{$ifdef newio }
 		iowkit_io_access,
-{$else}
-		iow_io_access,
 {$endif}
 {$endif}
 {$endif}
@@ -335,7 +335,6 @@ begin
 	DeviceNumber:=1;
 	while not(eof(f)) do begin
 		readln (f,zeile);
-		//if debugFlag then writeln ('Read from cfg: ',zeile);
 		ConfigTags:=StringSplit(zeile,Trenner);
 		if ( ConfigTags[1] = 'DEVICE' ) then begin
 		
