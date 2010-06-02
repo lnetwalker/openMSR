@@ -2,19 +2,20 @@
 #
 # Copyright (c) 1999 by Hartmut Eilers
 # 
-# Just do a "make all", and, when you're finished, a make clean. 
+# Just do a "make BLD_ARCH=[arm|linux|win32|osx]  all", and, when you're finished,
+# a "make BLD_ARCH=[arm|linux|win32|osx] clean".
 
 OBJECTS=physmach
 
-all: $(OBJECTS)
+# get compiler and flags for the given platform
+include ./make_macros/$(BLD_ARCH)_macros
 
-FPC=/usr/local/bin/fpc
-FPC_FLAGS= -dLINUX -dnewio
+all: $(OBJECTS)
 
 
 # the physical Machine access layer
 physmach: 	
-	$(FPC) $(FPC_FLAGS) -gl -Futest/libad4 -Fu../divLibs/pwu-1.6.0.2-src/main/ -Fu../HelperLibs PhysMach.pas
+	$(FPC) $(FPC_FLAGS) -gl -Fu../divLibs/pwu-1.6.0.2-src/main/ -Fu../HelperLibs PhysMach.pas
 
 clear:
 	-rm PhysMach.ppu
