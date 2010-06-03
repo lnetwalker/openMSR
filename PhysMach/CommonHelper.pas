@@ -18,13 +18,13 @@ function IntToStr(value:LongInt):String;
 implementation
 
 uses 
-crt,
 {$ifdef Linux}
-baseunix,unix;
+	baseunix,unix,
 {$endif}
 {$ifdef Windows}
-Classes, SysUtils, Process;
+	Classes, SysUtils, Process,
 {$endif}
+crt;
 
 const
 	debug=false;
