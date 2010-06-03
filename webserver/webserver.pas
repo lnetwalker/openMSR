@@ -33,6 +33,13 @@ unit webserver;
 
 interface
 
+{$ifdef LINUX}
+	{$define Unix}
+{$endif}
+{$ifdef MacOSX}
+	{$define Unix}
+{$endif}
+	
 
 procedure start_server(address:string;port:word;BlockMode: Boolean;doc_root,logfile:string);
 procedure SetupSpecialURL(URL:string;proc : tprocedure);
@@ -47,13 +54,15 @@ procedure stop_server();
 implementation
 
 uses 
-	CommonHelper,crt,inetaux,sockets,
-{$ifdef LINUX}
-	BaseUnix, Unix, dos;
+{$ifdef Unix}
+	BaseUnix, Unix,dos,
 {$endif}
 {$ifdef Windows}
-	windows;
+	windows,
 {$endif}
+	CommonHelper,crt,inetaux,sockets;
+
+
 
 {$ifdef WIN32}
 	type
@@ -68,7 +77,7 @@ const
 var
 
 	// Listening socket
-	{$ifdef LINUX }
+	{$ifdef Unix}
 		sock,csock	: longint;
 	{$else}
 		sock		: TSocket;
@@ -81,14 +90,15 @@ var
 	binData			: byte;
 
 	// Server and Client address
-	{$ifdef LINUX}
+	{$ifdef Unix}
 		srv_addr	: TInetSockAddr;
-		cli_addr	: TInetSockAddr;
+		cli_addr	: psockaddr;
 		// Conncected socket i/o
 		sin, sout,			// Descriptors for listening port
 		ccsin,ccsout	: text;		// Descriptors for client communication dynamic ports
 		Addr_len	: LongInt;
-	{$else}
+	{$endif}
+	{$ifdef Win32}
 		srv_addr	: TSockAddr;
 		cli_addr	: TSockAddr;	
 		GInitData	: TWSADATA;
@@ -202,7 +212,7 @@ begin
 	BufCnt:=1;
 	reqCnt:=0;
 	max_connections := 5;
-	{$ifdef LINUX}
+	{$ifdef Unix}
 		srv_addr.family := AF_INET;
 		srv_addr.port := htons(port);
 		if (address='') then srv_addr.addr :=0 
@@ -222,7 +232,7 @@ begin
 
 	if not(BlockMode) then begin
 		{ set socket to non blocking mode }
-		{$ifdef LINUX}
+		{$ifdef Unix}
 			FpFcntl(sock,F_SetFd,MSG_DONTWAIT);
 		{$endif}
 		{$ifdef Windows}
@@ -234,8 +244,8 @@ begin
 
 	// Binding the server
 	if debug then writeLOG('Binding port..');
-	{$ifdef LINUX}
-		if not bind(sock, srv_addr, sizeof(srv_addr)) then begin
+	{$ifdef Unix}
+		if fpbind(sock, @srv_addr, sizeof(srv_addr))<> 0 then begin
 			errorLOG('!! Error in bind().');
 			halt;
 		end;
@@ -248,7 +258,7 @@ begin
 	
 	// Listening on port
 	if debug then writeLOG('listen..');
-	{$ifdef Linux}
+	{$ifdef Unix}
 	fplisten(sock, max_connections);
 	{$else}
 	if (listen(sock, max_connections) = SOCKET_ERROR) then errorLOG('listen() failed with error '+ IntToSTr(WSAGetLastError()));
@@ -286,7 +296,7 @@ begin
 		// Sending response
 		writeLOG('serving data...');
 	end;
-	{$ifdef LINUX}
+	{$ifdef Unix}
 		str(BufCnt,blubber);
 		if debug then writeLOG('BufCnt='+blubber);
 		{ if I send the header and the page together }
@@ -349,7 +359,7 @@ begin
 		{ actually we should switch to blocking mode here, }
 		{ because it is possible that some amount of time  }
 		{ is between the connect and the request           }
-		{$ifdef LINUX}
+		{$ifdef Unix}
 			readln(ccsin, buff);
 			str(BufCnt,blubber);
 			if debug then writeLOG('Req['+blubber+']='+buff);
@@ -453,7 +463,7 @@ begin
 		field description
 		host rfc931 username date:time request statuscode bytes referrer applinformation
 	}
- {$ifdef linux} // LINUX
+ {$ifdef Unix} // LINUX
 	gettime(std,min,sec,ms); 
 	getdate(jahr,mon,tag,wota);
  {$else}        // WINDOWS
@@ -484,7 +494,7 @@ begin
 
 
 
-	{$ifdef LINUX}
+	{$ifdef Unix}
 	{$I-}
 		if debug then writeLOG('Sock2Text');
 		Sock2Text(sock,sin,sout);
@@ -496,7 +506,7 @@ begin
 		if debug then WriteLOG('Reading requests...');
 		if (SelectText(sin,10000)>0) then begin
 			Addr_len:=SizeOf(cli_addr);
-			csock:=accept(sock, cli_addr,Addr_len);
+			csock:=fpaccept(sock, cli_addr,@Addr_len);
 			Sock2Text(csock,ccsin,ccsout);
 			reset(ccsin);
 			rewrite(ccsout);
@@ -558,7 +568,7 @@ begin
 end;
 
 begin
-	// don't write access log
+	// don''t write access log
 	saveaccess:=false;
 
 	// open logfiles
