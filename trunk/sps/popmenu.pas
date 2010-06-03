@@ -11,8 +11,13 @@ INTERFACE
 
 {$undef ZAURUS}
 
+{$ifdef MacOSX}
+{$define LINUX}
+{$endif}
+
+
 {$ifdef LINUX}
-uses crt,linux,dos,baseunix,termio;
+uses crt,unix,dos,baseunix,termio;
 {$endif}
 
 {$ifdef WIN32}
