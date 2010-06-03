@@ -1,0 +1,2 @@
+FPC=/usr/local/bin/ppcrosswin
+FPC_FLAGS= -Twin32 -dIOwarrior -dnewio
