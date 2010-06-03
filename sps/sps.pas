@@ -5,17 +5,22 @@ program sps_simulator;
 
 
 {  $define newio }
-uses 	dos,crt,porting,printer,popmenu,browse,PhysMach,
+uses 	
 {$ifdef LINUX }
-		linux,unix;
+		linux,unix,
 {$endif}
 {$ifdef WIN32 }
-		windows;
+		windows,
 {$endif}
+dos,crt,porting,printer,popmenu,browse,PhysMach;
 {$M 16384,0,100000} 
 
 {$DEFINE SPS}
 
+{$ifdef MacOSX}
+	{$linklib libad4.dylib}
+{$endif}
+	
 {$i ./sps.h}
 {$i ./fileserv.pas}
 {$i ./edit.pas}
@@ -186,7 +191,7 @@ begin                              { SPS_SIMULATION }
      textbackground(lightgray);textcolor(Black);
      my_wwindow(trunc(screenx/2-25),trunc(screeny/2-2),trunc(screenx/2+25),trunc(screeny/2+2),'','',true);
      writeln(' SPS SIMULATOR V ',version);
-     write(' Build on ',datum,' (c) 1989-2006 by H. Eilers ');
+     write(' Build on ',datum,' (c) 1989-2010 by H. Eilers ');
      getdir(0,start_pfad);
      start_pfad:='.';
      configuration;
