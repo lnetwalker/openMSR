@@ -52,26 +52,28 @@ uses
    $Id$
   
     }
-{$include <Carbon/Carbon.h>}
-{$include <IOKit/hid/IOHIDLib.h>}
+
+//{$include <Carbon/Carbon.h>}
+//{$include <IOKit/hid/IOHIDLib.h>}
 
   const
      kIOWarriorVendorID = 1984;     
      kIOWarrior40DeviceID = $1500;     
      kIOWarrior24DeviceID = $1501;     
      kIOWarrior56DeviceID = $1503;     
-     kIOWarrior24PVDeviceID = $1511;     
-{$ifdef kIOHIDDeviceInterfaceID122}
-  { we are running on 10.3 or later }
-     IOWarriorHIDDeviceInterface = IOHIDDeviceInterface122;     
-     kIOWarriorHIDDeviceInterfaceID = kIOHIDDeviceInterfaceID122;     
-{$else}
-  { running on 10.2.x }
+     kIOWarrior24PVDeviceID = $1511; 
 
-  const
-     IOWarriorHIDDeviceInterface = IOHIDDeviceInterface;     
-     kIOWarriorHIDDeviceInterfaceID = kIOHIDDeviceInterfaceID;     
-{$endif}
+//{$ifdef kIOHIDDeviceInterfaceID122}
+//  { we are running on 10.3 or later }
+//     IOWarriorHIDDeviceInterface = IOHIDDeviceInterface122;     
+//     kIOWarriorHIDDeviceInterfaceID = kIOHIDDeviceInterfaceID122;     
+//{$else}
+//  { running on 10.2.x } 
+//  const
+//     IOWarriorHIDDeviceInterface = IOHIDDeviceInterface;     
+//     kIOWarriorHIDDeviceInterfaceID = kIOHIDDeviceInterfaceID;     
+//{$endif}
+
   {!
   @defined kIOWarrior40Interface0
   @discussion Interface type indentifier for an interface 0 of an IOWarrior 40.
@@ -135,11 +137,11 @@ uses
 
   type
      IOWarriorListNodeStruct = record
-          ioWarriorHIDInterface : ^^IOWarriorHIDDeviceInterface;
+          ioWarriorHIDInterface : PIOWarriorHIDDeviceInterface;
           nextNode : ^IOWarriorListNodeStruct;
           serialNumber : CFStringRef;
           interfaceType : cint;
-          interfaceOpen : bool;
+          interfaceOpen : boolean;
        end;
 
      IOWarriorListNodeStruct = IOWarriorListNode;
@@ -219,7 +221,7 @@ uses
    @param inInterfaceType The type of the interface to be returned.
    @result Returns an interface object if found, NULL otherwise.
     }
-  function IOWarriorFirstInterfaceOfType(inInterfaceType:cint):^^IOWarriorHIDDeviceInterface;cdecl;external External_library name 'IOWarriorFirstInterfaceOfType';
+  function IOWarriorFirstInterfaceOfType(inInterfaceType:cint):PIOWarriorHIDDeviceInterface;cdecl;external External_library name 'IOWarriorFirstInterfaceOfType';
 
   {!
   @function IOWarriorInterfaceListNodeAtIndex
@@ -228,7 +230,7 @@ uses
    @param inIndex The index of the desired list node. First list node has index 0.
    @result A pointer to a structure of type IOWarriorListNode.  NULL if index is out of bounds.
     }
-  function IOWarriorInterfaceListNodeAtIndex(inIndex:cint):^IOWarriorListNode;cdecl;external External_library name 'IOWarriorInterfaceListNodeAtIndex';
+  function IOWarriorInterfaceListNodeAtIndex(inIndex:cint):PIOWarriorListNode;cdecl;external External_library name 'IOWarriorInterfaceListNodeAtIndex';
 
   {!
   @function IOWarriorWriteToInterface
