@@ -19,6 +19,7 @@ dos,crt,porting,printer,popmenu,browse,PhysMach;
 
 {$ifdef MacOSX}
 	{$linklib libad4.dylib}
+	{$linklib IOKit.dylib}
 {$endif}
 	
 {$i ./sps.h}
