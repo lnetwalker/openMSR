@@ -2,3 +2,4 @@ export SPSHARDWARE="IO Warrior"
 export SPSVERSION=1.7.3-RC9
 export LINES=25
 export COLUMNS=80
+export CVSROOT=":ext:hartmut@cvs.home.eilers.net:/home/cvs"
