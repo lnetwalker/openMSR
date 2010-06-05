@@ -20,7 +20,7 @@ uses
 }
 
   const
-    External_library='libad4'; {Setup as you need}
+    External_library='libad4.dylib'; {Setup as you need}
 
 {$IFDEF FPC}
 {$PACKRECORDS C}
