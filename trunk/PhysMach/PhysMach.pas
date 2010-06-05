@@ -16,11 +16,13 @@ unit PhysMach;
 
 { the following defines are used in the code:				}
 {	newio	- use new IO Warrior library				}
-{	iowarrior - include iowarrior library or not			}
+{	IOwarrior - include iowarrior library or not			}
 {	Linux	- specific Linux ( automatically applied by compiler	}
 {	USB92	- specific code to usb9263 from Calao			}
 
-
+{$ifdef MaxOSX}
+	{$undef IOwarrior}
+{$endif}
 
 
 interface
@@ -92,10 +94,9 @@ uses
 		
 {$ifndef USB92}
 		bmcm_io_access,
-{$ifndef MacOSX}
+
 {$ifdef IOwarrior}
 		iowkit_io_access,
-{$endif}
 {$endif}
 {$endif}
 		http_io_access,rnd_io_access,exec_io_access,StringCut;
