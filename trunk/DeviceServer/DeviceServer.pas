@@ -1,6 +1,10 @@
 program DeviceServer;
 {$mode objfpc}
 
+{$ifdef MacOSX}
+	{$define Linux}
+{$endif}
+
 uses 
 {$IFDEF Linux} cthreads,BaseUnix,
 {$endif}
@@ -8,6 +12,12 @@ uses
 Windows,
 {$endif}
 PhysMach,webserver,telnetserver,classes,crt;
+
+
+{$ifdef MacOSX}
+	{$linklib libad4.dylib}
+{$endif}
+	
 
 { $Id$ }
 
@@ -18,6 +28,7 @@ PhysMach,webserver,telnetserver,classes,crt;
 { 08.03.2008		changed to start one thread per device			}
 { 18.07.2008		added comments,code clearing				}
 { 23.07.2009		DeliverDigitalInputValues accepts more than one IOGroup }
+{ 27.05.2010		Port to Mac OS X PowerPC }
 
 const
 	Forever=false;
@@ -29,7 +40,7 @@ const
 
 var
 	i		: LongInt;
-	ThreadHandle	: array[1..MaxThreads] of LongInt;
+	ThreadHandle	: array[1..MaxThreads] of TThreadId;
 	ThreadName	: array[1..MaxThreads] of string;
 	ThreadCnt	: array[1..MaxThreads] of LongInt;
 	ThreadRPMs	: array[1..MaxThreads] of LongInt;
