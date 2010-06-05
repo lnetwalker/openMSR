@@ -16,6 +16,10 @@ unit telnetserver;
 
 { 18.03.2008	Project start				}
 
+{$ifdef MacOSX}
+	{$define Linux}
+{$endif}
+
 interface
 
 Procedure TelnetSetupInterpreter(proc : tprocedure);
@@ -116,7 +120,8 @@ end;
 Procedure TelnetSetupInterpreter(proc : tprocedure);
 begin
 	if proc <> nil then InterpreterProc:=proc;
-	writeLOG('registered Telnet Interpreter');
+	if debug then
+		writeLOG('registered Telnet Interpreter');
 end;
 
 
@@ -148,7 +153,8 @@ procedure TelnetServeRequest(WelcomeMSG : String);
 
 
 begin
-	writeLOG('Waiting for connections...');
+	if debug then
+		writeLOG('Waiting for connections...');
 	uSock := fpAccept(lSock, @sAddr, @Size_InetSockAddr);
 
 	if uSock = -1 then Error(1,'Telnet Accept error: ',socketerror);
@@ -157,7 +163,8 @@ begin
 		FpFcntl(usock,F_SetFd,MSG_DONTWAIT);
 	{$endif}
 
-	writeLOG('Accepted connection from ' + AddrToStr(sAddr.Addr));
+	if debug then
+		writeLOG('Accepted connection from ' + AddrToStr(sAddr.Addr));
 	Sock2Text(uSock, sin, sout);
 	
 	Reset(sin);
@@ -167,7 +174,8 @@ begin
 	{$ifdef Linux}
 		if SelectText(sin,10000)>0 then begin
 			Readln(sin, Line);
-			writeLOG('Heard: '+line);
+			if debug then 
+				writeLOG('Heard: '+line);
 			if Line = 'close' then break;
 			if InterpreterProc <> nil then InterpreterProc;
 		end;
@@ -198,7 +206,8 @@ begin
 	Close(sin);
 	Close(sout);
 	fpShutdown(uSock, 2);
-	writeLOG('Connection closed.');
+	if debug then 
+		writeLOG('Connection closed.');
 end;
 
 
@@ -227,7 +236,7 @@ begin
 	InterpreterProc:=nil;
 	ListenPort:= $AFFE;			// decimal 45054
 
-	// don't write access log
+	// don''t write access log
 	saveaccess:=false;
 
 	// open logfiles
