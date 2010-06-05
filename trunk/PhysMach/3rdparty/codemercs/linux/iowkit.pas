@@ -1,22 +1,19 @@
-unit iowkit;
-
 //
 // IO-Warrior kit library V1.5 include file
 //
 
-
+unit iowkit;
 
 // activate this if you want to explicitly load the DLL
 //{$DEFINE LINK_ON_REQUEST}
 
-INTERFACE
-
+interface
 
 {$ifdef Linux}
-  uses Linux;
+uses  Linux;
 {$endif}
 {$ifdef Windows}
-  uses Windows;
+uses  Windows;
 {$endif}  
 
 const
