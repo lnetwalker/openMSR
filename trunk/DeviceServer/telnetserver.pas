@@ -44,7 +44,7 @@ uses crt,sockets,
 const
 	MaxConn 		= 1;
 	Size_InetSockAddr	: longint = sizeof(TInetSockAddr);
-	debug			= false;
+	debug			= true;
 
 var
 	lSock, uSock 		: LongInt;
@@ -111,7 +111,7 @@ var
 begin
 	str(number,NumStr);
 	str(level,LevelStr);
-	writeLOG('Error occured: Level='+LevelStr+' Number='+NumStr+' Msg='+msg);
+	if debug then writeLOG('Error occured: Level='+LevelStr+' Number='+NumStr+' Msg='+msg);
 	Writeln(msg,number);
 	halt(level);
 end;
