@@ -11,7 +11,7 @@ uses
 {$ifdef Windows}
 Windows,
 {$endif}
-PhysMach,webserver,telnetserver,classes,crt;
+PhysMach,webserver,telnetserver,classes,crt,CommonHelper;
 
 
 {$ifdef MacOSX}
@@ -35,7 +35,7 @@ const
 	MaxThreads=25;
 	BLOCKED=true;
 	NONBLOCKED=false;
-	debug=false;
+	debug=true;
 	TimeOut=500;
 
 var
@@ -54,7 +54,18 @@ var
 	DeviceCnt,
 	NumOfThreads	: LongInt ;
 	connectionclose	: boolean;
+	DebugOutput	: TRTLCriticalSection;
 
+
+procedure DSdebugLOG(msg:string);
+// This is a wrapper around debugLOG to ensure
+// that no debug Messages are crippled due to
+// more threads spit out things at the same time
+begin
+	EnterCriticalSection(DebugOutput);
+	debugLOG(msg);
+	LeaveCriticalSection(DebugOutput);
+end;
 
 // telnet stuff
 
@@ -80,7 +91,7 @@ begin
 	val(copy(line,5,2),pa);
 	if length(line)>=7 then
 		val(copy(line,7,length(line)-6),va);
-	if debug then writeln('pa=',pa,' va=',va);
+	if debug then DSdebugLOG('pa=' + IntToStr(pa) + ' va=' + IntToStr(va));
 	case cmd of
 		{ read command, next param is a counter input or output }
 		'R' : 	begin
@@ -93,7 +104,7 @@ begin
 							end;
 						'I' :	begin
 								if debug then
-									write('E[',pa,']=');
+									DSdebugLOG('E[' + IntToStr(pa) + ']=');
 								if (eingang[pa])then
 									TelnetWriteAnswer('1'+chr(10)+'>')
 								else
@@ -110,7 +121,7 @@ begin
 		'W' :	begin
 				case hw of
 					'O' :	begin
-							if debug then writeln (pa,' ',va);
+							if debug then debugLOG (IntToStr(pa) + ' ' + IntToStr(va));
 							if va=0 then ausgang[pa]:=false
 							else ausgang[pa]:=true;
 							TelnetWriteAnswer(chr(10)+'>');
@@ -178,7 +189,7 @@ var
 
 begin
 	MySelf:=longint(p);
-	writeln('started Telnet Thread..',MySelf);
+	DSdebugLOG('started Telnet Thread..' + IntToStr(MySelf));
 	TelnetInit(0,'./telnet.log');
 	repeat
 		connectionclose:=false;
@@ -190,7 +201,7 @@ begin
 		until connectionclose;
 	until shutdown=true;
 	TelnetShutDown;
-	writeln('Telnet Handler going down..',MySelf);
+	DSdebugLOG('Telnet Handler going down..' + IntToStr(MySelf));
 	TelnetThread:=0;
 end;
 
@@ -203,12 +214,12 @@ var
 
 begin
 	MySelf:=longint(p);
-	writeln('started Device Handler Thread..',MySelf);
+	DSdebugLOG('started Device Handler Thread..' + IntToStr(MySelf));
 	repeat
 		    PhysMachIOByDevice(DeviceList[MySelf]);
 		inc(ThreadCnt[MySelf]);
 	until shutdown=true;
-	writeln('Device Handler going down..',MySelf);
+	DSdebugLOG('Device Handler going down..' + IntToStr(MySelf));
 	DeviceHandler:=0;
 end;
 
@@ -239,8 +250,8 @@ begin
 
 
 	if debug then begin
-		writeln('embeddedWeb:> Got Parameters');
-		writeln('URL=',Url,' Parameters=',Params,' ',IOGroup,' ',ByteValue);
+		DSdebugLOG('embeddedWeb:> Got Parameters');
+		DSdebugLOG('URL=' + Url + ' Parameters=' + Params + ' ' + IntToStr(IOGroup) + ' ' + IntToStr(ByteValue));
 	end;
 end;
 
@@ -267,10 +278,10 @@ begin
 	end;
 
 	Seite:=SeitenStart+Values+SeitenEnde;
-	if debug then writeln('embeddedWeb:>Sending Page');
+	if debug then DSdebugLOG('embeddedWeb:>Sending Page');
 
 	SendPage(Seite);
-	if debug then writeln('embeddedWeb:>Page Send, finished');
+	if debug then DSdebugLOG('embeddedWeb:>Page Send, finished');
 end;
 
 
@@ -283,7 +294,7 @@ var
 	Trenner,i,ValStart			: integer;
 	
 begin
-	if debug then writeln('WriteAnalogValues called....');
+	if debug then DSdebugLOG('WriteAnalogValues called....');
 	inc(Counter);
 	SeitenStart:='<html><body>';
 	SeitenEnde:=' </body></html>';
@@ -291,34 +302,34 @@ begin
 	
 	{ Parameter auswerten, Fragezeichen ist das erste Zeichen, daher ab pos 2 }
 	Params:=copy(GetParams,2,Length(GetParams));
-	if debug then writeln('WriteAnalogValues->reading params....',Params);
+	if debug then DSdebugLOG('WriteAnalogValues->reading params....' + Params);
 	{ Der erste Parameter ist der Array Index des 1. Wertes }
 	ValStart:=pos(',',Params)+1;
 	val(copy(Params,1,ValStart-2),AddressBase);
 	{ den ersten Wert wegschneiden }
 	Params:=copy(Params,ValStart,Length(Params));
-	if debug then writeln('WriteAnalogValues->got data: AdrBase: ',AddressBase,' Params: ',Params);
+	if debug then DSdebugLOG('WriteAnalogValues->got data: AdrBase: ' + IntToStr(AddressBase) + ' Params: ' + Params);
 	i:=0;
 	{ Werte lesen und Ausgänge schreiben }
 	repeat
 	    Trenner:=pos(',',Params);
 	    if Trenner=0 then begin
 		val(copy(Params,1,Length(Params)),analog_in[AddressBase+i]);
-		if debug then writeln('WriteAnalogValues->params: ',Params,' Trenner ',Trenner,' written ',analog_in[AddressBase+i]);
+		if debug then DSdebugLOG('WriteAnalogValues->params: ' + Params + ' Trenner ' + IntToStr(Trenner) + ' written ' + IntToStr(analog_in[AddressBase+i]));
 	    end
 	    else begin
 	        val(copy(Params,1,Trenner-1),analog_in[AddressBase+i]);
 		Params:=copy(Params,Trenner+1,Length(Params));
-		if debug then writeln('WriteAnalogValues->params: ',Params,' Trenner ',Trenner,' written ',analog_in[AddressBase+i]);
+		if debug then DSdebugLOG('WriteAnalogValues->params: ' + Params + ' Trenner ' + IntToStr(Trenner) + ' written ' + IntToStr(analog_in[AddressBase+i]));
 	    end;
 	    inc(i);
 	until ( Trenner=0 );
 
 	{ return something usefull }	
 	Seite:=SeitenStart+Values+SeitenEnde;
-	if debug then writeln('embeddedWeb:>Sending Page');
+	if debug then DSdebugLOG('embeddedWeb:>Sending Page');
 	SendPage(Seite);
-	if debug then writeln('embeddedWeb:>Page Send, finished');
+	if debug then DSdebugLOG('embeddedWeb:>Page Send, finished');
 end;
 
 
@@ -344,7 +355,7 @@ begin
 		Params:=copy(GetParams,2,Length(GetParams));
 		repeat
 
-			if debug then writeln('DeliverDigitalValues  Params=',Params);
+			if debug then DSdebugLOG('DeliverDigitalValues  Params=' + Params);
 
 			Trenner:=pos(',',Params);
 			if (Trenner = 0 ) then Trenner:=1		// read the last param correctly
@@ -362,7 +373,7 @@ begin
 	      
 		AddressBase:=IOGroup*8-8;
 
-		if debug then writeln('DeliverDigitalValues AddressBAse=',AddressBase);
+		if debug then DSdebugLOG('DeliverDigitalValues AddressBAse=' + IntToStr(AddressBase));
 
 		for Bits:=1 to 8 do
 			if eingang[AddressBase+Bits] then Values:=Values+' '+'1'
@@ -371,10 +382,10 @@ begin
 	end;
 	Seite:=SeitenStart+Values+SeitenEnde;
 
-	if debug then writeln('embeddedWeb:>Sending Page');
+	if debug then DSdebugLOG('embeddedWeb:>Sending Page');
 	SendPage(Seite);
 
-	if debug then writeln('embeddedWeb:>Page Send, finished');
+	if debug then DSdebugLOG('embeddedWeb:>Page Send, finished');
 end;
 
 
@@ -401,7 +412,7 @@ begin
 		Params:=copy(GetParams,2,Length(GetParams));
 		repeat
 
-			if debug then writeln('DeliverDigitalOutputValues  Params=',Params);
+			if debug then DSdebugLOG('DeliverDigitalOutputValues  Params=' + Params);
 
 			Trenner:=pos(',',Params);
 			if (Trenner = 0 ) then Trenner:=1		// read the last param correctly
@@ -419,7 +430,7 @@ begin
 	      
 		AddressBase:=IOGroup*8-8;
 
-		if debug then writeln('DeliverDigitalOutputValues AddressBAse=',AddressBase);
+		if debug then DSdebugLOG('DeliverDigitalOutputValues AddressBAse=' + IntToStr(AddressBase));
 
 		for Bits:=1 to 8 do
 			if ausgang[AddressBase+Bits] then Values:=Values+' '+'1'
@@ -428,10 +439,10 @@ begin
 	end;
 	Seite:=SeitenStart+Values+SeitenEnde;
 
-	if debug then writeln('embeddedWeb:>Sending Page');
+	if debug then DSdebugLOG('embeddedWeb:>Sending Page');
 	SendPage(Seite);
 
-	if debug then writeln('embeddedWeb:>Page Send, finished');
+	if debug then DSdebugLOG('embeddedWeb:>Page Send, finished');
 end;
 
 
@@ -467,9 +478,9 @@ begin
 
 	{ return something usefull }	
 	Seite:=SeitenStart+Values+SeitenEnde;
-	if debug then writeln('embeddedWeb:>Sending Page');
+	if debug then DSdebugLOG('embeddedWeb:>Sending Page');
 	SendPage(Seite);
-	if debug then writeln('embeddedWeb:>Page Send, finished');
+	if debug then DSdebugLOG('embeddedWeb:>Page Send, finished');
 end;
 
 
@@ -506,9 +517,9 @@ begin
 
 	{ return something usefull }	
 	Seite:=SeitenStart+Values+SeitenEnde;
-	if debug then writeln('embeddedWeb:>Sending Page');
+	if debug then DSdebugLOG('embeddedWeb:>Sending Page');
 	SendPage(Seite);
-	if debug then writeln('embeddedWeb:>Page Send, finished');
+	if debug then DSdebugLOG('embeddedWeb:>Page Send, finished');
 end;
 
 
@@ -520,10 +531,10 @@ var
 
 begin
 	MySelf:=longint(p);
-	writeln('started Webserver Thread, going to start Server...');
+	DSdebugLOG('started Webserver Thread, going to start Server...');
 	{ start the webserver with IP, Port, Document Root and Logfile }
-	start_server('canis',10080,BLOCKED,'./docroot/','./pwserver.log');
-	writeln('Webserver started, ready to serve');
+	start_server('canis',10080,BLOCKED,'docroot','./pwserver.log');
+	DSdebugLOG('Webserver started, ready to serve');
 
 	{ register the variable handler }
 	SetupVariableHandler(@embeddedWebReadParams);
@@ -539,11 +550,12 @@ begin
 	repeat
 		EnterCriticalSection(ProtectParams);
 		    serve_request;
-		    LeaveCriticalSection(ProtectParams);
+		LeaveCriticalSection(ProtectParams);
+		if debug then DSdebugLOG('Webserver served Client...');
 		inc(ThreadCnt[MySelf]);
 	until Shutdown=true;
 
-	writeln('Webserver going down..');
+	DSdebugLOG('Webserver going down..');
 	WebserverThread:=0;
 	TelnetShutDown;
 end;					{ Webserver Thread end }
@@ -564,6 +576,7 @@ MySelf			: LongInt;
 
 begin
 	MySelf:=longint(p);
+	DSdebugLOG('started Statistics Thread...' + IntToStr(MySelf));
 	repeat
 		// get the current time in seconds and save the counter for each thread
 		{$ifdef Linux}
@@ -590,6 +603,7 @@ begin
 				ThreadRPMs[i]:=round((ThreadCnt[i]-OldThreadCnt[i])/TimeDiff);
 		inc(ThreadCnt[MySelf]);
 	until Shutdown=true;
+	DSdebugLOG('stopping Statistic Thread ');
 end;
 
 
@@ -600,10 +614,12 @@ var
 
 begin
 	MySelf:=longint(p);
+	DSdebugLOG('started Time Control Thread...' + IntToStr(MySelf));
 	repeat
 	
 		inc(ThreadCnt[MySelf]);
 	until Shutdown=true;
+	DSdebugLOG('stopping Thread Time Control');
 end;
 
 
@@ -621,6 +637,7 @@ begin					{ Main program }
 
 	Counter:=0;
 	InitCriticalSection(ProtectParams);
+	InitCriticalSection(DebugOutput);
 
 	// start threads, for every configured device one thread
 	// the device servers need to be started as first thread,
@@ -628,7 +645,7 @@ begin					{ Main program }
 	NumOfThreads:=1;
 	for DeviceCnt:=1 to DeviceTypeMax do begin
 		if DeviceList[DeviceCnt]<>'-' then begin
-			writeln('starting DeviceHandler for Device:',DeviceList[DeviceCnt]);
+			DSdebugLOG('starting DeviceHandler for Device:' + DeviceList[DeviceCnt]);
 			ThreadName[NumOfThreads]:='DeviceHandler '+DeviceList[DeviceCnt];
 			ThreadHandle[NumOfThreads]:=BeginThread(@DeviceHandler,pointer(NumOfThreads));
 			ThreadCnt[NumOfThreads]:=0;
@@ -637,25 +654,25 @@ begin					{ Main program }
 	end;
 
 	// start the webserver thread
-	writeln('Starting Webserver Thread...');
+	DSdebugLOG('Starting Webserver Thread...');
 	ThreadName[NumOfThreads]:='Webserver';
 	ThreadHandle[NumOfThreads]:=BeginThread(@WebserverThread,pointer(NumOfThreads));
 
 	// start the telnet thread 
 	inc(NumOfThreads);
-	writeln('Starting Telnet Thread...');
+	DSdebugLOG('Starting Telnet Thread...');
 	ThreadName[NumOfThreads]:='Telnet Thread';
 	ThreadHandle[NumOfThreads]:=BeginThread(@TelnetThread,pointer(NumOfThreads));
 
 	// start the TimeControl thread
 	inc(NumOfThreads);
-	writeln('Starting TimeControl Thread...');
+	DSdebugLOG('Starting TimeControl Thread...');
 	ThreadName[NumOfThreads]:='TimeCtrl Thread';
 	ThreadHandle[NumOfThreads]:=BeginThread(@TimeControlThread,pointer(NumOfThreads));
 
 	// start the statistic thread
 	inc(NumOfThreads);
-	writeln('Starting Statistics Thread...');
+	DSdebugLOG('Starting Statistics Thread...');
 	ThreadName[NumOfThreads]:='Stats Thread';
 	ThreadHandle[NumOfThreads]:=BeginThread(@StatisticsThread,pointer(NumOfThreads));
 
@@ -663,6 +680,7 @@ begin					{ Main program }
 	repeat
 		repeat
 			delay(10*TimeOut);
+			if debug then DSdebugLOG('idleloop...');
 		until keypressed;
 	until readkey='e';
 
@@ -670,10 +688,13 @@ begin					{ Main program }
 	shutdown:=true;
 
 	// wait for threads to finish
-
-	for i:=1 to NumOfThreads do
+	DSdebugLOG('waiting for threads to finish...');
+	for i:=1 to NumOfThreads do begin
+		DSdebugLOG(' Waiting for ' + ThreadName[i] + ' to finish');
 		WaitForThreadTerminate(ThreadHandle[i],TimeOut);
-
+		DSdebugLOG( ThreadName[i] + ' ended');
+	end;
+	DoneCriticalSection(DebugOutput);
 	DoneCriticalSection(ProtectParams);
 
 end.
