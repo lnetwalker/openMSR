@@ -1,0 +1,98 @@
+<html>
+  <head>
+    <title>OpenMSR GUI Elements</title>
+
+    <style type="text/css">
+      #TempMeterCanvas {
+	background-color: white;
+	position: absolute;
+	left: 0px;
+	top: 30px;
+      }
+      #OtherMeter {
+	background-color: white;      
+	position: absolute;
+	left: 600px;
+	top: 30px;
+      }
+      #Switch1 {
+	background-color: white;
+	position: absolute;
+	left: 30px;
+	top: 120px;
+      }
+      #Switch2 {
+	background-color: white;
+	position: absolute;
+	left: 70px;
+	top: 120px;
+      }
+      #LED1 {
+	background-color: white;
+	position: absolute;
+	left: 680px;
+	top: 20px;
+      }
+      #LED2 {
+	background-color: white;
+	position: absolute;
+	left: 701px;
+	top: 20px;
+      }
+    </style>
+
+    <script type="text/javascript" src="js/openmsr.js"></script>
+
+    <script>
+      function init() {
+	EventInit();
+	var MyTempMeter = new HorMeter('TempMeterCanvas');
+	MyTempMeter.width(525);
+	MyTempMeter.height(84);
+	MyTempMeter.canvbgimg('images/fieberthermometer.png');
+	MyTempMeter.Resolution(10);
+	MyTempMeter.maxVal(42.0);
+	MyTempMeter.minVal(34.2);
+	MyTempMeter.minPos(140,41);
+	MyTempMeter.maxPos(380,41);
+	MyTempMeter.color("lightblue");
+	MyTempMeter.MeterWidth(4);
+	MyTempMeter.currentValue(41,2);
+	// Just show a light bulb
+	var MyOtherMeter = new HorMeter('OtherMeter');
+	MyOtherMeter.width(20);
+	MyOtherMeter.height(20);
+	var MySwitch1 = new Switch('Switch1','digital',1);
+	MySwitch1.offimg('images/button_off.jpg');
+	MySwitch1.onimg('images/button_on.jpg');
+	MySwitch1.width(40);
+	MySwitch1.height(40);
+	var MySwitch2 = new Switch('Switch2','digital',2);
+	MySwitch2.width(40);
+	MySwitch2.height(40);
+	var MyLED1 = new Lamp('LED1','digital',1);
+	MyLED1.width(20);
+	MyLED1.height(20);
+	var MyLED2 = new Lamp('LED2','digital',2);
+	MyLED2.offimg('images/led-red-off.jpg');
+	MyLED2.onimg('images/led-red-on.jpg');
+	MyLED2.width(20);
+	MyLED2.height(20);
+     }
+    </script>
+
+  </head>
+
+  <body bgcolor=white >
+	This one is a horizontal Meter Element:<br>
+	<canvas id="TempMeterCanvas"></canvas>
+	<canvas id="OtherMeter"></canvas>
+	<canvas id="Switch1"></canvas>
+	<canvas id="Switch2"></canvas>
+	<canvas id="LED1"></canvas>
+	<canvas id="LED2"></canvas>
+	<script type="text/javascript">
+	  init();
+	</script>
+  </body>
+</html>
