@@ -2,6 +2,45 @@
 <head>
 <title>IO Monitor Console</title>
 
+  <style type="text/css">
+  canvas {
+   background-color: black;
+  }
+  </style>
+
+
+</head>
+<body bgcolor=black onload="preload()" >
+	<table border=0>
+	  <tr>
+		<td align=center><img id="led1" src="images/led-green-off.jpg"></td>
+		<td align=center><img id="led2" src="images/led-green-off.jpg"></td>
+		<td align=center><img id="led3" src="images/led-green-off.jpg"></td>
+		<td align=center><img id="led4" src="images/led-green-off.jpg"></td>
+		<td align=center><img id="led5" src="images/led-green-off.jpg"></td>
+		<td align=center><img id="led6" src="images/led-green-off.jpg"></td>
+		<td align=center><img id="led7" src="images/led-green-off.jpg"></td>
+		<td align=center><img id="led8" src="images/led-green-off.jpg"></td>
+	  </tr>
+	  <tr>
+		<td align=center><img id="sw1" src="images/switch-off.png" onclick="ToggleSwitch(1)"></td>
+		<td align=center><img id="sw2" src="images/switch-off.png" onclick="ToggleSwitch(2)"></td>
+		<td align=center><img id="sw3" src="images/switch-off.png" onclick="ToggleSwitch(3)"></td>
+		<td align=center><img id="sw4" src="images/switch-off.png" onclick="ToggleSwitch(4)"></td>
+		<td align=center><img id="sw5" src="images/switch-off.png" onclick="ToggleSwitch(5)"></td>
+		<td align=center><img id="sw6" src="images/switch-off.png" onclick="ToggleSwitch(6)"></td>
+		<td align=center><img id="sw7" src="images/switch-off.png" onclick="ToggleSwitch(7)"></td>
+		<td align=center><img id="sw8" src="images/switch-off.png" onclick="ToggleSwitch(8)"></td>
+	  </tr>
+	</table>
+	<canvas></canvas>
+	<form>
+	<font color=white>Server:Port=http://<input type=text value='localhost:10080' id="Hostname" size=25>
+	<font color=white>IO Group: <input type=text  value=0 id="iogroup" size=2 ><br>
+	<font color=white>URL to read LED: <input type=text  value='/digital/ReadInputValues.html' id="LEDURL" size=40><br>
+	<font color=white>URL to write LED: <input type=text  value='/digital/WriteInputValues.html' id='SWITCHURL' size=40>
+	</form>
+</body>
 
 <script type="text/javascript">
 
@@ -15,9 +54,27 @@ var LED_off=new Image();
 var Switch_on=new Image();
 var Switch_off=new Image();
 var power=new Array();
+// get handle for the canvas element
+var canv = document.getElementsByTagName("canvas")[0];
+var width = canv.width = 400;
+var height = canv.height = 100;
+var OldValue = new Array();
+Xcor = 0;
+Ycor = 0;
+// how much pixels space between the signals
+Padding = 6;
+// the width of a signalstep
+SignalBreite = 5;
+// the height of a signal
+SignalHoehe = 5;
+// the gap from top canvas to first signal
+Rand = 8;
+// Access to canvas
+var Scope = canv.getContext("2d");
 
 
-// Initialisiert Plattformunabhängig den asynchronen Zugriff
+
+// Initialize Plattformindependent the asynchronous access
 function getXMLHttpRequest() {
 	var httpReq=null;
 	if (window.XMLHttpRequest) {
@@ -29,7 +86,7 @@ function getXMLHttpRequest() {
 }
 
 
-// Startet den asynchronen read request
+// Start the asynchronous read request
 function SendRequest(url, handler, param) {	
 	req=getXMLHttpRequest();
 	if (req) {
@@ -41,8 +98,8 @@ function SendRequest(url, handler, param) {
 }
 
 
-// Diese Funktion liest den asynchronen response und aktualiesiert die LEDs auf die
-// gelesenen Werte
+// this function reads the asynchronous response from the AJAX request
+// and shows  the corresponding graphics
 function PrintState() {
 	// readyState 4 gibt an dass der request beendet wurde
 	if (req.readyState ==4 ) {
@@ -54,19 +111,84 @@ function PrintState() {
 		str = str.replace(/^ /, "");
 		var inputs=str.split(" ");
 		// nu muss hier in einer Loop jeweils die grafik für die LED 1/0 eingeblendet werden
+		// show the LED graphics in a loop for all signals
 		for (i=0;i<8;i++) {
 			if (inputs[i]=="1") {
 				Eingang[i].src = LED_on.src;
+				PrintHi(i)  // print a high for this signal
 			} else {
 				Eingang[i].src = LED_off.src;
+				PrintLo(i); // print a low for this signal 
 			}
 		}
 	}
 }
 
 
-// Diese Funktion wird zyklisch getriggert und stösst den asynchronen request zum
-// lesen der Eingänge an
+//Diese Funktion zeichnet das High eines Signals
+// als Linie auf dem Canvas
+function PrintHi(SignalNr) {
+	  if ( SignalNr == 0 ) {
+	    // start with row = 0 and next column 
+	    Xcor = Xcor+SignalBreite;
+	    if (Xcor > width) {
+	      // we reached the end of the canvas, so delete canvas and start from beginning
+	      canv.width = 400;
+	      Xcor = 0;
+	    }
+	  }  
+	  // just the next row in this column  
+	  Ycor = SignalNr*10+Padding + Rand;
+	  Scope.beginPath();
+	  Scope.strokeStyle = "lightgreen";
+	  Scope.lineWidth = 1;
+	  if ( OldValue[SignalNr] == false ) {
+	      // Last value was low so we need a vertical line 
+	      Scope.moveTo(Xcor, Ycor);
+	      Scope.lineTo(Xcor,Ycor-SignalHoehe);
+	  }
+	  Scope.moveTo(Xcor,Ycor-SignalHoehe);
+	  Scope.lineTo(Xcor+SignalBreite,Ycor-SignalHoehe);
+	  Scope.stroke();
+	  Scope.closePath();
+	  // STore last value for next run
+	  OldValue[SignalNr] = true;
+}
+
+
+//Diese Funktion zeichnet das Low eines Signals
+// als Linie auf dem Canvas
+function PrintLo(SignalNr) {
+	  if ( SignalNr == 0 ) {
+	    // start with row = 0 and next column 
+	    Xcor = Xcor+SignalBreite;
+	    if (Xcor > width) {
+	      // we reached the end of the canvas, so delete canvas and start from beginning
+	      canv.width = 400;
+	      Xcor = 0;
+	    }
+	  } 
+	  // just the next row in this column
+	  Ycor = SignalNr*10+Padding + Rand;
+	  Scope.beginPath();
+	  Scope.strokeStyle = "green";
+	  Scope.lineWidth = 1;
+	  if ( OldValue[SignalNr] == true ) {
+	    // Last value was low so we need a vertical line
+	      Scope.moveTo(Xcor, Ycor);
+	      Scope.lineTo(Xcor,Ycor-SignalHoehe);
+	  }
+	  Scope.moveTo(Xcor,Ycor);
+	  Scope.lineTo(Xcor+SignalBreite,Ycor);
+	  Scope.stroke();
+	  Scope.closePath();
+	  // STore last value for next run
+	  OldValue[SignalNr] = false;
+}
+
+
+// this function is frequently triggered and starts the AJAX access to the deviceserver
+// to read the inputs
 function ReadIOData()  {
 	var IOGroup=document.getElementById("iogroup");
 	// Welcher DeviceServer soll benutzt werden ?
@@ -81,8 +203,8 @@ function ReadIOData()  {
 }
 
 
-// Diese Funktion liest den asynchronen response vom Schreiben der Schalterwerte
-// und ignoriert diesen
+// this funtion reads the  asynchronous response after write of the switch values
+// and ignores it
 function IgnoreAnswer() {
 	// readyState 4 gibt an dass der request beendet wurde
 	if (req.readyState ==4 ) {
@@ -94,8 +216,8 @@ function IgnoreAnswer() {
 
 
 
-// Diese Funktion wird bei jeder Schalteränderung getriggert und stösst den 
-// asynchronen request zum schreiben der Ausgänge an
+// every changes of the switches triggers this function and starts 
+// the asynchronous request to write the outputs
 function WriteIOData() {
 	var IOGroup=document.getElementById("iogroup");
 	// Welcher DeviceServer soll benutzt werden ?
@@ -122,8 +244,8 @@ function WriteIOData() {
 }
 
 
-// Diese Funktion wird beim Laden des Doks ausgeführt
-// und initialisiert alles
+// this function is executed during load of the document
+// and initialies everything
 function preload() {
 	//images vorladen
 	LED_on.src="images/led-green-on.jpg";
@@ -148,14 +270,19 @@ function preload() {
 	Ausgang[5] = document.getElementById("sw6");
 	Ausgang[6] = document.getElementById("sw7");
 	Ausgang[7] = document.getElementById("sw8");
-	// Schalter auf aus setzen
+	// Schalter auf aus setzen ( Set all switches to off )
 	for (i=1;i<9;i++) {
 		SwitchState[i]=0;
 	}
+	// initialize the old values to low
+	for (i=0;i<8;i++) {
+		OldValue[i]=false;
+	}
+	
 	// io Group für Adressierung auf default 1
 	// var iogroup = document.getElementById("iogroup");
 	// iogroup.value=1;
-	// Timer für kontinuierlichen AJAX Zugriff starten
+	// start the Timer for continous AJAX access
 	ReloadEingangTimer = setInterval("ReadIOData()",500);
 	// Power initialisieren
 	power = [1,2,4,8,16,32,64,128];
@@ -185,35 +312,5 @@ function ToggleSwitch(SwitchNr) {
 
 </script>
 
-</head>
-<body bgcolor=black onload="preload()" >
-	<table border=0>
-	  <tr>
-		<td align=center><img id="led1" src="images/led-green-off.jpg"></td>
-		<td align=center><img id="led2" src="images/led-green-off.jpg"></td>
-		<td align=center><img id="led3" src="images/led-green-off.jpg"></td>
-		<td align=center><img id="led4" src="images/led-green-off.jpg"></td>
-		<td align=center><img id="led5" src="images/led-green-off.jpg"></td>
-		<td align=center><img id="led6" src="images/led-green-off.jpg"></td>
-		<td align=center><img id="led7" src="images/led-green-off.jpg"></td>
-		<td align=center><img id="led8" src="images/led-green-off.jpg"></td>
-	  </tr>
-	  <tr>
-		<td align=center><img id="sw1" src="images/switch-off.png" onclick="ToggleSwitch(1)"></td>
-		<td align=center><img id="sw2" src="images/switch-off.png" onclick="ToggleSwitch(2)"></td>
-		<td align=center><img id="sw3" src="images/switch-off.png" onclick="ToggleSwitch(3)"></td>
-		<td align=center><img id="sw4" src="images/switch-off.png" onclick="ToggleSwitch(4)"></td>
-		<td align=center><img id="sw5" src="images/switch-off.png" onclick="ToggleSwitch(5)"></td>
-		<td align=center><img id="sw6" src="images/switch-off.png" onclick="ToggleSwitch(6)"></td>
-		<td align=center><img id="sw7" src="images/switch-off.png" onclick="ToggleSwitch(7)"></td>
-		<td align=center><img id="sw8" src="images/switch-off.png" onclick="ToggleSwitch(8)"></td>
-	  </tr>
-	</table>
-	<form>
-	<font color=white>Server:Port=http://<input type=text value='localhost:10080' id="Hostname" size=25>
-	<font color=white>IO Group: <input type=text  value=0 id="iogroup" size=2 ><br>
-	<font color=white>URL to read LED: <input type=text  value='/digital/ReadInputValues.html' id="LEDURL" size=40><br>
-	<font color=white>URL to write LED: <input type=text  value='/digital/WriteInputValues.html' id='SWITCHURL' size=40>
-	</form>
-</body>
+
 <html>
