@@ -9,6 +9,18 @@
 	left: 0px;
 	top: 30px;
       }
+      #knob1 {
+	background-color: white;
+	position: absolute;
+	left: 0px;
+	top: 200px;
+      }
+      #testimg {
+	background-color: white;
+	position: absolute;
+	left: 0px;
+	top: 300px;
+      }
       #OtherMeter {
 	background-color: white;      
 	position: absolute;
@@ -46,7 +58,8 @@
     <script>
       function init() {
 	EventInit();
-	var MyTempMeter = new HorMeter('TempMeterCanvas');
+	// show a customized horizontal meter as temp meter
+	var MyTempMeter = new HorMeter('TempMeterCanvas','analog',1);
 	MyTempMeter.width(525);
 	MyTempMeter.height(84);
 	MyTempMeter.canvbgimg('images/fieberthermometer.png');
@@ -55,13 +68,14 @@
 	MyTempMeter.minVal(34.2);
 	MyTempMeter.minPos(140,41);
 	MyTempMeter.maxPos(380,41);
-	MyTempMeter.color("lightblue");
-	MyTempMeter.MeterWidth(4);
-	MyTempMeter.currentValue(41,2);
+	MyTempMeter.color("red");
+	MyTempMeter.MeterWidth(6);
+	//MyTempMeter.currentValue(41,2);
 	// Just show a light bulb
-	var MyOtherMeter = new HorMeter('OtherMeter');
+	var MyOtherMeter = new HorMeter('OtherMeter','analog',2);
 	MyOtherMeter.width(20);
 	MyOtherMeter.height(20);
+	// some switches
 	var MySwitch1 = new Switch('Switch1','digital',1);
 	MySwitch1.offimg('images/button_off.jpg');
 	MySwitch1.onimg('images/button_on.jpg');
@@ -70,6 +84,7 @@
 	var MySwitch2 = new Switch('Switch2','digital',2);
 	MySwitch2.width(40);
 	MySwitch2.height(40);
+	// some LED
 	var MyLED1 = new Lamp('LED1','digital',1);
 	MyLED1.width(20);
 	MyLED1.height(20);
@@ -78,19 +93,31 @@
 	MyLED2.onimg('images/led-red-on.jpg');
 	MyLED2.width(20);
 	MyLED2.height(20);
+	// some knob controlers
+	var MyKnob1 = new Knob('knob1','analog',1);
+	MyKnob1.MinVal(34.2);
+	MyKnob1.MaxVal(42.0);
+	MyKnob1.Center(75,87);
+	MyKnob1.Radius(60);
+	MyKnob1.MeterWidth(3);
+	MyKnob1.Resolution(5);
+	MyKnob1.MeterColor('black');
+	MyKnob1.floatingUpdate(1);
      }
     </script>
 
   </head>
 
   <body bgcolor=white >
-	This one is a horizontal Meter Element:<br>
+	These are examples of the OpenMSR GUI elements:<br>
 	<canvas id="TempMeterCanvas"></canvas>
 	<canvas id="OtherMeter"></canvas>
 	<canvas id="Switch1"></canvas>
 	<canvas id="Switch2"></canvas>
 	<canvas id="LED1"></canvas>
 	<canvas id="LED2"></canvas>
+	<canvas id="knob1"></canvas>
+	<!--<img src=images/default-knob.png id=testimg>-->
 	<script type="text/javascript">
 	  init();
 	</script>
