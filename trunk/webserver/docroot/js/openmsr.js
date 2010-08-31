@@ -333,6 +333,8 @@ function Knob(CanvasName,Cat,CatNo) {
     var Resolution = 1;
     // no floating updates as default
     var floatingUpdate = 0;
+    var pointerlength = 0;
+    var r1 = 0;
 
     // get the width for the meter gauge
     this.MeterWidth = function(xx) {
@@ -374,6 +376,12 @@ function Knob(CanvasName,Cat,CatNo) {
     this.floatingUpdate = function (xx) {
 	floatingUpdate = xx;
     }
+
+    // pointer length if pointer not from center of knob
+    this.pointerlength = function (xx) {
+	pointerlength = xx;
+	//alert ( pointerlength );
+    }
     
     // This is called when you move the mouse over the button
     function changeState(e) {
@@ -414,8 +422,19 @@ function Knob(CanvasName,Cat,CatNo) {
       
 	// [GRAD] -> [RAD]
 	VAlphaRad = (VAlpha * 2.0*Math.PI/360.0);
+
+	// radius of the part with no pointer
+	if ( pointerlength > 0 ) {
+	  r1 = r - pointerlength;
+	}
+	
 	// Calculate the positions xm,ym the marker koordinates at
 	// the outer knob positions
+	if ( r1 > 0 ) {
+	  xr = xc + (Math.round((r1-2)*Math.cos(VAlphaRad))); 
+	  yr = yc - (Math.round((r1-2)*Math.sin(VAlphaRad)));
+	  //alert ( xr + ' ' + yr );
+	}
 	xm = xc + (Math.round((r-2)*Math.cos(VAlphaRad))); 
 	ym = yc - (Math.round((r-2)*Math.sin(VAlphaRad)));
 	//alert( xm + '/' + ym );
@@ -425,7 +444,11 @@ function Knob(CanvasName,Cat,CatNo) {
 	KnobCanv.drawImage(BackgroundImg, 0, 0);
 	KnobCanv.strokeStyle = Color;
 	KnobCanv.lineWidth = LineWidth;
-	KnobCanv.moveTo(xc, yc);
+	if ( r1 > 0 ) {
+	  KnobCanv.moveTo(xr,yr);
+	} else {
+	  KnobCanv.moveTo(xc, yc);
+	}
 	KnobCanv.lineTo(xm,ym);
 	KnobCanv.stroke();
 	KnobCanv.closePath();
