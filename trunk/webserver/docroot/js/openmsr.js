@@ -11,6 +11,11 @@
     
 */    
 
+// this function initializes everything
+function OpenMSRInit() {
+    // init Event mechanics
+    EventInit();
+}
 
 /*  
     custom events for communication between
@@ -35,6 +40,17 @@ function EventInit() {
     OpenMSREvent = new Event();
 }
 // end of events
+
+// Initialize Plattformindependent the asynchronous access
+function getXMLHttpRequest() {
+	var httpReq=null;
+	if (window.XMLHttpRequest) {
+		httpReq=new XMLHttpRequest();
+	} else if (typeof ActiveXObject != "undefined") {
+		httpReq=new ActiveXObject("Microsoft.XMLHTTP");
+	}
+	return httpReq;
+}
 
 // the meter is an instrument to show analog values
 function HorMeter (CanvasName,Cat,CatNo) {
@@ -341,7 +357,7 @@ function Knob(CanvasName,Cat,CatNo) {
 	LineWidth = xx;
     }
 
-// get theresolution for the meter gauge
+    // get theresolution for the meter gauge
     this.Resolution = function(xx) {
 	Resolution = xx;
     }
@@ -428,13 +444,15 @@ function Knob(CanvasName,Cat,CatNo) {
 	  r1 = r - pointerlength;
 	}
 	
-	// Calculate the positions xm,ym the marker koordinates at
-	// the outer knob positions
+	// Calculate the positions xr,r the marker koordinates at
+	// the inner knob position if not centered
 	if ( r1 > 0 ) {
 	  xr = xc + (Math.round((r1-2)*Math.cos(VAlphaRad))); 
 	  yr = yc - (Math.round((r1-2)*Math.sin(VAlphaRad)));
 	  //alert ( xr + ' ' + yr );
 	}
+	// Calculate the positions xm,ym the marker koordinates at
+	// the outer knob positions
 	xm = xc + (Math.round((r-2)*Math.cos(VAlphaRad))); 
 	ym = yc - (Math.round((r-2)*Math.sin(VAlphaRad)));
 	//alert( xm + '/' + ym );
@@ -485,4 +503,85 @@ function Knob(CanvasName,Cat,CatNo) {
     canv.onmousemove = changeState;
     canv.onmouseup = sendKnobValue;
     canv.onmousedown = KnobMouseDown;
+}
+
+
+function DigitalDataReader() {
+    /* 
+      this function reads the data from the DeviceServer
+      and distributes it over Events
+    */
+
+    var Adresse = 'http://localhost:10080/digital/ReadInputValues.html';
+    var IOGroup = 0;
+    var EventMapping = new Array();
+    var req = null;
+
+    
+    // Start the asynchronous read request
+    function SendRequest(url, param) {
+      req=getXMLHttpRequest();
+      if (req) {
+	req.onreadystatechange = PrintState;
+	req.open("get", url + "?" + param, true);
+	req.send(null);
+      }
+    }
+    
+    // this function reads the asynchronous response from the AJAX request
+    // and sends the values as events
+    function PrintState() {
+      // readyState 4 gibt an dass der request beendet wurde
+      if (req.readyState ==4 ) {
+	//alert('PrintState');
+	// in resonseText ist die Antwort des Servers
+	var str=req.responseText;
+	// remove html tags
+	str = str.replace(/<[^<>]+>/g , "");
+	// remove leading space
+	str = str.replace(/^ /, "");
+	var inputs=str.split(" ");
+	// now loop over the result and fire the events
+	for (i=0;i<8;i++) {
+	  EventArgs = 'digital' + ' ' + EventMapping[i+1] + ' ' + inputs[i];
+	  // fire event
+	  OpenMSREvent.execute(EventArgs); 
+	}
+      }
+    }
+
+    // this function is frequently triggered and starts the AJAX 
+    // access to the deviceserver to read the inputs
+    ReadIOData = function()  {
+      if (IOGroup != 0 ) {
+	SendRequest(Adresse,IOGroup);
+      }
+    }
+    
+    // establish our own timer to periodically read the signals
+    var ReaderTimer = setInterval("ReadIOData()",500);
+    
+    // this function builds the list of event to input mapping
+    this.AssignEvent = function (xx,yy) {
+      EventMapping[xx] = yy;
+    }
+
+    // the URL to read the DeviceServer
+    this.DeviceServerURL = function (xx) {
+      Adresse = xx;
+    }
+
+    // the IOGroup to reads
+    this.IOGroup = function (xx) {
+      IOGroup = xx;
+    }
+
+}
+
+
+function digitalDataSender() {
+    /*
+      this function receives events and sends it the data to
+      the DeviceServer
+    */
 }
