@@ -12,8 +12,8 @@
       #knob1 {
 	background-color: white;
 	position: absolute;
-	left: 0px;
-	top: 200px;
+	left: 600px;
+	top: 20px;
       }
       #testimg {
 	background-color: white;
@@ -42,22 +42,121 @@
       #LED1 {
 	background-color: white;
 	position: absolute;
-	left: 680px;
-	top: 20px;
+	left: 40px;
+	top: 90px;
       }
       #LED2 {
 	background-color: white;
 	position: absolute;
-	left: 701px;
-	top: 20px;
+	left: 80px;
+	top: 90px;
       }
+      #LED11 {
+	background-color: white;
+	position: absolute;
+	left: 40px;
+	top: 190px;
+      }
+      #LED12 {
+	background-color: white;
+	position: absolute;
+	left: 60px;
+	top: 190px;
+      }
+      #LED13 {
+	background-color: white;
+	position: absolute;
+	left: 80px;
+	top: 190px;
+      }
+      #LED14 {
+	background-color: white;
+	position: absolute;
+	left: 100px;
+	top: 190px;
+      }
+      #LED15 {
+	background-color: white;
+	position: absolute;
+	left: 120px;
+	top: 190px;
+      }
+      #LED16 {
+	background-color: white;
+	position: absolute;
+	left: 140px;
+	top: 190px;
+      }
+      #LED17 {
+	background-color: white;
+	position: absolute;
+	left: 160px;
+	top: 190px;
+      }
+      #LED18 {
+	background-color: white;
+	position: absolute;
+	left: 180px;
+	top: 190px;
+      }
+      #LED21 {
+	background-color: white;
+	position: absolute;
+	left: 40px;
+	top: 220px;
+      }
+      #LED22 {
+	background-color: white;
+	position: absolute;
+	left: 60px;
+	top: 220px;
+      }
+      #LED23 {
+	background-color: white;
+	position: absolute;
+	left: 80px;
+	top: 220px;
+      }
+      #LED24 {
+	background-color: white;
+	position: absolute;
+	left: 100px;
+	top: 220px;
+      }
+      #LED25 {
+	background-color: white;
+	position: absolute;
+	left: 120px;
+	top: 220px;
+      }
+      #LED26 {
+	background-color: white;
+	position: absolute;
+	left: 140px;
+	top: 220px;
+      }
+      #LED27 {
+	background-color: white;
+	position: absolute;
+	left: 160px;
+	top: 220px;
+      }
+      #LED28 {
+	background-color: white;
+	position: absolute;
+	left: 180px;
+	top: 220px;
+      }
+
     </style>
 
     <script type="text/javascript" src="js/openmsr.js"></script>
 
     <script>
       function init() {
-	EventInit();
+
+	OpenMSRInit();
+
 	// show a customized horizontal meter as temp meter
 	var MyTempMeter = new HorMeter('TempMeterCanvas','analog',1);
 	MyTempMeter.width(525);
@@ -70,29 +169,34 @@
 	MyTempMeter.maxPos(380,41);
 	MyTempMeter.color("red");
 	MyTempMeter.MeterWidth(6);
-	//MyTempMeter.currentValue(41,2);
+	
 	// Just show a light bulb
 	var MyOtherMeter = new HorMeter('OtherMeter','analog',2);
 	MyOtherMeter.width(20);
 	MyOtherMeter.height(20);
+	
 	// some switches
 	var MySwitch1 = new Switch('Switch1','digital',1);
 	MySwitch1.offimg('images/button_off.jpg');
 	MySwitch1.onimg('images/button_on.jpg');
 	MySwitch1.width(40);
 	MySwitch1.height(40);
+	
 	var MySwitch2 = new Switch('Switch2','digital',2);
 	MySwitch2.width(40);
 	MySwitch2.height(40);
+	
 	// some LED
 	var MyLED1 = new Lamp('LED1','digital',1);
 	MyLED1.width(20);
 	MyLED1.height(20);
+	
 	var MyLED2 = new Lamp('LED2','digital',2);
 	MyLED2.offimg('images/led-red-off.jpg');
 	MyLED2.onimg('images/led-red-on.jpg');
 	MyLED2.width(20);
 	MyLED2.height(20);
+	
 	// some knob controlers
 	var MyKnob1 = new Knob('knob1','analog',1);
 	MyKnob1.MinVal(34.2);
@@ -103,7 +207,52 @@
 	MyKnob1.Resolution(5);
 	MyKnob1.MeterColor('black');
 	MyKnob1.floatingUpdate(1);
-     }
+	MyKnob1.pointerlength(20);
+
+	// some LEDs to show a DeviceServer IOGroup
+	var MyLED11 = new Lamp('LED11','digital',11);
+	var MyLED12 = new Lamp('LED12','digital',12);
+	var MyLED13 = new Lamp('LED13','digital',13);
+	var MyLED14 = new Lamp('LED14','digital',14);
+	var MyLED15 = new Lamp('LED15','digital',15);
+	var MyLED16 = new Lamp('LED16','digital',16);
+	var MyLED17 = new Lamp('LED17','digital',17);
+	var MyLED18 = new Lamp('LED18','digital',18);
+
+	var MyLED21 = new Lamp('LED21','digital',21);
+	var MyLED22 = new Lamp('LED22','digital',22);
+	var MyLED23 = new Lamp('LED23','digital',23);
+	var MyLED24 = new Lamp('LED24','digital',24);
+	var MyLED25 = new Lamp('LED25','digital',25);
+	var MyLED26 = new Lamp('LED26','digital',26);
+	var MyLED27 = new Lamp('LED27','digital',27);
+	var MyLED28 = new Lamp('LED28','digital',28);
+
+	var MyIOReader = new DigitalDataReader();
+	MyIOReader.AssignEvent(1,11);
+	MyIOReader.AssignEvent(2,12);
+	MyIOReader.AssignEvent(3,13);
+	MyIOReader.AssignEvent(4,14);
+	MyIOReader.AssignEvent(5,15);
+	MyIOReader.AssignEvent(6,16);
+	MyIOReader.AssignEvent(7,17);
+	MyIOReader.AssignEvent(8,18);
+	MyIOReader.DeviceServerURL('http://localhost:10080/digital/ReadInputValues.html');
+	MyIOReader.IOGroup(1);
+///*
+	var SwitchIOReader = new DigitalDataReader();
+	SwitchIOReader.AssignEvent(1,21);
+	SwitchIOReader.AssignEvent(2,22);
+	SwitchIOReader.AssignEvent(3,23);
+	SwitchIOReader.AssignEvent(4,24);
+	SwitchIOReader.AssignEvent(5,25);
+	SwitchIOReader.AssignEvent(6,26);
+	SwitchIOReader.AssignEvent(7,27);
+	SwitchIOReader.AssignEvent(8,28);
+	SwitchIOReader.DeviceServerURL('http://localhost:10080/digital/ReadInputValues.html');
+	SwitchIOReader.IOGroup(2);
+//*/
+}
     </script>
 
   </head>
@@ -116,6 +265,22 @@
 	<canvas id="Switch2"></canvas>
 	<canvas id="LED1"></canvas>
 	<canvas id="LED2"></canvas>
+	<canvas id="LED11"></canvas>
+	<canvas id="LED12"></canvas>
+	<canvas id="LED13"></canvas>
+	<canvas id="LED14"></canvas>
+	<canvas id="LED15"></canvas>
+	<canvas id="LED16"></canvas>
+	<canvas id="LED17"></canvas>
+	<canvas id="LED18"></canvas>
+	<canvas id="LED21"></canvas>
+	<canvas id="LED22"></canvas>
+	<canvas id="LED23"></canvas>
+	<canvas id="LED24"></canvas>
+	<canvas id="LED25"></canvas>
+	<canvas id="LED26"></canvas>
+	<canvas id="LED27"></canvas>
+	<canvas id="LED28"></canvas>
 	<canvas id="knob1"></canvas>
 	<!--<img src=images/default-knob.png id=testimg>-->
 	<script type="text/javascript">
