@@ -51,6 +51,7 @@ function getXMLHttpRequest() {
 	}
 	return httpReq;
 }
+    
 
 // the meter is an instrument to show analog values
 function HorMeter (CanvasName,Cat,CatNo) {
@@ -195,7 +196,6 @@ function Switch(CanvasName,Cat,CatNo) {
 	ImgSrcOn = imagename;
     }
     
-    var state = 0;    
     var state=1;
 
 
@@ -233,7 +233,7 @@ function Lamp(CanvasName,Cat,CatNo) {
     // get access to the given canvas
     var canv = document.getElementById(CanvasName);
 
-// set width and height of the canvas
+    // set width and height of the canvas
     this.width = function (width) {
 	canv.width = width;
     }
@@ -256,16 +256,13 @@ function Lamp(CanvasName,Cat,CatNo) {
 	LampCanv.closePath();   
     }
     
-    var state = 0;    
-    var state=0;
-
-// print a custom background image
+    // print a custom background image
     this.offimg = function(imagename) {
 	ImgSrcOff = imagename;
     }
 
 
-// print a custom background image
+    // print a custom background image
     this.onimg = function(imagename) {
 	ImgSrcOn = imagename;
     }
@@ -506,36 +503,41 @@ function Knob(CanvasName,Cat,CatNo) {
 }
 
 
-function DigitalDataReader() {
+var DigitalDataReader = function () {
     /* 
       this function reads the data from the DeviceServer
       and distributes it over Events
     */
 
-    var Adresse = 'http://localhost:10080/digital/ReadInputValues.html';
-    var IOGroup = 0;
-    var EventMapping = new Array();
-    var req = null;
+    this.Adresse = 'http://localhost:10080/digital/ReadInputValues.html';
+    this.IOGroup = 0;
+    this.EventMapping = new Array();
+    this.req = null;
+    var me = this;
 
-    
+
     // Start the asynchronous read request
-    function SendRequest(url, param) {
-      req=getXMLHttpRequest();
-      if (req) {
-	req.onreadystatechange = PrintState;
-	req.open("get", url + "?" + param, true);
-	req.send(null);
+    SendRequest = function () {
+      //alert('SendRequest ' + me.IOGroup );
+      me.req=getXMLHttpRequest();
+      if (me.req) {
+	//alert ('SendRequest send ' + me.Adresse + '?' + me.IOGroup );
+	me.req.onreadystatechange = me.PrintState;
+	me.req.open("get", me.Adresse + "?" + me.IOGroup, true);
+	me.req.send(null);
       }
     }
     
     // this function reads the asynchronous response from the AJAX request
     // and sends the values as events
-    function PrintState() {
+    this.PrintState = function () {
+      //alert('PrintState');
       // readyState 4 gibt an dass der request beendet wurde
-      if (req.readyState ==4 ) {
-	//alert('PrintState');
+      if ( me.req.readyState ==4 ) {
+	//
 	// in resonseText ist die Antwort des Servers
-	var str=req.responseText;
+	var str=me.req.responseText;
+	//alert(str);
 	// remove html tags
 	str = str.replace(/<[^<>]+>/g , "");
 	// remove leading space
@@ -543,37 +545,31 @@ function DigitalDataReader() {
 	var inputs=str.split(" ");
 	// now loop over the result and fire the events
 	for (i=0;i<8;i++) {
-	  EventArgs = 'digital' + ' ' + EventMapping[i+1] + ' ' + inputs[i];
+	  EventArgs = 'digital' + ' ' + me.EventMapping[i+1] + ' ' + inputs[i];
 	  // fire event
+	  //alert (EventArgs);
 	  OpenMSREvent.execute(EventArgs); 
 	}
       }
     }
 
-    // this function is frequently triggered and starts the AJAX 
-    // access to the deviceserver to read the inputs
-    ReadIOData = function()  {
-      if (IOGroup != 0 ) {
-	SendRequest(Adresse,IOGroup);
-      }
-    }
-    
-    // establish our own timer to periodically read the signals
-    var ReaderTimer = setInterval("ReadIOData()",500);
-    
     // this function builds the list of event to input mapping
     this.AssignEvent = function (xx,yy) {
-      EventMapping[xx] = yy;
+      this.EventMapping[xx] = yy;
+      //alert(this.EventMapping[xx]);
     }
 
     // the URL to read the DeviceServer
     this.DeviceServerURL = function (xx) {
-      Adresse = xx;
+      this.Adresse = xx;
     }
 
-    // the IOGroup to reads
+    // the IOGroup to read
     this.IOGroup = function (xx) {
-      IOGroup = xx;
+      this.IOGroup = xx;
+      //alert(me + ' ' + me.IOGroup);
+      // establish our own timer to periodically read the signals
+      ReaderTimer = setInterval(SendRequest,400);
     }
 
 }
