@@ -54,78 +54,83 @@ function getXMLHttpRequest() {
     
 
 // the meter is an instrument to show analog values
-function HorMeter (CanvasName,Cat,CatNo) {
+var HorMeter = function(CanvasName,Cat,CatNo) {
     // get access to the given canvas
-    var canv = document.getElementById(CanvasName);
+    this.canv = document.getElementById(CanvasName);
     // set width and height of the canvas
-    this.width = function (width) {
-	canv.width = width;
-    }
-    this.height = function(height) {
-	canv.height = height;
-    }
     
     // default background image
-    var ImgSrc = 'images/lampe.gif';
+    ImgSrc = 'images/lampe.gif';
+    
+    // note who i am
+    var me = this;
+    
     // setup the background image
-    var HorMeterCanv = canv.getContext("2d");
-    var BackgroundImg = new Image();
-    BackgroundImg.src = ImgSrc;
-    BackgroundImg.onload = function() {
-    	HorMeterCanv.beginPath();
-	HorMeterCanv.drawImage(BackgroundImg, 0, 0);
-	HorMeterCanv.closePath();
+    this.HorMeterCanv = this.canv.getContext("2d");
+    this.BackgroundImg = new Image();
+    this.BackgroundImg.src = me.ImgSrc;
+    this.BackgroundImg.onload = function() {
+    	me.HorMeterCanv.beginPath();
+	me.HorMeterCanv.drawImage(me.BackgroundImg, 0, 0);
+	me.HorMeterCanv.closePath();
     };
 
-    var Resltn=10;
+    this.Resltn=10;
+
+    this.width = function (width) {
+	this.canv.width = width;
+    }
+    this.height = function(height) {
+	this.canv.height = height;
+    }
     
     // print a custom background image
     this.canvbgimg = function(imagename) {
-	BackgroundImg.src = imagename;
+	this.BackgroundImg.src = imagename;
 	// redraw the canvas
-	canv.height = canv.height;
+	me.height = this.canv.height;
     }
         
     // get the maximum Value for the meter
     this.maxVal = function(xx) {
-	MaxHorMeterVal = xx;
+	this.MaxHorMeterVal = xx;
     }
 
     // get the minimum Value for the meter
     this.minVal = function(xx) {
-	MinHorMeterVal = xx;
+	this.MinHorMeterVal = xx;
     }
 
     // get the maximum Value Position for the meter
     this.maxPos = function(xx,yy) {
-	MaxPosX = xx;
-	MaxPosY = yy;
+	this.MaxPosX = xx;
+	this.MaxPosY = yy;
     }
 
     // get the minimum Value Position for the meter
     this.minPos = function(xx,yy) {
-	MinPosX = xx;
-	MinPosY = yy;
+	this.MinPosX = xx;
+	this.MinPosY = yy;
     }
 
     // get the color for the meter
     this.color = function(xx) {
-	Color = xx;
+	this.Color = xx;
     }
 
     // get the width for the meter gauge
     this.MeterWidth = function(xx) {
-	LineWidth = xx;
+	this.LineWidth = xx;
     }
 
     // get the Resolution for the meter
     this.Resolution = function(xx) {
-	Resltn = xx;
+	this.Resltn = xx;
     }
 
     // use the Value for the meter
     // and display everything
-    function currentValue (EventArgs) {
+    this.currentValue = function(EventArgs) {
 	// split the event data in its elements
 	var EventArray = EventArgs.split(' ');
 	// check wether the current event is for me
@@ -134,25 +139,25 @@ function HorMeter (CanvasName,Cat,CatNo) {
 		// the event is for me, so display data
 		CurVal = EventArray[2];
 		//alert (' Event received: ' + Cat + ' ' + CatNo + ' ' + CurVal);
-		ValX = parseInt( Resltn * ( CurVal - MinHorMeterVal ) * ((MaxPosX-MinPosX) / ((MaxHorMeterVal - MinHorMeterVal) * Resltn)) +  MinPosX);
+		ValX = parseInt( me.Resltn * ( CurVal - me.MinHorMeterVal ) * ((me.MaxPosX-me.MinPosX) / ((me.MaxHorMeterVal - me.MinHorMeterVal) * me.Resltn)) +  me.MinPosX);
 		//document.write(ValX ,' ', MinPosX ,' ', MaxPosX ,' ', xx,' ',MaxHorMeterVal,' ',MinHorMeterVal,' ',(MaxPosX-MinPosX) / ((MaxHorMeterVal - MinHorMeterVal)*10));
 		// delete canvas
-		canv.height = canv.height;
-		HorMeterCanv.beginPath();
-		HorMeterCanv.drawImage(BackgroundImg, 0, 0);
-		HorMeterCanv.strokeStyle = Color;
-		HorMeterCanv.lineWidth = LineWidth;
+		me.canv.height = me.canv.height;
+		me.HorMeterCanv.beginPath();
+		me.HorMeterCanv.drawImage(me.BackgroundImg, 0, 0);
+		me.HorMeterCanv.strokeStyle = me.Color;
+		me.HorMeterCanv.lineWidth = me.LineWidth;
 		// paint the meter
-		HorMeterCanv.moveTo(MinPosX, MinPosY);
-		HorMeterCanv.lineTo(ValX,MaxPosY);
-		HorMeterCanv.stroke();
-		HorMeterCanv.closePath();
+		me.HorMeterCanv.moveTo(me.MinPosX, me.MinPosY);
+		me.HorMeterCanv.lineTo(ValX,me.MaxPosY);
+		me.HorMeterCanv.stroke();
+		me.HorMeterCanv.closePath();
 	    }
 	}
     }
 
     // install Event Handler
-    OpenMSREvent.addHandler(currentValue);
+    OpenMSREvent.addHandler(me.currentValue);
 
 }
 
