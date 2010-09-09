@@ -27,6 +27,7 @@ function Event(){
 
 Event.prototype.addHandler = function(eventHandler){
     this.eventHandlers.push(eventHandler);
+    DebugLOG(' added Event Handler ' );
 }
 
 Event.prototype.execute = function(args){
@@ -40,6 +41,15 @@ function EventInit() {
     OpenMSREvent = new Event();
 }
 // end of events
+
+
+// debug output
+function DebugLOG(msg) {
+    if ( document.getElementById('debug') ) {
+      document.getElementById('debug').value = document.getElementById('debug').value + '\n' + msg;
+    }
+}
+
 
 // Initialize Plattformindependent the asynchronous access
 function getXMLHttpRequest() {
