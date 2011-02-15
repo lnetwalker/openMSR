@@ -94,6 +94,7 @@ GATE_INPUT_HIGH=Eingang High
 GATE_INPUT_LOW=Eingang Low
 GATE_RSFF=RS FlipFlop
 GATE_DFF=D FlipFlop
+GATE_DLatch=D Latch
 GATE_DRFF=D FlipFlop & Reset
 GATE_JKFF=JK FF (Flankengesteuert)
 GATE_JKMSFF=JKMS FlipFlop
