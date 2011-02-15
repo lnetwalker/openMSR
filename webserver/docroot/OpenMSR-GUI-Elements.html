@@ -1,5 +1,8 @@
 <html>
   <head>
+    <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
+    <META HTTP-EQUIV="Expires" CONTENT="-1">
+    
     <title>OpenMSR GUI Elements</title>
 
     <style type="text/css">
@@ -15,17 +18,17 @@
 	left: 600px;
 	top: 20px;
       }
-      #testimg {
+      #knob2 {
 	background-color: white;
 	position: absolute;
-	left: 0px;
+	left: 600px;
 	top: 300px;
       }
       #OtherMeter {
 	background-color: white;      
 	position: absolute;
-	left: 600px;
-	top: 30px;
+	left: 0px;
+	top: 350px;
       }
       #Switch1 {
 	background-color: white;
@@ -147,6 +150,12 @@
 	left: 180px;
 	top: 220px;
       }
+      #debug {
+	background-color: white;
+	position: absolute;
+	left: 100px;
+	top: 450px;
+      }
 
     </style>
 
@@ -170,15 +179,23 @@
 	MyTempMeter.color("red");
 	MyTempMeter.MeterWidth(6);
 	
-	// Just show a light bulb
+	// a second meter
 	var MyOtherMeter = new HorMeter('OtherMeter','analog',2);
-	MyOtherMeter.width(20);
-	MyOtherMeter.height(20);
+	MyOtherMeter.width(525);
+	MyOtherMeter.height(84);
+	MyOtherMeter.canvbgimg('images/fieberthermometer.png');
+	MyOtherMeter.Resolution(10);
+	MyOtherMeter.maxVal(42.0);
+	MyOtherMeter.minVal(34.2);
+	MyOtherMeter.minPos(140,41);
+	MyOtherMeter.maxPos(380,41);
+	MyOtherMeter.color("blue");
+	MyOtherMeter.MeterWidth(6);
 	
 	// some switches
 	var MySwitch1 = new Switch('Switch1','digital',1);
-	MySwitch1.offimg('images/button_off.jpg');
-	MySwitch1.onimg('images/button_on.jpg');
+	//MySwitch1.offimg('images/button_off.jpg');
+	//MySwitch1.onimg('images/button_on.jpg');
 	MySwitch1.width(40);
 	MySwitch1.height(40);
 	
@@ -209,6 +226,17 @@
 	MyKnob1.floatingUpdate(1);
 	MyKnob1.pointerlength(20);
 
+	var MyKnob2 = new Knob('knob2','analog',2);
+	MyKnob2.MinVal(34.2);
+	MyKnob2.MaxVal(42.0);
+	MyKnob2.Center(75,87);
+	MyKnob2.Radius(60);
+	MyKnob2.MeterWidth(3);
+	MyKnob2.Resolution(5);
+	MyKnob2.MeterColor('black');
+	MyKnob2.floatingUpdate(0);
+	MyKnob2.pointerlength(20);
+	
 	// some LEDs to show a DeviceServer IOGroup
 	var MyLED11 = new Lamp('LED11','digital',11);
 	var MyLED12 = new Lamp('LED12','digital',12);
@@ -228,6 +256,7 @@
 	var MyLED27 = new Lamp('LED27','digital',27);
 	var MyLED28 = new Lamp('LED28','digital',28);
 
+	// the digital data reader to read the random values of iogroup 1
 	var MyIOReader = new DigitalDataReader();
 	MyIOReader.AssignEvent(1,11);
 	MyIOReader.AssignEvent(2,12);
@@ -239,20 +268,41 @@
 	MyIOReader.AssignEvent(8,18);
 	MyIOReader.DeviceServerURL('http://localhost:10080/digital/ReadInputValues.html');
 	MyIOReader.IOGroup(1);
-///*
-	var SwitchIOReader = new DigitalDataReader();
-	SwitchIOReader.AssignEvent(1,21);
-	SwitchIOReader.AssignEvent(2,22);
-	SwitchIOReader.AssignEvent(3,23);
-	SwitchIOReader.AssignEvent(4,24);
-	SwitchIOReader.AssignEvent(5,25);
-	SwitchIOReader.AssignEvent(6,26);
-	SwitchIOReader.AssignEvent(7,27);
-	SwitchIOReader.AssignEvent(8,28);
-	SwitchIOReader.DeviceServerURL('http://localhost:10080/digital/ReadInputValues.html');
-	SwitchIOReader.IOGroup(2);
-//*/
-}
+
+	// second reader for iogroup 4
+	var MyIOReader4 = new DigitalDataReader();
+	MyIOReader4.AssignEvent(1,21);
+	MyIOReader4.AssignEvent(2,22);
+	MyIOReader4.AssignEvent(3,23);
+	MyIOReader4.AssignEvent(4,24);
+	MyIOReader4.AssignEvent(5,25);
+	MyIOReader4.AssignEvent(6,26);
+	MyIOReader4.AssignEvent(7,27);
+	MyIOReader4.AssignEvent(8,28);
+	MyIOReader4.DeviceServerURL('http://localhost:10080/digital/ReadOutputValues.html');
+	MyIOReader4.IOGroup(4);
+
+	// the digital data feeder to send the switches to app iogroup
+	var SwitchIOSender = new DigitalDataSender();
+	SwitchIOSender.AssignEvent(1,1);
+	SwitchIOSender.AssignEvent(2,2);
+	SwitchIOSender.DeviceServerURL('http://localhost:10080/digital/WriteOutputValues.html');
+	SwitchIOSender.IOGroup(4);
+
+	// the analog reader to read the first 8 analog values
+	var MyAnalogReader = new AnalogDataReader();
+	MyAnalogReader.AssignEvent(1,31);
+	MyAnalogReader.AssignEvent(2,32);
+	MyAnalogReader.AssignEvent(3,33);
+	MyAnalogReader.AssignEvent(4,34);
+	MyAnalogReader.AssignEvent(5,35);
+	MyAnalogReader.AssignEvent(6,36);
+	MyAnalogReader.AssignEvent(7,37);
+	MyAnalogReader.AssignEvent(8,38);
+	MyAnalogReader.DeviceServerURL('http://localhost:10080/analog/read.html');
+	MyAnalogReader.IOGroup(1);
+
+      }
     </script>
 
   </head>
@@ -282,9 +332,17 @@
 	<canvas id="LED27"></canvas>
 	<canvas id="LED28"></canvas>
 	<canvas id="knob1"></canvas>
-	<!--<img src=images/default-knob.png id=testimg>-->
+	<canvas id="knob2"></canvas>
+	<!--
+	<textarea id=debug cols=120 rows=10></textarea>-->
 	<script type="text/javascript">
 	  init();
 	</script>
   </body>
+  <!-- due to bugs in IE we repeat the cmd to ensure page is not cached -->
+  <!-- see: http://www.htmlgoodies.com/beyond/reference/article.php/3472881/So-You-Dont-Want-To-Cache-Huh.htm -->
+  <head>
+    <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
+    <META HTTP-EQUIV="Expires" CONTENT="-1">
+  </head>
 </html>
