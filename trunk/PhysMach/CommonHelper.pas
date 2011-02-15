@@ -99,7 +99,10 @@ begin
 {$endif}
 
 {$ifdef Linux}
+	{$i-}
 	AssignStream(fin,fout,Command,Params);
+	{$i+}
+	if ( IOResult <> 0 ) then writeln ('CommonHelper: RunCommand - Error assigning stream ! ');
 	//popen(fin,Command,'r');
 	if debug then writeln('Command=',Command,' returned : ',fpgeterrno);
 	if fpgeterrno<0 then
@@ -176,6 +179,9 @@ end;
 
 
 begin
+	{$i-}
 	assign(LOG,'/tmp/debug.log');
 	rewrite(LOG);
+	{$i+}
+	if (IOResult <> 0 ) then writeln('CommonHelper: Error open logfile');
 end.
