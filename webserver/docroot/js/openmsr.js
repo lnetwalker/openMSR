@@ -1,5 +1,5 @@
 /* 
-    this JavaScript library provides different
+    this JavaScript library provides different GUI
     elements to use with OpenMSR
     Copyright (c) 2010 by Hartmut Eilers
     <hartmut@eilers.net>
@@ -15,6 +15,13 @@
 function OpenMSRInit() {
     // init Event mechanics
     EventInit();
+    // Clear Debugging Window if it exists
+    if ( document.getElementById('debug')!= null ) {
+      document.getElementById('debug').value = '';
+      DbgMsgCnt = 0;
+      // Max Number of Messages in the Message Box
+      DbgMaxMsg = 40;
+    }
 }
 
 /*  
@@ -31,9 +38,9 @@ Event.prototype.addHandler = function(eventHandler){
 }
 
 Event.prototype.execute = function(args){
+    DebugLOG(' Event ' + args + ' occured' );
     for(var i = 0; i < this.eventHandlers.length; i++){
 	this.eventHandlers[i](args);
-	//alert('Event triggered' + args);
     }
 }
 
@@ -44,9 +51,19 @@ function EventInit() {
 
 
 // debug output
+// spits out the Timestamp as ms since 1.1.1970 0:00 h
+// and the message in a textarea named debug
 function DebugLOG(msg) {
-    if ( document.getElementById('debug') ) {
-      document.getElementById('debug').value = document.getElementById('debug').value + '\n' + msg;
+    if ( document.getElementById('debug')!= null ) {
+	var TimeStamp = new Date;
+	if ( DbgMsgCnt == DbgMaxMsg ) {
+	    // delete the Message Box to avoid too much data
+	    // which slows down everything
+	    DbgMsgCnt = 0;
+	    document.getElementById('debug').value = '';
+	}
+	DbgMsgCnt = DbgMsgCnt + 1;
+	document.getElementById('debug').value = TimeStamp.getTime() + ' ' + msg + '\n' + document.getElementById('debug').value;
     }
 }
 
@@ -173,71 +190,79 @@ var HorMeter = function(CanvasName,Cat,CatNo) {
 
 
 // digital switch
-function Switch(CanvasName,Cat,CatNo) {
+var Switch = function(CanvasName,Cat,CatNo) {
     // get access to the given canvas
-    var canv = document.getElementById(CanvasName);
+    this.canv = document.getElementById(CanvasName);
 
-// set width and height of the canvas
+    // set width and height of the canvas
     this.width = function (width) {
-	canv.width = width;
+	this.canv.width = width;
     }
     this.height = function(height) {
-	canv.height = height;
+	this.canv.height = height;
     }
    
     // default background image
-    var ImgSrcOff = 'images/switch-off.png';
-    var ImgSrcOn  = 'images/switch-on.png';
+    this.ImgSrcOff = 'images/switch-off.jpg';
+    this.ImgSrcOn  = 'images/switch-on.jpg';
+
+    // note who i am
+    var me = this;
+    
     // setup the background image
-    var SwitchCanv = canv.getContext("2d");
-    var BackgroundImg = new Image();
-    BackgroundImg.src = ImgSrcOff;
-    BackgroundImg.onload = function() {
-	canv.width = canv.width;
-	SwitchCanv.beginPath();
-	SwitchCanv.drawImage(BackgroundImg, 0, 0);
-	SwitchCanv.closePath();   
+    this.SwitchCanv = this.canv.getContext("2d");
+    this.BackgroundImg = new Image();
+    this.BackgroundImg.src = me.ImgSrcOff;
+    this.BackgroundImg.onload = function() {
+	me.SwitchCanv.beginPath();
+	me.SwitchCanv.drawImage(me.BackgroundImg, 0, 0);
+	me.SwitchCanv.closePath();   
     }
 
+    this.state=0;
 
 // print a custom background image
     this.offimg = function(imagename) {
-	ImgSrcOff = imagename;
+	this.ImgSrcOff = imagename;
+	this.BackgroundImg.src = me.ImgSrcOff;
+	me.state = 1;
+	this.changeState();
     }
 
 
 // print a custom background image
     this.onimg = function(imagename) {
-	ImgSrcOn = imagename;
+	this.ImgSrcOn = imagename;
+	this.BackgroundImg.src = me.ImgSrcOn;
+	me.state = 1;
+	this.changeState();
     }
     
-    var state=1;
-
 
     // This is called when you release the mouse button.
-    function changeState() {
+    this. changeState = function() {
       //alert("State: "+ state ); 
-      if ( state == 1 ) {
-	state = 0
-	BackgroundImg.src = ImgSrcOff;
+      if ( me.state == 1 ) {
+	me.state = 0
+	me.BackgroundImg.src = me.ImgSrcOff;
       } else {
-	state = 1
-	BackgroundImg.src = ImgSrcOn;
+	me.state = 1
+	me.BackgroundImg.src = me.ImgSrcOn;
       }
       // display actual state
-      canv.width = canv.width;
-      SwitchCanv.beginPath();
-      SwitchCanv.drawImage(BackgroundImg, 0, 0);
-      SwitchCanv.closePath();
+      me.canv.width = me.canv.width;
+      me.SwitchCanv.beginPath();
+      me.SwitchCanv.drawImage(me.BackgroundImg, 0, 0);
+      me.SwitchCanv.closePath();
       // pack the event arguments in one string
-      EventArgs = Cat + ' ' + CatNo + ' ' + state;
+      EventArgs = Cat + ' ' + CatNo + ' ' + me.state;
       // fire event
       OpenMSREvent.execute(EventArgs);
     };
 
 
     // add eventhandler for mouse click
-    canv.onclick = changeState;
+    this.canv.onclick = me.changeState;
 
 }
 
@@ -274,14 +299,25 @@ function Lamp(CanvasName,Cat,CatNo) {
     // print a custom background image
     this.offimg = function(imagename) {
 	ImgSrcOff = imagename;
+	InitialLampState();
     }
 
 
     // print a custom background image
     this.onimg = function(imagename) {
 	ImgSrcOn = imagename;
+	InitialLampState();
     }
    
+    function InitialLampState() {
+	BackgroundImg.src = ImgSrcOff;
+	canv.width = canv.width;
+	LampCanv.beginPath();
+	LampCanv.drawImage(BackgroundImg, 0, 0);
+	LampCanv.closePath();      
+    }
+    
+    
     function HandleLampState (EventArgs) {
 	// split the event data in its elements
 	EventArray = EventArgs.split(' ');
@@ -520,7 +556,7 @@ function Knob(CanvasName,Cat,CatNo) {
 
 var DigitalDataReader = function () {
     /* 
-      this function reads the data from the DeviceServer
+      this function reads the digital data from the DeviceServer
       and distributes it over Events
     */
 
@@ -528,11 +564,11 @@ var DigitalDataReader = function () {
     this.IOGroup = 0;
     this.EventMapping = new Array();
     this.req = null;
+    
     var me = this;
 
-
     // Start the asynchronous read request
-    SendRequest = function () {
+    this.SendRequest = function () {
       //alert('SendRequest ' + me.IOGroup );
       me.req=getXMLHttpRequest();
       if (me.req) {
@@ -559,7 +595,7 @@ var DigitalDataReader = function () {
 	str = str.replace(/^ /, "");
 	var inputs=str.split(" ");
 	// now loop over the result and fire the events
-	for (i=0;i<8;i++) {
+	for (var i=0;i<8;i++) {
 	  EventArgs = 'digital' + ' ' + me.EventMapping[i+1] + ' ' + inputs[i];
 	  // fire event
 	  //alert (EventArgs);
@@ -570,8 +606,164 @@ var DigitalDataReader = function () {
 
     // this function builds the list of event to input mapping
     this.AssignEvent = function (xx,yy) {
+      me.EventMapping[xx] = yy;
+      //alert(me.EventMapping[xx]);
+    }
+
+    // the URL to read the DeviceServer
+    this.DeviceServerURL = function (xx) {
+      me.Adresse = xx;
+    }
+
+    // the IOGroup to read
+    this.IOGroup = function (xx) {
+      me.IOGroup = xx;
+      //alert(me + ' ' + me.IOGroup);
+ 
+      // establish our own timer to periodically read the signals
+      me.ReaderTimer = setInterval(me.SendRequest,600);
+      
+    }
+
+}
+
+
+var DigitalDataSender=function () {
+    /*
+      this function receives events and sends the data to
+      the DeviceServer
+    */
+    this.Adresse = 'http://localhost:10080/digital/WriteOutputValues.html';
+    this.IOGroup = 0;
+    this.EventMapping = new Array();
+    this.req = null;
+    this.ValArray = new Array();
+    this.value = 0;
+    var me = this;
+    
+    
+    // Start the asynchronous write request
+    this.SendRequest = function () {
+	//alert('SendRequest ' + me.IOGroup );
+	me.req=getXMLHttpRequest();
+	if (me.req) {
+	    // calculate the value from the ValArray
+	    me.value=0;
+	    for (var i=1;i<8;i++) {
+		if (me.ValArray[i] == 1) {
+		    me.value=me.value+Math.pow(2,(i-1));
+		}
+	    }
+	    //alert ('SendRequest send ' + me.Adresse + '?' + me.IOGroup + "," + me.value );
+	    me.req.onreadystatechange = me.PrintState;
+	    me.req.open("get", me.Adresse + "?" + me.IOGroup + "," + me.value, true);
+	    me.req.send(null);
+	}
+    }
+    
+    // this function reads the asynchronous response from the AJAX request
+    // and sends the values as events
+    this.PrintState = function () {
+	//alert('PrintState');
+	// readyState 4 gibt an dass der request beendet wurde
+	if ( me.req.readyState ==4 ) {
+	    //
+	    // in resonseText ist die Antwort des Servers
+	    var str=me.req.responseText;
+	    // currently we just read the response, and ignore it
+	}
+    }
+    
+    // this function builds the list of event to input mapping
+    this.AssignEvent = function (xx,yy) {
+	this.EventMapping[xx] = yy;
+	//alert(xx + ' ' + this.EventMapping[xx]);
+    }
+    
+    // the URL to use with the DeviceServer
+    this.DeviceServerURL = function (xx) {
+	this.Adresse = xx;
+    }
+    
+    // the IOGroup to use
+    this.IOGroup = function (xx) {
+	this.IOGroup = xx;
+	//alert(me + ' ' + me.IOGroup);
+	// establish our own timer to periodically read the signals
+	me.SenderTimer = setInterval(me.SendRequest,400);
+    }
+    
+    this.ReceiveEvent = function(EventArgs) {
+	// split the event data in its elements
+	var EventArray = EventArgs.split(' ');
+	// check wether the current event is for me
+	// loop over the mapping and store value if mapping matches
+	if ( EventArray[0] == 'digital') {
+	    for (var i=1;i<8;i++) {
+		if (me.EventMapping[i] == EventArray[1] ) {
+		    //alert(me + ' ' + EventArray[2]);
+		    me.ValArray[i]=EventArray[2];
+		}
+	    }
+	}
+    }
+    
+    // install Event Handler
+    OpenMSREvent.addHandler(me.ReceiveEvent);
+}
+
+
+var AnalogDataReader = function () {
+    /* 
+      this function reads the analog data from the DeviceServer
+      and distributes it over Events
+    */
+
+    this.Adresse = 'http://localhost:10080/analog/read.html';
+    this.IOGroup = 0;
+    this.EventMapping = new Array();
+    this.req = null;
+    var me = this;
+
+
+    // Start the asynchronous read request
+    this.SendRequest = function () {
+      //alert('SendRequest ' + me.IOGroup );
+      me.req=getXMLHttpRequest();
+      if (me.req) {
+	DebugLOG('AnalogReader.SendRequest send ' + me.Adresse + '?' + me.IOGroup );
+	me.req.onreadystatechange = me.PrintState;
+	me.req.open("get", me.Adresse + "?" + me.IOGroup, true);
+	me.req.send(null);
+      }
+    }
+    
+    // this function reads the asynchronous response from the AJAX request
+    // and sends the values as events
+    this.PrintState = function () {
+      // readyState 4 gibt an dass der request beendet wurde
+      if ( me.req.readyState ==4 ) {
+	// in resonseText ist die Antwort des Servers
+	var str=me.req.responseText;
+	// remove html tags
+	str = str.replace(/<[^<>]+>/g , "");
+	// remove leading space
+	str = str.replace(/^ /, "");
+	DebugLOG(' AnalogReader.PrintState received ' + str );
+	var inputs=str.split(" ");
+	// now loop over the result and fire the events
+	for (i=0;i<8;i++) {
+	  EventArgs = 'analog' + ' ' + me.EventMapping[i+1] + ' ' + inputs[i];
+	  // fire event
+	  OpenMSREvent.execute(EventArgs); 
+	}
+      }
+    }
+
+    // this function builds the list of event to input mapping
+    this.AssignEvent = function (xx,yy) {
       this.EventMapping[xx] = yy;
-      //alert(this.EventMapping[xx]);
+      DebugLOG(' AnalogReader EventMapping '+ this.EventMapping[xx]);
     }
 
     // the URL to read the DeviceServer
@@ -584,15 +776,7 @@ var DigitalDataReader = function () {
       this.IOGroup = xx;
       //alert(me + ' ' + me.IOGroup);
       // establish our own timer to periodically read the signals
-      ReaderTimer = setInterval(SendRequest,400);
+      me.ReaderTimer = setInterval(me.SendRequest,400);
     }
 
-}
-
-
-function digitalDataSender() {
-    /*
-      this function receives events and sends it the data to
-      the DeviceServer
-    */
 }
