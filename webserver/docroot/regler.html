@@ -1,0 +1,80 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<html>
+ <head>
+  <title>Farbtabelle mit JavaScript</title>
+  <style type="text/css">
+   .content_11054_colorecke { width: 1px; height: 10px; margin: 0px 0px 0px 0px; padding: 0px 0px 0px 0px; overflow: hidden;}
+   .neben {float: left;}
+   .umbruch {display: block; clear: left; padding: 5px 5px 5px 5px;}
+  </style>
+ 
+ 
+  <script language="JavaScript">
+   function Hex(Num) {
+    var Ziffern = '0123456789abcdef';
+    return Ziffern.charAt((Num & 240) >> 4) + Ziffern.charAt(Num & 15);
+}
+ 
+ function setRGBComponent(farbangabe, komponente) {
+    rgb_array = farbangabe.substring(4, farbangabe.indexOf(")")).split(",");
+    var balken = new Array();
+    switch(komponente) {
+       case "r":
+             balken.push(document.getElementById("gruen").getElementsByTagName("div")); 
+balken.push(document.getElementById("blau").getElementsByTagName("div"));
+	     var rgb_i = 0;
+             break;
+       case "g":
+	     balken.push(document.getElementById("rot").getElementsByTagName("div")); 
+balken.push(document.getElementById("blau").getElementsByTagName("div"));
+             var rgb_i = 1;
+            break;
+       case "b":
+	     balken.push(document.getElementById("rot").getElementsByTagName("div")); 
+balken.push(document.getElementById("gruen").getElementsByTagName("div"));
+             var rgb_i = 2;
+            break;
+    }
+    
+    for( var j = 0; j < 2; j++ ) { 
+       elements = balken[j];   
+       for( var i = 0; i < elements.length; i++ ) {
+         current = elements[i].style.backgroundColor.substring(4, elements[i].style.backgroundColor.indexOf(")")).split(",");
+         current[rgb_i] = rgb_array[rgb_i];
+         elements[i].style.backgroundColor = "rgb(" + current.join(",") + ")";
+       }
+    }
+ }
+ 
+   function regler(){
+    var rotfarbe = 0;
+    var gruenfarbe = 0;
+    var blaufarbe = 0;
+    var stufen=256;
+ document.write( "<div class='umbruch' id='rot'>" );
+    for( r=0; r<stufen; r++ ){
+     document.write( "<div class='content_11054_colorecke neben' style='background-color: #" + Hex(r) + Hex(gruenfarbe) + Hex(blaufarbe) + ";' onclick='setRGBComponent(this.style.backgroundColor, \"r\");'>&nbsp;</div><!-- content_11054_colorecke -->" );
+}
+    document.write( "</div><!-- umbruch -->" );
+    document.write( "<div class='umbruch' id='gruen'>" );
+    for( g=0; g<stufen; g++ ){
+       document.write( "<div class='content_11054_colorecke neben' style='background-color: #" + Hex(rotfarbe) + Hex(g) + Hex(blaufarbe) + ";' onclick='setRGBComponent(this.style.backgroundColor, \"g\");'>&nbsp;</div><!-- content_11054_colorecke -->" );
+}
+    document.write( "</div><!-- umbruch -->" );
+    document.write( "<div class='umbruch' id='blau'>" );
+    for( b=0; b<stufen; b++ ){
+       document.write( "<div class='content_11054_colorecke neben' style='background-color: #" + Hex(rotfarbe) + Hex(gruenfarbe) + Hex(b) + ";' onclick='setRGBComponent(this.style.backgroundColor, \"b\");'>&nbsp;</div><!-- content_11054_colorecke -->" );
+}
+    document.write( "</div><!-- umbruch -->" );
+}
+  </script>
+ </head>
+ 
+ <body>
+  <script language="JavaScript">
+  <!--
+  regler();
+  // -->
+  </script>
+ </body>
+</html> 
