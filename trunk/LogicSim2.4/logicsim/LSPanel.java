@@ -62,7 +62,8 @@ public class LSPanel extends JPanel implements Printable {
   static final int ACTION_DRFF = 32;
   static final int ACTION_DSIN = 33;
   static final int ACTION_DSOUT = 34;
-
+  static final int ACTION_DLatch = 35;
+  
   public LSPanel(JLabel statusBar) {
     this.statusBar=statusBar;
     gates=new GateList();
@@ -118,6 +119,7 @@ public class LSPanel extends JPanel implements Printable {
       case ACTION_DELPOINT : statusBar.setText(I18N.getString("STATUS_REMOVEPOINT")); break;
       case ACTION_DSIN : g=new DSIN();break;
       case ACTION_DSOUT : g=new DSOUT();break;
+      case ACTION_DLatch : g=new DLatch();break;
     }
 
     currentAction=a;

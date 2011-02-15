@@ -16,7 +16,7 @@ public class LSFrame extends JInternalFrame implements java.awt.event.ActionList
     I18N.getString("GATE_EQUIVALENCE"),
     "---", I18N.getString("GATE_NORMALINPUT"), I18N.getString("GATE_INPUT_INVERTER"),
     I18N.getString("GATE_INPUT_HIGH"), I18N.getString("GATE_INPUT_LOW"),
-    "---", I18N.getString("GATE_RSFF"), I18N.getString("GATE_DFF"), I18N.getString("GATE_DRFF"), I18N.getString("GATE_JKFF"),
+    "---", I18N.getString("GATE_RSFF"), I18N.getString("GATE_DFF"), I18N.getString("GATE_DLatch"), I18N.getString("GATE_DRFF"), I18N.getString("GATE_JKFF"),
     I18N.getString("GATE_JKMSFF"), I18N.getString("GATE_TFF"),
     "---", I18N.getString("GATE_CLOCK"), I18N.getString("GATE_MONOFLOP"), I18N.getString("GATE_TURNONDELAY"), I18N.getString("GATE_TURNOFFDELAY"),
     "---", I18N.getString("GATE_BINARYINPUT"), I18N.getString("GATE_LCD"),  I18N.getString("GATE_DSIN"), I18N.getString("GATE_DSOUT"),I18N.getString("GATE_SEVENSEGMENT"),
@@ -24,7 +24,7 @@ public class LSFrame extends JInternalFrame implements java.awt.event.ActionList
     int[] actions = { LSPanel.ACTION_SWITCH, LSPanel.ACTION_LED, LSPanel.ACTION_AND, LSPanel.ACTION_NAND,
     LSPanel.ACTION_OR, LSPanel.ACTION_NOR, LSPanel.ACTION_NOT, LSPanel.ACTION_XOR,
     LSPanel.ACTION_EQU, 0, LSPanel.ACTION_INNORM, LSPanel.ACTION_INNEG, LSPanel.ACTION_INHIGH,
-    LSPanel.ACTION_INLOW, 0, LSPanel.ACTION_RSFF, LSPanel.ACTION_DFF, LSPanel.ACTION_DRFF, LSPanel.ACTION_JKFFC,
+    LSPanel.ACTION_INLOW, 0, LSPanel.ACTION_RSFF, LSPanel.ACTION_DFF, LSPanel.ACTION_DLatch, LSPanel.ACTION_DRFF, LSPanel.ACTION_JKFFC,
     LSPanel.ACTION_JKMSFF, LSPanel.ACTION_TFF, 0, LSPanel.ACTION_CLK,LSPanel.ACTION_MONOFLOP,
     LSPanel.ACTION_ONDELAY, LSPanel.ACTION_OFFDELAY, 0, LSPanel.ACTION_BININ, LSPanel.ACTION_LCD,
     LSPanel.ACTION_DSIN,LSPanel.ACTION_DSOUT,LSPanel.ACTION_SEVENSEGMENT,LSPanel.ACTION_TEXTLABEL,0 };
