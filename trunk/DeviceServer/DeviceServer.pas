@@ -1,12 +1,14 @@
 program DeviceServer;
 {$mode objfpc}
 
+{$M 12048,12048}
+
 {$ifdef MacOSX}
 	{$define Linux}
 {$endif}
 
 uses 
-{$IFDEF Linux} cthreads,BaseUnix,
+{$IFDEF Linux} cthreads,cmem,BaseUnix,
 {$endif}
 {$ifdef Windows}
 Windows,
@@ -33,9 +35,6 @@ PhysMach,webserver,telnetserver,classes,crt,CommonHelper;
 const
 	Forever=false;
 	MaxThreads=25;
-	BLOCKED=true;
-	NONBLOCKED=false;
-	debug=true;
 	TimeOut=500;
 
 var
@@ -55,6 +54,8 @@ var
 	NumOfThreads	: LongInt ;
 	connectionclose	: boolean;
 	DebugOutput	: TRTLCriticalSection;
+	SendAsync	: TRTLCriticalSection;
+	debug		: boolean;
 
 
 procedure DSdebugLOG(msg:string);
@@ -196,7 +197,7 @@ begin
 		TelnetSetupInterpreter(@TelnetInterpreter);
 		repeat
 			TelnetServeRequest('Welcome to Device Server Monitor, use "close" to quit'+chr(10)+'>');	
-			//delay(100);
+			delay(100);
 			inc(ThreadCnt[MySelf]);
 		until connectionclose;
 	until shutdown=true;
@@ -232,6 +233,7 @@ var
 	Trenner		: Byte;
 
 begin
+	EnterCriticalSection(SendAsync);
 	Url:=GetURL;
 
 	{ Fragezeichen Abschneiden, daher ab position 2 params lesen }
@@ -253,6 +255,7 @@ begin
 		DSdebugLOG('embeddedWeb:> Got Parameters');
 		DSdebugLOG('URL=' + Url + ' Parameters=' + Params + ' ' + IntToStr(IOGroup) + ' ' + IntToStr(ByteValue));
 	end;
+	LeaveCriticalSection(SendAsync);
 end;
 
 
@@ -265,6 +268,7 @@ var
 	AddressBase					: word;
 
 begin
+	EnterCriticalSection(SendAsync);
 	inc(Counter);
 	SeitenStart:='<html><body>';
 	SeitenEnde:=' </body></html>';
@@ -280,8 +284,9 @@ begin
 	Seite:=SeitenStart+Values+SeitenEnde;
 	if debug then DSdebugLOG('embeddedWeb:>Sending Page');
 
-	SendPage(Seite);
+	SendPage(100,Seite);
 	if debug then DSdebugLOG('embeddedWeb:>Page Send, finished');
+	LeaveCriticalSection(SendAsync);
 end;
 
 
@@ -294,6 +299,7 @@ var
 	Trenner,i,ValStart			: integer;
 	
 begin
+	EnterCriticalSection(SendAsync);
 	if debug then DSdebugLOG('WriteAnalogValues called....');
 	inc(Counter);
 	SeitenStart:='<html><body>';
@@ -328,7 +334,8 @@ begin
 	{ return something usefull }	
 	Seite:=SeitenStart+Values+SeitenEnde;
 	if debug then DSdebugLOG('embeddedWeb:>Sending Page');
-	SendPage(Seite);
+	SendPage(101,Seite);
+	LeaveCriticalSection(SendAsync);
 	if debug then DSdebugLOG('embeddedWeb:>Page Send, finished');
 end;
 
@@ -343,6 +350,7 @@ var
 	IOGroupList				: array [1..64] of byte;
 
 begin
+	EnterCriticalSection(SendAsync);
 	inc(Counter);
 	SeitenStart:='<html><body>';
 	SeitenEnde:=' </body></html>';
@@ -383,7 +391,8 @@ begin
 	Seite:=SeitenStart+Values+SeitenEnde;
 
 	if debug then DSdebugLOG('embeddedWeb:>Sending Page');
-	SendPage(Seite);
+	SendPage(102,Seite);
+	LeaveCriticalSection(SendAsync);
 
 	if debug then DSdebugLOG('embeddedWeb:>Page Send, finished');
 end;
@@ -400,6 +409,7 @@ var
 	IOGroupList				: array [1..64] of byte;
 
 begin
+	EnterCriticalSection(SendAsync);
 	inc(Counter);
 	SeitenStart:='<html><body>';
 	SeitenEnde:=' </body></html>';
@@ -440,7 +450,8 @@ begin
 	Seite:=SeitenStart+Values+SeitenEnde;
 
 	if debug then DSdebugLOG('embeddedWeb:>Sending Page');
-	SendPage(Seite);
+	SendPage(103,Seite);
+	LeaveCriticalSection(SendAsync);
 
 	if debug then DSdebugLOG('embeddedWeb:>Page Send, finished');
 end;
@@ -456,6 +467,7 @@ var
 	Bits					: byte;
 
 begin
+	EnterCriticalSection(SendAsync);
 	inc(Counter);
 	SeitenStart:='<html><body>';
 	SeitenEnde:=' </body></html>';
@@ -479,7 +491,8 @@ begin
 	{ return something usefull }	
 	Seite:=SeitenStart+Values+SeitenEnde;
 	if debug then DSdebugLOG('embeddedWeb:>Sending Page');
-	SendPage(Seite);
+	SendPage(104,Seite);
+	LeaveCriticalSection(SendAsync);
 	if debug then DSdebugLOG('embeddedWeb:>Page Send, finished');
 end;
 
@@ -495,6 +508,7 @@ var
 	Bits					: byte;
 
 begin
+	EnterCriticalSection(SendAsync);
 	inc(Counter);
 	SeitenStart:='<html><body>';
 	SeitenEnde:=' </body></html>';
@@ -518,7 +532,8 @@ begin
 	{ return something usefull }	
 	Seite:=SeitenStart+Values+SeitenEnde;
 	if debug then DSdebugLOG('embeddedWeb:>Sending Page');
-	SendPage(Seite);
+	SendPage(105,Seite);
+	LeaveCriticalSection(SendAsync);
 	if debug then DSdebugLOG('embeddedWeb:>Page Send, finished');
 end;
 
@@ -528,12 +543,15 @@ function WebserverThread(p: Pointer):LongInt;
 { the real serving thread }
 var 
 	MySelf		: LongInt;
+	DebugFlag	: boolean;
+	
 
 begin
 	MySelf:=longint(p);
 	DSdebugLOG('started Webserver Thread, going to start Server...');
+	DebugFlag:=debug;
 	{ start the webserver with IP, Port, Document Root and Logfile }
-	start_server('canis',10080,BLOCKED,'docroot','./pwserver.log');
+	start_server('',10080,BLOCKED,'docroot','./pwserver.log',NONBLOCKED,DebugFlag);
 	DSdebugLOG('Webserver started, ready to serve');
 
 	{ register the variable handler }
@@ -553,6 +571,7 @@ begin
 		LeaveCriticalSection(ProtectParams);
 		if debug then DSdebugLOG('Webserver served Client...');
 		inc(ThreadCnt[MySelf]);
+		delay(100);
 	until Shutdown=true;
 
 	DSdebugLOG('Webserver going down..');
@@ -604,6 +623,7 @@ begin
 		inc(ThreadCnt[MySelf]);
 	until Shutdown=true;
 	DSdebugLOG('stopping Statistic Thread ');
+	StatisticsThread:=0;
 end;
 
 
@@ -616,10 +636,11 @@ begin
 	MySelf:=longint(p);
 	DSdebugLOG('started Time Control Thread...' + IntToStr(MySelf));
 	repeat
-	
+		delay(10000);
 		inc(ThreadCnt[MySelf]);
 	until Shutdown=true;
 	DSdebugLOG('stopping Thread Time Control');
+	TimeControlThread:=0;
 end;
 
 
@@ -635,9 +656,16 @@ begin					{ Main program }
 	// get list of installed devices
 	DeviceList:=PhysMachGetDevices;
 
+	// commandline parameters
+	if ( paramcount > 0 ) then begin
+		if (paramstr(1)='d') then debug:=true
+		else debug:=false;
+	end;
+
 	Counter:=0;
 	InitCriticalSection(ProtectParams);
 	InitCriticalSection(DebugOutput);
+	InitCriticalSection(SendAsync);
 
 	// start threads, for every configured device one thread
 	// the device servers need to be started as first thread,
@@ -679,7 +707,7 @@ begin					{ Main program }
 	// fool around and wait for the end
 	repeat
 		repeat
-			delay(10*TimeOut);
+			delay(100*TimeOut);
 			if debug then DSdebugLOG('idleloop...');
 		until keypressed;
 	until readkey='e';
@@ -694,7 +722,5 @@ begin					{ Main program }
 		WaitForThreadTerminate(ThreadHandle[i],TimeOut);
 		DSdebugLOG( ThreadName[i] + ' ended');
 	end;
-	DoneCriticalSection(DebugOutput);
-	DoneCriticalSection(ProtectParams);
 
 end.
