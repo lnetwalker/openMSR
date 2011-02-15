@@ -1,2 +1,2 @@
 FPC=/usr/local/bin/fpc
-FPC_FLAGS= -dLINUX -dnewio
+FPC_FLAGS=-dLINUX -dnewio -Fu../PhysMach -Fu../divLibs/synapseTCP/source/lib/ -Fu/usr/local/lib/fpc/2.3.1/units/i386-linux/fcl-base/ -Fu/usr/local/lib/fpc/2.3.1/units/i386-linux/fcl-net/ 
