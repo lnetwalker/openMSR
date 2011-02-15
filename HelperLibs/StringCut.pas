@@ -46,7 +46,7 @@ begin
 	Result[i]:=copy(Line,TrennPos[i-1]+1,TrennPos[i]-TrennPos[i-1]-1)
       else
 	{ the last element split to end of string }
-	Result[i]:=copy(Line,TrennPos[i-1]+1,Length(Line)-TrennPos[i]-1);
+	Result[i]:=copy(Line,TrennPos[i-1]+1,Length(Line));
   { splitting is done return result }
   StringSplit:=Result;
 end;
