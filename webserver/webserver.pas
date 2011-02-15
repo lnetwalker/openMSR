@@ -30,88 +30,55 @@ unit webserver;
 {		     currently only GET requests are supported			}
 { 12.11.2006 added registration of special URLs through callback		}
 { 18.11.2006 added sending of variable data to the embedding process		}
+{ 29.09.2010 started to add thread support					}
+{ 07.02.2011 worked on thread support, added better IO Error checking		}
 
 interface
+uses classes;
 
-{$ifdef LINUX}
-	{$define Unix}
-{$endif}
-{$ifdef MacOSX}
-	{$define Unix}
-{$endif}
-	
-
-procedure start_server(address:string;port:word;BlockMode: Boolean;doc_root,logfile:string);
+procedure start_server(address:string;port:word;BlockMode: Boolean;doc_root,logfile:string;ThreadMode : Boolean ;DebugMode : Boolean);
 procedure SetupSpecialURL(URL:string;proc : tprocedure);
 procedure SetupVariableHandler(proc: tprocedure);
-procedure SendPage(myPage : AnsiString);
+procedure SendPage(WhoAmI:byte;myPage : AnsiString);
 procedure serve_request;
 function GetURL:string;
 function GetParams:string;
 procedure stop_server();
 
-
+const
+	BLOCKED=true;
+	NONBLOCKED=false;
+	Debug_ON=true;
+	Debug_OFF=false;
+	
 implementation
 
 uses 
-{$ifdef Unix}
-	BaseUnix, Unix,dos,
+	CommonHelper,crt, blcksock, synautil, synaip, synacode, synsock,
+{$ifdef LINUX}
+	BaseUnix,Unix, dos;
 {$endif}
 {$ifdef Windows}
-	windows,
+	windows;
 {$endif}
-	CommonHelper,crt,inetaux,sockets;
 
-
-
-{$ifdef WIN32}
-	type
-		TFDSet = Winsock.TFDSet; 
-{$endif}
-	
 const 
 	LocalAddress = '127.0.0.1';
-	debug = true;
 	MaxUrl = 25;
+	MaxThreads = 25;
 	
 var
 
 	// Listening socket
-	{$ifdef Unix}
-		sock,csock	: longint;
-	{$else}
-		sock		: TSocket;
-		ConnSock	: TSocket;
-	{$endif}
+	sock,reply_sock	: TTCPBlockSocket;
+	csock		: TSocket;
 
 	// Maximal queue length
 	max_connections	: integer;
 
-	binData			: byte;
+	binData		: byte;
 
-	// Server and Client address
-	{$ifdef Unix}
-		srv_addr	: TInetSockAddr;
-		cli_addr	: psockaddr;
-		// Conncected socket i/o
-		sin, sout,			// Descriptors for listening port
-		ccsin,ccsout	: text;		// Descriptors for client communication dynamic ports
-		Addr_len	: LongInt;
-	{$endif}
-	{$ifdef Win32}
-		srv_addr	: TSockAddr;
-		cli_addr	: TSockAddr;	
-		GInitData	: TWSADATA;
-		addr_len 	: u_int;
-		NON_BLOCK	: LongInt;
-		FDRead		: TFDSet;
-		Result		: integer;
-		TimeVal 	: TTimeVal;
-		FCharBuf	: array [1..32768] of char;
-		RecBufSize	: integer;
-		sendString	: AnsiString;
-		BytesToSend	: word;
-	{$endif}
+	Addr_len	: LongInt;
 
 	// Buffers
 	buff			: String;
@@ -152,27 +119,74 @@ var
 
 	saveaccess		: Boolean;
 	
+	// Flag to show wether threads should be used or not
+	WithThreads		: Boolean;
+	
+	ThreadHandle		: array[1..MaxThreads] of TThreadId;
+	NumOfThreads		: LongInt;
+	DebugOutput		: TRTLCriticalSection;
+	ProtectAccessLog	: TRTLCriticalSection;
+	ProtectAccess		: TRTLCriticalSection;
+	ProtectDataSend		: TRTLCriticalSection;
+	ServeSpecialURL		: TRTLCriticalSection;
+
+	debug			: boolean;
 	
 procedure writeLOG(MSG: string);
 begin
+	EnterCriticalSection(DebugOutput);
+	{$I-}
 	writeln(DBG,MSG);
 	flush(DBG);
+	{$I+}
+	if IOResult <>0 then writeln ('error writing debug file');
+	LeaveCriticalSection(DebugOutput);
 end;
 
 
 procedure errorLOG(MSG: string);
+var
+    jahr,mon,tag,wota 	: word;
+    std,min,sec,ms	: word;
+    TimeString		: string;
+{$ifdef Windows}
+    st 			: systemtime;
+{$endif} 
+
+
 begin
-	writeln(ERR,MSG);
+ {$ifdef linux} // LINUX
+	gettime(std,min,sec,ms); 
+	getdate(jahr,mon,tag,wota);
+ {$else}        // WINDOWS
+	getlocaltime( st );
+	std:= st.whour;
+	min:= st.wminute;
+	sec:= st.wsecond;
+	ms:= st.wmilliseconds;
+	jahr:= st.wyear;
+	mon:= st.wmonth;
+	tag:= st.wday;
+
+ {$endif} 
+	TimeString:='['+IntToStr(tag)+'/'+IntToStr(mon)+'/'+IntToStr(jahr)+':'+IntToStr(std)+':'+IntToStr(min)+':'+IntToStr(sec)+':'+IntToStr(ms)+']';
+
+	writeln(ERR,TimeString+' '+MSG);
 	flush(ERR);
 end;
 
 
 procedure accessLOG(MSG: string);
 begin
+	EnterCriticalSection(ProtectAccessLog);
 	if saveaccess then begin
+	    {$I-}
 	    writeln(ACC,MSG);
 	    flush(ACC);
+	    {$I+}
+	    if IOResult <>0 then writeln ('error writing access log file');
 	end;
+	LeaveCriticalSection(ProtectAccessLog);
 end;
 
 
@@ -192,9 +206,18 @@ begin
 end;
 
 
-procedure start_server(address:string;port:word;BlockMode: Boolean;doc_root,logfile:string);
+procedure start_server(address:string;port:word;BlockMode: Boolean;doc_root,logfile:string;ThreadMode : Boolean; DebugMode : Boolean);
+var	port_str	: String;
 
 begin
+	// set flags for threadusage
+	If ( ThreadMode ) then WithThreads:=true
+	else WithThreads:= False;
+	
+	// check Debug Flag
+	if (DebugMode) then debug:=true
+	else debug:=false;
+
 	if logfile<>'' then begin
 	    // open logfile
 	    assign(ACC,logfile);
@@ -205,80 +228,62 @@ begin
 	{ Initialization}
 	if debug then writeLOG('PWS Pascal Web Server - starting server...');
 	if (port=0) then port:=10080;
-	//if (address='') then address:=LocalAddress;
-	str(port,blubber);
-	if debug then writeLOG('using port='+blubber+' address='+address);
+	if (address='') then address:='127.0.0.1';
+	str(port,port_str);
+	if debug then writeLOG('using port='+port_str+' address='+address);
 	DocRoot:=doc_root;
 	BufCnt:=1;
 	reqCnt:=0;
 	max_connections := 5;
-	{$ifdef Unix}
-		srv_addr.family := AF_INET;
-		srv_addr.port := htons(port);
-		if (address='') then srv_addr.addr :=0 
-		else srv_addr.addr := StrToAddr(address);
-	{$else}
-		srv_addr.sin_family := AF_INET;
-		srv_addr.sin_port := htons(port);
-		// BUG ?!?
-		if (address='') then srv_addr.sin_addr.S_addr :=0 
-		else srv_addr.sin_addr.S_addr := StrToAddr(Address);
-		{ Inititialize WINSOCK }
-		if WSAStartup($101, GInitData) <> 0 then errorLOG('Error init Winsock');
-	{$endif}
-	
+
 	{ Create socket }
-	sock := fpsocket(PF_INET, SOCK_STREAM, 0);
+	sock:=TTCPBlockSocket.create;
+	sock.CreateSocket;
+	if sock.LastError<>0 then
+	    writeLOG('start_server: Error creating socket');
+	//setLinger(true,10);
 
 	if not(BlockMode) then begin
 		{ set socket to non blocking mode }
-		{$ifdef Unix}
-			FpFcntl(sock,F_SetFd,MSG_DONTWAIT);
+		{$ifdef linux}
+		//FpFcntl(sock,F_SetFd,false);
+		{$else}
 		{$endif}
-		{$ifdef Windows}
-			NON_BLOCK:=1;
-			Result:=ioctlsocket(sock,FIONBIO,@NON_BLOCK);
-			if ( Result=SOCKET_ERROR ) then errorLOG('setting NON_BLOCK failed :(');
-		{$endif}
+		writeln (' Nonblocking sockets not supported');
+		halt(1);
 	end;
 
 	// Binding the server
 	if debug then writeLOG('Binding port..');
-	{$ifdef Unix}
-		if fpbind(sock, @srv_addr, sizeof(srv_addr))<> 0 then begin
-			errorLOG('!! Error in bind().');
-			halt;
-		end;
-	{$else}
-		if (bind(sock, srv_addr, SizeOf(srv_addr)) <> 0) then  begin
-			errorLOG('!! Error in bind');
-			halt;
-		end;
-	{$endif}
-	
+	sock.bind(address,port_str);
+	if sock.LastError<>0 then
+	    writeLOG('start_server: Error binding socket');
 	// Listening on port
 	if debug then writeLOG('listen..');
-	{$ifdef Unix}
-	fplisten(sock, max_connections);
-	{$else}
-	if (listen(sock, max_connections) = SOCKET_ERROR) then errorLOG('listen() failed with error '+ IntToSTr(WSAGetLastError()));
-	{$endif}
+	sock.listen;
+	if sock.LastError<>0 then
+	    writeLOG('start_server: Error listen socket');
 end;
 
 
-procedure SendPage(myPage : AnsiString);
+procedure SendPage(WhoAmI:byte;myPage : AnsiString);
 var
 	i 		: byte;
+	useragent	: String;
 
 begin
 	PageSize:=length(myPage);
+	//if debug then writeLOG(myPage);
 	if status='' then status:='200 ok';
 
 	{ generate the header }
-	header:='HTTP/1.1 '+status+chr(10);
-	header:=header+'Connection: close'+chr(10);
-	header:=header+'MIME-Version: 1.0'+chr(10);
-	header:=header+'Server: bonita'+chr(10);
+	header:='HTTP/1.1 '+status+CRLF;
+	header:=header+'MIME-Version: 1.0'+CRLF;
+	header:=header+'Server: bonita'+CRLF;
+	if (WithThreads) then 
+		header:=header+'Connection: keep-alive'+CRLF
+	else
+		header:=header+'Connection: close'+CRLF;
 	{ currently the mimetype of an object is always text/html }
 	header:=header+CType;
 	header:=header+'Content-length: ';
@@ -286,108 +291,79 @@ begin
 	{ without the size of the header } 
 	str(PageSize,TRespSize);
 	header:=header+TRespSize;
-	header:=header+chr(10);
+	header:=header+CRLF+CRLF;
 	str(PageSize,blubber);
 	if debug then begin
-		writeLOG('DocSize: '+blubber);
-		writeLOG('Header: '+header);
-		writeLOG('/Header');
+		writeLOG('SendPage '+IntToStr(WhoAmI)+': DocSize: '+blubber);
+		writeLOG('SendPage '+IntToStr(WhoAmI)+': Header: '+header);
+		writeLOG('SendPage '+IntToStr(WhoAmI)+': /Header');
 
 		// Sending response
 		writeLOG('serving data...');
 	end;
-	{$ifdef Unix}
-		str(BufCnt,blubber);
-		if debug then writeLOG('BufCnt='+blubber);
-		{ if I send the header and the page together }
-		{ firefox has a problem and displays nothing }
-		i:=0;
-		repeat
-			inc(i);
-		until (copy(post[i],1,10)='User-Agent');
-		if debug then writeLOG('User-Agent='+copy(post[i],13,7));
-		if (copy(post[i],13,7)='Mozilla') then begin
-			if debug then writeLOG('Mozilla -> sending header,page');
-			writeln(ccsout,header);
-			writeln(ccsout,myPage);
-		end
-		else begin
-			if debug then writeLOG('other -> sending header+page');
-			writeln(ccsout,header+myPage);
-		end;
-		//writeln(ccsout);
+	str(BufCnt,blubber);
+	if debug then writeLOG('SendPage '+IntToStr(WhoAmI)+': BufCnt='+blubber);
+	i:=0;
+	repeat
+		inc(i);
+	until (copy(post[i],1,10)='User-Agent');
+	useragent:=copy(post[i],13,7);
+	EnterCriticalSection(ProtectDataSend);
+	if debug then writeLOG('SendPage '+IntToStr(WhoAmI)+': ' +useragent + ' -> sending header');
+	reply_sock.SendString(header);
+	if reply_sock.LastError<>0 then
+	    writeLOG('SendPage: Error sending header');
+	if debug then writeLOG('SendPage '+IntToStr(WhoAmI)+': ' +useragent + ' -> sending page ');
+	reply_sock.SendString(myPage);
+	if reply_sock.LastError<>0 then
+	    writeLOG('SendPage: Error sending page');
+	if debug then writeLOG('SendPage '+IntToStr(WhoAmI)+': page send');
+	LeaveCriticalSection(ProtectDataSend);
 
-		// Flushing output
-		//flush(ccsout);
-
-	{$else}
-		{ note chr(10) is newline }
-		{ build the string that should be send }
-		sendString:=header + chr(10) + chr(10) + myPage;
-		BytesToSend:=length(sendString);
-		if debug then begin 
-			writeLOG('respSize: '+IntToSTr(BytesToSend));
-			writeLOG('Page=' + sendString);
-		end;
-		//Result:=send(ConnSock,@header,sizeof(header),0);
-		//Result:=send(ConnSock,@myPage,sizeof(myPage),0);
-		Result:=send(ConnSock,@sendString,BytesToSend,0);
-		if debug then errorLOG(IntToSTr(Result) + ' Bytes send');
-		if ( Result=SOCKET_ERROR ) then errorLOG('send Data failed :(');
-		Shutdown(ConnSock, 2);
-	{$endif}
-	if debug then writeLOG('finished request..., connection closed');
+	if debug then writeLOG('finished request...');
 	BufCnt:=1;
 end;
 
 
-procedure process_request;
+function process_request(WhoAmI:byte):boolean;
+
 var Paramstart,i	: word;
     UserAgent		: string;
     jahr,mon,tag,wota 	: word;
     std,min,sec,ms	: word;
-    TimeString		: string;
+    TimeString,
+    ClientIP		: string;
 {$ifdef Windows}
     st 			: systemtime;
     n			: word;
 {$endif}
+    IOError		: Boolean;
 
 begin
+	IOError:=false;
 	reqSize:=0;
+	BufCnt:=1;
 	if debug then writeLOG('reading request data');
 	repeat
-		{ actually we should switch to blocking mode here, }
-		{ because it is possible that some amount of time  }
-		{ is between the connect and the request           }
-		{$ifdef Unix}
-			readln(ccsin, buff);
-			str(BufCnt,blubber);
-			if debug then writeLOG('Req['+blubber+']='+buff);
-			post[BufCnt] := buff;
-			if copy(buff,1,11)='User-Agent:' then UserAgent:=copy(buff,12,length(buff));
-			reqSize:=reqSize+length(post[BufCnt]);
-			inc(BufCnt);
-		{$else}
-			RecBufSize:=recv(ConnSock,@FCharBuf[1],SizeOf(FCharBuf),0);
-			if (RecBufSize=SOCKET_ERROR) then errorLOG('socket error during read '+IntToSTr(WSAGetLastError));
-			buff:=copy(FCharBuf,1,RecBufSize);
-			BufCnt:=1;
-			{ Request zerlegen und in array post zeile fuer Zeile speichern }
-			repeat
-				post[BufCnt]:=copy(buff,1,pos(chr(10),buff)-1);
-				if debug then writeLOG('Req['+IntToStr(BufCnt)+']='+post[BufCnt]);
-				buff:=copy(buff,pos(chr(10),buff)+1,length(buff));
-				inc(BufCnt);
-			until length(buff)<1;
-			reqSize:=RecBufSize;
-		{$endif}	
+		buff:=reply_sock.RecvString(12000);
+		if reply_sock.LastError<>0 then begin
+		    writeLOG('process_request: Error reading request');
+		    IOError:=true;
+		end;    
+		str(BufCnt,blubber);
+		if debug then writeLOG('process_request '+IntToStr(WhoAmI)+' : Req['+blubber+']='+buff);
+		post[BufCnt] := buff;
+		if copy(buff,1,11)='User-Agent:' then UserAgent:=copy(buff,12,length(buff));
+		reqSize:=reqSize+length(post[BufCnt]);
+		inc(BufCnt);
 	until length(buff)<1;
 
+	BufCnt:=BufCnt-2;
 	inc(reqCnt);
 	str(reqCnt,blubber);
-	if debug then writeLOG('# of Requests : '+blubber);
+	if debug then writeLOG('process_request '+IntToStr(WhoAmI)+': # of Requests : '+blubber);
 	str(reqSize,blubber);
-	if debug then writeLOG('requestSize: '+blubber);
+	if debug then writeLOG('process_request '+IntToStr(WhoAmI)+': requestSize: '+blubber);
 
 	{ processing the request }
 
@@ -396,7 +372,7 @@ begin
 	{ e.g. "GET /path/to/a/non/existing/file.htm HTTP/1.1" }
 	{ request type is ignored it's always GET assumed }
 	URL:=copy(post[1],pos('/',post[1]),length(post[1]));
-	URL:=copy(URL,1,pos(' ',URL)-1);
+	URL:=copy(URL,1,pos(' ',URL)-1);	
 	Paramstart:=pos('?',URL);
 
 	if ( Paramstart <> 0 ) then begin
@@ -408,47 +384,68 @@ begin
 
 	// set Content Type
 	if (pos('jpg',URL)<>0) then
-		CType:='Content-Type: image/jpeg'+chr(10)
+		CType:='Content-Type: image/jpeg'+CRLF
 	else
-		CType:='Content-Type: text/html'+chr(10);
+		if (pos('png',URL)<>0) then
+			CType:='Content-Type: image/png'+CRLF
+		else
+			CType:='Content-Type: text/html'+CRLF;
 
 	i:=0;
 	repeat
 		inc(i);
 		if (URL=SpecialURL[i]) then begin
+			EnterCriticalSection(ServeSpecialURL);
 			status:='200 OK';
 			str(i,blubber);
-			if debug then writeLOG('special URL['+blubber+'] detected: '+URL);
+			if debug then writeLOG('process_request '+IntToStr(WhoAmI)+': special URL['+blubber+'] detected: '+URL);
 			if ServingRoutine[i] <> nil then ServingRoutine[i];
+			LeaveCriticalSection(ServeSpecialURL);
 		end;
 	until (i=MaxUrl) or (URL=SpecialURL[i]);
 	if not(URL=SpecialURL[i]) then begin
 		URL:=DocRoot+URL;			// add current dir as Document root
-		if debug then writeLOG('requested URL='+URL);
+		if debug then writeLOG('process_request '+IntToStr(WhoAmI)+': requested URL='+URL);
 
 		{ now open the file, read and serve it }
 		{$ifdef Windows}
 		for n:=1 to length(URL) do if (URL[n]='/') then URL[n]:='\';
 		{$endif}
+		page:='';
 		{$i-}
 		assign(G,URL);
 		reset (G);
 		{$i+}
-		page:='';
 		if (IoResult=0) then begin { the file exists }
 			status:='200 OK';
 			while not eof(G) do begin  { read the file }
+				{$i-}
 				read(G,BinData);
+				{$i+}
+				if ( IOResult <> 0 ) then begin
+					page:='<html><body>Error: There was an Error reading the required data</body></html>';
+					status:='500 Internal Server Error';
+					errorLOG('Error 500:  Error reading '+URL);
+					IOError:=true;
+					exit;
+				end;
 				page:=page+chr(BinData);
 			end;
+			close (G);
 		end
 		else begin  { file not found }
 			page:='<html><body>Error: 404 Document not found</body></html>';
 			status:='404 Not Found';
 			errorLOG('Error 404 doc '+URL+' not found');
+			IOError:=true
 		end;
 
-		SendPage(page);
+		EnterCriticalSection(ProtectDataSend);
+		if debug then writeLOG('process_request : send page data ->');
+		//if debug then writeLOG(page);
+		SendPage(WhoAmI,page);
+		LeaveCriticalSection(ProtectDataSend);
+
 	end;
 	{ write access log in common logfile format, that looks like:
 		78.34.183.237 - - [16/Jun/2009:15:11:09 +0200] "GET /templates/eilers.net/images/mw_menu_cap_r.png HTTP/1.1" 404 8219 "http://www.eilers.net/templates/eilers.net/css/template.css" "Mozilla/5.0 (X11; U; Linux i686; de; rv:1.9.0.10) Gecko/2009042523 Ubuntu/9.04 (jaunty) Firefox/3.0.10"                                                                            
@@ -463,7 +460,7 @@ begin
 		field description
 		host rfc931 username date:time request statuscode bytes referrer applinformation
 	}
- {$ifdef Unix} // LINUX
+ {$ifdef linux} // LINUX
 	gettime(std,min,sec,ms); 
 	getdate(jahr,mon,tag,wota);
  {$else}        // WINDOWS
@@ -472,10 +469,44 @@ begin
 	min:= st.wminute;
 	sec:= st.wsecond;
 	ms:= st.wmilliseconds;
+	jahr:= st.wyear;
+	mon:= st.wmonth;
+	tag:= st.wday;
+
  {$endif} 
 	TimeString:='['+IntToStr(tag)+'/'+IntToStr(mon)+'/'+IntToStr(jahr)+':'+IntToStr(std)+':'+IntToStr(min)+':'+IntToStr(sec)+':'+IntToStr(ms)+']';
-	accessLog('unknown'+' - - '+TimeString+' GET "'+URL+'" '+copy(status,1,3)+' '+IntToStr(SizeOf(page))+' '+UserAgent);
+	ClientIP:=reply_sock.GetRemoteSinIP;
+	accessLog(ClientIP+' - - '+TimeString+' GET "'+URL+'" '+copy(status,1,3)+' '+IntToStr(length(page))+' '+UserAgent);
 
+	process_request:=IOError;
+end;
+
+
+{ this thread serves a connection until any ioerrors }
+function KeepAliveThread(p: pointer):LongInt;
+
+var
+	endThread		: Boolean;
+	
+begin
+	if debug then writeLOG('KeepAliveThread:started');
+	endThread:=false;
+	repeat
+		if debug then writeLOG('KeepAliveThread'+IntToStr(NumOfThreads)+': process_request');
+		EnterCriticalSection(ProtectAccess);
+		endThread:=process_request(NumOfThreads);
+		LeaveCriticalSection(ProtectAccess);
+	until endThread;
+
+	if debug then WriteLOG('KeepAliveThread'+IntToStr(NumOfThreads)+': Closing Client Socket');
+	reply_sock.free;
+	if reply_sock.LastError<>0 then
+	    writeLOG('Keep_Alive_Thread:'+IntToStr(NumOfThreads)+' Error freeing socket');
+
+
+	// just before end
+	dec(NumOfThreads);
+	if debug then writeLOG('KeepAliveThread'+IntToStr(NumOfThreads)+':ended');
 end;
 
 
@@ -486,65 +517,48 @@ begin
 	// Opening socket descriptors
 	// Reading whole request -> accept on socket, then read requested data
 
-	if debug then writeLOG('accept connection');
-	
-	{$ifdef LINUX}
-	{$else}
-	{$endif}
+	if debug then writeLOG('serve_request: accept connection');
 
-
-
-	{$ifdef Unix}
-	{$I-}
-		if debug then writeLOG('Sock2Text');
-		Sock2Text(sock,sin,sout);
-		if debug then writeLOG('reset');
-		reset(sin);
-		//if debug then writeLOG('rewrite');
-		//rewrite(sout);
-	{$I+}
-		if debug then WriteLOG('Reading requests...');
-		if (SelectText(sin,10000)>0) then begin
-			Addr_len:=SizeOf(cli_addr);
-			csock:=fpaccept(sock, cli_addr,@Addr_len);
-			Sock2Text(csock,ccsin,ccsout);
-			reset(ccsin);
-			rewrite(ccsout);
-			process_request;
-			if debug then WriteLOG('Closing In Stream');
-			close(ccsin);
-			if debug then WriteLOG('Closing Out Stream');
-			close(ccsout);
-			if debug then WriteLOG('Closing Client Socket');
-			CloseSocket(csock);
+	if (sock.canread(1000)) then begin
+		if debug then writeLOG('serve_request: noticed request');
+		csock:=sock.accept;
+		if debug then writeLOG('serve_request: request accepted');
+		if sock.lastError=0 then begin
+			reply_sock:=TTCPBlockSocket.create;
+			if debug then writeLOG('serve_request: creating answer socket');
+			reply_sock.CreateSocket;
+			reply_sock.socket:=csock;
 		end;
-		if debug then WriteLOG('Reading requests...done');
 
-		// Closing connected socket descriptors
-		if debug then WriteLOG('trying to close socket descriptors');
-		close(sin);
-		//close(sout);
-		if debug then WriteLOG('closeing socket descriptors done');
-	{$endif}
-	{$ifdef Windows}
-		fd_zero(FDRead);
-		fd_set(sock,FDRead);
-		{ a timeout must be set with timeout=nil it blocks }
-		TimeVal.tv_sec:=0;
-		TimeVal.tv_usec:=0;
-		Result:=Select(0, @FDRead, nil, nil, @TimeVal);
-		if Result = SOCKET_ERROR then errorLOG('ERROR='+IntToStr(WSAGetLastError));
-		if debug then WriteLOG('data read');
-		if (Result > 0) then begin
-			if debug then writeLOG('analyzing data');
-			addr_len:=SizeOf(cli_addr);
-			ConnSock:=accept(sock, @cli_addr,@addr_len);
-			if ( ConnSock=INVALID_SOCKET) then
-				errorLOG('accept failed');
-			if debug then writeLOG('calling process_request');
-			process_request;
-		end;
-	{$endif}
+		if debug then WriteLOG('serve_request: Reading requests...');
+
+		if ( WithThreads ) then begin
+			// start a new thread which processes the initial and all 
+			// following requests and closes sockets on IO Error reading requests,
+			// then end thread
+			inc(NumOfThreads);
+			if (NumOfThreads <= MaxThreads) then begin
+				if debug then writeLOG('serve_request: starting a KeepAliveThread');
+				ThreadHandle[NumOfThreads]:=BeginThread(@KeepAliveThread,pointer(NumOfThreads));
+			end
+			else
+				errorLOG('serve_request: Max Number of threads reached - couldn`t serve request');
+		end
+		else begin
+			//EnterCriticalSection(ProtectAccess);
+			process_request(0);
+			//LeaveCriticalSection(ProtectAccess);
+			if debug then WriteLOG('serve_request: free reply socket');
+			reply_sock.free;
+			if reply_sock.LastError<>0 then
+			    writeLOG('server_request: Error freeing socket');
+
+		end
+	end;
+
+	if debug then WriteLOG('Reading requests...done');
+
+	if debug then WriteLOG('serve_request done');
 end;
 
 function GetURL:string;
@@ -562,25 +576,35 @@ end;
 procedure stop_server;
 begin
 	// Closing listening socket
-	fpshutdown(sock, 2);
+	sock.free;
 	// Shutting down
 	if debug then writeLOG('shuting down pwserver...');
 end;
 
 begin
-	// don''t write access log
+	// don't write access log
 	saveaccess:=false;
 
+	// switch off debug by default
+	debug:=true;
+	if (debug) then writeln('Debugging On!');
+
+	// switch off threads
+	WithThreads := false;
+	NumOfThreads:=0;
+	InitCriticalSection(DebugOutput);
+	InitCriticalSection(ProtectAccessLog);
+	InitCriticalSection(ProtectAccess);
+	InitCriticalSection(ProtectDataSend);
+	InitCriticalSection(ServeSpecialURL);
 	// open logfiles
 	//error Log
 	assign(ERR,'/tmp/deviceserver_err.log');
 	rewrite(ERR);
 
 	// debug Log
-	if debug then begin
-		assign(DBG,'/tmp/deviceserver_dbg.log');
-		rewrite(DBG);
-	end;
+	assign(DBG,'/tmp/deviceserver_dbg.log');
+	rewrite(DBG);
 
 	UrlPointer:=1;
 end.
