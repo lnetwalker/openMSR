@@ -6,3 +6,5 @@
 
 build:
 	-cp  LabTools-UserGuide.pdf /tmp/build/OpenLabDocs/
+	-cp  OpenMSR-GUI.pdf /tmp/build/OpenLabDocs/
+	-cp  DeviceServerAPI-english.pdf /tmp/build/OpenLabDocs/
