@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<CONFIG>
+  <CHeaderFiles Count="3">
+    <File1>
+      <Merge Value="False"/>
+      <Filename Value="c_sources/comedi.h"/>
+    </File1>
+    <File2>
+      <Merge Value="False"/>
+      <Filename Value="c_sources/comedilib.h"/>
+    </File2>
+    <File3>
+      <Merge Value="False"/>
+      <Filename Value="c_sources/comedilib_scxi.h"/>
+    </File3>
+  </CHeaderFiles>
+  <PreH2PasTools Count="2">
+    <Tool1 Value="object PreH2Pasasetofcommontoolstorunbeforeh2pas: TPreH2PasTools&#xA;end&#xA;"/>
+    <Tool2 Value="object Convertfunctiontypestopointers: TConvertFunctionTypesToPointers&#xA;end&#xA;"/>
+  </PreH2PasTools>
+  <PostH2PasTools Count="1">
+    <Tool1 Value="object PostH2Pasasetofcommontoolstorunafterh2pas: TPostH2PasTools&#xA;end&#xA;"/>
+  </PostH2PasTools>
+</CONFIG>
