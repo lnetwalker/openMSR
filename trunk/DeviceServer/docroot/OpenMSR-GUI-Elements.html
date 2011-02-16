@@ -1,5 +1,8 @@
 <html>
   <head>
+    <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
+    <META HTTP-EQUIV="Expires" CONTENT="-1">
+    
     <title>OpenMSR GUI Elements</title>
 
     <style type="text/css">
@@ -176,7 +179,7 @@
 	MyTempMeter.color("red");
 	MyTempMeter.MeterWidth(6);
 	
-	// Just show a light bulb
+	// a second meter
 	var MyOtherMeter = new HorMeter('OtherMeter','analog',2);
 	MyOtherMeter.width(525);
 	MyOtherMeter.height(84);
@@ -191,8 +194,8 @@
 	
 	// some switches
 	var MySwitch1 = new Switch('Switch1','digital',1);
-	MySwitch1.offimg('images/button_off.jpg');
-	MySwitch1.onimg('images/button_on.jpg');
+	//MySwitch1.offimg('images/button_off.jpg');
+	//MySwitch1.onimg('images/button_on.jpg');
 	MySwitch1.width(40);
 	MySwitch1.height(40);
 	
@@ -252,9 +255,9 @@
 	var MyLED26 = new Lamp('LED26','digital',26);
 	var MyLED27 = new Lamp('LED27','digital',27);
 	var MyLED28 = new Lamp('LED28','digital',28);
-/*
+
 	// the digital data reader to read the random values of iogroup 1
-	var MyIOReader = new DigitalDataReader();
+	var MyIOReader = new DigitalDataReader1();
 	MyIOReader.AssignEvent(1,11);
 	MyIOReader.AssignEvent(2,12);
 	MyIOReader.AssignEvent(3,13);
@@ -266,19 +269,26 @@
 	MyIOReader.DeviceServerURL('http://localhost:10080/digital/ReadInputValues.html');
 	MyIOReader.IOGroup(1);
 
-	// the digital data reader to read the switches at iogroup 2
-	var SwitchIOReader = new DigitalDataReader();
-	SwitchIOReader.AssignEvent(1,21);
-	SwitchIOReader.AssignEvent(2,22);
-	SwitchIOReader.AssignEvent(3,23);
-	SwitchIOReader.AssignEvent(4,24);
-	SwitchIOReader.AssignEvent(5,25);
-	SwitchIOReader.AssignEvent(6,26);
-	SwitchIOReader.AssignEvent(7,27);
-	SwitchIOReader.AssignEvent(8,28);
-	SwitchIOReader.DeviceServerURL('http://localhost:10080/digital/ReadInputValues.html');
-	SwitchIOReader.IOGroup(2);
-/*/
+	// second reader for iogroup 4
+	var MyIOReader4 = new DigitalDataReader();
+	MyIOReader4.AssignEvent(1,21);
+	MyIOReader4.AssignEvent(2,22);
+	MyIOReader4.AssignEvent(3,23);
+	MyIOReader4.AssignEvent(4,24);
+	MyIOReader4.AssignEvent(5,25);
+	MyIOReader4.AssignEvent(6,26);
+	MyIOReader4.AssignEvent(7,27);
+	MyIOReader4.AssignEvent(8,28);
+	MyIOReader4.DeviceServerURL('http://localhost:10080/digital/ReadOutputValues.html');
+	MyIOReader4.IOGroup(4);
+
+	// the digital data feeder to send the switches to app iogroup
+	var SwitchIOSender = new DigitalDataSender();
+	SwitchIOSender.AssignEvent(1,1);
+	SwitchIOSender.AssignEvent(2,2);
+	SwitchIOSender.DeviceServerURL('http://localhost:10080/digital/WriteOutputValues.html');
+	SwitchIOSender.IOGroup(4);
+
 	// the analog reader to read the first 8 analog values
 	var MyAnalogReader = new AnalogDataReader();
 	MyAnalogReader.AssignEvent(1,31);
@@ -324,9 +334,15 @@
 	<canvas id="knob1"></canvas>
 	<canvas id="knob2"></canvas>
 	<!--
-	--><textarea id=debug cols=120 rows=10></textarea>-->
+	<textarea id=debug cols=120 rows=10></textarea>-->
 	<script type="text/javascript">
 	  init();
 	</script>
   </body>
+  <!-- due to bugs in IE we repeat the cmd to ensure page is not cached -->
+  <!-- see: http://www.htmlgoodies.com/beyond/reference/article.php/3472881/So-You-Dont-Want-To-Cache-Huh.htm -->
+  <head>
+    <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
+    <META HTTP-EQUIV="Expires" CONTENT="-1">
+  </head>
 </html>
