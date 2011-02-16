@@ -1,0 +1,2 @@
+BASEPATH=~/src/SVNOMSR/OpenMSR/trunk/
+UNITSEARCH=-Fu$(BASEPATH)/HelperLibs -Fu$(BASEPATH)/webserver -Fu$(BASEPATH)/PhysMach -Fu$(BASEPATH)/divLibs/pwu-1.6.0.2-src/main/ -Fu$(BASEPATH)/divLibs/synapseTCP/source/lib/ -Fu$(BASEPATH)/PhysMach/3rdparty/codemercs/linux/ -Fu/usr/local/lib/fpc/2.3.1/units/i386-linux/fcl-base/  -Fu/usr/local/lib/fpc/2.3.1/units/i386-linux/fcl-net/ -Fu$(BASEPATH)/PhysMach/3rdparty/bmcm/linux/libad/ -Fu$(BASEPATH)/divLibs/gtk+/qgtk2.pas-0.9 
