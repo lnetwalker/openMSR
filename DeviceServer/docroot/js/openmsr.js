@@ -16,7 +16,7 @@ function OpenMSRInit() {
     // init Event mechanics
     EventInit();
     // Clear Debugging Window if it exists
-    if ( document.getElementById('debug') ) {
+    if ( document.getElementById('debug')!= null ) {
       document.getElementById('debug').value = '';
       DbgMsgCnt = 0;
       // Max Number of Messages in the Message Box
@@ -54,16 +54,16 @@ function EventInit() {
 // spits out the Timestamp as ms since 1.1.1970 0:00 h
 // and the message in a textarea named debug
 function DebugLOG(msg) {
-    var TimeStamp = new Date;
-    if ( DbgMsgCnt == DbgMaxMsg ) {
-      // delete the Message Box to avoid too much data
-      // which slows down everything
-      DbgMsgCnt = 0;
-      document.getElementById('debug').value = '';
-    }
-    DbgMsgCnt = DbgMsgCnt + 1;
-    if ( document.getElementById('debug') ) {
-      document.getElementById('debug').value = TimeStamp.getTime() + ' ' + msg + '\n' + document.getElementById('debug').value;
+    if ( document.getElementById('debug')!= null ) {
+	var TimeStamp = new Date;
+	if ( DbgMsgCnt == DbgMaxMsg ) {
+	    // delete the Message Box to avoid too much data
+	    // which slows down everything
+	    DbgMsgCnt = 0;
+	    document.getElementById('debug').value = '';
+	}
+	DbgMsgCnt = DbgMsgCnt + 1;
+	document.getElementById('debug').value = TimeStamp.getTime() + ' ' + msg + '\n' + document.getElementById('debug').value;
     }
 }
 
@@ -564,11 +564,12 @@ var DigitalDataReader = function () {
     this.IOGroup = 0;
     this.EventMapping = new Array();
     this.req = null;
+    //var this.ReaderTimer=null;
+    
     var me = this;
 
-
     // Start the asynchronous read request
-    SendRequest = function () {
+    this.SendRequest = function () {
       //alert('SendRequest ' + me.IOGroup );
       me.req=getXMLHttpRequest();
       if (me.req) {
@@ -595,7 +596,7 @@ var DigitalDataReader = function () {
 	str = str.replace(/^ /, "");
 	var inputs=str.split(" ");
 	// now loop over the result and fire the events
-	for (i=0;i<8;i++) {
+	for (var i=0;i<8;i++) {
 	  EventArgs = 'digital' + ' ' + me.EventMapping[i+1] + ' ' + inputs[i];
 	  // fire event
 	  //alert (EventArgs);
@@ -606,31 +607,110 @@ var DigitalDataReader = function () {
 
     // this function builds the list of event to input mapping
     this.AssignEvent = function (xx,yy) {
-      this.EventMapping[xx] = yy;
-      //alert(this.EventMapping[xx]);
+      me.EventMapping[xx] = yy;
+      //alert(me.EventMapping[xx]);
     }
 
     // the URL to read the DeviceServer
     this.DeviceServerURL = function (xx) {
-      this.Adresse = xx;
+      me.Adresse = xx;
     }
 
     // the IOGroup to read
     this.IOGroup = function (xx) {
-      this.IOGroup = xx;
+      me.IOGroup = xx;
       //alert(me + ' ' + me.IOGroup);
+ 
       // establish our own timer to periodically read the signals
-      ReaderTimer = setInterval(SendRequest,400);
+      me.ReaderTimer = setInterval(me.SendRequest,600);
+      
     }
 
 }
 
 
-function digitalDataSender() {
+var DigitalDataSender=function () {
     /*
       this function receives events and sends the data to
       the DeviceServer
     */
+    this.Adresse = 'http://localhost:10080/digital/WriteOutputValues.html';
+    this.IOGroup = 0;
+    this.EventMapping = new Array();
+    this.req = null;
+    this.ValArray = new Array();
+    this.value = 0;
+    var me = this;
+    
+    
+    // Start the asynchronous write request
+    this.SendRequest = function () {
+	//alert('SendRequest ' + me.IOGroup );
+	me.req=getXMLHttpRequest();
+	if (me.req) {
+	    // calculate the value from the ValArray
+	    me.value=0;
+	    for (var i=1;i<8;i++) {
+		if (me.ValArray[i] == 1) {
+		    me.value=me.value+Math.pow(2,(i-1));
+		}
+	    }
+	    //alert ('SendRequest send ' + me.Adresse + '?' + me.IOGroup + "," + me.value );
+	    me.req.onreadystatechange = me.PrintState;
+	    me.req.open("get", me.Adresse + "?" + me.IOGroup + "," + me.value, true);
+	    me.req.send(null);
+	}
+    }
+    
+    // this function reads the asynchronous response from the AJAX request
+    // and sends the values as events
+    this.PrintState = function () {
+	//alert('PrintState');
+	// readyState 4 gibt an dass der request beendet wurde
+	if ( me.req.readyState ==4 ) {
+	    //
+	    // in resonseText ist die Antwort des Servers
+	    var str=me.req.responseText;
+	    // currently we just read the response, and ignore it
+	}
+    }
+    
+    // this function builds the list of event to input mapping
+    this.AssignEvent = function (xx,yy) {
+	this.EventMapping[xx] = yy;
+	//alert(xx + ' ' + this.EventMapping[xx]);
+    }
+    
+    // the URL to use with the DeviceServer
+    this.DeviceServerURL = function (xx) {
+	this.Adresse = xx;
+    }
+    
+    // the IOGroup to use
+    this.IOGroup = function (xx) {
+	this.IOGroup = xx;
+	//alert(me + ' ' + me.IOGroup);
+	// establish our own timer to periodically read the signals
+	me.SenderTimer = setInterval(me.SendRequest,400);
+    }
+    
+    this.ReceiveEvent = function(EventArgs) {
+	// split the event data in its elements
+	var EventArray = EventArgs.split(' ');
+	// check wether the current event is for me
+	// loop over the mapping and store value if mapping matches
+	if ( EventArray[0] == 'digital') {
+	    for (var i=1;i<8;i++) {
+		if (me.EventMapping[i] == EventArray[1] ) {
+		    //alert(me + ' ' + EventArray[2]);
+		    me.ValArray[i]=EventArray[2];
+		}
+	    }
+	}
+    }
+    
+    // install Event Handler
+    OpenMSREvent.addHandler(me.ReceiveEvent);
 }
 
 
@@ -648,7 +728,7 @@ var AnalogDataReader = function () {
 
 
     // Start the asynchronous read request
-    SendRequest = function () {
+    this.SendRequest = function () {
       //alert('SendRequest ' + me.IOGroup );
       me.req=getXMLHttpRequest();
       if (me.req) {
@@ -697,7 +777,7 @@ var AnalogDataReader = function () {
       this.IOGroup = xx;
       //alert(me + ' ' + me.IOGroup);
       // establish our own timer to periodically read the signals
-      ReaderTimer = setInterval(SendRequest,400);
+      me.ReaderTimer = setInterval(me.SendRequest,400);
     }
 
 }
