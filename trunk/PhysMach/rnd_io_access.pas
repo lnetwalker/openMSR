@@ -13,7 +13,9 @@ function rnd_write_ports(io_port:longint;byte_value:byte):byte;
 function rnd_hwinit(initdata:string;DeviceNumber:byte):boolean;
 
 implementation
+uses crt;
 
+var delay_time	: word;
 
 function rnd_read_ports(io_port:longint):byte;
 var	
@@ -21,6 +23,7 @@ var
 begin
 	x:=round(random()*255)+1;
 	//writeln('rnd_read_ports: ',x);
+	delay(delay_time);
 	rnd_read_ports:=x;
 end;
 	
@@ -30,7 +33,12 @@ begin
 end;
 
 function rnd_hwinit(initdata:string;DeviceNumber:byte):boolean;
+var code	: word;
 begin
+	if initdata[1]='d' then 
+		val(copy(initdata,3,length(initdata)),delay_time,code)
+	else
+		delay_time:=0;
 	randomize;
 end;
 
