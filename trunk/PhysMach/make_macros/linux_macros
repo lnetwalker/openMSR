@@ -1,2 +1,2 @@
 FPC=/usr/local/bin/fpc
-FPC_FLAGS= -dLINUX -dIOwarrior -dnewio -Fu3rdparty/codemercs/linux/ -Fu3rdparty/bmcm/linux/libad/
+FPC_FLAGS= -dLINUX -dIOwarrior -dnewio 
