@@ -2,7 +2,6 @@
 #
 # Copyright (c) 1999-2010 by Hartmut Eilers
 # 
-# Just do a "make all", and, when you're finished, a make clean.
 # to build linux x86 do: make BLD_ARCH="linux"
 # to build linux arm do: make BLD_ARCH="arm"
 # planned are the arch: Mac OS-X and Windows and perhaps BSD
@@ -11,12 +10,13 @@ OBJECTS=DeviceServer
 
 # get compiler and flags for the given platform
 include ./make_macros/$(BLD_ARCH)_macros
+include ../build/make_includes/unit-searchpath
 
 all: $(OBJECTS)
 
 # the physical Machine access layer
 DeviceServer: 	DeviceServer.pas
-	$(FPC) $(FPC_FLAGS) -gl -Fu../HelperLibs -Fu../webserver -Fu../PhysMach -Fu../divLibs/pwu-1.6.0.2-src/main/ DeviceServer.pas 
+	$(FPC) $(FPC_FLAGS) -gl  $(UNITSEARCH) DeviceServer.pas 
 
 clear:
 	-rm *.ppu
