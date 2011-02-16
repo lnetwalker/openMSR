@@ -563,11 +563,12 @@ var DigitalDataReader = function () {
     this.Adresse = 'http://localhost:10080/digital/ReadInputValues.html';
     this.IOGroup = 0;
     this.EventMapping = new Array();
-    this.req = null;
     //var this.ReaderTimer=null;
+    this.req = null;
     
     var me = this;
 
+    
     // Start the asynchronous read request
     this.SendRequest = function () {
       //alert('SendRequest ' + me.IOGroup );
@@ -588,13 +589,13 @@ var DigitalDataReader = function () {
       if ( me.req.readyState ==4 ) {
 	//
 	// in resonseText ist die Antwort des Servers
-	var str=me.req.responseText;
+	str=me.req.responseText;
 	//alert(str);
 	// remove html tags
 	str = str.replace(/<[^<>]+>/g , "");
 	// remove leading space
 	str = str.replace(/^ /, "");
-	var inputs=str.split(" ");
+	inputs=str.split(" ");
 	// now loop over the result and fire the events
 	for (var i=0;i<8;i++) {
 	  EventArgs = 'digital' + ' ' + me.EventMapping[i+1] + ' ' + inputs[i];
@@ -637,8 +638,8 @@ var DigitalDataSender=function () {
     this.Adresse = 'http://localhost:10080/digital/WriteOutputValues.html';
     this.IOGroup = 0;
     this.EventMapping = new Array();
-    this.req = null;
     this.ValArray = new Array();
+    this.req = null;
     this.value = 0;
     var me = this;
     
