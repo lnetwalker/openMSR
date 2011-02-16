@@ -9,13 +9,14 @@ OBJECTS=physmach
 
 # get compiler and flags for the given platform
 include ./make_macros/$(BLD_ARCH)_macros
+include ../build/make_includes/unit-searchpath
 
 all: $(OBJECTS)
 
 
 # the physical Machine access layer
 physmach: 	
-	$(FPC) $(FPC_FLAGS) -gl -Fu../divLibs/pwu-1.6.0.2-src/main/ -Fu../HelperLibs PhysMach.pas
+	$(FPC) $(FPC_FLAGS) -gl  $(UNITSEARCH)  PhysMach.pas
 
 clear:
 	-rm PhysMach.ppu
