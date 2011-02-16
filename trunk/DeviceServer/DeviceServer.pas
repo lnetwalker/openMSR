@@ -707,7 +707,7 @@ begin					{ Main program }
 	// fool around and wait for the end
 	repeat
 		repeat
-			delay(100*TimeOut);
+			delay(10*TimeOut);
 			if debug then DSdebugLOG('idleloop...');
 		until keypressed;
 	until readkey='e';
