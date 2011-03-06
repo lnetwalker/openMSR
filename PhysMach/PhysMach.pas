@@ -218,7 +218,7 @@ begin
 	if (a_devicetype[IOGroup] <> '-') then
 		case a_devicetype[IOGroup] of
 {$ifdef LINUX}
-			'J' 	: analog_in[IOGroup]:=joy_read_ports(a_address[IOGroup]);
+			'J' 	: analog_in[IOGroup]:=joy_read_aports(a_address[IOGroup]);
 			'T'	: analog_in[IOGroup]:=adc12lc_read_ports(a_address[IOGroup]);
 {$ifndef USB92}
 			'H'	: analog_in[IOGroup]:=http_read_analog(a_address[IOGroup]);
@@ -470,7 +470,7 @@ begin
 		end;
 		{ ignore everything else }		
 	end;
-	close (F);
+	close (f);
 end;
 
 
@@ -640,6 +640,7 @@ var
 	i,wert			: Byte;
 
 begin
+	if debugFlag then writeln(' Reading IO-Device: ',DeviceType);
 	IOGroup:=1;
 	repeat
 		// handle input type
