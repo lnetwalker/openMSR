@@ -1,2 +1,2 @@
 FPC=/usr/local/bin/fpc
-FPC_FLAGS= -dLINUX -dIOwarrior -dnewio 
+FPC_FLAGS= -uUSB92 -dLINUX -dIOwarrior -dnewio 
