@@ -17,7 +17,7 @@ Unit joy_io_access;
 INTERFACE   
 
 function joy_read_ports(io_port:longint):byte;
-function joy_read_ports(io_port:LongInt; axis : byte):integer;
+function joy_read_aports(io_port:LongInt):integer;
 function joy_write_ports(io_port:longint;byte_value:byte):byte;
 function joy_hwinit(initdata:string;DeviceNumber:byte):boolean;
 
@@ -25,13 +25,12 @@ function joy_hwinit(initdata:string;DeviceNumber:byte):boolean;
 implementation
 
 const	
-	JoyDevStr       = '/dev/js';
 	debug           = false;
-	buttondata      = 129;              { these are the values for JoyType 			}
+	buttondata      = 129;              	{ these are the values for JoyType 		}
 	axisdata        = 130;
 
 type
-	JoyEvent  = record                  { the data structure read from device		}
+	JoyEvent  = record                  	{ the data structure read from device		}
 		JoyTime         : LongInt;      { the time when we read the event 		}
 		JoyValue        : Integer;      { the value (0/1 for bottons)			}
 		JoyType         : Byte;     	{ 129 buttons 130 axis				}
@@ -39,74 +38,110 @@ type
 	end;
 
 var
-	f           : file of JoyEvent;
-	axisvalue   : array [0..3] of integer;
+	AxisValue   	: array [0..3] of integer;
+	Joystick    	: array [1..4] of String;
+	JoystickCounter	: byte;
+	JoystickData	: JoyEvent;
+	power           : array [0..7] of byte =(1,2,4,8,16,32,64,128);
+	
 
 function joy_read_ports(io_port:longint):byte;
 { the button values will be returned  }
 var
-	JoyDev      : String;
-	i           : byte;
-	buttonvalue : byte;
-	JoyStick    : JoyEvent;
-	DevStr      : string;
+	dev		: byte;
+	ButtonCnt	: byte;
+	ButtonValue	: byte;
+	f           	: file of JoyEvent;
 
 begin   
-	buttonvalue:=0;
-	str(io_port,DevStr);
-	JoyDev:=JoyDevStr+DevStr;
-	if debug then writeln('Buttons lesen: Device: ',JoyDev,'*');
+	ButtonValue:=0;
+	{ extract the device number as key to device handle }
+	dev:=round(io_port/16);
+	if debug then writeln('dev=',dev);
+
+	assign(f,Joystick[dev]);
+	{$I-}
 	reset(f);
-	for i:=0 to 3 do begin
+	{$I+}
+	if IOResult <> 0 then 
+	    writeln('Error reading Joystick ',Joystick[dev]);
+
+	if debug then writeln('Buttons lesen: Device: ',dev);
+
+	for ButtonCnt:=0 to 7 do begin
 		repeat
-			read(f,JoyStick);
-		until (( JoyStick.JoyType = buttondata ) and ( JoyStick.JoyNumber = i ));
-		if debug then writeln('Counter: ',i,'JoyStick.JoyType : ',JoyStick.JoyType,'JoyStick.JoyNumber : ',JoyStick.JoyNumber,' JoyStick.JoyValue : ',JoyStick.JoyValue);
-		//if (JoyStick.JoyValue = 1) then buttonvalue:=buttonvalue+2**i;
+			read(f,JoystickData);
+		until (( JoystickData.JoyType = buttondata ) and ( JoystickData.JoyNumber = ButtonCnt ));
+		if debug then writeln('Counter: ',ButtonCnt,'JoyStick.JoyType : ',JoystickData.JoyType,'JoyStick.JoyNumber : ',JoystickData.JoyNumber,' JoyStick.JoyValue : ',JoystickData.JoyValue);
+		if (JoystickData.JoyValue = 1) then ButtonValue:=ButtonValue+Power[ButtonCnt];
+		
 	end;
-	if debug then writeln('ButtonValue : ',buttonvalue);
-	buttonvalue:=buttonvalue or $F0;
-	joy_read_ports:=buttonvalue;
+	if debug then writeln('ButtonValue : ',ButtonValue);
+	close(f);
+	//buttonvalue:=buttonvalue or $F0;
+	joy_read_ports:=ButtonValue;
 end;
 
-function joy_read_ports(io_port:LongInt; axis : byte):integer;
+
+function joy_read_aports(io_port:LongInt):integer;
 { read the analog ports , ioport defines which joystick interface }
 { and axis to read }
 var 
-	i         : byte;
-	JoyDev    : String;
-	JoyStick  : JoyEvent;
-	DevStr    : string;
+	AxisCnt         : byte;
+	Axis		: byte;
+	dev		: byte;
+	f           	: file of JoyEvent;
 
 begin
+	{ extract the device number as key to device handle }
+	dev:=round(io_port/16);
+	if debug then writeln('dev=',dev);
+
+	assign(f,Joystick[dev]);
+	{$I-}
+	reset(f);
+	{$I+}
+	if IOResult <> 0 then 
+	    writeln('Error reading Joystick ',Joystick[dev]);
+
+	{ extract the port }
+	axis:=io_port-(dev*16);
+	if debug then writeln ('axis=',axis);
+
 	if ( axis=0 ) then begin  { if the wanted axis is 0 read the values from device }
-    	reset(f);
-    	for i:=0 to 3 do begin
-			repeat 
-				read(f,JoyStick);
-			until (( JoyStick.JoyType = axisdata ) and ( JoyStick.JoyNumber = i ));
-			if debug then writeln('Counter: ',i,'JoyStick.JoyType : ',JoyStick.JoyType,'JoyStick.JoyNumber : ',JoyStick.JoyNumber,' JoyStick.JoyValue : ',JoyStick.JoyValue);
-			axisvalue[i]:=JoyStick.JoyValue;
-    	end;
+
+	    for AxisCnt:=0 to 3 do begin
+		repeat 
+			read(f,JoystickData);
+			if debug then writeln('Counter: ',AxisCnt,'JoyStick.JoyType : ',JoystickData.JoyType,'JoyStick.JoyNumber : ',JoystickData.JoyNumber,' JoyStick.JoyValue : ',JoystickData.JoyValue);
+		until (( JoystickData.JoyType = axisdata ) and ( JoystickData.JoyNumber = AxisCnt ));
+		if debug then writeln('Counter: ',AxisCnt,'JoyStick.JoyType : ',JoystickData.JoyType,'JoyStick.JoyNumber : ',JoystickData.JoyNumber,' JoyStick.JoyValue : ',JoystickData.JoyValue);
+		AxisValue[AxisCnt]:=JoystickData.JoyValue;
+	    end;
 	end;
-	joy_read_ports:=axisvalue[axis];
+	close(f);
+	joy_read_aports:=AxisValue[axis];
 end;
-	
+
+
 function joy_write_ports(io_port:longint;byte_value:byte):byte;	
 { the joystick interface has no outputs, so this is a dummy which does nothing }
 begin
 	joy_write_ports:=0;
 end;
 
+
 function joy_hwinit(initdata:string;DeviceNumber:byte):boolean;
 { initialize everything , initdata is the FQN of the device file }
+
 begin
-	assign(f,initdata);
-	reset(f);
+	Joystick[JoystickCounter]:= initdata;
+	if debug then writeln('init device ',Joystick[JoystickCounter]);
+	inc(JoystickCounter);
 	joy_hwinit:=true;
 end;
 
 
 begin
-
+    JoystickCounter:=1;
 end.
