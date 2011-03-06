@@ -8,13 +8,14 @@ OBJECTS=datalogger
 
 # get compiler and flags for the given platform
 include ./make_macros/$(BLD_ARCH)_macros
+include ../build/make_includes/unit-searchpath
 
 all: $(OBJECTS)
 
 
 # the datalogger runtime module	
 datalogger:	datalogger.pas
-	$(FPC) $(FPC_FLAGS) -gl -Fu../HelperLibs -Fu../divLibs/pwu-1.6.0.2-src/main/ -Fu../gtk+/qgtk2.pas-0.9 -Fu../PhysMach datalogger 
+	$(FPC) $(FPC_FLAGS) -gl $(UNITSEARCH) datalogger 
 
 clear: 
 	-rm datalogger
