@@ -11,7 +11,6 @@ Unit http_io_access;
 {		12.05.2007 first raw hack					}
 {		21.05.2007 should work hack					}
 
-{$undef ZAURUS}
 
 INTERFACE
 
@@ -22,13 +21,11 @@ function http_read_analog(io_port:longint):LongInt;
 function http_hwinit(initdata:string;DeviceNumber:byte):boolean;
 
 implementation
-uses SysUtils,CommonHelper,
+uses SysUtils,CommonHelper,classes,
 {$ifdef Linux}
 UnixUtil,
 {$endif}
-{$ifndef ZAURUS}
-http
-{$endif}
+httpsend
 ;
 
 const	
@@ -45,32 +42,46 @@ function http_read_ports(io_port:longint):byte;
 var	
 	TmpVal,TmpStrg	: string;
 	dev		: byte;
+	HTTP		: THTTPSend;
+	response	: tstringlist;
 	
 
 begin
-	{ extract the device number as key to the device handle }
+	HTTP := THTTPSend.Create;
+	response := TStringList.create;
+ 	{ extract the device number as key to the device handle }
 	dev:=round(io_port/10);
 	{ extract the port }
 	io_port:=round(frac(io_port/10)*10);
 	str(io_port,TmpStrg);
 	TmpStrg:=R_URL[dev]+TmpStrg;
-	{$ifndef ZAURUS}
-	TmpVal:=deHTML(HttpGet1(TmpStrg,AppName));
-	{$endif}
+	if not HTTP.HTTPMethod('GET', TmpStrg) then begin
+		writeln('ERROR');
+		writeln(Http.Resultcode);
+	end
+	else begin
+		response.loadfromstream(Http.Document);
+		TmpVal:=deHTML(response.text);
+	end;
 	if debug then writeln('http_read_ports(',TmpStrg,') returned ',TmpVal);
+	HTTP.Free;
+	response.free;
 	http_read_ports:=BinToInt(TmpVal);
 end;
 
-
+    
 	
 function http_write_ports(io_port:longint;byte_value:byte):byte;	
 
 var	
 	TmpVal,TmpStrg,Params	: string;
 	dev			: byte;
+	HTTP			: THTTPSend;
+	response		: tstringlist;
 
 begin
-	{ Params= Ioport,byte_value }
+	HTTP := THTTPSend.Create;
+	response := TStringList.create;
 	{ extract the device number as key to the device handle }
 	dev:=round(io_port/10);
 	{ extract the port }
@@ -79,10 +90,18 @@ begin
 	Params:=TmpStrg+',';
 	str(byte_value,TmpStrg);
 	Params:=Params+TmpStrg;
-	{$ifndef ZAURUS}
-	TmpVal:=HttpGet1(W_URL[dev]+Params,AppName);
-	{$endif}
+	TmpStrg:= W_URL[dev]+Params;
+	if not HTTP.HTTPMethod('GET', TmpStrg) then begin
+		writeln('ERROR');
+		writeln(Http.Resultcode);
+	end
+	else begin
+		response.loadfromstream(Http.Document);
+		TmpVal:=deHTML(response.text);
+	end;
 	if debug then writeln('http_write_ports: URL=',W_URL[dev]+Params);
+	HTTP.Free;
+	response.free;
 	val(TmpVal,http_write_ports);	
 end;
 
@@ -96,8 +115,12 @@ var
 	dev				: byte;
 	cmd				: AnsiString;
 	idx				: byte;
+	HTTP				: THTTPSend;
+	response			: tstringlist;
 	
 begin
+	HTTP := THTTPSend.Create;
+	response := TStringList.create;
 	if debug then writeln('http_io_access io_port=',io_port);
 	{ extract the device number as key to the device handle }
 	str(io_port,TmpStrg);
@@ -112,9 +135,14 @@ begin
 	
 	str(io_port,TmpStrg);
 	TmpStrg:=R_URL[dev]+TmpStrg;
-	{$ifndef ZAURUS}
-	ReturnValue:=deHTML(HttpGet1(TmpStrg,AppName));
-	{$endif}
+	if not HTTP.HTTPMethod('GET', TmpStrg) then begin
+		writeln('ERROR');
+		writeln(Http.Resultcode);
+	end
+	else begin
+		response.loadfromstream(Http.Document);
+		ReturnValue:=deHTML(response.text);
+	end;
 	if debug then writeln('http_read_analog(',TmpStrg,') returned ',ReturnValue);
 	ReturnValueLength:=length(ReturnValue);
 	if debug then writeln('http_io_access read device port: ',io_port,' ReturnValue : ',ReturnValue,' length ',ReturnValueLength);
@@ -135,6 +163,8 @@ begin
 	until (k>idx);// or (i>ReturnValueLength);
 	val(ReturnArray[idx],wert);
 	if debug then writeln(' ReturnArray[',idx,']=',ReturnArray[idx],' wert=',wert);
+	HTTP.Free;
+	response.free;
 	http_read_analog:=wert;
 
 end;
