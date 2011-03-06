@@ -258,6 +258,7 @@
 
 	// the digital data reader to read the random values of iogroup 1
 	var MyIOReader = new DigitalDataReader();
+	MyIOReader.TimerVal(420);
 	MyIOReader.AssignEvent(1,11);
 	MyIOReader.AssignEvent(2,12);
 	MyIOReader.AssignEvent(3,13);
@@ -271,6 +272,7 @@
 
 	// second reader for iogroup 4
 	var MyIOReader4 = new DigitalDataReader();
+	MyIOReader4.TimerVal(403);
 	MyIOReader4.AssignEvent(1,21);
 	MyIOReader4.AssignEvent(2,22);
 	MyIOReader4.AssignEvent(3,23);
@@ -284,6 +286,7 @@
 
 	// the digital data feeder to send the switches to app iogroup
 	var SwitchIOSender = new DigitalDataSender();
+	SwitchIOSender.TimerVal(430);
 	SwitchIOSender.AssignEvent(1,1);
 	SwitchIOSender.AssignEvent(2,2);
 	SwitchIOSender.DeviceServerURL('http://localhost:10080/digital/WriteOutputValues.html');
@@ -291,6 +294,7 @@
 
 	// the analog reader to read the first 8 analog values
 	var MyAnalogReader = new AnalogDataReader();
+	MyAnalogReader.TimeVal(460);
 	MyAnalogReader.AssignEvent(1,31);
 	MyAnalogReader.AssignEvent(2,32);
 	MyAnalogReader.AssignEvent(3,33);
