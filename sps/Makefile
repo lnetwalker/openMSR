@@ -11,17 +11,18 @@ OBJECTS=sps
 
 # get compiler and flags for the given platform
 include ./make_macros/$(BLD_ARCH)_macros
+include ../build/make_includes/unit-searchpath
 
 all: $(OBJECTS)
 
 
 # the sps IDE
 sps: 	sps.pas edit.pas fileserv.pas info.pas popmenu.pas run_awl.pas sps.h awl_interpreter.pas run_awl.h
-	$(FPC) $(FPC_FLAGS)  -gl -Fu../HelperLibs -Fu../PhysMach -Fu../divLibs/pwu-1.6.0.2-src/main/ sps.pas
+	$(FPC) $(FPC_FLAGS)  -gl $(UNITSEARCH) sps.pas
 
 # the SPS runtime module	
 run_sps:	run_sps.pas awl_interpreter.pas run_awl.h
-		$(FPC) $(FPC_FLAGS)  -gl -Fu../HelperLibs -Fu../PhysMach -Fu../PhysMach/test/libad4 -Fu../divLibs/pwu-1.6.0.2-src/main/ run_sps.pas
+		$(FPC) $(FPC_FLAGS)  -gl $(UNITSEARCH) run_sps.pas
 
 clear:
 	-rm run_sps
