@@ -308,7 +308,7 @@ begin
 		inc(i);
 	until (copy(post[i],1,10)='User-Agent');
 	useragent:=copy(post[i],13,7);
-	EnterCriticalSection(ProtectDataSend);
+	//EnterCriticalSection(ProtectDataSend);
 	if debug then writeLOG('SendPage '+IntToStr(WhoAmI)+': ' +useragent + ' -> sending header');
 	reply_sock.SendString(header);
 	if reply_sock.LastError<>0 then
@@ -318,7 +318,7 @@ begin
 	if reply_sock.LastError<>0 then
 	    writeLOG('SendPage: Error sending page');
 	if debug then writeLOG('SendPage '+IntToStr(WhoAmI)+': page send');
-	LeaveCriticalSection(ProtectDataSend);
+	//LeaveCriticalSection(ProtectDataSend);
 
 	if debug then writeLOG('finished request...');
 	BufCnt:=1;
@@ -338,6 +338,7 @@ var Paramstart,i	: word;
     n			: word;
 {$endif}
     IOError		: Boolean;
+    RequestURL		: string;
 
 begin
 	IOError:=false;
@@ -345,7 +346,7 @@ begin
 	BufCnt:=1;
 	if debug then writeLOG('reading request data');
 	repeat
-		buff:=reply_sock.RecvString(12000);
+		buff:=reply_sock.RecvString(120);
 		if reply_sock.LastError<>0 then begin
 		    writeLOG('process_request: Error reading request');
 		    IOError:=true;
@@ -374,6 +375,7 @@ begin
 	URL:=copy(post[1],pos('/',post[1]),length(post[1]));
 	URL:=copy(URL,1,pos(' ',URL)-1);	
 	Paramstart:=pos('?',URL);
+	RequestURL:=URL;
 
 	if ( Paramstart <> 0 ) then begin
 		// this URL has parameters
@@ -395,12 +397,12 @@ begin
 	repeat
 		inc(i);
 		if (URL=SpecialURL[i]) then begin
-			EnterCriticalSection(ServeSpecialURL);
+			//EnterCriticalSection(ServeSpecialURL);
 			status:='200 OK';
 			str(i,blubber);
 			if debug then writeLOG('process_request '+IntToStr(WhoAmI)+': special URL['+blubber+'] detected: '+URL);
 			if ServingRoutine[i] <> nil then ServingRoutine[i];
-			LeaveCriticalSection(ServeSpecialURL);
+			//LeaveCriticalSection(ServeSpecialURL);
 		end;
 	until (i=MaxUrl) or (URL=SpecialURL[i]);
 	if not(URL=SpecialURL[i]) then begin
@@ -440,11 +442,11 @@ begin
 			IOError:=true
 		end;
 
-		EnterCriticalSection(ProtectDataSend);
+		//EnterCriticalSection(ProtectDataSend);
 		if debug then writeLOG('process_request : send page data ->');
 		//if debug then writeLOG(page);
 		SendPage(WhoAmI,page);
-		LeaveCriticalSection(ProtectDataSend);
+		//LeaveCriticalSection(ProtectDataSend);
 
 	end;
 	{ write access log in common logfile format, that looks like:
@@ -476,7 +478,7 @@ begin
  {$endif} 
 	TimeString:='['+IntToStr(tag)+'/'+IntToStr(mon)+'/'+IntToStr(jahr)+':'+IntToStr(std)+':'+IntToStr(min)+':'+IntToStr(sec)+':'+IntToStr(ms)+']';
 	ClientIP:=reply_sock.GetRemoteSinIP;
-	accessLog(ClientIP+' - - '+TimeString+' GET "'+URL+'" '+copy(status,1,3)+' '+IntToStr(length(page))+' '+UserAgent);
+	accessLog(ClientIP+' - - '+TimeString+' GET "'+RequestURL+'" '+copy(status,1,3)+' '+IntToStr(length(page))+' '+UserAgent);
 
 	process_request:=IOError;
 end;
