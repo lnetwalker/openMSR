@@ -4,8 +4,8 @@ interface
 
 
 {$ifdef LINUX}
-uses
-  oldlinux;
+//uses
+//  oldlinux;
 {$endif}
 
 {
