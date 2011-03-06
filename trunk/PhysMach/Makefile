@@ -17,6 +17,8 @@ all: $(OBJECTS)
 # the physical Machine access layer
 physmach: 	
 	$(FPC) $(FPC_FLAGS) -gl  $(UNITSEARCH)  PhysMach.pas
+	$(FPC) $(FPC_FLAGS) -gl  $(UNITSEARCH)  PhysMachTest.pas
+
 
 clear:
 	-rm PhysMach.ppu
