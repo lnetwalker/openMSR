@@ -568,6 +568,7 @@ var DigitalDataReader = function () {
     
     var me = this;
 
+    me.TimeIntervall = 400;
     
     // Start the asynchronous read request
     this.SendRequest = function () {
@@ -605,6 +606,11 @@ var DigitalDataReader = function () {
 	}
       }
     }
+    
+    // this function read the timer value
+    this.TimerVal = function (xx) {
+      me.TimeIntervall = xx;
+    }
 
     // this function builds the list of event to input mapping
     this.AssignEvent = function (xx,yy) {
@@ -623,7 +629,7 @@ var DigitalDataReader = function () {
       //alert(me + ' ' + me.IOGroup);
  
       // establish our own timer to periodically read the signals
-      me.ReaderTimer = setInterval(me.SendRequest,600);
+      me.ReaderTimer = setInterval(me.SendRequest,me.TimeIntervall);
       
     }
 
@@ -643,6 +649,7 @@ var DigitalDataSender=function () {
     this.value = 0;
     var me = this;
     
+    me.TimeIntervall=400;
     
     // Start the asynchronous write request
     this.SendRequest = function () {
@@ -676,6 +683,11 @@ var DigitalDataSender=function () {
 	}
     }
     
+    // this function read the timer value
+    this.TimerVal = function (xx) {
+	me.TimeIntervall = xx;
+    }
+    
     // this function builds the list of event to input mapping
     this.AssignEvent = function (xx,yy) {
 	this.EventMapping[xx] = yy;
@@ -692,7 +704,7 @@ var DigitalDataSender=function () {
 	this.IOGroup = xx;
 	//alert(me + ' ' + me.IOGroup);
 	// establish our own timer to periodically read the signals
-	me.SenderTimer = setInterval(me.SendRequest,400);
+	me.SenderTimer = setInterval(me.SendRequest,me.TimeIntervall);
     }
     
     this.ReceiveEvent = function(EventArgs) {
@@ -727,7 +739,8 @@ var AnalogDataReader = function () {
     this.req = null;
     var me = this;
 
-
+    me.TimeIntervall=480;
+    
     // Start the asynchronous read request
     this.SendRequest = function () {
       //alert('SendRequest ' + me.IOGroup );
@@ -761,7 +774,12 @@ var AnalogDataReader = function () {
 	}
       }
     }
-
+    
+    // this function read the timer value
+    this.TimerVal = function (xx) {
+	me.TimeIntervall = xx;
+    }
+    
     // this function builds the list of event to input mapping
     this.AssignEvent = function (xx,yy) {
       this.EventMapping[xx] = yy;
@@ -778,7 +796,7 @@ var AnalogDataReader = function () {
       this.IOGroup = xx;
       //alert(me + ' ' + me.IOGroup);
       // establish our own timer to periodically read the signals
-      me.ReaderTimer = setInterval(me.SendRequest,400);
+      me.ReaderTimer = setInterval(me.SendRequest,me.TimeIntervall);
     }
 
 }
