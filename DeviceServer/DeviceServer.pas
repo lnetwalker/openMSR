@@ -8,7 +8,7 @@ program DeviceServer;
 {$endif}
 
 uses 
-{$IFDEF Linux} cthreads,cmem,BaseUnix,
+{$IFDEF Linux} cthreads,BaseUnix,
 {$endif}
 {$ifdef Windows}
 Windows,
@@ -111,6 +111,14 @@ begin
 								else
 									TelnetWriteAnswer('0'+chr(10)+'>');
 							end;
+						'O' :	begin
+								if debug then
+									DSdebugLOG('A[' + IntToStr(pa) + ']=');
+								if (ausgang[pa])then
+									TelnetWriteAnswer('1'+chr(10)+'>')
+								else
+									TelnetWriteAnswer('0'+chr(10)+'>');
+							end;
 						'A' :	begin
 								str(analog_in[pa],StrVal);
 								TelnetWriteAnswer(StrVal+chr(10)+'>');
@@ -122,9 +130,15 @@ begin
 		'W' :	begin
 				case hw of
 					'O' :	begin
-							if debug then debugLOG (IntToStr(pa) + ' ' + IntToStr(va));
+							if debug then debugLOG ('O' + IntToStr(pa) + ' ' + IntToStr(va));
 							if va=0 then ausgang[pa]:=false
 							else ausgang[pa]:=true;
+							TelnetWriteAnswer(chr(10)+'>');
+						end;
+					'I' :	begin
+							if debug then debugLOG ('I' + IntToStr(pa) + ' ' + IntToStr(va));
+							if va=0 then eingang[pa]:=false
+							else eingang[pa]:=true;
 							TelnetWriteAnswer(chr(10)+'>');
 						end;
 					'A' :	begin
@@ -233,7 +247,7 @@ var
 	Trenner		: Byte;
 
 begin
-	EnterCriticalSection(SendAsync);
+//	EnterCriticalSection(SendAsync);
 	Url:=GetURL;
 
 	{ Fragezeichen Abschneiden, daher ab position 2 params lesen }
@@ -255,7 +269,7 @@ begin
 		DSdebugLOG('embeddedWeb:> Got Parameters');
 		DSdebugLOG('URL=' + Url + ' Parameters=' + Params + ' ' + IntToStr(IOGroup) + ' ' + IntToStr(ByteValue));
 	end;
-	LeaveCriticalSection(SendAsync);
+//	LeaveCriticalSection(SendAsync);
 end;
 
 
@@ -268,7 +282,7 @@ var
 	AddressBase					: word;
 
 begin
-	EnterCriticalSection(SendAsync);
+//	EnterCriticalSection(SendAsync);
 	inc(Counter);
 	SeitenStart:='<html><body>';
 	SeitenEnde:=' </body></html>';
@@ -286,7 +300,7 @@ begin
 
 	SendPage(100,Seite);
 	if debug then DSdebugLOG('embeddedWeb:>Page Send, finished');
-	LeaveCriticalSection(SendAsync);
+//	LeaveCriticalSection(SendAsync);
 end;
 
 
@@ -299,7 +313,7 @@ var
 	Trenner,i,ValStart			: integer;
 	
 begin
-	EnterCriticalSection(SendAsync);
+//	EnterCriticalSection(SendAsync);
 	if debug then DSdebugLOG('WriteAnalogValues called....');
 	inc(Counter);
 	SeitenStart:='<html><body>';
@@ -335,7 +349,7 @@ begin
 	Seite:=SeitenStart+Values+SeitenEnde;
 	if debug then DSdebugLOG('embeddedWeb:>Sending Page');
 	SendPage(101,Seite);
-	LeaveCriticalSection(SendAsync);
+//	LeaveCriticalSection(SendAsync);
 	if debug then DSdebugLOG('embeddedWeb:>Page Send, finished');
 end;
 
@@ -350,7 +364,7 @@ var
 	IOGroupList				: array [1..64] of byte;
 
 begin
-	EnterCriticalSection(SendAsync);
+//	EnterCriticalSection(SendAsync);
 	inc(Counter);
 	SeitenStart:='<html><body>';
 	SeitenEnde:=' </body></html>';
@@ -392,7 +406,7 @@ begin
 
 	if debug then DSdebugLOG('embeddedWeb:>Sending Page');
 	SendPage(102,Seite);
-	LeaveCriticalSection(SendAsync);
+//	LeaveCriticalSection(SendAsync);
 
 	if debug then DSdebugLOG('embeddedWeb:>Page Send, finished');
 end;
@@ -409,7 +423,7 @@ var
 	IOGroupList				: array [1..64] of byte;
 
 begin
-	EnterCriticalSection(SendAsync);
+//	EnterCriticalSection(SendAsync);
 	inc(Counter);
 	SeitenStart:='<html><body>';
 	SeitenEnde:=' </body></html>';
@@ -451,7 +465,7 @@ begin
 
 	if debug then DSdebugLOG('embeddedWeb:>Sending Page');
 	SendPage(103,Seite);
-	LeaveCriticalSection(SendAsync);
+//	LeaveCriticalSection(SendAsync);
 
 	if debug then DSdebugLOG('embeddedWeb:>Page Send, finished');
 end;
@@ -467,7 +481,7 @@ var
 	Bits					: byte;
 
 begin
-	EnterCriticalSection(SendAsync);
+//	EnterCriticalSection(SendAsync);
 	inc(Counter);
 	SeitenStart:='<html><body>';
 	SeitenEnde:=' </body></html>';
@@ -492,7 +506,7 @@ begin
 	Seite:=SeitenStart+Values+SeitenEnde;
 	if debug then DSdebugLOG('embeddedWeb:>Sending Page');
 	SendPage(104,Seite);
-	LeaveCriticalSection(SendAsync);
+//	LeaveCriticalSection(SendAsync);
 	if debug then DSdebugLOG('embeddedWeb:>Page Send, finished');
 end;
 
@@ -508,7 +522,7 @@ var
 	Bits					: byte;
 
 begin
-	EnterCriticalSection(SendAsync);
+//	EnterCriticalSection(SendAsync);
 	inc(Counter);
 	SeitenStart:='<html><body>';
 	SeitenEnde:=' </body></html>';
@@ -533,7 +547,7 @@ begin
 	Seite:=SeitenStart+Values+SeitenEnde;
 	if debug then DSdebugLOG('embeddedWeb:>Sending Page');
 	SendPage(105,Seite);
-	LeaveCriticalSection(SendAsync);
+//	LeaveCriticalSection(SendAsync);
 	if debug then DSdebugLOG('embeddedWeb:>Page Send, finished');
 end;
 
@@ -543,15 +557,14 @@ function WebserverThread(p: Pointer):LongInt;
 { the real serving thread }
 var 
 	MySelf		: LongInt;
-	DebugFlag	: boolean;
 	
 
 begin
 	MySelf:=longint(p);
 	DSdebugLOG('started Webserver Thread, going to start Server...');
-	DebugFlag:=debug;
 	{ start the webserver with IP, Port, Document Root and Logfile }
-	start_server('',10080,BLOCKED,'docroot','./pwserver.log',NONBLOCKED,DebugFlag);
+	{ start on all available interfaces }
+	start_server('0.0.0.0',10080,BLOCKED,'docroot','./pwserver.log',NONBLOCKED,debug);
 	DSdebugLOG('Webserver started, ready to serve');
 
 	{ register the variable handler }
@@ -560,18 +573,18 @@ begin
 	{ register special URL for content generated by this program }
 	SetupSpecialURL('/analog/read.html',@DeliverAnalogValues );
 	SetupSpecialURL('/analog/write.html',@WriteAnalogValues );
+	SetupSpecialURL('/digital/ReadOutputValues.html',@DeliverDigitalOutputValues );
 	SetupSpecialURL('/digital/ReadInputValues.html',@DeliverDigitalInputValues );
 	SetupSpecialURL('/digital/WriteOutputValues.html',@WriteOutputValues);
 	SetupSpecialURL('/digital/WriteInputValues.html',@WriteInputValues);
-	SetupSpecialURL('/digital/ReadOutputValues.html',@DeliverDigitalOutputValues );
 
 	repeat
-		EnterCriticalSection(ProtectParams);
+//		EnterCriticalSection(ProtectParams);
 		    serve_request;
-		LeaveCriticalSection(ProtectParams);
+//		LeaveCriticalSection(ProtectParams);
 		if debug then DSdebugLOG('Webserver served Client...');
 		inc(ThreadCnt[MySelf]);
-		delay(100);
+//		delay(100);
 	until Shutdown=true;
 
 	DSdebugLOG('Webserver going down..');
