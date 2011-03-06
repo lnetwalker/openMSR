@@ -1,2 +1,2 @@
-FPC=/usr/local/bin/fpc
+FPC=/usr/bin/fpc
 FPC_FLAGS=-dLINUX -dnewio
