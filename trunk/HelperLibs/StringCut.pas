@@ -18,8 +18,31 @@ type
 
 function StringSplit(Line : String255; Trenner : Char):StringArray;
 function GetNumberOfElements( Line : String255; Trenner : Char):Integer;
+function RemoveDoubleChars(Line : String255; DoubleChar : Char):String255;
 
 implementation
+
+
+function RemoveDoubleChars(Line : String255; DoubleChar : Char):String255;
+var
+	x	: byte;
+begin
+	x:=1;
+	repeat
+		if (Line[x]=DoubleChar) then begin 
+			if ( x+1 <= length(Line) ) then
+				if (Line[x+1]=DoubleChar) then
+				// remove the actual char from Line
+					Line:=copy(Line,1,x-1) +copy(Line,x+1,length(Line))
+				else
+					inc(x);
+		end
+		else
+			inc(x);
+	until ( x >= length(Line));
+	RemoveDoubleChars:=Line;
+end;
+
 
 function StringSplit(Line : String255; Trenner : Char):StringArray;
 var 
@@ -28,6 +51,8 @@ var
   Result	: StringArray;
   
 begin
+  // remove double Trenner chars from Line
+  Line:=RemoveDoubleChars(Line,Trenner);
   { check for all Trenner chars in Line and save the positions }
   y:=1;
   for i:=1 to length(Line) do
@@ -57,6 +82,8 @@ var
   Anzahl,i	: Integer;
   
 begin
+  // remove double Trenner chars from Line
+  Line:=RemoveDoubleChars(Line,Trenner);
   Anzahl := 0;
   for i:=1 to length(Line) do
     if line[i] = Trenner then inc(Anzahl);
