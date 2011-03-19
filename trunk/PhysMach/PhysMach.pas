@@ -416,6 +416,11 @@ begin
 						exec_hwinit(initstring,DeviceNumber);
 						HWPlatform:=HWPlatform+',ext. APP  ';
 					  end;
+				else begin
+				    writeln('unknown device in config file: ',zeile);
+				    halt(1);
+				end;
+				
 			end;
 	
 			inc(DeviceNumber);
@@ -440,11 +445,17 @@ begin
 			dir:=ConfigTags[2];
 			val(ConfigTags[3],iogroup);
 			if ( GetNumberOfElements(zeile,Trenner) > 6 ) then begin
-				writeln (' Error in config file in the following line ');
+				writeln (' Error in config file too much arguments line ');
 				writeln ( zeile );
 				halt (1);
-			end;
-
+			end 
+			else
+			    if ( GetNumberOfElements(zeile,Trenner) < 5 ) then begin
+				writeln (' Error in config file too few arguments line ');
+				writeln ( zeile );
+				halt (1);
+			    end;
+			    
 			if debugFlag then writeln('PhysMachLoadCfg: dir=',dir,' iogroup=',iogroup,' addr=',ConfigTags[4]);
 			
 			if     ( dir = 'I' ) then begin
