@@ -12,10 +12,18 @@ INTERFACE
 function lp_read_ports(io_port:longint):byte;
 function lp_write_ports(io_port:longint;byte_value:byte):byte;
 function lp_hwinit(initdata:string;DeviceNumber:byte):boolean;
+function lp_close():boolean;
 
 implementation
 
 const IOFile='/dev/port';
+
+
+function lp_close():boolean;
+begin
+    lp_close:=true;
+end;
+
 
 function lp_read_ports(io_port:longint):byte;
 var byte_value : byte;

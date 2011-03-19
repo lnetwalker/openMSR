@@ -16,6 +16,7 @@ INTERFACE
 function kolterOpto3_read_ports(io_port:longint):byte;
 function kolterOpto3_write_ports(io_port:longint;byte_value:byte):byte;
 function kolterOpto3_hwinit(initdata:string;DeviceNumber:byte):boolean;
+function kolterOpto3_close():boolean;
 
 implementation
 uses linux
@@ -29,7 +30,13 @@ const
 
 var
       SleepTime		: LongInt;
-      
+
+
+function kolterOpto3_close():boolean;
+begin
+    kolterOpto3_close:=true;
+end;
+
       
 function kolterOpto3_read_ports(io_port:longint):byte;
 var	byte_value : byte;

@@ -11,11 +11,19 @@ INTERFACE
 function rnd_read_ports(io_port:longint):byte;
 function rnd_write_ports(io_port:longint;byte_value:byte):byte;
 function rnd_hwinit(initdata:string;DeviceNumber:byte):boolean;
+function rnd_close():boolean;
 
 implementation
 uses crt;
 
 var delay_time	: word;
+
+
+function rnd_close():boolean;
+begin
+    rnd_close:=true;
+end;
+
 
 function rnd_read_ports(io_port:longint):byte;
 var	

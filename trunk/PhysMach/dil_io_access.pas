@@ -19,6 +19,7 @@ INTERFACE
 function dil_read_ports(io_port:longint):byte;
 function dil_write_ports(io_port:longint;byte_value:byte):byte;
 function dil_hwinit(initdata:string;DeviceNumber:byte):boolean;
+function dil_close():boolean;
 
 implementation
 uses linux;
@@ -31,6 +32,13 @@ const
 	PBMR=$a4;	{ PIO port B Mode register }
 	PBDR=$a8;	{ PIO port B data register }
 	debug=false;	
+
+
+function dil_close():boolean;
+begin
+    dil_close:=true;
+end;
+
 
 function dil_read_ports(io_port:longint):byte;
 { IN THIS DIRTY HACK THE PARAMETERS ARE UNUSED DUMMIES }
