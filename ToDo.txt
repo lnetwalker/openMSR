@@ -1,0 +1,69 @@
+GENERALL:
+- introduce commandline parameters ( eg cfg file etc )
+- more error checking
+- add README, LICENSE, CHANGELOG files
+
+DATALOGGER:
+- spezieller Cursor, der frei beweglich ist
+- zur Anzeige der Ticks zwischen 2 Punkten
+- rewrite using Lazarus
+- add PhysMachEnd
+
+FUNCTIONGENERATOR:
+- erzeugt Rechteck, Sinus, Dreieck und Sägezahn
+
+BOOLEAN INTERPRETER:
+- Simulates Boolean Equations
+
+PID REGLER:
+- implement 2 Pkt Regler
+
+FUNCTIONSOLVER:
+- get it running
+
+GUI:
+- analoge Anzeige
+- Digitale Anzeige
+- more Instruments like: Zeigerinstrument, Slider, Füllstand, Vertical Meter, Scope, Graph
+- add analog out support
+
+EVENTMANAGER:
+- plays sounds on Events
+
+PHYSMACH:
+- write devicedriver for 8244 based analog I/O Card
+- write devicedriver for I2C based analog I/O
+- implement digital Out - 19.3. done
+- implement Timecontrol driver
+  make it like the crontab entries
+- find solution for drivers on top of drivers ( like Funk_IO or counters... )
+v implement PhysMachEnd to close the devices cleanly - 19.3. done
+- add serial number detection and config assignment to iow_io_access.pas
+- implement a callback to register procedures to the config read function
+
+SPS:
+- implement basic operators like ADD, SUB, MUL, DIV
+- implement Random Number Support for K-Values: 25 K RND 256 ; erzeugt randon number between 0 and 255 
+- KOP: doesn't support all commands
+- KOP: NOP can be interpreted wrong leading to a faulty KOP
+- allow analog inputs as K-Values
+- make comments field in AWL bigger (22 chars is too small)
+- make the toggeling Markers confiurable ( M62-M64)
+v add PhysMachEnd - 19.3. done
+- add analog out support
+
+OSZI:
+- rewrite using Lazarus
+- rename to scope
+- add PhysMachEnd
+
+WEBSERVER:
+- make location of debug and logfiles configurable
+- implement CGI function ( execution of external programs )
+
+MYSQL LOGGER:
+- implement a mysql db logger feature
+
+DEVICESERVER:
+- add PhysMachEnd
+- add analog out support
