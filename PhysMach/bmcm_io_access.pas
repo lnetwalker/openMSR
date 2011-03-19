@@ -20,8 +20,9 @@ INTERFACE
 { public functions to init the hardware and read and write ports }
 
 function bmcm_read_ports(io_port:longint):byte;
-function bmcm_read_analog(io_port:longint):longint;
 function bmcm_write_ports(io_port:longint;byte_value:byte):byte;
+function bmcm_read_analog(io_port:longint):longint;
+function bmcm_write_analog(io_port: longint;analog_value :longint):longint;
 function bmcm_hwinit(initstring:string;DeviceNumber:byte):boolean;
 
 { the io_port address has a special meaning: its a two digit number with the first digit }
@@ -30,7 +31,6 @@ function bmcm_hwinit(initstring:string;DeviceNumber:byte):boolean;
 { address 12 read the second usb-PIO  and return the value of port 2 aka port c }
 { the ranges are not checked ! }
 
-{$undef ZAURUS}			{ Zaurus = Linux on ARM }
 
 implementation
 {$ifndef USB92}
@@ -39,7 +39,7 @@ uses libadp,strings;					{ use the c library }
 
 const	
 	bmcm_max  	= 4;			{ max number of bmcm devices which are supported }
-	debug     	= false;
+	debug     	= true;
 
 type 
 	PCardinal = ^Cardinal;
@@ -47,8 +47,10 @@ type
 var	
 	devices		: array[1..bmcm_max] of longint;	{ array with the device handles }
 	cnt		: byte;					{ the counter for the divces }
-	p 		: PCardinal;				{ pointer to that value }
 	DeviceIndex	: byte;
+	p 		: PCardinal;				{ pointer to that value }
+	ProtectDevice	: TRTLCriticalSection;
+
 
 function bmcm_read_ports(io_port:longint):byte;
 
@@ -67,16 +69,37 @@ begin
 	io_port:=round(frac(io_port/10)*10);
 	if debug then writeln('port=',io_port);
 
+	value:=0;
 	p:=@value;			{ let it show to value }
 	
-	{$ifndef ZAURUS }
-	{ this is a real bad hack to protect the device accessed by more than one thread }
-	//repeat until not(DeviceInUse);
+	EnterCriticalSection(ProtectDevice);
 	ad_digital_in(devices[dev],AD_CHA_TYPE_DIGITAL_IO or io_port+1,p);   { read the value }
-	if debug then writeln('BMCM read device: ',devices[dev],' Port: ',io_port+1,' value=',value);
-	{$endif}
+	LeaveCriticalSection(ProtectDevice);
 
+	if debug then writeln('BMCM read device: ',devices[dev],' Port: ',io_port+1,' value=',value);
 	bmcm_read_ports:=value;
+end;
+
+
+function bmcm_write_ports(io_port:longint;byte_value:byte):byte;	
+
+var
+	dev 		: byte;
+	
+begin
+	{ extract the device number as key to the device handle }
+	dev:=round(io_port/10);
+	{ extract the port }
+	io_port:=round(frac(io_port/10)*10);
+	
+	(* write the data to device *)
+	if (debug) then
+		writeln ('Write data to ',devices[dev],' port ',io_port+1,' Value=',byte_value,' ');
+
+	EnterCriticalSection(ProtectDevice);
+	ad_digital_out(devices[dev],AD_CHA_TYPE_DIGITAL_IO or io_port+1,byte_value);
+	LeaveCriticalSection(ProtectDevice);
+
 end;
 
 
@@ -97,37 +120,21 @@ begin
 	io_port:=round(frac(io_port/16)*10);
 	if debug then writeln ('port=',io_port);
 
+	value:=0;
 	p:=@value;			{ let it show to value }
 	
-	{$ifndef ZAURUS }
-	//repeat until not(DeviceInUse);
+	EnterCriticalSection(ProtectDevice);
 	ad_discrete_in(devices[dev],AD_CHA_TYPE_ANALOG_IN or (io_port+1),0,p);   { read the value }
+	LeaveCriticalSection(ProtectDevice);
+
 	if debug then writeln('BMCM read analog device : ',devices[dev],' Port: ',io_port+1,' value=',value);
-	{$endif}
 
 	bmcm_read_analog:=value;
 end;
 
 
-function bmcm_write_ports(io_port:longint;byte_value:byte):byte;	
-
-var
-	dev 		: byte;
-	
+function bmcm_write_analog(io_port: longint;analog_value :longint):longint;
 begin
-	{ extract the device number as key to the device handle }
-	dev:=round(io_port/10);
-	{ extract the port }
-	io_port:=round(frac(io_port/10)*10);
-	
-	(* write the data to device *)
-	if (debug) then
-		writeln ('Write data to ',devices[dev],' port ',io_port+1,' Value=',byte_value,' ');
-
-	{$ifndef ZAURUS}
-	//repeat until not(DeviceInUse);
-	ad_digital_out(devices[dev],AD_CHA_TYPE_DIGITAL_IO or io_port+1,byte_value);
-	{$endif}
 
 end;
 
@@ -165,24 +172,24 @@ begin
 
 	if debug then writeln('open device: ',DeviceName);
 
-	{$ifndef ZAURUS}
+	EnterCriticalSection(ProtectDevice);
 	devices[cnt]:=ad_open(pc);
+	LeaveCriticalSection(ProtectDevice);
 	if debug then writeln('Device=',cnt,' DeviceName=',DeviceName,' device Handle=',devices[cnt]);
 
 	if (devices[cnt]=-1) then begin
 		writeln('Fatal error: opening device : ',cnt,' ',DeviceName,' check settings in config file');
 		halt;
 	end;
-	{$endif}
 
 	if (initdata[1]='usb-pio') then begin
 		{ setting line direction for port i $f means read, $0 means write for the bit }
 		for i:=1 to 3 do begin
 			val(initdata[i+2],direction);
-			{$ifndef ZAURUS}
 			if debug then writeln ('Setting Direction of ',devices[cnt],' Port ',i,' to ',direction);
+			EnterCriticalSection(ProtectDevice);
 			ad_set_line_direction(devices[cnt],i,direction);
-			{$endif}
+			LeaveCriticalSection(ProtectDevice);
 		end;
 	end;
 	{ increment next device counter }
@@ -192,7 +199,8 @@ end;
 
 
 begin
-	new (p);			{ generate pointer }
 	{ reset the device counter to ensure that device handles are stored correctly }
 	cnt:=0;
+	new (p);			{ generate pointer }
+	InitCriticalSection(ProtectDevice);
 end.

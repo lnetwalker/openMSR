@@ -71,6 +71,7 @@ var
 
 
 procedure PhysMachInit;
+procedure PhysMachEnd;
 procedure PhysMachReadDigital;
 procedure PhysMachWriteDigital;
 procedure PhysMachCounter;
@@ -238,9 +239,9 @@ begin
 	if debugFlag then writeln('PhysMachWriteAnalogDevice: a_devicetype[',IOGroup,']=',a_devicetype[IOGroup]);
 	if (u_devicetype[IOGroup] <> '-') then
 		case u_devicetype[IOGroup] of
-			//'B' 	: bmcm_write_analog(a_address[IOGroup],analog_in[IOGroup]);
-			//'E'	: exec_write_analog(a_address[IOGroup],analog_in[IOGroup]);
-			'D' : dummy:=1; 
+			'B' 	: bmcm_write_analog(a_address[IOGroup],analog_in[IOGroup]);
+			'E'	: exec_write_analog(a_address[IOGroup],analog_in[IOGroup]);
+			'D' 	: dummy:=1; 
 		end;
 	if (debugFlag) then writeln('Analog_in[',IOGroup,']=',analog_in[IOGroup]);
 end;
@@ -323,7 +324,7 @@ var
 	Trenner				: char;
 	
 begin
-	Trenner:='!';
+	Trenner:=' ';
 	assign (f,cfgFilename);
 	{$I-} reset (f); {$I+}
 	if ioresult <> 0 then
@@ -336,9 +337,13 @@ begin
 	while not(eof(f)) do begin
 		readln (f,zeile);
 		ConfigTags:=StringSplit(zeile,Trenner);
+		if debug then 
+			if ((ConfigTags[1]='DEVICE') or (ConfigTags[1]='PORT')) then
+				for i:=1 to 5 do
+					writeln(ConfigTags[i]);
 		if ( ConfigTags[1] = 'DEVICE' ) then begin
 		
-			if ( GetNumberOfElements(zeile,Trenner) > 3 ) then begin
+			if ( GetNumberOfElements(zeile,Trenner) > 6 ) then begin
 				writeln (' Error in config file in the following line ');
 				writeln ( zeile );
 				halt (1);
@@ -399,7 +404,7 @@ begin
 {$ifdef IOwarrior}
 				'I'	: begin
 						iow_hwinit(initstring,DeviceNumber);
-						HWPlatform:=HWPlatform+',IO-Warrior 40 ';
+						HWPlatform:=HWPlatform+',IO-Warrior ';
 					  end;	
 {$endif}
 				'B'	: begin
@@ -434,7 +439,7 @@ begin
 			{PORT!I!  1! $00!I}
 			dir:=ConfigTags[2];
 			val(ConfigTags[3],iogroup);
-			if ( GetNumberOfElements(zeile,Trenner) > 5 ) then begin
+			if ( GetNumberOfElements(zeile,Trenner) > 6 ) then begin
 				writeln (' Error in config file in the following line ');
 				writeln ( zeile );
 				halt (1);
@@ -518,7 +523,14 @@ begin
 	hwPlatform:='';
 end;                               { ****ENDE INIT ****}
 
+procedure PhysMachEnd;				{ beenden des Programmes, close all devices and clean up }
 
+begin
+	{ loop over all attached devices and call their close/end functions }
+
+	{ clean up - do everything to leave program clearly }
+
+end;
 
 
 procedure PhysMachReadDigital;               { liesst eingangswerte ein }
