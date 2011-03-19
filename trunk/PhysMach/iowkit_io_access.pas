@@ -54,7 +54,7 @@ var
 function iow_close():boolean;
 	
 begin
-    IowKitCloseDevice();
+    IowKitCloseDevice(IOWarrior[1]);
     iow_close:=true;
 end;
 
