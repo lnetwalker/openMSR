@@ -19,7 +19,7 @@ function adc12lc_read_ports(io_port:longint):byte;
 function adc12lc_read_analog(io_port:longint):longint;
 function adc12lc_write_ports(io_port:longint;byte_value:byte):byte;
 function adc12lc_hwinit(initstring:string;DeviceNumber:byte):boolean;
-
+function adc12lc_close():boolean;
 
 IMPLEMENTATION
 uses linux,x86,crt;
@@ -37,6 +37,13 @@ var
 	Start8Bit	: LongInt;
 	ValMSB		: LongInt;
 	ValLSB		: LongInt;
+
+
+function adc12lc_close():boolean;
+begin
+    adc12lc_close:=true;
+end;
+
 
 function adc12lc_read_ports(io_port:longint):byte;
 begin

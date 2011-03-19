@@ -12,6 +12,7 @@ INTERFACE
 function funk_read_ports(io_port:longint):byte;
 function funk_write_ports(io_port:longint;byte_value:byte):byte;
 function funk_hwinit(initdata:string;DeviceNumber:Byte):boolean;
+function funk_close():boolean;
 
 implementation
 uses crt;
@@ -26,6 +27,13 @@ const 	IOFile='/dev/port';
 
 var	XmitTime	: word;
 	OldByteValue	: byte;
+
+
+function funk_close():boolean;
+begin
+    funk_close:=true;
+end;
+
 
 function funk_read_ports(io_port:longint):byte;
 begin

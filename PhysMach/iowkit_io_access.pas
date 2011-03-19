@@ -24,6 +24,7 @@ INTERFACE
 function iow_read_ports(io_port:longint):byte;
 function iow_write_ports(io_port:longint;byte_value:byte):byte;
 function iow_hwinit(initdata:string;DeviceNumber:byte):boolean;
+function iow_close():boolean;
 
 implementation
 uses iowkit;
@@ -48,6 +49,12 @@ var
 	IOWType		: array[1..war_max] of byte;
 	i		: byte;
 	initialized	: boolean;
+
+
+function iow_close():boolean;
+begin
+    iow_close:=true;
+end;
 
 
 function iow_read_ports(io_port:longint):byte;

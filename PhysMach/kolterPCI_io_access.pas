@@ -16,6 +16,7 @@ INTERFACE
 function kolterPCI_read_ports(io_port:longint):byte;
 function kolterPCI_write_ports(io_port:longint;byte_value:byte):byte;
 function kolterPCI_hwinit(initdata:string;DeviceNumber:byte):boolean;
+function kolterPCI_close():boolean;
 
 implementation
 uses linux
@@ -30,7 +31,13 @@ const
 var
       SleepTime		: LongInt;
       
-      
+
+function kolterPCI_close():boolean;
+begin
+    kolterPCI_close:=true;
+end;
+
+
 function kolterPCI_read_ports(io_port:longint):byte;
 var	byte_value : byte;
 

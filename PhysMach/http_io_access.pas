@@ -19,6 +19,7 @@ function http_read_ports(io_port:longint):byte;
 function http_write_ports(io_port:longint;byte_value:byte):byte;
 function http_read_analog(io_port:longint):LongInt;
 function http_hwinit(initdata:string;DeviceNumber:byte):boolean;
+function http_close():boolean;
 
 implementation
 uses SysUtils,CommonHelper,classes,
@@ -36,6 +37,13 @@ var
 	cnt			: byte;
 	DeviceIndex		: byte;
 	AppName			: string;
+
+
+function http_close():boolean;
+begin
+    http_close:=true;
+end;
+
 
 function http_read_ports(io_port:longint):byte;
 

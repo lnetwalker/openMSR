@@ -20,6 +20,7 @@ function joy_read_ports(io_port:longint):byte;
 function joy_read_aports(io_port:LongInt):integer;
 function joy_write_ports(io_port:longint;byte_value:byte):byte;
 function joy_hwinit(initdata:string;DeviceNumber:byte):boolean;
+function joy_close():boolean;
 
 
 implementation
@@ -46,6 +47,13 @@ var
 	JoystickData	: JoyEvent;
 	power           : array [0..7] of byte =(1,2,4,8,16,32,64,128);
 	
+
+
+function joy_close():boolean;
+begin
+    joy_close:=true;
+end;
+
 
 function joy_read_ports(io_port:longint):byte;
 { the button values will be returned  }

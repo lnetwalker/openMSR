@@ -24,6 +24,7 @@ function bmcm_write_ports(io_port:longint;byte_value:byte):byte;
 function bmcm_read_analog(io_port:longint):longint;
 function bmcm_write_analog(io_port: longint;analog_value :longint):longint;
 function bmcm_hwinit(initstring:string;DeviceNumber:byte):boolean;
+function bmcm_close():boolean;
 
 { the io_port address has a special meaning: its a two digit number with the first digit }
 { addressing the usb PIO device ( eg. /dev/acm... [ range 0-3 ]) and the second digit meaning }
@@ -50,6 +51,12 @@ var
 	DeviceIndex	: byte;
 	p 		: PCardinal;				{ pointer to that value }
 	ProtectDevice	: TRTLCriticalSection;
+
+
+function bmcm_close():boolean;
+begin
+    bmcm_close:=true;
+end;
 
 
 function bmcm_read_ports(io_port:longint):byte;

@@ -15,7 +15,7 @@ INTERFACE
 function pio_read_ports(io_port:longint):byte;
 function pio_write_ports(io_port:longint;byte_value:byte):byte;
 function pio_hwinit(initdata:string;DeviceNumber:byte):boolean;
-
+function pio_close():boolean;
 
 implementation
 uses linux
@@ -26,6 +26,13 @@ uses linux
 
 const	
       debug             = false;
+
+
+function pio_close():boolean;
+begin
+    pio_close:=true;
+end;
+
 
 function pio_read_ports(io_port:longint):byte;
 

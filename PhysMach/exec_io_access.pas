@@ -14,6 +14,7 @@ function exec_write_ports(io_port:longint;byte_value:byte):byte;
 function exec_hwinit(initdata:string;DeviceNumber:byte):boolean;
 function exec_read_analog(io_port:longint):integer;
 function exec_write_analog(io_port: longint;analog_value :longint):longint;
+function exec_close():boolean;
 
 implementation
 
@@ -26,6 +27,10 @@ var
 	RunCmd	: array[1..4] of AnsiString;
 	cnt	: byte;
 
+function exec_close():boolean;
+begin
+    exec_close:=true;
+end;
 
 
 function exec_read_ports(io_port:longint):byte;
