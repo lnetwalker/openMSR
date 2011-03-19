@@ -166,4 +166,5 @@ begin                              { SPS_SIMULATION           }
 		delay(15);
 	until keypressed or esc;	
 	if esc then writeln('Error: Watchdog error...!');	
+	PhysMachEnd;
 end.                               { **** SPS_SIMULATION **** }
