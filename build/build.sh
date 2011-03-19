@@ -26,10 +26,11 @@ cp /usr/lib/libiowkit.so.1.0.5 .
 popd
 
 targets="datalogger DeviceServer ObjectRecognition OpenLabDocs oszi sps"
-export SPSVERSION=$REL
 for i in $targets; do 
   mkdir /tmp/build/$i
   cd $i;
+  . ./environment
+  export SPSVERSION=$REL
   make BLD_ARCH=$ARCH clean
   make BLD_ARCH=$ARCH
   make BLD_ARCH=$ARCH build
