@@ -211,6 +211,7 @@ begin                              { SPS_SIMULATION }
      textcolor(white);textbackground(black); clrscr;
      normvideo;
      cursor_on;
+     PhysMachEnd();
 end. 
 
 
