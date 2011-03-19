@@ -7,7 +7,7 @@
 # to remake a part do "make BLD_ARCH=[arm|linux|win32|osx] sps" for the ide
 # and a "make BLD_ARCH=[arm|linux|win32|osx] run_sps" for the runtime modules
 
-OBJECTS=sps
+OBJECTS=sps run_sps
 
 # get compiler and flags for the given platform
 include ./make_macros/$(BLD_ARCH)_macros
@@ -24,7 +24,7 @@ sps: 	sps.pas edit.pas fileserv.pas info.pas popmenu.pas run_awl.pas sps.h awl_i
 run_sps:	run_sps.pas awl_interpreter.pas run_awl.h
 		$(FPC) $(FPC_FLAGS)  -gl $(UNITSEARCH) run_sps.pas
 
-clear:
+clean:
 	-rm run_sps
 			
 
