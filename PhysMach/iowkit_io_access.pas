@@ -52,7 +52,9 @@ var
 
 
 function iow_close():boolean;
+	
 begin
+    IowKitCloseDevice();
     iow_close:=true;
 end;
 
