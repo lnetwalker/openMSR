@@ -541,53 +541,53 @@ var	i		: byte;
 begin
     for i:=1 to DeviceTypeMax do
 	{ loop over all attached devices and call their close/end functions }
-			case DeviceList[i] of
+	case DeviceList[i] of
 {$ifdef LINUX}
-				'D'	: begin
-						dil_close();
-					  end;	
-				'L'	: begin
-						lp_close();
-					  end;	
-				'P'	: begin
-						pio_close();
-					  end;	
-				'J'	: begin
-						joy_close();
-					  end;
-				'K'	: begin
-						kolterPCI_close();
-					  end;
-				'O'	: begin
-						kolterOpto3_close();
-					  end;
-				'T'	: begin
-						adc12lc_close();
-					  end;
-				'F'	: begin
-						funk_close();
-					  end;
+		'D' :	begin
+			    dil_close();
+			end;	
+		'L'	: begin
+				lp_close();
+			  end;	
+		'P'	: begin
+				pio_close();
+			  end;	
+		'J'	: begin
+				joy_close();
+			  end;
+		'K'	: begin
+				kolterPCI_close();
+			  end;
+		'O'	: begin
+				kolterOpto3_close();
+			  end;
+		'T'	: begin
+				adc12lc_close();
+			  end;
+		'F'	: begin
+				funk_close();
+			  end;
 {$endif}
-				'H' 	: begin
-						http_close();
-					  end;
-				'R'	: begin
-						rnd_close();
-					  end;	
+		'H' 	: begin
+				http_close();
+			  end;
+		'R'	: begin
+				rnd_close();
+			  end;	
 {$ifndef USB92}
 {$ifdef IOwarrior}
-				'I'	: begin
-						iow_close();
-					  end;	
+		'I'	: begin
+				iow_close();
+			  end;	
 {$endif}
-				'B'	: begin
-						bmcm_close();
-					  end;
+		'B'	: begin
+				bmcm_close();
+			  end;
 {$endif}
-				'E'	: begin
-						exec_close();
-					  end;
-			end;
+		'E'	: begin
+				exec_close();
+			  end;
+	end;
 
 	{ clean up - do everything to leave program clearly }
 
