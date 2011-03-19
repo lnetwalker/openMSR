@@ -231,7 +231,7 @@ begin
 	MySelf:=longint(p);
 	DSdebugLOG('started Device Handler Thread..' + IntToStr(MySelf));
 	repeat
-		    PhysMachIOByDevice(DeviceList[MySelf]);
+		PhysMachIOByDevice(DeviceList[MySelf]);
 		inc(ThreadCnt[MySelf]);
 	until shutdown=true;
 	DSdebugLOG('Device Handler going down..' + IntToStr(MySelf));
@@ -527,7 +527,7 @@ begin
 	SeitenStart:='<html><body>';
 	SeitenEnde:=' </body></html>';
 	Values:='';
-
+	DSdebugLOG(' DS:WriteOutputValues, got ' + IntToStr(ByteValue) + ' for Address ' + IntToStr(IOGroup) );
 	{ set the bits in the ausgang[n] array in respect of io_group}
 	AddressBase:=IOGroup*8-8;
 
@@ -681,8 +681,9 @@ begin					{ Main program }
 	InitCriticalSection(SendAsync);
 
 	// start threads, for every configured device one thread
-	// the device servers need to be started as first thread,
-	// because of the device list index
+	// the device servers need to be started as first threads,
+	// because they use the threadpointer as pointer to the 
+	// device list index
 	NumOfThreads:=1;
 	for DeviceCnt:=1 to DeviceTypeMax do begin
 		if DeviceList[DeviceCnt]<>'-' then begin
