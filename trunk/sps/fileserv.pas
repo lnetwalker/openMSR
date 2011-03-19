@@ -70,7 +70,7 @@ begin
      end;
      window (20,15,80,15);
      textbackground (lightgray); textcolor (Black); clrscr;
-     write('Loading program ',name);
+     write('Loading program ',copy(name,1,44));
      delay (1000);
      while not(eof(f)) do
      begin
