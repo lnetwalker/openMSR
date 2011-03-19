@@ -54,8 +54,20 @@ var
 
 
 function bmcm_close():boolean;
+var	cnt,result	: byte;
+	success		: boolean;
+	
 begin
-    bmcm_close:=true;
+    success:=true;
+    for cnt:=1 to bmcm_max do begin
+	result:=ad_close(devices[cnt]);
+	if result <> 0 then begin
+	    writeln ( 'Error closing BMCM Device');
+	    success:=false;
+	end;
+    end;
+	
+    bmcm_close:=success;
 end;
 
 
