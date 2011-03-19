@@ -13,6 +13,7 @@ function exec_read_ports(io_port:longint):byte;
 function exec_write_ports(io_port:longint;byte_value:byte):byte;
 function exec_hwinit(initdata:string;DeviceNumber:byte):boolean;
 function exec_read_analog(io_port:longint):integer;
+function exec_write_analog(io_port: longint;analog_value :longint):longint;
 
 implementation
 
@@ -100,6 +101,10 @@ begin
 end;
 
 
+function exec_write_analog(io_port: longint;analog_value :longint):longint;
+begin
+
+end;
 
 
 function exec_hwinit(initdata:string;DeviceNumber:byte):boolean;

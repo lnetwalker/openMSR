@@ -48,6 +48,7 @@ var
 
 begin
 	HTTP := THTTPSend.Create;
+	HTTP.UserAgent:='Mozilla/4.0 (' + AppName + ')';
 	response := TStringList.create;
  	{ extract the device number as key to the device handle }
 	dev:=round(io_port/10);
@@ -81,6 +82,7 @@ var
 
 begin
 	HTTP := THTTPSend.Create;
+	HTTP.UserAgent:='Mozilla/4.0 (' + AppName + ')';
 	response := TStringList.create;
 	{ extract the device number as key to the device handle }
 	dev:=round(io_port/10);
@@ -120,6 +122,7 @@ var
 	
 begin
 	HTTP := THTTPSend.Create;
+	HTTP.UserAgent:='Mozilla/4.0 (' + AppName + ')';
 	response := TStringList.create;
 	if debug then writeln('http_io_access io_port=',io_port);
 	{ extract the device number as key to the device handle }

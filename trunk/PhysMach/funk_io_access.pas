@@ -45,7 +45,7 @@ begin
 		reset(F,Sizeof(OutVal));
 		for k:=1 to 2 do begin			// transmit the signals twice
 			for i:=7 downto 0 do begin
-				OutVal:=AllBitsSet;			// always start with all high as dummy
+				OutVal:=AllBitsSet;					// always start with all high as dummy
 				if byte_value>= power[i] then begin			// the bit is high
 					byte_value:=byte_value-power[i];
 					if i<NoOfOutputs then 				// only the lower 4 bits are used, rest is ignored

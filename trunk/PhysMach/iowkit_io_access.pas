@@ -32,6 +32,12 @@ uses iowkit;
 const	
 	war_max	  	= 8;			{ max number of iowarriors which are supported }
 	debug     	= false;
+	IOWnone		= 0;
+	// these are the USB product id
+	IOW24		= 5377;
+	IOW40		= 5376;
+	IOW56		= 5379;
+
 
 type TIowDevice = array [1..war_max] of IOWKIT_HANDLE;
 	
@@ -63,6 +69,7 @@ begin
 	if ( debug ) then write(IOWKIT_REPORT_SIZE,' IOW_IO: r  ',device,' ',io_port,':');
 	(* read the warrior *)
 	if (IOWType[device] = 40) then begin
+	    if (debug) then writeln('reading IOW40');
 	    Report40.Value:=0;
 	    Result:=IowKitReadNonBlocking(IOWarrior[device],IOW_PIPE_IO_PINS,@Report40,IOWKIT_REPORT_SIZE);
 	    //IowKitReadImmediate(IOWarrior[device], Value);
@@ -74,6 +81,7 @@ begin
 	end;
 
 	if (IOWType[device] = 24) then begin
+	    if (debug) then writeln('reading IOW24');
 	    Report24.Value:=0;
 	    Result:=IowKitReadNonBlocking(IOWarrior[device],IOW_PIPE_IO_PINS,@Report24,IOWKIT_REPORT_SIZE);
 	    //IowKitReadImmediate(IOWarrior[device], Value);
@@ -180,16 +188,16 @@ begin
 	    if (debug) then writeln ( 'IOW_IO: IO-Warrior initilized' );
 	    for x:=1 to war_max do begin
 		case (IowKitGetProductId(IOWarrior[x])) of
-		    0    : IOWType[x]:=0;
-		    5376 : IOWType[x]:=40;
-		    5377 : IOWType[x]:=24;
-		    5379 : IOWType[x]:=56;
-		end;    
+		    IOWnone	: IOWType[x]:=0;
+		    IOW40	: IOWType[x]:=40;
+		    IOW24	: IOWType[x]:=24;
+		    IOW56	: IOWType[x]:=56;
+		end;
 		oldval[x]:=$FFFFFFFF;
 		OldInValue[x]:=0;
 	    end;
 	    initialized:=true;
-	end;    
+	end;
 end;
 
 

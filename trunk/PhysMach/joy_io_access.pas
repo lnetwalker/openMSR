@@ -24,6 +24,8 @@ function joy_hwinit(initdata:string;DeviceNumber:byte):boolean;
 
 implementation
 
+// uses crt;
+
 const	
 	debug           = false;
 	buttondata      = 129;              	{ these are the values for JoyType 		}
@@ -32,13 +34,13 @@ const
 type
 	JoyEvent  = record                  	{ the data structure read from device		}
 		JoyTime         : LongInt;      { the time when we read the event 		}
-		JoyValue        : Integer;      { the value (0/1 for bottons)			}
+		JoyValue        : SmallInt;      { the value (0/1 for bottons)			}
 		JoyType         : Byte;     	{ 129 buttons 130 axis				}
 		JoyNumber       : Byte;         { corresponding axis or button ( normaly 0-3 )	}
 	end;
 
 var
-	AxisValue   	: array [0..3] of integer;
+	AxisValue   	: array [0..3] of SmallInt;
 	Joystick    	: array [1..4] of String;
 	JoystickCounter	: byte;
 	JoystickData	: JoyEvent;
@@ -57,7 +59,7 @@ begin
 	ButtonValue:=0;
 	{ extract the device number as key to device handle }
 	dev:=round(io_port/16);
-	if debug then writeln('dev=',dev);
+	if debug then writeln('dev=',dev,'  Reading device: ',Joystick[dev]);
 
 	assign(f,Joystick[dev]);
 	{$I-}
@@ -70,15 +72,21 @@ begin
 
 	for ButtonCnt:=0 to 7 do begin
 		repeat
+			{$I-}
 			read(f,JoystickData);
+			{$I+}
+			if IOResult <> 0 then
+				writeln('joy_io_access: Error reading Joystick ',Joystick[dev]);
+
 		until (( JoystickData.JoyType = buttondata ) and ( JoystickData.JoyNumber = ButtonCnt ));
-		if debug then writeln('Counter: ',ButtonCnt,'JoyStick.JoyType : ',JoystickData.JoyType,'JoyStick.JoyNumber : ',JoystickData.JoyNumber,' JoyStick.JoyValue : ',JoystickData.JoyValue);
-		if (JoystickData.JoyValue = 1) then ButtonValue:=ButtonValue+Power[ButtonCnt];
+		if debug then writeln('Counter: ',ButtonCnt,' JoyStick.JoyType : ',JoystickData.JoyType,' JoyStick.JoyNumber : ',JoystickData.JoyNumber,' JoyStick.JoyValue : ',JoystickData.JoyValue);
+		if (JoystickData.JoyValue <> 0) then ButtonValue:=ButtonValue+Power[ButtonCnt];
 		
 	end;
 	if debug then writeln('ButtonValue : ',ButtonValue);
 	close(f);
 	//buttonvalue:=buttonvalue or $F0;
+	//delay(100);
 	joy_read_ports:=ButtonValue;
 end;
 
@@ -112,10 +120,15 @@ begin
 
 	    for AxisCnt:=0 to 3 do begin
 		repeat 
+			{$I-}
 			read(f,JoystickData);
-			if debug then writeln('Counter: ',AxisCnt,'JoyStick.JoyType : ',JoystickData.JoyType,'JoyStick.JoyNumber : ',JoystickData.JoyNumber,' JoyStick.JoyValue : ',JoystickData.JoyValue);
+			{$I+}
+			if IOResult <> 0 then
+				writeln('joy_io_access: Error reading Joystick ',Joystick[dev]);
+
+			if debug then writeln('Counter: ',AxisCnt,' JoyStick.JoyType : ',JoystickData.JoyType,' JoyStick.JoyNumber : ',JoystickData.JoyNumber,' JoyStick.JoyValue : ',JoystickData.JoyValue);
 		until (( JoystickData.JoyType = axisdata ) and ( JoystickData.JoyNumber = AxisCnt ));
-		if debug then writeln('Counter: ',AxisCnt,'JoyStick.JoyType : ',JoystickData.JoyType,'JoyStick.JoyNumber : ',JoystickData.JoyNumber,' JoyStick.JoyValue : ',JoystickData.JoyValue);
+		if debug then writeln('Counter: ',AxisCnt,' JoyStick.JoyType : ',JoystickData.JoyType,' JoyStick.JoyNumber : ',JoystickData.JoyNumber,' JoyStick.JoyValue : ',JoystickData.JoyValue);
 		AxisValue[AxisCnt]:=JoystickData.JoyValue;
 	    end;
 	end;
