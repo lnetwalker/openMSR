@@ -27,7 +27,7 @@ begin
 		    write ('   Binary OUT: ');
 		    write(iow_write_ports($12,round(random()*255)+1));
 		    writeln(' ',iow_write_ports($13,round(random()*255)+1));
-		end;    
+		end;
 		delay(100);
 	until keypressed;
 end.
