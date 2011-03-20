@@ -496,7 +496,7 @@ begin
 		else begin
 		    if CfgCallbackFunc <> nil then begin
 			CfgLine:=zeile;
-			CfgCallbackfunc;
+			CfgCallbackFunc;
 		    end;
 		end;
 	end;
