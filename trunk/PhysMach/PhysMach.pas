@@ -68,6 +68,7 @@ var
 	a_devicetype,
 	u_devicetype		: array [1..analog_max] of char;
 	DeviceList		: DeviceTypeArray;
+	CfgLine			: String;
 
 
 procedure PhysMachInit;
@@ -76,6 +77,7 @@ procedure PhysMachReadDigital;
 procedure PhysMachWriteDigital;
 procedure PhysMachCounter;
 procedure PhysMachloadCfg(cfgFilename : string);
+procedure PhysMachRegCfg(proc : tprocedure);
 procedure PhysMachReadAnalog;
 procedure PhysMachWriteAnalog;
 procedure PhysMachTimer;
@@ -108,7 +110,13 @@ const
 
 var
 	x			: word;
+	CfgCallbackFunc		: tprocedure;
+	
 
+procedure PhysMachRegCfg(proc : tprocedure);
+begin
+	if proc <> nil then CfgCallbackFunc:=proc;
+end;
 
 
 //Private functions
@@ -483,8 +491,14 @@ begin
 				u_devicetype[iogroup]:=ConfigTags[5,1];
 				if debugFlag then writeln('Analog OutLine=',iogroup,' Address=',a_address[iogroup]);
 			end;
+		end
+		{ if a callback function is registered  call this function }
+		else begin
+		    if CfgCallbackFunc <> nil then begin
+			CfgLine:=zeile;
+			CfgCallbackfunc;
+		    end;
 		end;
-		{ ignore everything else }		
 	end;
 	close (f);
 end;
