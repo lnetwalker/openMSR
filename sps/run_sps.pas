@@ -128,6 +128,7 @@ begin                             		{ hp run_awl                      }
 	PhysMachTimer;
 	interpret;                      	{ einen AWLdurchlauf abarbeiten   }
 	PhysMachWriteDigital;			{ OUTPUTS ausgeben                }
+	PhysMachWriteAnalog;
 	toggle_internal_clock(marker[62],marker[63],marker[64]);{ interne TAKTE M62-M64 toggeln   }
 	if watchdog > awl_max then esc:=true;
 	RPMs;
