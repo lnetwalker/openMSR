@@ -6,12 +6,16 @@ GENERAL:
 - add usage of PhysMach Config file in all other tools ( see PhysMach Callback function PhysMachRegCfg )
 - test all supported hardware
   done for Joystick, IOWarrior 24/40, LPT, BMCM, EXEC ( digitemp ),
+ 
 
 * Existing Tools
 
 PHYSMACH:
 - write devicedriver for 8255 based analog I/O Card ( Ferranti 426/427 )
 - write devicedriver for I2C based analog in
+- add drivers for the Kolter Cards
+  ( Opto Rel PCI,Opto 30 ISA, PCI Counter 1, PCI AD12LCN, Proto 3 PCI )
+- add driver for IOWarrior 56
 v implement digital Out - 19.3. done
 - implement Timecontrol driver
   make it like the crontab entries
@@ -21,7 +25,7 @@ v implement PhysMachEnd to close the devices cleanly - 19.3. done
 v implement a callback to register procedures to the config read function - 20.3. done
 
 WEBSERVER:
-- make location of debug and logfiles configurable
+- make location of debug and errorlogfiles configurable
 - implement CGI function ( execution of external programs )
 
 DATALOGGER:
@@ -29,6 +33,7 @@ DATALOGGER:
 - zur Anzeige der Ticks zwischen 2 Punkten
 - rewrite using Lazarus
 - add PhysMachEnd
+- add triggerfunction ( to start when certain condition is met )
 
 OSZI:
 - rewrite using Lazarus
