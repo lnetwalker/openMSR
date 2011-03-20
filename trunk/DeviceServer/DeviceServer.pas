@@ -669,11 +669,11 @@ begin					{ Main program }
 	// get list of installed devices
 	DeviceList:=PhysMachGetDevices;
 
+	debug:=false;
 	// commandline parameters
-	if ( paramcount > 0 ) then begin
-		if (paramstr(1)='d') then debug:=true
-		else debug:=false;
-	end;
+	if ( paramcount > 0 ) then 
+	    if (paramstr(1)='d') then debug:=true;
+
 
 	Counter:=0;
 	InitCriticalSection(ProtectParams);
