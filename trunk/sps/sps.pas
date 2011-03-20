@@ -46,73 +46,35 @@ end;
 
 procedure configuration;
 
-var  f                 : text;
-     zeile,conf_path,
-     help_path         : string80;
-     befehl            : char;
-     gleich,i          : byte;
-     error             : integer;
-     zahl              : byte;
+var  
+     conf_path         : string80;
 
 begin
-     i:=0;
-     conf_path:='/etc/sps.cfg';
-     assign(f,conf_path);
-     {$I-} reset(f); {$I+}
-     if ioresult <> 0 then begin
-	{ systemwide configfile not found, look in the startpath for a config file }
-	if length(start_pfad)=3 then conf_path:=start_pfad+'sps.cfg'
-	else conf_path:=start_pfad+'/sps.cfg';
-	assign(f,conf_path);
-	{$I-} reset(f); {$I+}
-	if ioresult <> 0 then begin
-		writeln (#7,'ERROR reading config file');
-		writeln ('Configfile not found');
-		halt(1);
-	end	
-     end
-     else begin
-        while not eof(f) do begin
-           readln(f,zeile);
-           inc(i);
-           befehl:=upcase(zeile[1]);
-           dummy_string:=copy(zeile,2,length(zeile));
-           val(dummy_string,zahl);
-           case befehl of
-                'C'  : begin
-                          if (error > 0) or (zahl=1023) then pio:=false
-                          else ;
-                       end;
-                'E'  : if error = 0 then ;
-                'A'  : if error = 0 then ;
-                'Z'  : if error = 0 then ;
-                'V'  : zeilenvorschub :=zahl;
-                'G'  : grosschrift    :=zahl;
-                'L'  : seitenlaenge   :=zahl;
-                'F'  : formfeed       :=zahl;
-
-           else begin
-{$ifdef ZAURUS}
-                window(1,1,21,59);
-{$else}
-                window(1,1,25,80);
-{$endif}
-                textbackground(black);
-                textcolor(lightgray);
-                clrscr;
-                writeln(#7,'Error reading Config file');
-                writeln('in line ',i,' unknown command');
-                halt(1);
-             end;
-           end;
-        end;
-        close (f);
-     end;
-     if length(start_pfad)=3 then conf_path:=start_pfad+'sps.doc'
-     else conf_path:=start_pfad+'/sps.doc';
-	 ReadListFromFile(conf_path,doc_start);
+    conf_path:=start_pfad+'/sps.doc';
+    ReadListFromFile(conf_path,doc_start);
 end;
 
+
+procedure SpsConfig;
+
+var
+    befehl		: char;
+    zahl		: byte;
+    
+begin
+    //writeln(' Callback called with line: ', CfgLine);
+    if length(CfgLine)>0 then befehl:=upcase(CfgLine[1])
+    else befehl:=' ';
+    dummy_string:=copy(CfgLine,2,length(CfgLine));
+    val(dummy_string,zahl);
+    //writeln('Befehl : ',befehl,' Zahl : ',zahl);
+    case befehl of
+	'V'  : zeilenvorschub :=zahl;
+	'G'  : grosschrift    :=zahl;
+	'L'  : seitenlaenge   :=zahl;
+	'F'  : formfeed       :=zahl;
+    end;
+end;
 
 procedure menu;                    { Hauptmenu }
 
@@ -174,7 +136,15 @@ end;                               {**** ENDE  HAUPTMENU **** }
 
 begin                              { SPS_SIMULATION }
 	PhysMachInit;
+	PhysMachRegCfg(@SpsConfig);
 	PhysMachLoadCfg('.run_sps.cfg');
+	{
+	writeln('Zeilenvorschub :',zeilenvorschub);
+	writeln('Grossschrift :',grosschrift);
+	writeln('Seitenlänge :', seitenlaenge);
+	writeln('Formfeed :', formfeed);
+	halt(1);
+	}
 	PhysMachWriteDigital;
 	popmenuInit(minScreenX,minScreenY);
      for i := 1 to anweismax do begin
@@ -192,7 +162,7 @@ begin                              { SPS_SIMULATION }
      textbackground(lightgray);textcolor(Black);
      my_wwindow(trunc(screenx/2-25),trunc(screeny/2-2),trunc(screenx/2+25),trunc(screeny/2+2),'','',true);
      writeln(' SPS SIMULATOR V ',version);
-     write(' Build on ',datum,' (c) 1989-2010 by H. Eilers ');
+     write(' Build on ',datum,' (c) 1989-2011 by H. Eilers ');
      getdir(0,start_pfad);
      start_pfad:='.';
      configuration;
