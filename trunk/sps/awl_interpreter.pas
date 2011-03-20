@@ -44,7 +44,7 @@ function mehrfach (z:word):boolean;
 
 begin
 	mehrfach:=true;
-	if (operation[z+1]=anweisung[1]) or				{ UN(	}
+	if (operation[z+1]=anweisung[1]) or					{ UN(	}
 		(operation[z+1]=anweisung[3]) or				{ UN	}
 		(operation[z+1]=anweisung[5]) or				{ U(	}
 		(operation[z+1]=anweisung[20]) or				{ NOP	}
@@ -118,8 +118,12 @@ begin
 				help:=not(zahler[par[k]])
 			else
 				help:=zahler[par[k]];
-	{else}
-		{ f�r sp�tere errorabfrage }
+	else
+	    begin
+		{ errorabfrage }
+		writeln (' unknown operand line: ',k);
+		halt(1);
+	    end;
 	end;
 	inv:=false;
 end;                               { **** ENDE ZERLEG *****       }
