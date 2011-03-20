@@ -191,7 +191,7 @@ begin
      my_wwindow(x1,y1,x2-1,y2-5,header,'<ESC>',true);
      list_doc(start,list_end);
      repeat
-		tasten:=readkey;
+	tasten:=readkey;
         case tasten of
         p_up : begin
                  akt_zeig:=list_end;
@@ -216,7 +216,6 @@ begin
         's','S' : suchen(start,list_end);
 
         end;
-
      until tasten=esc;
  {    restore_screen;}
      textbackground(black);textcolor(black);
