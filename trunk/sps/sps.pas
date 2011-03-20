@@ -2,7 +2,7 @@ program sps_simulator;
 
 { copyright (c) 2006 by Hartmut Eilers <hartmut@eilers.net>				}
 { distributed under the GNU General Public License V2 or any later	}
-{ $Id: }
+{ $Id$ }
 
 {  $define newio }
 uses 	
