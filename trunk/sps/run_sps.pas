@@ -33,6 +33,8 @@ program runsps;
 { virtual machine version 1.1							}
 { physical machine version PhysMach						}
 
+{ $Id: }
+
 uses 	
 {$ifdef LINUX }
 	unix,linux,
