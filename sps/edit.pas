@@ -23,7 +23,7 @@ begin
      gotoxy(1,1);
      for x:=s to e do begin
          write (znr[x]:3,' ',operation[x],' ',operand[x],' ');
-         if par[x]>=0 then write(par[x]:5) else write('     ');
+         if par[x]=0 then write('     ') else write(par[x]:5);
          writeln(' ',comment[x]);
      end;
      spalte:=5;
@@ -118,11 +118,12 @@ end;                               { **** ENDE LOESCHEN **** }
 
 procedure formatiere;              {formatieren einer awl-zeile}
 
-var j,znum,p,c              : byte;
-    error                   : integer;
-    text_dummy			    : string;
-    byte_dummy              : byte;
-	longInt_dummy			: LongInt;
+var j,znum,p,c			: byte;
+    error			: integer;
+    text_dummy			: string;
+    byte_dummy			: byte;
+    longInt_dummy		: LongInt;
+    NoOpOrPar			: byte;
 
 
 begin
@@ -132,6 +133,7 @@ begin
 	{ take the readed part of the line, form whatever it was ( operation, operand, rtc }
 	{ delete that from the input line and start over from beginning }
 	
+     NoOpOrPar:=0;
      c:=0; { this counter is used to compute the position where the comment starts in the entered line }
     { check wether the line starts with numbers }	 
      j:=0;
@@ -198,8 +200,9 @@ begin
 	if (j=1) or (j=2) or (j=5) or (j=6) or (j=24) or (j=11) or (j=14) or
 		   (j=20) or (j=25) or (j=30) or (j=31) or (j=33) then begin		
 	    { that's UN(,ON(,U(,O(,EN, ),PE,NOP,EP,AN(,A( or $ command }
-	    par[znum]:= (-1);
+	    par[znum]:= 0;
 	    operand[znum]:=' ';
+	    NoOpOrPar:=1;
 	end	
         else begin { now get the operand from the line }
 		{ UN,ON,=N,TE,ZR,U,O,=,S,R,A,AN or j=3,4,7,9,19,12,13,15,16,17,32,34}
@@ -210,11 +213,11 @@ begin
         end;
      
       { find numbers that could be usefull parameters }
-      if ( par[znum] < 0 ) then 
+      if ( NoOpOrPar <> 0 ) then 
       else begin
 
 		{ starts the parameter with a char ? }
-		if (ord(textzeile[1])<48) or (ord(textzeile[1])>57) then
+		if (ord(textzeile[1])<48) or (ord(textzeile[1])>57) or (textzeile[1]<>'-')  then
 		  { yes, ignore char ( should be J for analog input }
 		  { and take the rest as parameter }
 		  j:=1
@@ -225,14 +228,14 @@ begin
 		{ search for the end of parameter ( not a number !}
 		repeat
 		  inc(j);
-		until (ord(textzeile[j]) < 48) or (ord(textzeile[j]) > 57);
+		until (ord(textzeile[j]) < 48) or (ord(textzeile[j]) > 57) ;
 
-		{ is the first pos a char ? }
-		if ((ord(textzeile[1])< 48) or (ord(textzeile[1])>57)) then begin
+		{ is the first pos a - ? }
+		if (textzeile[1]='-') then begin
 			{ yes, this is an analog input as parameter }
 			text_dummy:=copy(textzeile,2,j-1);
 			val(text_dummy,longInt_dummy);
-			{longInt_dummy:=longInt_dummy*-1;}
+			longInt_dummy:=longInt_dummy*-1;
 		end
 		else begin
 			{ no , everything is a number }
@@ -253,8 +256,8 @@ begin
       clreol;
       gotoxy(1,wherey);
       write (znr[znum]:3,' ',operation[znum],' ',operand[znum],' ');
-      {if par[znum]>=0 then write(par[znum]:5) else write('     ');}
-      write(par[znum]:5);
+      // par[znum]=0 means no parameter!
+      if par[znum]=0 then write('     ') else write(par[znum]:5);
       write(' ',comment[znum]);
       saved_text:='';
 end;                               {**** ENDE FORMATIEREN****}
