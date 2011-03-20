@@ -111,7 +111,7 @@ begin
 	{ hier einfach: tasten:=ord(readkey); dann single step !! geil ;) }
      if keypressed then key:=ord(readkey)
      else key:=ord('^');
-	 next_event:=key;
+     next_event:=key;
 end;
 
 
@@ -261,8 +261,10 @@ begin                              {hp run_awl}
 			handle_counter;	
 		PhysMachTimer;
 		interpret;
-		if ( extern ) then
+		if ( extern ) then begin
 	   		PhysMachWriteDigital;                     { OUTPUTS ausgeben                }
+	   		PhysMachWriteAnalog;
+	   	end;
 		print_in_out;
 		toggle_internal_clock(marker[62],marker[63],marker[64]);
 		if watchdog > awl_max then esc:=true;
