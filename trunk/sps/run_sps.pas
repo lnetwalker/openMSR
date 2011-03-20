@@ -121,9 +121,9 @@ procedure run_awl;
 
 begin                             		{ hp run_awl                      }
 	PhysMachReadDigital;                   	{ INPUTS lesen                    }
-	PhysMachReadAnalog;;			{ analoge inputs lesen			  }
+	PhysMachReadAnalog;			{ analoge inputs lesen			  }
 	PhysMachCounter;                     	{ TIMER / ZAHLER aktualisieren    }
-	PhysMAchTimer;
+	PhysMachTimer;
 	interpret;                      	{ einen AWLdurchlauf abarbeiten   }
 	PhysMachWriteDigital;			{ OUTPUTS ausgeben                }
 	toggle_internal_clock(marker[62],marker[63],marker[64]);{ interne TAKTE M62-M64 toggeln   }
@@ -144,8 +144,10 @@ begin                              { SPS_SIMULATION           }
 	{$ifdef LINUX}
 	//nice(20);
 	{$endif}
+	if paramcount < 2 then ConfFile:='.run_sps.cfg'
+	else ConfFile:= paramstr(2);
 	PhysMachInit;
-	PhysMachloadCfg('.run_sps.cfg');
+	PhysMachloadCfg(ConfFile);
 	write(ProgNamVer);
 	writeln(copyright);
 	writeln('detected Hardware: ',HWPlatform);

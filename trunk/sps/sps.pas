@@ -135,9 +135,11 @@ begin
 end;                               {**** ENDE  HAUPTMENU **** }
 
 begin                              { SPS_SIMULATION }
+	if ( paramcount > 0 ) then ConfFile:=paramstr(1)
+	else ConfFile:='.run_sps.cfg';
 	PhysMachInit;
 	PhysMachRegCfg(@SpsConfig);
-	PhysMachLoadCfg('.run_sps.cfg');
+	PhysMachLoadCfg(ConfFile);
 	{
 	writeln('Zeilenvorschub :',zeilenvorschub);
 	writeln('Grossschrift :',grosschrift);

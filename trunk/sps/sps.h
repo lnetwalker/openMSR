@@ -80,3 +80,5 @@ var
      anweisung	       : array[1..anweismax] of string3;
      znr               : array[1..awl_max] of integer;
      comment           : array[1..awl_max] of string;
+     ConfFile	       : string;
+     
