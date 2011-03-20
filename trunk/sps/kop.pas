@@ -40,6 +40,7 @@ begin
 	new(kop_pointer);
 	kop_pointer^.zeil:='';
 	kop_pointer^.vor:=nil;
+	kop_pointer^.nach:=nil;
 
 	repeat
 		token:=0;
