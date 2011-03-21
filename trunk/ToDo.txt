@@ -2,11 +2,16 @@ GENERAL:
 - introduce commandline parameters ( eg cfg file etc )
 - more error checking
 - add README, LICENSE, CHANGELOG files
-- fix error with SVN ( SPS/Test ) tree conflict
 - add usage of PhysMach Config file in all other tools ( see PhysMach Callback function PhysMachRegCfg )
 - test all supported hardware
   done for Joystick, IOWarrior 24/40, LPT, BMCM, EXEC ( digitemp ),
+- update Documentation!  
+- fix SVN errors/poblems with Documentation!
+- move repository to sourceforge
+v fix error with SVN ( SPS/Test ) tree conflict - done 20.3.11
  
+WEBSITE:
+- add news about code on sf
 
 * Existing Tools
 
@@ -16,13 +21,15 @@ PHYSMACH:
 - add drivers for the Kolter Cards
   ( Opto Rel PCI,Opto 30 ISA, PCI Counter 1, PCI AD12LCN, Proto 3 PCI )
 - add driver for IOWarrior 56
-v implement digital Out - 19.3. done
 - implement Timecontrol driver
   make it like the crontab entries
 - find solution for drivers on top of drivers ( like Funk_IO or counters... )
-v implement PhysMachEnd to close the devices cleanly - 19.3. done
 - add serial number detection and config assignment to iow_io_access.pas
-v implement a callback to register procedures to the config read function - 20.3. done
+- add comedi support first develop driver to access comedi supported hardware
+- commedi support add lib which exports the PhysMach as comedi device
+v implement a callback to register procedures to the config read function - 20.3.11 done
+v implement digital Out - 19.3.11 done
+v implement PhysMachEnd to close the devices cleanly - 19.3.11 done
 
 WEBSERVER:
 - make location of debug and errorlogfiles configurable
@@ -50,26 +57,29 @@ SPS:
 - implement basic operators like ADD, SUB, MUL, DIV
 - implement Random Number Support for K-Values: 25 K RND 256 ; erzeugt randon number between 0 and 255 
 - KOP: doesn't support all commands
+  currently supported are U,UN,A,AN,=,=N,O,ON,EN,PE,EP,$,ZR,TE,S,R,NOP
+  missing: U(,UN(,O(,ON(,JI,),J,K,EQ,LT,GT,JP,SP,SPB,JC,AN(,A(
 - KOP: NOP can be interpreted wrong leading to a faulty KOP
-v allow analog inputs as K-Values - done 20.3. ( negative values for k are pointers to the
+- make the toggeling Markers configurable ( M62-M64)
+v allow analog inputs as K-Values - done 20.3.11 ( negative values for k are pointers to the
   appropriate Analog input eg k -1 means take Analog In 1 as K value)
 v make comments field in AWL bigger (22 chars is too small) - allready done: comment may be 255 chars
-- make the toggeling Markers configurable ( M62-M64)
-v add PhysMachEnd - 19.3. done
-v add analog out support - 20.3. done
-v implement callback to read config from PhysMach config file - done 20.3.
-v implement Config file as cmdline param - done 20.3.
+v add PhysMachEnd - 19.3.11 done
+v add analog out support - 20.3.11 done
+v implement callback to read config from PhysMach config file - done 20.3.11
+v implement Config file as cmdline param - done 20.3.11
+v KOP: bug when opening KOP multiple times! - done 20.3.11
 
 RUN_SPS:
-v implement callback to read config from PhysMach config file - done 20.3.
-v implement Config file as cmdline param - done 20.3.
-- add analog out support
+v implement callback to read config from PhysMach config file - done 20.3.11
+v implement Config file as cmdline param - done 20.3.11
+v add analog out support - done 20.3.11
 
 DEVICESERVER:
 - add PhysMachEnd
 - add analog out support
 - fix bug with segfaulting when using BMCM devices
-v fix bug with cmdline param d - done 20.3.
+v fix bug with cmdline param d - done 20.3.11
 
 * New Tools / Ideas
 
