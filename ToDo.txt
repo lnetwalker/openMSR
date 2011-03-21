@@ -7,8 +7,9 @@ GENERAL:
   done for Joystick, IOWarrior 24/40, LPT, BMCM, EXEC ( digitemp ),
 - update Documentation!  
 - fix SVN errors/poblems with Documentation!
-- move repository to sourceforge
+- fix error in SVN Repo with corrupted files
 v fix error with SVN ( SPS/Test ) tree conflict - done 20.3.11
+v move repository to sourceforge - done 21.03.2011
  
 WEBSITE:
 - add news about code on sf
@@ -27,6 +28,7 @@ PHYSMACH:
 - add serial number detection and config assignment to iow_io_access.pas
 - add comedi support first develop driver to access comedi supported hardware
 - commedi support add lib which exports the PhysMach as comedi device
+- implement a soft PWM driver ( see OpenLabDocs/Ideen/pwm.txt )
 v implement a callback to register procedures to the config read function - 20.3.11 done
 v implement digital Out - 19.3.11 done
 v implement PhysMachEnd to close the devices cleanly - 19.3.11 done
