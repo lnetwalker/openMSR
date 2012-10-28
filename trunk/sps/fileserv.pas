@@ -48,7 +48,7 @@ procedure SPS_Laden;               { Laden eines SPS_files }
 
 var  f              :text;
      zeile          :string;
-     i		        :integer;
+     i		    :integer;
      dummy_text     :string;
      dummy_zahl     :LongInt;
 
