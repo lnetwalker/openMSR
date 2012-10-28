@@ -7,12 +7,14 @@ GENERAL:
   done for Joystick, IOWarrior 24/40, LPT, BMCM, EXEC ( digitemp ),
 - update Documentation!  
 - fix SVN errors/poblems with Documentation!
-- fix error in SVN Repo with corrupted files
+- add project to freshmeat
 v fix error with SVN ( SPS/Test ) tree conflict - done 20.3.11
 v move repository to sourceforge - done 21.03.2011
+v fix error in SVN Repo with corrupted files - done 21.03.2011
+v add project to koders.com - done 21.03.2011
  
 WEBSITE:
-- add news about code on sf
+v add news about code on sf - done 21.03.2011
 
 * Existing Tools
 
