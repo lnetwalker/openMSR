@@ -1,4 +1,16 @@
+BUILD:
+- fix build process
+- get working build environment for all Linux[ARM,X64,i386], Win, OSX
+ v X64
+ - ARM
+ - i386
+ - Win
+ - OSX
+
+
 GENERAL:
+- make hardware overview
+v add project to ohloh 10.2012
 - introduce commandline parameters ( eg cfg file etc )
 - more error checking
 - add README, LICENSE, CHANGELOG files
@@ -19,6 +31,7 @@ v add news about code on sf - done 21.03.2011
 * Existing Tools
 
 PHYSMACH:
+- write devicedriver for all new hardware
 - write devicedriver for 8255 based analog I/O Card ( Ferranti 426/427 )
 - write devicedriver for I2C based analog in
 - add drivers for the Kolter Cards
