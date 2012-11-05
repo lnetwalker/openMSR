@@ -23,6 +23,12 @@ unit PhysMach;
 {$ifdef MaxOSX}
 	{$undef IOwarrior}
 {$endif}
+{$ifdef USB92}
+	{$define ARM}
+{$endif}
+{$ifndef USB92}
+	{$undef ARM}
+{$endif}
 
 
 interface
@@ -43,7 +49,7 @@ type
 
 var
 	marker 			: array[1..marker_max]   of boolean;
-	eingang,ausgang		: array[1..io_max]	 of boolean;
+	eingang,ausgang	: array[1..io_max]	 of boolean;
 	zust			: array[1..io_max]	 of boolean;
 	lastakku		: array[1..akku_max]     of boolean;
 	zahler			: array[1..cnt_max]	 of boolean;
@@ -89,17 +95,21 @@ implementation
 uses
 {$ifdef LINUX }
 		linux,
-		dil_io_access,lp_io_access,pio_io_access,
-		joy_io_access,funk_io_access,kolterPCI_io_access,
-		kolterOpto3_io_access,adc12lc_io_access,
+		usb8_io_access,
 {$endif}
 
 		
-{$ifndef USB92}
-		bmcm_io_access,
+{$ifdef LINUX386}
+		bmcm_io_access,lp_io_access,pio_io_access,
+		joy_io_access,funk_io_access,kolterPCI_io_access,
+		kolterOpto3_io_access,adc12lc_io_access,
+{$ifdef DILPC}
+		dil_io_access,
+{$endif}
+{$endif}
+
 {$ifdef IOwarrior}
 		iowkit_io_access,
-{$endif}
 {$endif}
 		http_io_access,rnd_io_access,exec_io_access,StringCut;
 
@@ -131,8 +141,10 @@ begin
 	Address:=i_address[IOGroup];
 	if debug then writeln('PhysMachReadDevice IOGroup=',IOGroup,' DeviceType=',DeviceType,' Address=',Address);
 	case DeviceType of
-{$ifdef LINUX}
+{$ifdef LINUX386}
+{$ifdef DILPC}
 		'D'	: wert:=dil_read_ports(Address);
+{$endif}
 		'L'	: wert:=lp_read_ports(Address);
 		'P'	: wert:=pio_read_ports(Address);
 		'J'	: wert:=joy_read_ports(Address);
@@ -140,16 +152,19 @@ begin
 		'K'	: wert:=kolterPCI_read_ports(Address);
 		'O'	: wert:=kolterOpto3_read_ports(Address);
 		'T'	: wert:=adc12lc_read_ports(Address);
+		'B' 	: wert:=bmcm_read_ports(Address);
 {$endif}
 		'H' 	: wert:=http_read_ports(Address);
 		'R'	: wert:=rnd_read_ports(Address);
-{$ifndef USB92}
+{$ifndef ARM}
 {$ifdef IOwarrior}
 		'I'	: wert:=iow_read_ports(Address);
 {$endif}		
-		'B' 	: wert:=bmcm_read_ports(Address);
 {$endif}
 		'E'	: wert:=exec_read_ports(Address);
+{$ifdef LINUX}
+		'U'	: wert:=usb8_read_ports(Address);
+{$endif}
 	end;
 
 	if (debugFlag) then 
@@ -197,8 +212,10 @@ begin
 
 
 		case DeviceType of
-{$ifdef LINUX}
+{$ifdef LINUX386}
+{$ifdef DILPC}
 			'D'	: dil_write_ports(Address,Value);
+{$endif}
 			'L'	: lp_write_ports(Address,Value);
 			'P'	: pio_write_ports(Address,Value);
 			'J'	: joy_write_ports(Address,Value);
@@ -206,16 +223,20 @@ begin
 			'K'	: kolterPCI_write_ports(Address,Value);
 			'O'	: kolterOpto3_write_ports(Address,Value);
 			'T'	: adc12lc_write_ports(Address,Value);
+			'B' 	: bmcm_write_ports(Address,Value);
 {$endif}
 			'H' 	: http_write_ports(Address,Value);
 			'R' 	: rnd_write_ports(Address,Value);
-{$ifndef USB92}
+{$ifndef ARM}
 {$ifdef IOwarrior}
 			'I'	: iow_write_ports(Address,Value);
 {$endif}
-			'B' 	: bmcm_write_ports(Address,Value);
 {$endif}
 			'E'	: exec_write_ports(Address,Value);
+{$ifdef LINUX}
+			'U'	: usb8_write_ports(Address,Value);
+{$endif}
+
 		end;
 	end;
 end;
@@ -226,15 +247,18 @@ begin
 	if debugFlag then writeln('PhysMachReadAnalogDevice: a_devicetype[',IOGroup,']=',a_devicetype[IOGroup]);
 	if (a_devicetype[IOGroup] <> '-') then
 		case a_devicetype[IOGroup] of
-{$ifdef LINUX}
+{$ifdef LINUX386}
 			'J' 	: analog_in[IOGroup]:=joy_read_aports(a_address[IOGroup]);
 			'T'	: analog_in[IOGroup]:=adc12lc_read_ports(a_address[IOGroup]);
-{$ifndef USB92}
-			'H'	: analog_in[IOGroup]:=http_read_analog(a_address[IOGroup]);
 			'B' 	: analog_in[IOGroup]:=bmcm_read_analog(a_address[IOGroup]);
 {$endif}
+{$ifdef ARM}
+			'H'	: analog_in[IOGroup]:=http_read_analog(a_address[IOGroup]);
 {$endif}
 			'E'	: analog_in[IOGroup]:=exec_read_analog(a_address[IOGroup]);
+{$ifdef LINUX}
+			'U'	: analog_in[IOGroup]:=usb8_read_analog(a_address[IOGroup]);
+{$endif}
 		end;
 	if (debugFlag) then writeln('Analog_in[',IOGroup,']=',analog_in[IOGroup]);
 end;
@@ -247,7 +271,9 @@ begin
 	if debugFlag then writeln('PhysMachWriteAnalogDevice: a_devicetype[',IOGroup,']=',a_devicetype[IOGroup]);
 	if (u_devicetype[IOGroup] <> '-') then
 		case u_devicetype[IOGroup] of
+{$ifdef LINUX386}
 			'B' 	: bmcm_write_analog(a_address[IOGroup],analog_in[IOGroup]);
+{$endif}
 			'E'	: exec_write_analog(a_address[IOGroup],analog_in[IOGroup]);
 			'D' 	: dummy:=1; 
 		end;
@@ -268,22 +294,24 @@ begin
 
 			{ ZAEHLEReingaenge lesen  }
 			case c_devicetype[IOGroup] of
-{$ifdef LINUX}
+{$ifdef LINUX386}
+{$ifdef DILPC}
 				'D'	: wert:=dil_read_ports(c_address[IOGroup]);
+{$endif}
 				'L'	: wert:=lp_read_ports(c_address[IOGroup]);
 				'P'	: wert:=pio_read_ports(c_address[IOGroup]);
 				'J'	: wert:=joy_read_ports(c_address[IOGroup]);
 				'K'	: wert:=kolterPCI_read_ports(c_address[IOGroup]);
 				'O'	: wert:=kolterOpto3_read_ports(c_address[IOGroup]);
 				'T'	: wert:=adc12lc_read_ports(c_address[IOGroup]);
+				'B' 	: wert:=bmcm_read_ports(c_address[IOGroup]);
 {$endif}
 				'H' 	: wert:=http_read_ports(c_address[IOGroup]);
 				'R'	: wert:=rnd_read_ports(c_address[IOGroup]);
-{$ifndef USB92}
+{$ifndef ARM}
 {$ifdef IOwarrior}
 				'I'	: wert:=iow_read_ports(c_address[IOGroup]);
 {$endif}
-				'B' 	: wert:=bmcm_read_ports(c_address[IOGroup]);
 {$endif}
 				'E'	: wert:=exec_read_ports(c_address[IOGroup]);
 			end;
@@ -365,11 +393,13 @@ begin
 			{ call the initfunction of that device }
 			if (debugFlag) then writeln('device ',initdevice,'   ',initstring);
 			case initdevice of
-{$ifdef LINUX}
+{$ifdef LINUX386}
+{$ifdef DILPC}
 				'D'	: begin
 						dil_hwinit(initstring,DeviceNumber);
 						HWPlatform:=HWPlatform+',DIL/NetPC ';
 					  end;	
+{$endif}
 				'L'	: begin
 						lp_hwinit(initstring,DeviceNumber);
 						HWPlatform:=HWPlatform+',LP Port ';
@@ -398,6 +428,10 @@ begin
 						funk_hwinit(initstring,DeviceNumber);
 						HWPlatform:=HWPlatform+',Funk ';
 					  end;
+				'B'	: begin
+						bmcm_hwinit(initstring,DeviceNumber);
+						HWPlatform:=HWPlatform+',BMCM-USB-Device ';
+					  end;
 {$endif}
 				'H' 	: begin
 						http_hwinit(initstring,DeviceNumber);
@@ -408,22 +442,24 @@ begin
 						rnd_hwinit(initstring,DeviceNumber);
 						HWPlatform:=HWPlatform+',Random ';
 					  end;	
-{$ifndef USB92}
+{$ifndef ARM}
 {$ifdef IOwarrior}
 				'I'	: begin
 						iow_hwinit(initstring,DeviceNumber);
 						HWPlatform:=HWPlatform+',IO-Warrior ';
 					  end;	
 {$endif}
-				'B'	: begin
-						bmcm_hwinit(initstring,DeviceNumber);
-						HWPlatform:=HWPlatform+',BMCM-USB-Device ';
-					  end;
 {$endif}
 				'E'	: begin
 						exec_hwinit(initstring,DeviceNumber);
 						HWPlatform:=HWPlatform+',ext. APP  ';
 					  end;
+{$ifdef LINUX}
+				'U'	: begin
+						usb8_hwinit(initstring,DeviceNumber);
+						HWPlatform:=HWPlatform+',USB8-IO  ';
+					  end;
+{$endif}
 				else begin
 				    writeln('unknown device in config file: ',zeile);
 				    halt(1);
@@ -556,10 +592,12 @@ begin
     for i:=1 to DeviceTypeMax do
 	{ loop over all attached devices and call their close/end functions }
 	case DeviceList[i] of
-{$ifdef LINUX}
+{$ifdef LINUX386}
+{$ifdef DILPC}
 		'D' :	begin
 			    dil_close();
 			end;	
+{$endif}
 		'L'	: begin
 				lp_close();
 			  end;	
@@ -581,6 +619,9 @@ begin
 		'F'	: begin
 				funk_close();
 			  end;
+		'B'	: begin
+				bmcm_close();
+			  end;
 {$endif}
 		'H' 	: begin
 				http_close();
@@ -594,13 +635,15 @@ begin
 				iow_close();
 			  end;	
 {$endif}
-		'B'	: begin
-				bmcm_close();
-			  end;
 {$endif}
 		'E'	: begin
 				exec_close();
 			  end;
+{$ifdef LINUX}
+		'U'	: begin
+				usb8_close();
+			  end;
+{$endif}
 	end;
 
 	{ clean up - do everything to leave program clearly }
