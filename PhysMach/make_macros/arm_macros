@@ -1,3 +1,0 @@
-FPC=/usr/local/bin/ppcrossarm
-FPC_FLAGS=-CfFPA  -dUSB92 -CaARMEB -CpARMV5 -darm -dFPC_ARMEL -XP/usr/local/xtools/arm-unknown-linux-uclibc/arm-unknown-linux-uclibc/bin/ -XR/usr/local/xtools/arm-unknown-linux-uclibc/arm-unknown-linux-uclibc/ -Fl/usr/local/xtools/arm-unknown-linux-uclibc/arm-unknown-linux-uclibc/sys-root/usr/lib/
-
