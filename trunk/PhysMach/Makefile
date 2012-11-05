@@ -8,6 +8,7 @@
 OBJECTS=physmach
 
 # get compiler and flags for the given platform
+include ../build/make_includes/$(BLD_ARCH)
 include ./make_macros/$(BLD_ARCH)_macros
 include ../build/make_includes/unit-searchpath
 
