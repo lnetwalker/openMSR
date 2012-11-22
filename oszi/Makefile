@@ -7,6 +7,7 @@
 OBJECTS=oszi
 
 # get compiler and flags for the given platform
+include ../build/make_includes/$(BLD_ARCH)
 include ./make_macros/$(BLD_ARCH)_macros
 include ../build/make_includes/unit-searchpath
 
@@ -27,7 +28,12 @@ clean :
 	-rm *.o
 	-rm *.s
 	-rm $(OBJECTS)
+	-rm *.exe
 
 build:
+ifeq ($(BLD_ARCH),win32)
+	-cp oszi.exe /tmp/build/oszi/
+else
 	-cp oszi /tmp/build/oszi/
+endif
 	-cp .oszi.cfg /tmp/build/oszi/
