@@ -2,34 +2,76 @@ unit PhysMach;
 
 { (c) 2006 by Hartmut Eilers < hartmut@eilers.net			}
 { distributed  under the terms of the GNU GPL V 2			}
-{ see http://www.gnu.org/licenses/gpl.html for details			}
+{ see http://www.gnu.org/licenses/gpl.html for details		}
 
 { This unit builds a physical I/O Machine with the following		}
 { features (see the max values below for the amounts ) :		}
-{ Digital In/Outputs, Digital Markers, Timers, Counters			}
+{ Digital In/Outputs, Digital Markers, Timers, Counters		}
 { It is also an abstract layer to access the above mentioned		}
-{ Resources. It supports different I/O Hardware ( see List of		}
+{ Resources. It supports different I/O Hardware ( see List of	}
 { imported units below.and is platform independant currently		}
-{ Linux and windows on PC Hardware is supported				}
+{ Linux and windows on PC Hardware is supported			}
 
 { $Id$ }
 
 { the following defines are used in the code:				}
-{	newio	- use new IO Warrior library				}
-{	IOwarrior - include iowarrior library or not			}
-{	Linux	- specific Linux ( automatically applied by compiler	}
-{	USB92	- specific code to usb9263 from Calao			}
 
 {$ifdef MaxOSX}
 	{$undef IOwarrior}
 {$endif}
+
 {$ifdef USB92}
 	{$define ARM}
-{$endif}
-{$ifndef USB92}
-	{$undef ARM}
+	{$define LINUX}
 {$endif}
 
+{$ifdef Linuxfree}
+	{$define LINUX}
+	{$define LPT}
+	{$define JOY}
+	{$define SOFTIO}
+	{$define IOW}
+	{$define USB8}
+{$endif}
+
+{$ifdef Linux386}
+	{$define LINUX}
+	{$define LPT}
+	{$define JOY}
+	{$define PIO}
+	{$define FUNK}
+	{$define KOLTER}
+	{$define BMCM}
+	{$define SOFTIO}
+	{$define IOW}
+	{$define USB8}
+{$endif}
+
+{$ifdef Linux64}
+	{$define LINUX}
+	{$define SOFTIO}
+	{$define IOW}
+	{$define USB8}
+{$endif}
+
+{$ifdef Gnublin}
+	{$define LINUX}
+	{$define SOFTIO}
+	{$undef IOW}
+	{$define USB8}
+{$endif}
+
+{$ifdef win32}
+	{$define SOFTIO}
+	{$define IOW}
+	{$define USB8}
+{$endif}
+
+{$ifdef SOFTIO}
+	{$define RND}
+	{$define HTTP}
+	{$define EXEC}
+{$endif}
 
 interface
 
@@ -95,23 +137,45 @@ implementation
 uses
 {$ifdef LINUX }
 		linux,
+{$endif}
+{$ifdef USB8}
 		usb8_io_access,
 {$endif}
-
-		
-{$ifdef LINUX386}
-		bmcm_io_access,lp_io_access,pio_io_access,
-		joy_io_access,funk_io_access,kolterPCI_io_access,
-		kolterOpto3_io_access,adc12lc_io_access,
+{$ifdef Gnublin}
+		gnublin_io_access,
+{$endif}
+{$ifdef BMCM}
+		bmcm_io_access,
+{$endif}
+{$ifdef LPT}
+		lp_io_access,
+{$endif}
+{$ifdef PIO}
+		pio_io_access,
+{$endif}
+{$ifdef JOY}
+		joy_io_access,
+{$endif}
+{$ifdef FUNK}
+		funk_io_access,
+{$endif}
+{$ifdef KOLTER}
+		kolterPCI_io_access,
+		kolterOpto3_io_access,
+		adc12lc_io_access,
+{$endif}
 {$ifdef DILPC}
 		dil_io_access,
 {$endif}
-{$endif}
-
-{$ifdef IOwarrior}
+{$ifdef IOW}
 		iowkit_io_access,
 {$endif}
-		http_io_access,rnd_io_access,exec_io_access,StringCut;
+{$ifdef SOFTIO}
+		http_io_access,
+		rnd_io_access,
+		exec_io_access,
+{$endif}
+		StringCut;
 
 const
 	debugFlag 		= false;
@@ -120,7 +184,7 @@ const
 
 var
 	x			: word;
-	CfgCallbackFunc		: tprocedure;
+	CfgCallbackFunc	: tprocedure;
 	
 
 procedure PhysMachRegCfg(proc : tprocedure);
@@ -141,28 +205,43 @@ begin
 	Address:=i_address[IOGroup];
 	if debug then writeln('PhysMachReadDevice IOGroup=',IOGroup,' DeviceType=',DeviceType,' Address=',Address);
 	case DeviceType of
-{$ifdef LINUX386}
+		'd'	: wert:=0;
 {$ifdef DILPC}
 		'D'	: wert:=dil_read_ports(Address);
 {$endif}
+{$ifdef LPT}
 		'L'	: wert:=lp_read_ports(Address);
+{$endif}
+{$ifdef PIO}
 		'P'	: wert:=pio_read_ports(Address);
+{$endif}
+{$ifdef JOY}
 		'J'	: wert:=joy_read_ports(Address);
+{$endif}
+{$ifdef FUNK}
 		'F'	: wert:=funk_read_ports(Address);
+{$endif}
+{$ifdef KOLTER}
 		'K'	: wert:=kolterPCI_read_ports(Address);
 		'O'	: wert:=kolterOpto3_read_ports(Address);
 		'T'	: wert:=adc12lc_read_ports(Address);
+{$endif}
+{$ifdef BMCM}
 		'B' 	: wert:=bmcm_read_ports(Address);
 {$endif}
+{$ifdef HTTP}
 		'H' 	: wert:=http_read_ports(Address);
+{$endif}
+{$ifdef RND}
 		'R'	: wert:=rnd_read_ports(Address);
-{$ifndef ARM}
-{$ifdef IOwarrior}
+{$endif}
+{$ifdef IOW}
 		'I'	: wert:=iow_read_ports(Address);
 {$endif}		
-{$endif}
+{$ifdef EXEC}
 		'E'	: wert:=exec_read_ports(Address);
-{$ifdef LINUX}
+{$endif}
+{$ifdef USB8}
 		'U'	: wert:=usb8_read_ports(Address);
 {$endif}
 	end;
@@ -212,28 +291,43 @@ begin
 
 
 		case DeviceType of
-{$ifdef LINUX386}
+			'd'	: Value:=0;
 {$ifdef DILPC}
 			'D'	: dil_write_ports(Address,Value);
 {$endif}
+{$ifdef LPT}
 			'L'	: lp_write_ports(Address,Value);
+{$endif}
+{$ifdef PIO}
 			'P'	: pio_write_ports(Address,Value);
+{$endif}
+{$ifdef JOY}
 			'J'	: joy_write_ports(Address,Value);
+{$endif}
+{$ifdef FUNK}
 			'F'	: funk_write_ports(Address,Value);
+{$endif}
+{$ifdef KOLTER}
 			'K'	: kolterPCI_write_ports(Address,Value);
 			'O'	: kolterOpto3_write_ports(Address,Value);
 			'T'	: adc12lc_write_ports(Address,Value);
+{$endif}
+{$ifdef BMCM}
 			'B' 	: bmcm_write_ports(Address,Value);
 {$endif}
+{$ifdef HTTP}
 			'H' 	: http_write_ports(Address,Value);
+{$endif}
+{$ifdef RND}
 			'R' 	: rnd_write_ports(Address,Value);
-{$ifndef ARM}
-{$ifdef IOwarrior}
+{$endif}
+{$ifdef IOW}
 			'I'	: iow_write_ports(Address,Value);
 {$endif}
-{$endif}
+{$ifdef EXEC}
 			'E'	: exec_write_ports(Address,Value);
-{$ifdef LINUX}
+{$endif}
+{$ifdef USB8}
 			'U'	: usb8_write_ports(Address,Value);
 {$endif}
 
@@ -247,16 +341,23 @@ begin
 	if debugFlag then writeln('PhysMachReadAnalogDevice: a_devicetype[',IOGroup,']=',a_devicetype[IOGroup]);
 	if (a_devicetype[IOGroup] <> '-') then
 		case a_devicetype[IOGroup] of
-{$ifdef LINUX386}
+			'd'	: analog_in[IOGroup]:=0;
+{$ifdef JOY}
 			'J' 	: analog_in[IOGroup]:=joy_read_aports(a_address[IOGroup]);
+{$endif}
+{$ifdef KOLTER}
 			'T'	: analog_in[IOGroup]:=adc12lc_read_ports(a_address[IOGroup]);
+{$endif}
+{$ifdef BMCM}
 			'B' 	: analog_in[IOGroup]:=bmcm_read_analog(a_address[IOGroup]);
 {$endif}
-{$ifdef ARM}
+{$ifdef HTTP}
 			'H'	: analog_in[IOGroup]:=http_read_analog(a_address[IOGroup]);
 {$endif}
+{$ifdef EXEC}
 			'E'	: analog_in[IOGroup]:=exec_read_analog(a_address[IOGroup]);
-{$ifdef LINUX}
+{$endif}
+{$ifdef USB8}
 			'U'	: analog_in[IOGroup]:=usb8_read_analog(a_address[IOGroup]);
 {$endif}
 		end;
@@ -271,10 +372,12 @@ begin
 	if debugFlag then writeln('PhysMachWriteAnalogDevice: a_devicetype[',IOGroup,']=',a_devicetype[IOGroup]);
 	if (u_devicetype[IOGroup] <> '-') then
 		case u_devicetype[IOGroup] of
-{$ifdef LINUX386}
+{$ifdef BMCM}
 			'B' 	: bmcm_write_analog(a_address[IOGroup],analog_in[IOGroup]);
 {$endif}
+{$ifdef EXEC}
 			'E'	: exec_write_analog(a_address[IOGroup],analog_in[IOGroup]);
+{$endif}
 			'D' 	: dummy:=1; 
 		end;
 	if (debugFlag) then writeln('Analog_in[',IOGroup,']=',analog_in[IOGroup]);
@@ -294,26 +397,39 @@ begin
 
 			{ ZAEHLEReingaenge lesen  }
 			case c_devicetype[IOGroup] of
-{$ifdef LINUX386}
+				'd'	: wert:=0;
 {$ifdef DILPC}
 				'D'	: wert:=dil_read_ports(c_address[IOGroup]);
 {$endif}
+{$ifdef LPT}
 				'L'	: wert:=lp_read_ports(c_address[IOGroup]);
+{$endif}
+{$ifdef PIO}
 				'P'	: wert:=pio_read_ports(c_address[IOGroup]);
+{$endif}
+{$ifdef JOY}
 				'J'	: wert:=joy_read_ports(c_address[IOGroup]);
+{$endif}
+{$ifdef KOLTER}
 				'K'	: wert:=kolterPCI_read_ports(c_address[IOGroup]);
 				'O'	: wert:=kolterOpto3_read_ports(c_address[IOGroup]);
 				'T'	: wert:=adc12lc_read_ports(c_address[IOGroup]);
+{$endif}
+{$ifdef BMCM}
 				'B' 	: wert:=bmcm_read_ports(c_address[IOGroup]);
 {$endif}
+{$ifdef HTTP}
 				'H' 	: wert:=http_read_ports(c_address[IOGroup]);
+{$endif}
+{$ifdef RND}
 				'R'	: wert:=rnd_read_ports(c_address[IOGroup]);
-{$ifndef ARM}
-{$ifdef IOwarrior}
+{$endif}
+{$ifdef IOW}
 				'I'	: wert:=iow_read_ports(c_address[IOGroup]);
 {$endif}
-{$endif}
+{$ifdef EXEC}
 				'E'	: wert:=exec_read_ports(c_address[IOGroup]);
+{$endif}
 			end;
 		end
 		else
@@ -393,25 +509,32 @@ begin
 			{ call the initfunction of that device }
 			if (debugFlag) then writeln('device ',initdevice,'   ',initstring);
 			case initdevice of
-{$ifdef LINUX386}
+				'd'	: HWPlatform:=HWPlatform+',dummy ';
 {$ifdef DILPC}
 				'D'	: begin
 						dil_hwinit(initstring,DeviceNumber);
 						HWPlatform:=HWPlatform+',DIL/NetPC ';
 					  end;	
 {$endif}
+{$ifdef LPT}
 				'L'	: begin
 						lp_hwinit(initstring,DeviceNumber);
 						HWPlatform:=HWPlatform+',LP Port ';
 					  end;	
+{$endif}
+{$ifdef PIO}
 				'P'	: begin
 						pio_hwinit(initstring,DeviceNumber);
 						HWPlatform:=HWPlatform+',PIO 8255 ';
 					  end;	
+{$endif}
+{$ifdef JOY}
 				'J'	: begin
 						joy_hwinit(initstring,DeviceNumber);
 						HWPlatform:=HWPlatform+',Joystick ';
 					  end;
+{$endif}
+{$ifdef KOLTER}
 				'K'	: begin
 						kolterPCI_hwinit(initstring,DeviceNumber);
 						HWPlatform:=HWPlatform+'Kolter PCI I/O ';
@@ -424,37 +547,45 @@ begin
 						adc12lc_hwinit(initstring,DeviceNumber);
 						HWPlatform:=HWPlatform+'Kolter ADC12LC ISA analog in ';
 					  end;
+{$endif}
+{$ifdef FUNK}
 				'F'	: begin
 						funk_hwinit(initstring,DeviceNumber);
 						HWPlatform:=HWPlatform+',Funk ';
 					  end;
+{$endif}
+{$ifdef BMCM}
 				'B'	: begin
 						bmcm_hwinit(initstring,DeviceNumber);
 						HWPlatform:=HWPlatform+',BMCM-USB-Device ';
 					  end;
 {$endif}
+{$ifdef HTTP}
 				'H' 	: begin
 						http_hwinit(initstring,DeviceNumber);
 						if debugFlag then writeln('http_hwinit initstring=',initstring,' DeviceNumber=',DeviceNumber);
 						HWPlatform:=HWPlatform+',HTTP ';
 					  end;
+{$endif}
+{$ifdef RND}
 				'R'	: begin
 						rnd_hwinit(initstring,DeviceNumber);
 						HWPlatform:=HWPlatform+',Random ';
 					  end;	
-{$ifndef ARM}
-{$ifdef IOwarrior}
+{$endif}
+{$ifdef IOW}
 				'I'	: begin
 						iow_hwinit(initstring,DeviceNumber);
 						HWPlatform:=HWPlatform+',IO-Warrior ';
 					  end;	
 {$endif}
-{$endif}
+{$ifdef EXEC}
 				'E'	: begin
 						exec_hwinit(initstring,DeviceNumber);
 						HWPlatform:=HWPlatform+',ext. APP  ';
 					  end;
-{$ifdef LINUX}
+{$endif}
+{$ifdef USB8}
 				'U'	: begin
 						usb8_hwinit(initstring,DeviceNumber);
 						HWPlatform:=HWPlatform+',USB8-IO  ';
@@ -592,21 +723,28 @@ begin
     for i:=1 to DeviceTypeMax do
 	{ loop over all attached devices and call their close/end functions }
 	case DeviceList[i] of
-{$ifdef LINUX386}
+		'd'	: ;   // dummy
 {$ifdef DILPC}
-		'D' :	begin
-			    dil_close();
-			end;	
+		'D'	: begin
+				dil_close();
+			  end;	
 {$endif}
+{$ifdef LPT}
 		'L'	: begin
 				lp_close();
 			  end;	
+{$endif}
+{$ifdef PIO}
 		'P'	: begin
 				pio_close();
 			  end;	
+{$endif}
+{$ifdef JOY}
 		'J'	: begin
 				joy_close();
 			  end;
+{$endif}
+{$ifdef KOLTER}
 		'K'	: begin
 				kolterPCI_close();
 			  end;
@@ -616,30 +754,38 @@ begin
 		'T'	: begin
 				adc12lc_close();
 			  end;
+{$endif}
+{$ifdef FUNK}
 		'F'	: begin
 				funk_close();
 			  end;
+{$endif}
+{$ifdef BMCM}
 		'B'	: begin
 				bmcm_close();
 			  end;
 {$endif}
+{$ifdef HTTP}
 		'H' 	: begin
 				http_close();
 			  end;
+{$endif}
+{$ifdef RND}
 		'R'	: begin
 				rnd_close();
 			  end;	
-{$ifndef USB92}
-{$ifdef IOwarrior}
+{$endif}
+{$ifdef IOW}
 		'I'	: begin
 				iow_close();
 			  end;	
 {$endif}
-{$endif}
+{$ifdef EXEC}
 		'E'	: begin
 				exec_close();
 			  end;
-{$ifdef LINUX}
+{$endif}
+{$ifdef USB8}
 		'U'	: begin
 				usb8_close();
 			  end;
