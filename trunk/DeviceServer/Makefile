@@ -9,6 +9,7 @@
 OBJECTS=DeviceServer
 
 # get compiler and flags for the given platform
+include ../build/make_includes/$(BLD_ARCH)
 include ./make_macros/$(BLD_ARCH)_macros
 include ../build/make_includes/unit-searchpath
 
@@ -28,6 +29,7 @@ clean :
 	-rm *.s
 	-rm $(OBJECTS)
 	-rm *~
+	-rm *.exe
 
 build:
 	-mkdir /tmp/build/DeviceServer/docroot
@@ -36,6 +38,10 @@ build:
 	-cp docroot/images/*.png /tmp/build/DeviceServer/docroot/images/
 	-cp docroot/*.html  /tmp/build/DeviceServer/docroot/
 	-cp docroot/Meter* /tmp/build/DeviceServer/docroot/
+ifeq ($(BLD_ARCH),win32)
+	-cp DeviceServer.exe /tmp/build/DeviceServer/
+else
 	-cp DeviceServer /tmp/build/DeviceServer/
+endif
 	-cp DeviceServer.cfg /tmp/build/DeviceServer/
 	-cp digi*.sh /tmp/build/DeviceServer/
