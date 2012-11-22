@@ -1,9 +1,1 @@
-<<<<<<< .mine
-FPC_FLAGS= -dLINUX -dLinux64  
-=======
-<<<<<<< .mine
-FPC_FLAGS= -dLINUX -dLinux64 
-=======
 FPC_FLAGS= -uUSB92 -dLinux64 -dLINUX  
->>>>>>> .r831
->>>>>>> .r839
