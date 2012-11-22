@@ -2,6 +2,14 @@ program OpenLabCalc;
 
 uses PhysMach,FunctionSolver,crt;
 
+{ This program is used to calculate with values from 	}
+{ the DeviceServer. A given formular is calculated all the	}
+{ time in a loop. eg A12=sin(a3) means that the value of	}
+{ A12 of the DeviceServer is constantly updated by the	}
+{ value of sin(a3)						}
+{ (c) 2012 by Hartmut Eilers <hartmut@eilers.net>		}
+{ released under the terms of the GNU GPL			}
+
 { $Id$ }
 
 { 24.06.2009	start of program }
@@ -20,7 +28,7 @@ function val2str(zahl:real):string;
 
 var 	tmp		: string;
 begin
-	str(zahl,tmp);
+	str(zahl:3,tmp);
 	val2str:=tmp;
 end;
 
@@ -45,9 +53,12 @@ begin
 		end;
 		inc(i);
 	end;
+	writeln('Data is stored in Variable A[' + val2str(destidx) + ']');
 	// replace all occurances of variables with their values
 	formel:=copy(formel,start+1,length(formel));
+	writeln('Using formular: ' + formel);
 	i:=1;
+	writeln('Found the following Variables in formular:');
 	while i <= length(formel) do begin
 		if (formel[i] = 'A') or (formel[i] = 'a') then begin	// its a variable
 			p:=i+1;		// save position of variable
@@ -55,6 +66,8 @@ begin
 			dec(p);
 			val(copy(formel,i+1,p-i),idx);
 			formel:=copy(formel,1,i-1)+val2str(analog_in[idx])+copy(formel,p+1,length(formel));
+			i:=p;
+			writeln('A[' + val2str(idx) + ']=' + val2str(analog_in[idx]));
 		end;
 		inc(i);
 	end;
@@ -67,6 +80,7 @@ begin			// main program
 	write('formel: ');readln(formel);
 	
 	repeat
+		{ should work in a loop with unlimited formulars }
 		PhysMachReadAnalog;
 		data:=formel;
 		ParseFormular(data,dest);
