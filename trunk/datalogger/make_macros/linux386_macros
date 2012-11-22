@@ -1,0 +1,1 @@
+FPC_FLAGS= -uUSB92 -dLINUX -dLinux386 -XP/usr/bin/i386-linux- 
