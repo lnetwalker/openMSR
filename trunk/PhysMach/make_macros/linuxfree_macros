@@ -1,1 +1,5 @@
+<<<<<<< .mine
+FPC_FLAGS= -uUSB92 -dLinuxfree -uDILPC -Fl/usr/lib32/ -Fu/usr/lib/fpc/2.4.4/units/i386-linux/ -Fu/usr/lib/fpc/2.4.4/units/i386-linux/* -Fu/usr/lib/fpc/2.4.4/units/i386-linux/rtl/  
+=======
 FPC_FLAGS= -dLINUX -dLinuxfree 
+>>>>>>> .r837
