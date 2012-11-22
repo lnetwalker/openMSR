@@ -4,6 +4,13 @@ uses qgtk2,FunctionSolver;
 
 { $Id$ }
 
+{ Funktion Plotter					}
+{ plots a given function				}
+{ not fully related to OpenMSR, but a useful tool	}
+{ for testing OpenLabCalc				}
+{ released under the terms of the GPL			}
+{ (c) 2012 by Hartmut Eilers <hartmut@eilers.net>	}
+
 
 const 
 	version = '0.1';
