@@ -10,6 +10,7 @@
 OBJECTS=sps run_sps
 
 # get compiler and flags for the given platform
+include ../build/make_includes/$(BLD_ARCH)
 include ./make_macros/$(BLD_ARCH)_macros
 include ../build/make_includes/unit-searchpath
 
@@ -33,6 +34,7 @@ clean:
 	-rm *.o
 	-rm *.s
 	-rm $(OBJECTS)
+	-rm *.exe
 	
 build :
 	-mkdir /tmp/build/sps/awls
@@ -42,11 +44,16 @@ build :
 	-cp awls/* /tmp/build/sps/awls/
 	-cp LICENSE /tmp/build/sps/
 	-cp README /tmp/build/sps/
+ifeq ($(BLD_ARCH),win32)
+	-cp sps.exe /tmp/build/sps
+	-cp run_sps.exe /tmp/build/sps
+else
 	-cp sps /tmp/build/sps/
-	-cp .run_sps.cfg /tmp/build/sps/
 	-cp run_sps /tmp/build/sps/
+endif
+	-cp .run_sps.cfg /tmp/build/sps/
 	-cp sps.cfg /tmp/build/sps/
 	-cp sps.doc /tmp/build/sps/
 	-cp sps-d.doc /tmp/build/sps/
 	-cp sps-e.doc /tmp/build/sps/
-	
+
