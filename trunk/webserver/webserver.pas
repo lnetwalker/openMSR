@@ -71,14 +71,14 @@ var
 
 	// Listening socket
 	sock,reply_sock	: TTCPBlockSocket;
-	csock		: TSocket;
+	csock			: TSocket;
 
 	// Maximal queue length
 	max_connections	: integer;
 
-	binData		: byte;
+	binData			: byte;
 
-	Addr_len	: LongInt;
+	Addr_len		: LongInt;
 
 	// Buffers
 	buff			: String;
@@ -112,7 +112,7 @@ var
 	DBG,ERR,ACC		: text;
 
 	ServingRoutine		: array[1..MaxUrl] of tprocedure;
-	VariableHandler		: tprocedure;
+	VariableHandler	: tprocedure;
 
 	// this variable is just used to convert numerics to string
 	blubber			: string;
@@ -123,12 +123,18 @@ var
 	WithThreads		: Boolean;
 	
 	ThreadHandle		: array[1..MaxThreads] of TThreadId;
+{$ifndef LINUX64}	
 	NumOfThreads		: LongInt;
+{$endif}
+{$ifdef LINUX64}
+	NumOfThreads		: Int64;
+{$endif}
+
 	DebugOutput		: TRTLCriticalSection;
 	ProtectAccessLog	: TRTLCriticalSection;
 	ProtectAccess		: TRTLCriticalSection;
-	ProtectDataSend		: TRTLCriticalSection;
-	ServeSpecialURL		: TRTLCriticalSection;
+	ProtectDataSend	: TRTLCriticalSection;
+	ServeSpecialURL	: TRTLCriticalSection;
 
 	debug			: boolean;
 	
