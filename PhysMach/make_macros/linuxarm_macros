@@ -1,2 +1,7 @@
+<<<<<<< .mine
+FPC_FLAGS=  -dUSB92  -CpARMV5 -darm -dFPC_ARMEL -XP/usr/local/xtools/arm-unknown-linux-uclibcgnueabi/bin/arm-linux-gcc- 
+
+=======
 FPC_FLAGS=  -dlinux -dGnublin -dUSB92  -CpARMV5 -darm -dFPC_ARMEL -XParm-linux- -Fl/usr/libgnublin/ 
 
+>>>>>>> .r831
