@@ -1,2 +1,1 @@
-FPC=/usr/local/bin/fpc
-FPC_FLAGS= -Xd -Fu../PhysMach/3rdparty/bmcm/osx/libad/ -Ff/Developer/SDKs/LIBAD4.sdk/lib/ -dMacOSX -dnewio
+FPC_FLAGS= -Fi/usr/include -Fl/System/Library/Frameworks/IOKit.framework/ -Fl/Developer/SDKs/LIBAD4.sdk/lib/ -dCONFIG_STDINT -uIOwarrior -dMacOSX -dnewio -Fu3rdparty/bmcm/osx/libad/ -Fu3rdparty/codemercs/osx/
