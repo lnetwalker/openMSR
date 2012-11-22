@@ -1,5 +1,9 @@
 <<<<<<< .mine
+FPC_FLAGS= -uUSB92 -dIOwarrior -dnewio 
+=======
+<<<<<<< .mine
 FPC_FLAGS= -uUSB92  -dIOwarrior -dnewio 
 =======
 FPC_FLAGS= -uUSB92 -uLINUX -dwin32 
 >>>>>>> .r831
+>>>>>>> .r839
