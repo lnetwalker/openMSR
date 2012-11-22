@@ -34,7 +34,7 @@ const
 	
 var
 	ser: TBlockSerial;
-
+	dummy: byte;
 
 function usb8_close():boolean;
 begin
