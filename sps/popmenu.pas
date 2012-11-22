@@ -126,35 +126,14 @@ function GetScreenMaxX:word;
 var	number : word;
 begin
 	val(getenv('COLUMNS'),number);
-	//gotoxy(1,1);write (number);
-	if (number <=minScreenX) then GetScreenMaxX:=minScreenX
-	else begin
-		{$ifdef LINUX}
-		if ( (fpioctl(TextRec(Output).Handle,TIOCGWINSZ,@Wininfo)>=0)) then
-			number:=Wininfo.ws_col;
-		{ LINUXBUG }
-		if number>ErrorMaxX then number:=ErrorMaxX;
-		{ /LINUXBUG }
-		{$endif}
-		GetScreenMaxX:=number;
-	end;
+	GetScreenMaxX:=number;
 end;
 
 function GetScreenMaxY:word;
 var	number : word;
 begin
 	val(getenv('LINES'),number);
-	if  (number <= minScreenY) then GetScreenMaxY:=minScreenY
-	else begin
-		{$ifdef LINUX}
-		if ( (fpioctl(TextRec(Output).Handle,TIOCGWINSZ,@Wininfo)>=0)) then
-			number:=Wininfo.ws_row;
-		{ LINUXBUG }
-		if number>ErrorMaxY then number:=ErrorMaxY;
-		{ /LINUXBUG }
-		{$endif}
-		GetScreenMaxY:=number;
-	end;
+	GetScreenMaxY:=number;
 end;
 
 procedure save_screen;
@@ -205,7 +184,7 @@ begin
        gotoxy(x2+1,i);
        write('#');
    end;
-   for i:=x1+1 to x2+1 do begin       { unteren schatten  }
+   for i:=x1+1 to x2 do begin       { unteren schatten  }
        gotoxy(i,y2+1);
        write('#');
    end;
