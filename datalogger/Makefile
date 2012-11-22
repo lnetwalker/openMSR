@@ -7,6 +7,7 @@
 OBJECTS=datalogger
 
 # get compiler and flags for the given platform
+include ../build/make_includes/$(BLD_ARCH)
 include ./make_macros/$(BLD_ARCH)_macros
 include ../build/make_includes/unit-searchpath
 
@@ -26,7 +27,12 @@ clean :
 	-rm *.o
 	-rm *.s
 	-rm $(OBJECTS)
+	-rm *.exe
 
 build :
+ifeq ($(BLD_ARCH),win32)
+	-cp datalogger.exe /tmp/build/datalogger/
+else
 	-cp datalogger /tmp/build/datalogger/
+endif
 	-cp .datalogger.cfg /tmp/build/datalogger/
