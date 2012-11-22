@@ -10,24 +10,28 @@ else
 fi
 
 if [ "$2" = "" ]; then
-  echo " please supply a target platform [linux|arm] "
+  echo " please supply a target platform [linuxarm|linux386|linux64|win32|gnublin|linuxfree] "
   exit 3
 else
   ARCH=$2
 fi
 
+RELEASE=$REL-$ARCH
+
 mkdir /tmp/build
 
 # copy libs
 mkdir /tmp/build/libs
-pushd /tmp/build/libs
-cp /usr/lib/libad4.so.4.1.334 .
-cp /usr/lib/libiowkit.so.1.0.5 .
-popd
+if [ "$ARCH" = "linuxfree" ]; then
+  cp extLib/free/i386/* /tmp/build/libs
+else
+  cp -a extLib/* /tmp/build/libs
+fi
 
-targets="datalogger DeviceServer ObjectRecognition OpenLabDocs oszi sps"
+# build the targets
+targets="datalogger DeviceServer ObjectRecognition OpenLabDocs oszi sps fktplot FunkIO"
 for i in $targets; do 
-  mkdir /tmp/build/$i
+  mkdir -p /tmp/build/$i
   cd $i;
   . ./environment
   export SPSVERSION=$REL
@@ -41,11 +45,11 @@ cp CREDITS /tmp/build/
 cp README /tmp/build/
 cp CHANGES /tmp/build/
 
-mkdir $REL
-cp -a /tmp/build/* $REL/
-tar -czvf ../Releases/$REL.tar.gz $REL
+mkdir $RELEASE
+cp -a /tmp/build/* $RELEASE/
+tar -czvf /data/hartmut/src/Releases/$RELEASE.tar.gz $RELEASE
 
 rm -rf /tmp/build
 
-echo "Please check directory $REL and remove it when everything is done"
+echo "Please check directory $RELEASE and remove it when everything is done"
 
