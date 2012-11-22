@@ -1,1 +1,1 @@
-FPC_FLAGS= -uUSB92 -uLINUX -dIOwarrior -dnewio 
+FPC_FLAGS= -uUSB92 -uLINUX -dwin32 
