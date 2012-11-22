@@ -1,0 +1,35 @@
+# make FunkIO
+#
+# Copyright (c) 1999 by Hartmut Eilers
+# 
+# Just do a "make all", and, when you're finished, a make clean. 
+# to remake a part do "make" for the ide
+
+
+OBJECTS=funkio
+
+# get compiler and flags for the given platform
+include ../build/make_includes/$(BLD_ARCH)
+include ./make_macros/$(BLD_ARCH)_macros
+include ../build/make_includes/unit-searchpath
+
+all: $(OBJECTS)
+
+funkio:	funkio.pas
+	$(FPC) $(FPC_FLAGS) -gl  $(UNITSEARCH) funkio
+	
+clear:
+	-rm funkio
+			
+clean :
+	-rm *.ppu
+	-rm *.a
+	-rm *.o
+	-rm *.s
+	-rm $(OBJECTS)
+
+build:
+	-mkdir ../build/FunkIO
+	-cp funkio ../build/FunkIO
+	-cp funkio.cfg ../build/FunkIO
+
