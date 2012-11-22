@@ -1,5 +1,5 @@
 program sps_simulator;
-
+{$mode delphi}
 { copyright (c) 2006 by Hartmut Eilers <hartmut@eilers.net>				}
 { distributed under the GNU General Public License V2 or any later	}
 { $Id$ }
@@ -162,7 +162,7 @@ begin                              { SPS_SIMULATION }
      cursor_off;
      clrscr;
      textbackground(lightgray);textcolor(Black);
-     my_wwindow(trunc(screenx/2-25),trunc(screeny/2-2),trunc(screenx/2+25),trunc(screeny/2+2),'','',true);
+     my_wwindow(trunc(screenx/2-25),trunc(screeny/2-2),trunc(screenx/2+25),trunc(screeny/2+3),'','',true);
      writeln(' SPS SIMULATOR V ',version);
      write(' Build on ',datum,' (c) 1989-2011 by H. Eilers ');
      getdir(0,start_pfad);
@@ -175,7 +175,7 @@ begin                              { SPS_SIMULATION }
      sicher:=false;
      name:='NONAME.SPS';
      delay(4000);
-     window(trunc(screenx/2-25),trunc(screeny/2-2),trunc(screenx/2+26),trunc(screeny/2+2));
+     window(trunc(screenx/2-25),trunc(screeny/2-2),trunc(screenx/2+26),trunc(screeny/2+3));
      textbackground(black);textcolor(black);clrscr;
      menu;
      {closegraph;}
