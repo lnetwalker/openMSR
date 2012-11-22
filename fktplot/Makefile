@@ -7,14 +7,19 @@
 
 OBJECTS=fktplot OpenLabCalc
 
+# get compiler and flags for the given platform
+include ../build/make_includes/$(BLD_ARCH)
+include ./make_macros/$(BLD_ARCH)_macros
+include ../build/make_includes/unit-searchpath
+
 all: $(OBJECTS)
 
 OpenLabCalc:	OpenLabCalc.pas FunctionSolver.pas
-	fpc -gl -Fu../gtk+/qgtk2.pas-0.9/ -Fu../PhysMach -Fu../divLibs/pwu-1.6.0.2-src/main/ OpenLabCalc
+	$(FPC) $(FPC_FLAGS) -gl  $(UNITSEARCH) OpenLabCalc
 	
 # the physical Machine access layer
 fktplot:	fktplot.pas FunctionSolver.pas
-	fpc -gl -Fu../gtk+/qgtk2.pas-0.9/ fktplot
+	$(FPC) $(FPC_FLAGS) -gl  $(UNITSEARCH) fktplot
 
 clear:
 	-rm fktplot
@@ -31,3 +36,4 @@ build:
 	-mkdir ../build/OpenLabCalc
 	-cp OpenLabCalc ../build/OpenLabCalc
 	-cp OpenLabCalc.cfg ../build/OpenLabCalc
+
