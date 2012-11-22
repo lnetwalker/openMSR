@@ -49,7 +49,11 @@ const
 {$ifdef LINUX}
 	Platform = ' Linux ';
 {$else}
+{$ifdef win32}
 	Platform = ' Windows ';
+{$else}
+	Platform = ' Unknown ';
+{$endif}
 {$endif}	
 	ProgNamVer  =' RUN_SPS  for'+Platform+version+' '+datum+' ';
 	Copyright   =' (c)  1989 - 2009 by Hartmut Eilers ';
