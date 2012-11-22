@@ -11,7 +11,7 @@ all: $(OBJECTS)
 
 # the physical Machine access layer
 ObjRec: 	main.cpp
-	g++ -Wno-deprecated -L/usr/X11R6/lib -lX11  main.cpp -o ObjRec
+	g++ -Wno-deprecated -L/usr/lib/X11 -lX11  main.cpp -o ObjRec
 
 clear:
 			
