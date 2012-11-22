@@ -48,7 +48,7 @@
 #include <sys/mman.h>
 #include <sys/ioctl.h>
 #include <sys/types.h>
-#include <linux/videodev.h>
+#include <linux/videodev2.h>
 // HTTP access
 #include <stdexcept> // runtime_error
 #include <sstream>
