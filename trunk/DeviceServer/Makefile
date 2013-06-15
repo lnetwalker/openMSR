@@ -34,8 +34,10 @@ clean :
 build:
 	-mkdir /tmp/build/DeviceServer/docroot
 	-mkdir /tmp/build/DeviceServer/docroot/images
+	-mkdir /tmp/build/DeviceServer/docroot/js
 	-cp docroot/images/*.jpg /tmp/build/DeviceServer/docroot/images/
 	-cp docroot/images/*.png /tmp/build/DeviceServer/docroot/images/
+	-cp docroot/js/* /tmp/build/DeviceServer/docroot/js/
 	-cp docroot/*.html  /tmp/build/DeviceServer/docroot/
 	-cp docroot/Meter* /tmp/build/DeviceServer/docroot/
 ifeq ($(BLD_ARCH),win32)
