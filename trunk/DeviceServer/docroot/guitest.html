@@ -1,0 +1,63 @@
+<html>
+  <head>
+    <title>GUI Test: Schalter / Lampe</title>
+
+    <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
+    <META HTTP-EQUIV="Expires" CONTENT="-1">
+
+    <style type="text/css">
+      #LED {
+	position: absolute;
+	left: 50px;
+	top: 80px;
+      }
+      #Switch1 {
+	position: absolute;
+	left: 80px;
+	top: 80px;
+      }
+      #debug {
+	position: absolute;
+	top: 120;
+	left: 50px;
+	width: 600px;
+      }
+
+    </style>
+
+    <script type="text/javascript" src="js/openmsr.js"></script>
+
+    <script>
+      function init() {
+
+	OpenMSRInit();
+
+
+	var LED = new Lamp('LED','digital',8);
+	LED.offimg('images/AmpelGruenAus.jpg');
+	LED.onimg('images/AmpelGruenAn.jpg');
+	LED.width(20);
+	LED.height(20);
+
+	// some switches
+	var MySwitch1 = new Switch('Switch1','digital',8);
+	//MySwitch1.offimg('images/button_off.jpg');
+	//MySwitch1.onimg('images/button_on.jpg');
+	MySwitch1.width(40);
+	MySwitch1.height(40);
+	
+}    
+</script>
+
+  </head>
+  <body bgcolor=white >
+	Ein einfacher GUI Test:<br>
+	<canvas id="Switch1"></canvas>
+	<canvas id="LED"></canvas>
+
+	<textarea id=debug cols=120 rows=10></textarea>
+	<script type="text/javascript">
+	  init();
+	</script>
+  </body>
+</html>
