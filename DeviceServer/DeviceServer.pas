@@ -3,8 +3,15 @@ program DeviceServer;
 
 {$M 12048,12048}
 
+{$define enhStats}
+
 {$ifdef MacOSX}
 	{$define Linux}
+	{$undef enhStats}
+{$endif}
+
+{$ifdef Windows}
+	{$undef enhStats}
 {$endif}
 
 uses 
@@ -552,6 +559,52 @@ begin
 end;
 
 
+procedure serveStats;
+// shows the statistic data via web
+var
+	SeitenStart,
+	SeitenEnde,
+	StrVal,RPMs,
+	zeile,
+	ThreadNumber	: String;
+	Values,Seite	: AnsiString;
+	j		: Integer;
+	F		: Text;
+
+begin
+	values:='';
+{$ifdef enhStats}
+	// read the /proc/cpuinfo
+	values:=values + '<h2>DeviceServer CPU Information</h2><pre>';
+	assign(F,'/proc/cpuinfo');
+	reset(F);
+	while ( not( eof(F))) do begin
+	  readln(F,zeile);
+	  values:=values + zeile + '<br>';
+	end;
+	values:=values + '</pre>';
+	close(F);
+{$endif}
+	EnterCriticalSection(SendAsync);
+	SeitenStart:='<html><title>Statistics</title><body>';
+	SeitenEnde:=' </table></body></html>';
+	values:=values + '<h2>DeviceServer Runtime Stats</h2>';
+	str(NumOfThreads,StrVal);
+	values:=values + 'Number of running Threads ' + StrVal + '<br><table border=1>';
+	for j:=1 to NumOfThreads do begin
+	  str(ThreadCnt[j],StrVal);
+	  str(ThreadRPMs[j],RPMs);
+	  str(j,ThreadNumber);
+	  values:=values + '<tr><td>' + ThreadNumber + '</td><td>' + ThreadName[j] + '</td><td>' + StrVal + '</td><td>' + RPMs + ' </td><td>loops/second</td></tr>';
+	end;
+	{ return something usefull }	
+	Seite:=SeitenStart+Values+SeitenEnde;
+	if debug then DSdebugLOG('embeddedWeb:>Sending Statistics Page');
+	SendPage(106,Seite);
+	if debug then DSdebugLOG('embeddedWeb:>Page Send, finished');
+	LeaveCriticalSection(SendAsync);
+end;
+
 
 function WebserverThread(p: Pointer):LongInt;
 { the real serving thread }
@@ -577,6 +630,7 @@ begin
 	SetupSpecialURL('/digital/ReadInputValues.html',@DeliverDigitalInputValues );
 	SetupSpecialURL('/digital/WriteOutputValues.html',@WriteOutputValues);
 	SetupSpecialURL('/digital/WriteInputValues.html',@WriteInputValues);
+	SetupSpecialURL('/stats.html',@serveStats);
 
 	repeat
 //		EnterCriticalSection(ProtectParams);
