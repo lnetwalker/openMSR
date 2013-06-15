@@ -22,8 +22,9 @@
 */
 
 /*
- compile with: g++ -Wno-deprecated -L/usr/X11R6/lib -lX11  main.cpp -o ObjRec
- start with: LD_PRELOAD=/usr/lib/libv4l/v4l1compat.so ObjRec /dev/video0
+ compile with: c++ main.cpp -Wno-deprecated -L/usr/lib/X11 -lX11  -o ObjRec
+ start with: LD_PRELOAD=/usr/lib/libv4l/v4l1compat.so ./ObjRec /dev/video0
+ please check the path to the library v4l1compat.o
  if normal start does not work
 */
 
@@ -48,7 +49,8 @@
 #include <sys/mman.h>
 #include <sys/ioctl.h>
 #include <sys/types.h>
-#include <linux/videodev2.h>
+//#include <linux/videodev2.h>
+#include <libv4l1-videodev.h>
 // HTTP access
 #include <stdexcept> // runtime_error
 #include <sstream>
