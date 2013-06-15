@@ -29,7 +29,11 @@ clean :
 	-rm $(OBJECTS)
 
 build:
-	-mkdir ../build/FunkIO
-	-cp funkio ../build/FunkIO
-	-cp funkio.cfg ../build/FunkIO
+	-mkdir /tmp/build/FunkIO
+ifeq ($(BLD_ARCH),win32)
+	-cp funkio.exe /tmp/build/FunkIO
+else
+	-cp funkio /tmp/build/FunkIO
+endif
+	-cp funkio.cfg /tmp/build/FunkIO
 
