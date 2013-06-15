@@ -22,6 +22,7 @@ function OpenMSRInit() {
       // Max Number of Messages in the Message Box
       DbgMaxMsg = 40;
     }
+    DebugLOG(' Page loaded OpenMSRInit done' );
 }
 
 /*  
@@ -271,52 +272,53 @@ var Switch = function(CanvasName,Cat,CatNo) {
 // can be LED like or any other pictures
 function Lamp(CanvasName,Cat,CatNo) {
     // get access to the given canvas
-    var canv = document.getElementById(CanvasName);
+    this.canv = document.getElementById(CanvasName);
 
     // set width and height of the canvas
     this.width = function (width) {
-	canv.width = width;
+	this.canv.width = width;
     }
     this.height = function(height) {
-	canv.height = height;
+	this.canv.height = height;
     }
 
-
     // default background image
-    var ImgSrcOff = 'images/led-green-off.jpg';
-    var ImgSrcOn  = 'images/led-green-on.jpg';
+    this.ImgSrcOff = 'images/led-green-off.jpg';
+    this.ImgSrcOn  = 'images/led-green-on.jpg';
+    
+    var me = this;
     // setup the background image
-    var LampCanv = canv.getContext("2d");
-    var BackgroundImg = new Image();
-    BackgroundImg.src = ImgSrcOff;
-    BackgroundImg.onload = function() {
-	canv.width = canv.width;
-	LampCanv.beginPath();
-	LampCanv.drawImage(BackgroundImg, 0, 0);
-	LampCanv.closePath();   
+    this.LampCanv = this.canv.getContext("2d");
+    this.BackgroundImg = new Image();
+    this.BackgroundImg.src = me.ImgSrcOff;
+    this.BackgroundImg.onload = function() {
+	//me.canv.width = me.canv.width;
+	me.LampCanv.beginPath();
+	me.LampCanv.drawImage(me.BackgroundImg, 0, 0);
+	me.LampCanv.closePath();   
     }
     
     // print a custom background image
     this.offimg = function(imagename) {
-	ImgSrcOff = imagename;
+	this.ImgSrcOff = imagename;
+	DebugLOG('Cust Img Lamp off =' + me.ImgSrcOff );
 	InitialLampState();
     }
 
-
     // print a custom background image
     this.onimg = function(imagename) {
-	ImgSrcOn = imagename;
+	this.ImgSrcOn = imagename;
+	DebugLOG('Cust Img Lamp on =' + me.ImgSrcOn );
 	InitialLampState();
     }
    
     function InitialLampState() {
-	BackgroundImg.src = ImgSrcOff;
-	canv.width = canv.width;
-	LampCanv.beginPath();
-	LampCanv.drawImage(BackgroundImg, 0, 0);
-	LampCanv.closePath();      
-    }
-    
+	me.BackgroundImg.src = me.ImgSrcOff;
+	//me.canv.width = me.canv.width;
+	me.LampCanv.beginPath();
+	me.LampCanv.drawImage(me.BackgroundImg, 0, 0);
+	me.LampCanv.closePath();      
+    }    
     
     function HandleLampState (EventArgs) {
 	// split the event data in its elements
@@ -326,14 +328,16 @@ function Lamp(CanvasName,Cat,CatNo) {
 	    if ( EventArray[1] == CatNo ) {
 		// the event is for me, so display data
 		if ( EventArray[2] == 1 ) {
-		    BackgroundImg.src = ImgSrcOn;
+		    me.BackgroundImg.src = me.ImgSrcOn;
+		    DebugLOG('Lamp on ' + me.ImgSrcOn );
 		} else {
-		    BackgroundImg.src = ImgSrcOff;
+		    me.BackgroundImg.src = me.ImgSrcOff;
+		    DebugLOG('Lamp off ' + me.ImgSrcOff );
 		}
-		canv.width = canv.width;
-		LampCanv.beginPath();
-		LampCanv.drawImage(BackgroundImg, 0, 0);
-		LampCanv.closePath();
+		//canv.width = canv.width;
+		me.LampCanv.beginPath();
+		me.LampCanv.drawImage(me.BackgroundImg, 0, 0);
+		me.LampCanv.closePath();
 	    }
 	}
     }
@@ -565,6 +569,7 @@ var DigitalDataReader = function () {
     this.EventMapping = new Array();
     //var this.ReaderTimer=null;
     this.req = null;
+    OldVal = 0;
     
     var me = this;
 
@@ -599,11 +604,17 @@ var DigitalDataReader = function () {
 	inputs=str.split(" ");
 	// now loop over the result and fire the events
 	for (var i=0;i<8;i++) {
-	  EventArgs = 'digital' + ' ' + me.EventMapping[i+1] + ' ' + inputs[i];
-	  // fire event
-	  //alert (EventArgs);
-	  OpenMSREvent.execute(EventArgs); 
+	  // send out events if the signal has changed since last run
+	  DebugLOG('DigitalDataReader: i=' +i + 'inputs=' + inputs[i] + 'OldVal=' +OldVal[i] );
+	  if ( inputs[i] != OldVal[i] ) {
+	    EventArgs = 'digital' + ' ' + me.EventMapping[i+1] + ' ' + inputs[i];
+	    //DebugLOG('DigitalDataReader: send Event = ' + EventArgs );
+	    // fire event
+	    OpenMSREvent.execute(EventArgs);   
+	  }
 	}
+	// save values for next run
+	OldVal=inputs;
       }
     }
     
