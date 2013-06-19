@@ -117,6 +117,7 @@ var
 	u_devicetype		: array [1..analog_max] of char;
 	DeviceList		: DeviceTypeArray;
 	CfgLine			: String;
+	initstring		: string;
 
 
 procedure PhysMachInit;
@@ -244,6 +245,9 @@ begin
 {$ifdef USB8}
 		'U'	: wert:=usb8_read_ports(Address);
 {$endif}
+{$ifdef Gnublin}
+		'G'	: wert:=gnublin_read_ports(Address);
+{$endif}
 	end;
 
 	if (debugFlag) then 
@@ -330,6 +334,9 @@ begin
 {$ifdef USB8}
 			'U'	: usb8_write_ports(Address,Value);
 {$endif}
+{$ifdef Gnublin}
+			'G'	: gnublin_write_ports(Address,Value);
+{$endif}
 
 		end;
 	end;
@@ -360,6 +367,10 @@ begin
 {$ifdef USB8}
 			'U'	: analog_in[IOGroup]:=usb8_read_analog(a_address[IOGroup]);
 {$endif}
+{$ifdef Gnublin}
+			'G'	: analog_in[IOGroup]:=gnublin_read_analog(a_address[IOGroup]);
+{$endif}
+
 		end;
 	if (debugFlag) then writeln('Analog_in[',IOGroup,']=',analog_in[IOGroup]);
 end;
@@ -430,6 +441,9 @@ begin
 {$ifdef EXEC}
 				'E'	: wert:=exec_read_ports(c_address[IOGroup]);
 {$endif}
+{$ifdef Gnublin}
+				'G'	: wert:=gnublin_read_ports(c_address[IOGroup]);
+{$endif}
 			end;
 		end
 		else
@@ -466,7 +480,6 @@ var
 	f				: text;
 	zeile		   		: String255;
 	initdevice			: char;
-	initstring			: string;
 	dir				: shortString;
 	iogroup				: integer;
 	i,NumOfDevices			: Byte;
@@ -591,6 +604,13 @@ begin
 						HWPlatform:=HWPlatform+',USB8-IO  ';
 					  end;
 {$endif}
+{$ifdef Gnublin}
+				'G'	: begin
+						gnublin_hwinit(initstring,DeviceNumber);
+						HWPlatform:=HWPlatform+',Gnublin-IO ';
+					  end;
+{$endif}
+
 				else begin
 				    writeln('unknown device in config file: ',zeile);
 				    halt(1);
@@ -788,6 +808,11 @@ begin
 {$ifdef USB8}
 		'U'	: begin
 				usb8_close();
+			  end;
+{$endif}
+{$ifdef Gnublin}
+		'G'	: begin
+				gnublin_close(initstring);
 			  end;
 {$endif}
 	end;
