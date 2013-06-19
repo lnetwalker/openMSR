@@ -11,7 +11,7 @@ Unit gnublin_io_access;
 
 { $Id: gnublin_io_access.pas 756 2011-03-19 20:21:24Z hartmut $ }
 
-{  }
+{$mode objfpc}
 
 { Belegung der GPIOs:
   GPIO3...........LED1
@@ -47,7 +47,7 @@ function gnublin_close(initstring:string):boolean;
 
 IMPLEMENTATION
 uses 
-  Classes, sysutils;
+  Classes, SysUtils, baseunix;
 
 const
 	debug      	= false;
@@ -58,43 +58,9 @@ var
 
 
 function gnublin_close(initstring:string):boolean;
-var
-  i			: byte;
-  gpiodevicenumber	: byte;
-  F			: Text;
 
 begin
-  for i:= 1 to 5 do begin
-    { enable the GPIO line }
-    { build the devicefile number }
-    if ( i=1 ) then
-	gpiodevicenumber:=3
-    else if ( i=2 ) then
-	    gpiodevicenumber:=11
-	  else
-	    gpiodevicenumber:=10+i;
-
-    assign(F,'/sys/class/gpio/unexport');
-    filemode := 1; // write only
-    {$I-}
-    Rewrite(F);
-    {$I+}
-    if ioresult <> 0 then
-	begin		{ spit out an error message and quit }
-		writeln (' Error: ', ioresult,' Cannot open: /sys/class/gpio/unexport in Loop: ',i,' with initstring: ',gpiodirection);
-		halt(1);
-	end;
-    
-    write(F,gpiodevicenumber);
-    {$I-}
-    close(F);
-    {$I+}
-    if ioresult <> 0 then
-	begin		{ spit out an error message and quit }
-		writeln (' Error: ', ioresult,' Cannot close: /sys/class/gpio/unexport in Loop: ',i,' with initstring: ',gpiodirection);
-		halt(1);
-	end;
-  end;
+  // Dummy must be filled !
   gnublin_close:=true;
 end;
 
@@ -102,11 +68,10 @@ end;
 function gnublin_read_ports(io_port:longint):byte;
 var	
   i			: byte;
-  value			: byte;
+  value			: PChar;
   returnvalue		: byte;
-  F			: Text;
+  fileDesc		: INTEGER;
   gpiodevicenumber	: byte;
-  DeviceFile		: String;
 
 begin
   returnvalue:=0;
@@ -115,26 +80,68 @@ begin
 
     if ( gpiodirection[i]='i') then begin 
 	if ( i=2 ) then
-	  gpiodevicenumber:=11
+	  gpiodevicenumber:=PChar('11')
 	else
-	  gpiodevicenumber:=10+i;
+	  gpiodevicenumber:=PChar(IntToStr('10+i'));
 
-      DeviceFile:='/sys/class/gpio/gpio' + IntToStr(gpiodevicenumber) + '/value';
-      //writeln(DeviceFile);
-      assign(F,DeviceFile);
-      {$I-}
-      reset(F);
-      {$I+}
-      if IOResult<>0 then begin
-	writeln(' Error reading Port /sys/class/gpio/gpio' + IntToStr(gpiodevicenumber) + '/value');
-      end;
-      readln(F,value);
-      if ( value = 1 ) then
-	returnvalue:=returnvalue+power[i-1];
-      close(F);
+	try
+	  fileDesc := fpopen('/sys/class/gpio/gpio' + IntToStr(gpiodevicenumber) + '/value', o_rdonly);
+	  gReturnCode := fpread(fileDesc, value, 1);
+	finally
+	  gReturnCode := fpclose(fileDesc);
+	end;
+	if ( value = '1' ) then
+	  returnvalue:=returnvalue+power[i-1];
     end;
   end;
   gnublin_read_ports:=returnvalue;
+end;
+
+function gnublin_write_ports(io_port:longint;byte_value:byte):byte;
+var i			: byte;
+    out 		: PChar;
+    fileDesc		: integer;
+    gpiodevicenumber	: byte;
+
+begin
+  { the ioport is currently ignored }
+  for i:=7 to 0 do begin
+    { check for value of bit }
+    if byte_value>=power[i] then begin
+      byte_value:=byte_value-power[i];
+      out:=PChar('1');
+    end
+    else
+      out:=PChar('0');
+    
+    { if one of the implemented GPIO Lines }
+    if ( i=7 ) then begin
+      { this one is always out, it's the red led on board }
+      { assign devices depending on bit }
+      try
+	fileDesc := fpopen('/sys/class/gpio/gpio3/value', O_WrOnly);
+	gReturnCode := fpwrite(fileDesc, out[0], 1);
+      finally
+	gReturnCode := fpclose(fileDesc);
+      end;
+    end
+    else if ( i < 4 ) then
+      { if the programmed direction is out }
+      if ( gpiodirection[i+2]='o' ) then begin
+	{ assign devices depending on bit }
+	if ( i=0 ) then
+	  gpiodevicenumber:=PChar('11')
+	else
+	  gpiodevicenumber:=PChar(IntToStr(12+i));
+	try
+	  fileDesc := fpopen('/sys/class/gpio/gpio' + IntToStr(gpiodevicenumber) + '/value', O_WrOnly);
+	  gReturnCode := fpwrite(fileDesc, out[0], 1);
+	finally
+	  gReturnCode := fpclose(fileDesc);
+	end;
+      end;
+    gnublin_write_ports:=0;
+  end;
 end;
 
 function gnublin_read_analog(io_port:longint):longint;
@@ -169,53 +176,14 @@ begin
   gnublin_read_analog:=ad_wert;
 end;
 
-function gnublin_write_ports(io_port:longint;byte_value:byte):byte;
-var i			: byte;
-    out 		: byte;
-    F			: Text;
-    gpiodevicenumber	: byte;
-
-begin
-  { the ioport is currently ignored }
-  for i:=7 to 0 do begin
-    { check for value of bit }
-    if byte_value>=power[i] then begin
-      byte_value:=byte_value-power[i];
-      out:=1;
-    end
-    else
-      out:=0;
-    
-    { if one of the implemented GPIO Lines }
-    if ( i=7 ) then begin
-      { this one is always out, it's the red led on board }
-      { assign devices depending on bit }
-      assign(F,'/sys/class/gpio/gpio3/value');
-      rewrite(F);
-      writeln(F,out);
-      close(F);
-    end
-    else if ( i < 4 ) then
-      { if the programmed direction is out }
-      if ( gpiodirection[i+2]='o' ) then begin
-	{ assign devices depending on bit }
-	if ( i=0 ) then
-	  gpiodevicenumber:=11
-	else
-	  gpiodevicenumber:=12+i;
-	assign(F,'/sys/class/gpio/gpio' + IntToStr(gpiodevicenumber) + '/value');
-	rewrite(F);
-	writeln(F,out);
-	close(F);
-      end;
-    gnublin_write_ports:=0;
-  end;
-end;
-
 function gnublin_hwinit(initstring:string;DeviceNumber:byte):boolean;
 var i 			: byte;
-    F			: Text;
-    gpiodevicenumber 	: byte;
+    fileDesc		: integer;
+    gpiodevicenumber 	: PChar;
+
+const
+    OUT_DIRECTION: PChar = 'out';
+    IN_DIRECTION:  PChar = 'in';
 
 begin
   { initstring is 4 chars each one i or o for in and out 	}
@@ -229,40 +197,30 @@ begin
     { enable the GPIO line }
     { build the devicefile number }
     if ( i=1 ) then
-	gpiodevicenumber:=3
+	gpiodevicenumber:=PChar('3')
     else if ( i=2 ) then
-	    gpiodevicenumber:=11
+	    gpiodevicenumber:=PChar('11')
 	  else
-	    gpiodevicenumber:=10+i;
+	    gpiodevicenumber:=PChar(IntToStr(10+i));
 
-    assign(F,'/sys/class/gpio/export');
-    filemode := 1; // write only
-    {$I-}
-    Rewrite(F);
-    {$I+}
-    if ioresult <> 0 then
-	begin		{ spit out an error message and quit }
-		writeln (' Error: ', ioresult,' Cannot open: /sys/class/gpio/export in Loop: ',i,' with initstring: ',gpiodirection);
-		//halt(1);
-	end;
-    
-    write(F,gpiodevicenumber);
-    {$I-}
-    close(F);
-    {$I+}
-    if ioresult <> 0 then
-	begin		{ spit out an error message and quit }
-		writeln (' Error: ', ioresult,' Cannot close: /sys/class/gpio/export in Loop: ',i,' with initstring: ',gpiodirection);
-		//halt(1);
-	end;
+    { Prepare GPIO for access: }
+    try
+      fileDesc := fpopen('/sys/class/gpio/export', O_WrOnly);
+      gReturnCode := fpwrite(fileDesc, gpiodevicenumber[0], 2);
+    finally
+      gReturnCode := fpclose(fileDesc);
+    end;
+    { Set GPIO directions }
+    try
+      fileDesc := fpopen('/sys/class/gpio/gpio' + IntToStr(gpiodevicenumber) + '/direction', O_WrOnly);
+      if ( gpiodirection[i] = 'i' ) then 
+	gReturnCode := fpwrite(fileDesc, IN_DIRECTION[0], 2);
+      else
+	gReturnCode := fpwrite(fileDesc, OUT_DIRECTION[0], 3);
+    finally
+      gReturnCode := fpclose(fileDesc);
+    end;
 
-    assign(F,'/sys/class/gpio/gpio' + IntToStr(gpiodevicenumber) + '/direction');
-    rewrite(F);
-    if ( gpiodirection[i] = 'i' ) then 
-      write(F,'in')
-    else
-      write(F,'out');
-    close(F);
   end;
 end;
 
