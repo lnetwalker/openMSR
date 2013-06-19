@@ -57,17 +57,25 @@ var
 
 begin
 	str(io_port,number);
-	ser.SendString('c0'+number);
+	ser.SendString('c0'+number);	// number is the channel to read 1-8
 	MSB:=ser.RecvByte(10000);
 	LSB:=ser.RecvByte(10000);
 	chk:=ser.RecvByte(10000);
-	if ( LSB + MSB <> chk ) then writeln ( 'Checksum Error');
+	if debug then
+	  if ( LSB + MSB <> chk ) then writeln ( 'Checksum Error');
 	usb8_read_analog:=MSB * 256 + LSB;
 end;
 
 function usb8_write_ports(io_port:longint;byte_value:byte):byte;
+var 
+	response	: byte;
 begin
-	// it could be possible to use a port as output port, currently not used
+	ser.SendString('c19');
+	ser.SendByte(byte_value);
+	ser.SendByte(not(byte_value));
+	response:=ser.RecvByte(10000);
+	if debug then
+	  writeln ( 'usb8_write_ports');
 	usb8_write_ports:=0;
 end;
 
