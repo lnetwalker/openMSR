@@ -29,7 +29,7 @@ else
 fi
 
 # build the targets
-targets="datalogger DeviceServer ObjectRecognition OpenLabDocs oszi sps fktplot FunkIO"
+targets="datalogger DeviceServer ObjectRecognition OpenLabDocs oszi sps fktplot FunkIO LogicSim2.4"
 for i in $targets; do 
   mkdir -p /tmp/build/$i
   cd $i;
