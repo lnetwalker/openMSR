@@ -3,6 +3,8 @@ USING SPS
 set the shell Variables LINES and COLUMNS to the value of
 your screen/xterm etc values and sps will use the maximum possible size
 e.g. export LINES=30;export COLUMNS=90
+for Windows use: set LINES=25 
+                 set COLUMNS=80
 then resize your xterm, the values are updated automatically
 
 just start sps and browse the Documentation there
