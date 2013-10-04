@@ -8,8 +8,8 @@ PUBLIC SUB _new()
 END
 
 PUBLIC SUB Form_Open()
-  Button_off = Picture.Load("button_off.jpg")
-  Button_on = Picture.Load("button_on.jpg")
+  Button_off = Picture.Load("./button_off.jpg")
+  Button_on = Picture.Load("./button_on.jpg")
   state = FALSE
   PictureBox1.Picture = Button_off
 END
