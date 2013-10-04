@@ -6,15 +6,13 @@ Extract the source archive LogicSim_source.zip
 Copy the directory logicsim from the source archive into the directory LogicSim of the binary archive.
 Compile with "javac logicsim/*.java"
 Run with "java logicsim.App"
-
+Use Openjdk 6 with Ubuntu Linux
 
 ==Creating JAR==
 
-Create a file MANIFEST.MF with the following content:
-Manifest-Version: 1.0
+Create a file manifest.txt with the following content:
 Main-Class: logicsim.App
 
 Create JAR with:
-jar -cf LogicSim.jar -m MANIFEST.MF logicsim/*.class logicsim/images/
-
+jar -cvfm LogicSim.jar manifest.txt logicsim/*.class logicsim/images/
 
