@@ -4,7 +4,7 @@
 # 
 # Just do a "make all", and, when you're finished, a make clean. 
 
-OBJECTS=logicsim
+OBJECTS=LogicSim.jar
 
 # get compiler and flags for the given platform
 #include ../build/make_includes/$(BLD_ARCH)
@@ -15,17 +15,23 @@ OBJECTS=logicsim
 all: $(OBJECTS)
 
 
-# the oszi runtime module	
-logicsim:	
-	javac -Xlint:deprecation -Xlint:unchecked logicsim/*.java
-	jar -cf LogicSim.jar MANIFEST.MF logicsim/*.class logicsim/images/
+# the Logic Simulator
+LogicSim.jar:	
+	#javac -Xlint:deprecation -Xlint:unchecked logicsim/*.java
+	jar -cvfm LogicSim.jar manifest.txt logicsim/*.class logicsim/images/
+
 
 
 clear: 
 	-rm LogicSim.jar
 			
-clean :
+clean:
 	-rm logicsim/*.class
 	-rm *.jar
 
 build:
+	-mkdir /tmp/build/LogicSim
+ifeq ($(BLD_ARCH),win32)
+else
+endif
+
