@@ -17,7 +17,7 @@ all: $(OBJECTS)
 
 # the Logic Simulator
 LogicSim.jar:	
-	#javac -Xlint:deprecation -Xlint:unchecked logicsim/*.java
+	javac -Xlint:deprecation -Xlint:unchecked logicsim/*.java
 	jar -cvfm LogicSim.jar manifest.txt logicsim/*.class logicsim/images/
 
 
@@ -30,7 +30,12 @@ clean:
 	-rm *.jar
 
 build:
-	-mkdir /tmp/build/LogicSim
+	-mkdir /tmp/build/Logicsim2.4/languages
+	-mkdir /tmp/build/Logicsim2.4/modules
+	-cp logicsim.cfg /tmp/build/Logicsim2.4/
+	-cp LogicSim.jar /tmp/build/Logicsim2.4/
+	-cp modules/*    /tmp/build/Logicsim2.4/modules/
+	-cp languages/*  /tmp/build/Logicsim2.4/languages/
 ifeq ($(BLD_ARCH),win32)
 else
 endif
