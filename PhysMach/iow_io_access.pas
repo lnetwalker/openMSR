@@ -10,7 +10,7 @@ Unit iow_io_access;
 {		10.09.2005 first raw hack				}
 { 		22.09.2005 able to read selected ports			}
 
-{$define ZAURUS}
+{$undef ZAURUS}
 INTERFACE
 
 { the io_port address has a special meaning: its a two digit number with the first digit }
