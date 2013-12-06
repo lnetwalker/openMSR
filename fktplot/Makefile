@@ -33,6 +33,7 @@ clean :
 	-rm $(OBJECTS)
 
 build:
+	-rmdir /tmp/build/fktplot
 	-mkdir -p /tmp/build/OpenLabCalc
 ifeq ($(BLD_ARCH),win32)
 	-cp OpenLabCalc.exe /tmp/build/OpenLabCalc
