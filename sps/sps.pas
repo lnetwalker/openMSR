@@ -34,6 +34,7 @@ dos,crt,porting,printer,popmenu,browse,PhysMach;
 procedure checkScreenSize;
 
 begin
+{$ifdef Gnublin}
      screenx:=GetScreenMaxX;
      screeny:=GetScreenMaxY;
      if ((screenx<minScreenX) or (screeny<minScreenY)) then
@@ -42,6 +43,7 @@ begin
      	writeln('Screen is too small - minimum Screensize is',minScreenX,' x ',minScreenY);
      	halt(2);
      end;
+{$endif}
 end;
 
 procedure configuration;
