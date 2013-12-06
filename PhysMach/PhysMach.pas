@@ -57,7 +57,7 @@ unit PhysMach;
 {$ifdef Gnublin}
 	{$define LINUX}
 	{$define SOFTIO}
-	{$undef IOW}
+	{$define IOW}
 	{$define USB8}
 {$endif}
 
