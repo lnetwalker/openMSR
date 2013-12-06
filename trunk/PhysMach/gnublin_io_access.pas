@@ -71,7 +71,8 @@ var
   value			: PChar;
   returnvalue		: byte;
   fileDesc		: INTEGER;
-  gpiodevicenumber	: byte;
+  gpiodevicenumber	: PChar;
+  gReturnCode		: Byte;
 
 begin
   returnvalue:=0;
@@ -82,10 +83,10 @@ begin
 	if ( i=2 ) then
 	  gpiodevicenumber:=PChar('11')
 	else
-	  gpiodevicenumber:=PChar(IntToStr('10+i'));
+	  gpiodevicenumber:=PChar(IntToStr(ptruint('10+i')));
 
 	try
-	  fileDesc := fpopen('/sys/class/gpio/gpio' + IntToStr(gpiodevicenumber) + '/value', o_rdonly);
+	  fileDesc := fpopen('/sys/class/gpio/gpio' + IntToStr(ptruint(gpiodevicenumber)) + '/value', o_rdonly);
 	  gReturnCode := fpread(fileDesc, value, 1);
 	finally
 	  gReturnCode := fpclose(fileDesc);
@@ -101,7 +102,8 @@ function gnublin_write_ports(io_port:longint;byte_value:byte):byte;
 var i			: byte;
     out 		: PChar;
     fileDesc		: integer;
-    gpiodevicenumber	: byte;
+    gpiodevicenumber	: PChar;
+    gReturnCode	: Byte;
 
 begin
   { the ioport is currently ignored }
@@ -132,9 +134,9 @@ begin
 	if ( i=0 ) then
 	  gpiodevicenumber:=PChar('11')
 	else
-	  gpiodevicenumber:=PChar(IntToStr(12+i));
+	  gpiodevicenumber:=PChar(IntToStr(ptruint(12+i)));
 	try
-	  fileDesc := fpopen('/sys/class/gpio/gpio' + IntToStr(gpiodevicenumber) + '/value', O_WrOnly);
+	  fileDesc := fpopen('/sys/class/gpio/gpio' + IntToStr(ptruint(gpiodevicenumber)) + '/value', O_WrOnly);
 	  gReturnCode := fpwrite(fileDesc, out[0], 1);
 	finally
 	  gReturnCode := fpclose(fileDesc);
@@ -180,6 +182,7 @@ function gnublin_hwinit(initstring:string;DeviceNumber:byte):boolean;
 var i 			: byte;
     fileDesc		: integer;
     gpiodevicenumber 	: PChar;
+    gReturnCode	: Byte;
 
 const
     OUT_DIRECTION: PChar = 'out';
@@ -212,9 +215,9 @@ begin
     end;
     { Set GPIO directions }
     try
-      fileDesc := fpopen('/sys/class/gpio/gpio' + IntToStr(gpiodevicenumber) + '/direction', O_WrOnly);
+      fileDesc := fpopen('/sys/class/gpio/gpio' + IntToStr(ptruint(gpiodevicenumber)) + '/direction', O_WrOnly);
       if ( gpiodirection[i] = 'i' ) then 
-	gReturnCode := fpwrite(fileDesc, IN_DIRECTION[0], 2);
+	gReturnCode := fpwrite(fileDesc, IN_DIRECTION[0], 2)
       else
 	gReturnCode := fpwrite(fileDesc, OUT_DIRECTION[0], 3);
     finally
