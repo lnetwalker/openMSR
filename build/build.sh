@@ -45,6 +45,9 @@ cp CREDITS /tmp/build/
 cp README /tmp/build/
 cp CHANGES /tmp/build/
 
+# remove .svn stuff
+find /tmp/build/ -name ".svn" -exec rm -rf {} \;
+
 mkdir $RELEASE
 cp -a /tmp/build/* $RELEASE/
 tar -czvf /data/hartmut/src/Releases/$RELEASE.tar.gz $RELEASE
