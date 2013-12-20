@@ -35,6 +35,14 @@ ADC10B_GPA3........J5-3 }
  Wert zwischen 0 und 4095
  PWM_DATA des LPC3131 ist auf J5-4 h }
 
+{
+  programming reference:
+  http://wiki.freepascal.org/Lazarus_on_Raspberry_Pi/de#Schalten_eines_Ger.C3.A4tes_.C3.BCber_den_GPIO-Port
+  http://wiki.gnublin.org/index.php/GPIO11
+  http://wiki.gnublin.org/index.php/AD-Wandler
+  http://wiki.gnublin.org/index.php/PWM
+}
+
 INTERFACE
 
 { public functions to init the hardware and read and write ports }
@@ -65,29 +73,29 @@ begin
 end;
 
 
+
 function gnublin_read_ports(io_port:longint):byte;
 var	
   i			: byte;
-  value			: PChar;
+  value			: String[1] = '1';
   returnvalue		: byte;
   fileDesc		: INTEGER;
-  gpiodevicenumber	: PChar;
+  gpiodevicenumber	: String;
   gReturnCode		: Byte;
 
 begin
   returnvalue:=0;
   { leave off the  GPIO 3 it is fixed output }
   for i:= 2 to 5 do begin { the first val of gpiodirection is always o its gpio3 ( LED) }
-
     if ( gpiodirection[i]='i') then begin 
-	if ( i=2 ) then
-	  gpiodevicenumber:=PChar('11')
+	if ( i=2 ) then  
+	  gpiodevicenumber:='11'
 	else
-	  gpiodevicenumber:=PChar(IntToStr(ptruint('10+i')));
+	  gpiodevicenumber:=IntToStr(10+i);
 
 	try
-	  fileDesc := fpopen('/sys/class/gpio/gpio' + IntToStr(ptruint(gpiodevicenumber)) + '/value', o_rdonly);
-	  gReturnCode := fpread(fileDesc, value, 1);
+	  fileDesc := fpopen('/sys/class/gpio/gpio' + gpiodevicenumber + '/value', O_RdOnly);
+	  gReturnCode := fpread(fileDesc, value[1], 1);
 	finally
 	  gReturnCode := fpclose(fileDesc);
 	end;
@@ -98,23 +106,30 @@ begin
   gnublin_read_ports:=returnvalue;
 end;
 
+
+
+
 function gnublin_write_ports(io_port:longint;byte_value:byte):byte;
 var i			: byte;
     out 		: PChar;
     fileDesc		: integer;
-    gpiodevicenumber	: PChar;
+    gpiodevicenumber	: String;
     gReturnCode	: Byte;
+
+const
+    PIN_ON: PChar = '1';
+    PIN_OFF: PChar = '0';
 
 begin
   { the ioport is currently ignored }
-  for i:=7 to 0 do begin
+  for i:=7 downto 0 do begin
     { check for value of bit }
     if byte_value>=power[i] then begin
       byte_value:=byte_value-power[i];
-      out:=PChar('1');
+      out:=PIN_ON
     end
     else
-      out:=PChar('0');
+      out:=PIN_OFF;
     
     { if one of the implemented GPIO Lines }
     if ( i=7 ) then begin
@@ -132,11 +147,11 @@ begin
       if ( gpiodirection[i+2]='o' ) then begin
 	{ assign devices depending on bit }
 	if ( i=0 ) then
-	  gpiodevicenumber:=PChar('11')
+	  gpiodevicenumber:='11'
 	else
-	  gpiodevicenumber:=PChar(IntToStr(ptruint(12+i)));
+	  gpiodevicenumber:=IntToStr(12+i);
 	try
-	  fileDesc := fpopen('/sys/class/gpio/gpio' + IntToStr(ptruint(gpiodevicenumber)) + '/value', O_WrOnly);
+	  fileDesc := fpopen('/sys/class/gpio/gpio' + gpiodevicenumber + '/value', O_WrOnly);
 	  gReturnCode := fpwrite(fileDesc, out[0], 1);
 	finally
 	  gReturnCode := fpclose(fileDesc);
@@ -146,37 +161,46 @@ begin
   end;
 end;
 
+
+
+
 function gnublin_read_analog(io_port:longint):longint;
 	// currently the io_port must be between 0 and 3 !
 var
-	ad_wert 		: word;
-	F			: Text;
-	err 			: integer;
+    ad_wert 		: Integer;
+    fileDesc		: integer;
+    gReturnCode	: Byte;
+    value		: String[5] = '1';
+    out 		: PChar;
+    bytecnt		: byte;
+    Code		: word;
 
 begin
-  assign(F,'/dev/lpc313x_adc');
-  filemode := 1; // write only
-  {$I-}
-  Rewrite(F);
-(*  err:=IOResult;
-  if (err=0) then err:=0
-  else begin		{ spit out an error message and quit }
-	writeln (' Error: ', err,' Cannot select port ',io_port,' on: /dev/lpc313x_adc');
-	//halt(1);
+  out:= PChar(IntToStr(io_port));
+  bytecnt:= length(IntToStr(io_port));
+  //writeln ('ADC: ', io_port, ' out: ',out[0],' cnt: ',bytecnt);
+  // choose the adc channel
+  try
+    fileDesc := fpopen('/dev/lpc313x_adc',O_RdWr);
+    gReturnCode := fpwrite(fileDesc, out[0], bytecnt);
+  finally
+    gReturnCode := fpclose(fileDesc);
   end;
-*)  writeln(F,io_port);
-  close(F);
-  reset(F);
-  {$I+}
-  err:=ioresult;
-  if (err <> 0) then
-    begin		{ spit out an error message and quit }
-	writeln (' Error: ', err,' Cannot read port ',io_port,' on: /dev/lpc313x_adc');
-	//halt(1);
+  // read the selected adc channel
+  try
+    fileDesc := fpopen('/dev/lpc313x_adc',O_RdOnly);
+    gReturnCode := fpread(fileDesc, value[0], 5);
+  finally
+    gReturnCode := fpclose(fileDesc);
   end;
-  read(F,ad_wert);
+  Val (value,ad_wert,Code);
+  //writeln ( 'String: ',value,' Zahl: ',ad_wert,' Fehler: ',Code);
+
   gnublin_read_analog:=ad_wert;
 end;
+
+
+
 
 function gnublin_hwinit(initstring:string;DeviceNumber:byte):boolean;
 var i 			: byte;
