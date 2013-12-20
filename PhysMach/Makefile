@@ -20,6 +20,7 @@ physmach:
 	$(FPC) $(FPC_FLAGS) -gl  $(UNITSEARCH)  PhysMach.pas
 	$(FPC) $(FPC_FLAGS) -gl  $(UNITSEARCH)  PhysMachTest.pas
 	$(FPC) $(FPC_FLAGS) -gl  $(UNITSEARCH)  3rdparty/htronic/USB8-IO/testprog/serio.pas
+	$(FPC) $(FPC_FLAGS) -gl  $(UNITSEARCH)  test/gnublintest.pas
 
 clear:
 	-rm PhysMach.ppu
