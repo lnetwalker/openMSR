@@ -37,7 +37,7 @@ program runsps;
 
 uses 	
 {$ifdef LINUX }
-	unix,linux,
+	unix,linux,SysUtils,BaseUnix,
 {$endif}
 	dos,crt,PhysMach;
 
@@ -60,8 +60,29 @@ const
 
 var
 	i					: integer;
+{$ifdef LINUX}
+	{ vars for daemonizing }
+	bHup,
+	bTerm : boolean;
+	aOld,
+	aTerm,
+	aHup : pSigActionRec;
+	ps1  : psigset;
+	sSet : cardinal;
+	pid  : pid_t;
+	secs : longint;
+	zerosigs : sigset_t;
 
 
+{ handle SIGHUP & SIGTERM }
+procedure DoSig(sig : longint);cdecl;
+begin
+   case sig of
+      SIGHUP : bHup := true;
+      SIGTERM : bTerm := true;
+   end;
+end;
+{$endif}	
 
 procedure sps_laden;
 
@@ -144,13 +165,6 @@ end;                               { **** ENDE RUN_AWL ****          }
 
 
 begin                              { SPS_SIMULATION           }
-	{ signal handling is needed here, also the program should go in background 	}
-	{ and at least there should be something done with the load			}
-	{ set a very nice priority }
-
-	{$ifdef LINUX}
-	//nice(20);
-	{$endif}
 	if paramcount < 2 then ConfFile:='.run_sps.cfg'
 	else ConfFile:= paramstr(2);
 	PhysMachInit;
@@ -169,11 +183,89 @@ begin                              { SPS_SIMULATION           }
 		for i:=1 to group_max do writeln(i:3,c_address[i]:6,c_devicetype[i]:6);
 	end;	
 	TimeRuns:=150;
-	writeln('AWL gestartet');
+
+{$ifdef LINUX}
+	writeln('AWL wird im Hintergrund gestartet, send SIGTERM to quit ...');
+	
+	{ set a very nice priority }
+	//nice(20);
+
+	{ signal handling is done here, also the program goes in background 	}
+
+	fpsigemptyset(zerosigs);
+
+	{ set global daemon booleans }
+	bHup := true; { to open log file }
+	bTerm := false;
+
+	{ block all signals except -HUP & -TERM }
+	sSet := $ffffbffe;
+	ps1 := @sSet;
+	fpsigprocmask(sig_block,ps1,nil);
+
+	{ setup the signal handlers }
+	new(aOld);
+	new(aHup);
+	new(aTerm);
+	aTerm^.sa_handler{.sh} := SigactionHandler(@DoSig);
+
+	aTerm^.sa_mask := zerosigs;
+	aTerm^.sa_flags := 0;
+	{$ifndef BSD}                {Linux'ism}
+	  aTerm^.sa_restorer := nil;
+	{$endif}
+	aHup^.sa_handler := SigactionHandler(@DoSig);
+	aHup^.sa_mask := zerosigs;
+	aHup^.sa_flags := 0;
+	{$ifndef BSD}                {Linux'ism}
+	  aHup^.sa_restorer := nil;
+	{$endif}
+	fpSigAction(SIGTERM,aTerm,aOld);
+	fpSigAction(SIGHUP,aHup,aOld);
+
+	{ daemonize }
+	pid := fpFork;
+	Case pid of
+	    0 : Begin { we are in the child }
+	      Close(input);  { close standard in }
+	      Close(output); { close standard out }
+	      Assign(output,'/dev/null');
+	      ReWrite(output);
+	      Close(stderr); { close standard error }
+	      Assign(stderr,'/dev/null');
+	      ReWrite(stderr);
+	    End;
+	    -1 : secs := 0;     { forking error, so run as non-daemon }
+	    Else Halt;          { successful fork, so parent dies }
+	End;
+
+	{ begin processing loop }
+	Repeat
+	    If bHup Then Begin
+	      { do nothing at the moment }
+	      bHup := false;
+	    End;
+	    {----------------------}
+	    { Do your daemon stuff }
+		run_awl;
+		delay(15);
+	    {----------------------}
+	    If bTerm Then
+	      BREAK
+	    Else
+	      { wait a while }
+	      delay(15);
+	Until bTerm;
+
+{$else}
+	writeln('AWL gestartet, press any key to stop');
 	repeat
 		run_awl;
 		delay(15);
 	until keypressed or esc;	
 	if esc then writeln('Error: Watchdog error...!');	
+{$endif}
+
 	PhysMachEnd;
+	 // if esc then writeln('Error: Watchdog error...!');	
 end.                               { **** SPS_SIMULATION **** }
