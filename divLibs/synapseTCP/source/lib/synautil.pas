@@ -1,9 +1,9 @@
 {==============================================================================|
-| Project : Ararat Synapse                                       | 004.014.000 |
+| Project : Ararat Synapse                                       | 004.013.000 |
 |==============================================================================|
 | Content: support procedures and functions                                    |
 |==============================================================================|
-| Copyright (c)1999-2010, Lukas Gebauer                                        |
+| Copyright (c)1999-2008, Lukas Gebauer                                        |
 | All rights reserved.                                                         |
 |                                                                              |
 | Redistribution and use in source and binary forms, with or without           |
@@ -33,7 +33,7 @@
 | DAMAGE.                                                                      |
 |==============================================================================|
 | The Initial Developer of the Original Code is Lukas Gebauer (Czech Republic).|
-| Portions created by Lukas Gebauer are Copyright (c) 1999-2010.               |
+| Portions created by Lukas Gebauer are Copyright (c) 1999-2008.               |
 | Portions created by Hernan Sanchez are Copyright (c) 2000.                   |
 | All Rights Reserved.                                                         |
 |==============================================================================|
@@ -53,31 +53,18 @@
 {$R-}
 {$H+}
 
-//old Delphi does not have MSWINDOWS define.
-{$IFDEF WIN32}
-  {$IFNDEF MSWINDOWS}
-    {$DEFINE MSWINDOWS}
-  {$ENDIF}
-{$ENDIF}
-
-{$IFDEF UNICODE}
-  {$WARN IMPLICIT_STRING_CAST OFF}
-  {$WARN IMPLICIT_STRING_CAST_LOSS OFF}
-  {$WARN SUSPICIOUS_TYPECAST OFF}
-{$ENDIF}
-
 unit synautil;
 
 interface
 
 uses
-{$IFDEF MSWINDOWS}
+{$IFDEF WIN32}
   Windows,
 {$ELSE}
   {$IFDEF FPC}
-    UnixUtil, Unix, BaseUnix,
+  UnixUtil, Unix, BaseUnix,
   {$ELSE}
-    Libc,
+  Libc,
   {$ENDIF}
 {$ENDIF}
 {$IFDEF CIL}
@@ -115,7 +102,7 @@ function AnsiCDateTime(t: TDateTime): string;
 {:Decode three-letter string with name of month to their month number. If string
  not match any month name, then is returned 0. For parsing are used predefined
  names for English, French and German and names from system locale too.}
-function GetMonthNumber(Value: String): integer;
+function GetMonthNumber(Value: AnsiString): integer;
 
 {:Return decoded time from given string. Time must be witch separator ':'. You
  can use "hh:mm" or "hh:mm:ss".}
@@ -264,7 +251,7 @@ function FetchEx(var Value: string; const Delimiter, Quotation: string): string;
 
 {:If string is binary string (contains non-printable characters), then is
  returned true.}
-function IsBinaryString(const Value: AnsiString): Boolean;
+function IsBinaryString(const Value: string): Boolean;
 
 {:return position of string terminator in string. If terminator found, then is
  returned in terminator parameter.
@@ -340,7 +327,7 @@ const
   MyDayNames: array[1..7] of AnsiString =
     ('Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat');
 var
-  MyMonthNames: array[0..6, 1..12] of String =
+  MyMonthNames: array[0..6, 1..12] of AnsiString =
     (
     ('Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',  //rewrited by system locales
      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'),
@@ -362,7 +349,7 @@ var
 {==============================================================================}
 
 function TimeZoneBias: integer;
-{$IFNDEF MSWINDOWS}
+{$IFNDEF WIN32}
 {$IFNDEF FPC}
 var
   t: TTime_T;
@@ -539,10 +526,10 @@ end;
 
 {==============================================================================}
 
-function GetMonthNumber(Value: String): integer;
+function GetMonthNumber(Value: AnsiString): integer;
 var
   n: integer;
-  function TestMonth(Value: String; Index: Integer): Boolean;
+  function TestMonth(Value: AnsiString; Index: Integer): Boolean;
   var
     n: integer;
   begin
@@ -713,7 +700,7 @@ end;
 {==============================================================================}
 
 function GetUTTime: TDateTime;
-{$IFDEF MSWINDOWS}
+{$IFDEF WIN32}
 {$IFNDEF FPC}
 var
   st: TSystemTime;
@@ -755,7 +742,7 @@ end;
 {==============================================================================}
 
 function SetUTTime(Newdt: TDateTime): Boolean;
-{$IFDEF MSWINDOWS}
+{$IFDEF WIN32}
 {$IFNDEF FPC}
 var
   st: TSystemTime;
@@ -808,7 +795,7 @@ end;
 
 {==============================================================================}
 
-{$IFNDEF MSWINDOWS}
+{$IFNDEF WIN32}
 function GetTick: LongWord;
 var
   Stamp: TTimeStamp;
@@ -1418,7 +1405,7 @@ end;
 
 {==============================================================================}
 
-function IsBinaryString(const Value: AnsiString): Boolean;
+function IsBinaryString(const Value: string): Boolean;
 var
   n: integer;
 begin
@@ -1426,7 +1413,7 @@ begin
   for n := 1 to Length(Value) do
     if Value[n] in [#0..#8, #10..#31] then
       //ignore null-terminated strings
-      if not ((n = Length(value)) and (Value[n] = AnsiChar(#0))) then
+      if not ((n = Length(value)) and (Value[n] = #0)) then
       begin
         Result := True;
         Break;
@@ -1733,7 +1720,7 @@ end;
 {==============================================================================}
 function GetTempFile(const Dir, prefix: AnsiString): AnsiString;
 {$IFNDEF FPC}
-{$IFDEF MSWINDOWS}
+{$IFDEF WIN32}
 var
   Path: AnsiString;
   x: integer;
@@ -1743,7 +1730,7 @@ begin
 {$IFDEF FPC}
   Result := GetTempFileName(Dir, Prefix);
 {$ELSE}
-  {$IFNDEF MSWINDOWS}
+  {$IFNDEF WIN32}
     Result := tempnam(Pointer(Dir), Pointer(prefix));
   {$ELSE}
     {$IFDEF CIL}
@@ -1797,7 +1784,7 @@ begin
       for n := 1 to Length(t) do
         if t[n] = #9 then
           t[n] := ' ';
-      if not(AnsiChar(t[1]) in [' ', '"', ':', '=']) then
+      if not(t[1] in [' ', '"', ':', '=']) then
         Break
       else
       begin

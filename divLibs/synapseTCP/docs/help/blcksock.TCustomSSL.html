@@ -160,15 +160,15 @@ Parent class for all SSL plugins.</p>
 </tr>
 <tr class="list">
 <td class="visibility"><a   href="legend.html"><img  src="published.gif" alt="Published" title="Published"></a></td>
-<td class="itemcode"><code>property <b><a   href="blcksock.TCustomSSL.html#Certificate">Certificate</a></b>: string read FCertificate write FCertificate;</code></td>
+<td class="itemcode"><code>property <b><a   href="blcksock.TCustomSSL.html#Certificate">Certificate</a></b>: Ansistring read FCertificate write FCertificate;</code></td>
 </tr>
 <tr class="list2">
 <td class="visibility"><a   href="legend.html"><img  src="published.gif" alt="Published" title="Published"></a></td>
-<td class="itemcode"><code>property <b><a   href="blcksock.TCustomSSL.html#PrivateKey">PrivateKey</a></b>: string read FPrivateKey write FPrivateKey;</code></td>
+<td class="itemcode"><code>property <b><a   href="blcksock.TCustomSSL.html#PrivateKey">PrivateKey</a></b>: Ansistring read FPrivateKey write FPrivateKey;</code></td>
 </tr>
 <tr class="list">
 <td class="visibility"><a   href="legend.html"><img  src="published.gif" alt="Published" title="Published"></a></td>
-<td class="itemcode"><code>property <b><a   href="blcksock.TCustomSSL.html#PFX">PFX</a></b>: string read FPFX write FPFX;</code></td>
+<td class="itemcode"><code>property <b><a   href="blcksock.TCustomSSL.html#PFX">PFX</a></b>: Ansistring read FPFX write FPFX;</code></td>
 </tr>
 <tr class="list2">
 <td class="visibility"><a   href="legend.html"><img  src="published.gif" alt="Published" title="Published"></a></td>
@@ -180,11 +180,11 @@ Parent class for all SSL plugins.</p>
 </tr>
 <tr class="list2">
 <td class="visibility"><a   href="legend.html"><img  src="published.gif" alt="Published" title="Published"></a></td>
-<td class="itemcode"><code>property <b><a   href="blcksock.TCustomSSL.html#TrustCertificate">TrustCertificate</a></b>: string read FTrustCertificate write FTrustCertificate;</code></td>
+<td class="itemcode"><code>property <b><a   href="blcksock.TCustomSSL.html#TrustCertificate">TrustCertificate</a></b>: Ansistring read FTrustCertificate write FTrustCertificate;</code></td>
 </tr>
 <tr class="list">
 <td class="visibility"><a   href="legend.html"><img  src="published.gif" alt="Published" title="Published"></a></td>
-<td class="itemcode"><code>property <b><a   href="blcksock.TCustomSSL.html#CertCA">CertCA</a></b>: string read FCertCA write FCertCA;</code></td>
+<td class="itemcode"><code>property <b><a   href="blcksock.TCustomSSL.html#CertCA">CertCA</a></b>: Ansistring read FCertCA write FCertCA;</code></td>
 </tr>
 <tr class="list2">
 <td class="visibility"><a   href="legend.html"><img  src="published.gif" alt="Published" title="Published"></a></td>
@@ -475,7 +475,7 @@ Used for loading private key from disk file. See to plugin documentation if this
 <table class="detail">
 <tr class="list">
 <td class="visibility"><a   href="legend.html"><img  src="published.gif" alt="Published" title="Published"></a></td>
-<td class="itemcode"><a name="Certificate"></a><code>property <b>Certificate</b>: string read FCertificate write FCertificate;</code></td>
+<td class="itemcode"><a name="Certificate"></a><code>property <b>Certificate</b>: Ansistring read FCertificate write FCertificate;</code></td>
 </tr>
 </table>
 <p>
@@ -483,7 +483,7 @@ Used for loading certificate from binary string. See to plugin documentation if 
 <table class="detail">
 <tr class="list">
 <td class="visibility"><a   href="legend.html"><img  src="published.gif" alt="Published" title="Published"></a></td>
-<td class="itemcode"><a name="PrivateKey"></a><code>property <b>PrivateKey</b>: string read FPrivateKey write FPrivateKey;</code></td>
+<td class="itemcode"><a name="PrivateKey"></a><code>property <b>PrivateKey</b>: Ansistring read FPrivateKey write FPrivateKey;</code></td>
 </tr>
 </table>
 <p>
@@ -491,7 +491,7 @@ Used for loading private key from binary string. See to plugin documentation if 
 <table class="detail">
 <tr class="list">
 <td class="visibility"><a   href="legend.html"><img  src="published.gif" alt="Published" title="Published"></a></td>
-<td class="itemcode"><a name="PFX"></a><code>property <b>PFX</b>: string read FPFX write FPFX;</code></td>
+<td class="itemcode"><a name="PFX"></a><code>property <b>PFX</b>: Ansistring read FPFX write FPFX;</code></td>
 </tr>
 </table>
 <p>
@@ -515,7 +515,7 @@ Used for loading trusted certificates from disk file. See to plugin documentatio
 <table class="detail">
 <tr class="list">
 <td class="visibility"><a   href="legend.html"><img  src="published.gif" alt="Published" title="Published"></a></td>
-<td class="itemcode"><a name="TrustCertificate"></a><code>property <b>TrustCertificate</b>: string read FTrustCertificate write FTrustCertificate;</code></td>
+<td class="itemcode"><a name="TrustCertificate"></a><code>property <b>TrustCertificate</b>: Ansistring read FTrustCertificate write FTrustCertificate;</code></td>
 </tr>
 </table>
 <p>
@@ -523,7 +523,7 @@ Used for loading trusted certificates from binary string. See to plugin document
 <table class="detail">
 <tr class="list">
 <td class="visibility"><a   href="legend.html"><img  src="published.gif" alt="Published" title="Published"></a></td>
-<td class="itemcode"><a name="CertCA"></a><code>property <b>CertCA</b>: string read FCertCA write FCertCA;</code></td>
+<td class="itemcode"><a name="CertCA"></a><code>property <b>CertCA</b>: Ansistring read FCertCA write FCertCA;</code></td>
 </tr>
 </table>
 <p>
@@ -568,6 +568,6 @@ First argument of channel type for possible SSH connections</p>
 </table>
 <p>
 Second argument of channel type for possible SSH connections</p>
-<hr noshade size="1"><span class="appinfo"><em>Generated by <a  target="_parent" href="http://pasdoc.sourceforge.net/">PasDoc 0.9.0</a> on 2007-12-20 22:45:43</em>
+<hr noshade size="1"><span class="appinfo"><em>Generated by <a  target="_parent" href="http://pasdoc.sourceforge.net/">PasDoc 0.9.0</a> on 2009-10-08 16:24:25</em>
 </span>
 </body></html>

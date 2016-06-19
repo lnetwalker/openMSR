@@ -1,9 +1,9 @@
 {==============================================================================|
-| Project : Ararat Synapse                                       | 007.005.001 |
+| Project : Ararat Synapse                                       | 007.003.000 |
 |==============================================================================|
 | Content: Serial port support                                                 |
 |==============================================================================|
-| Copyright (c)2001-2011, Lukas Gebauer                                        |
+| Copyright (c)2001-2008, Lukas Gebauer                                        |
 | All rights reserved.                                                         |
 |                                                                              |
 | Redistribution and use in source and binary forms, with or without           |
@@ -33,7 +33,7 @@
 | DAMAGE.                                                                      |
 |==============================================================================|
 | The Initial Developer of the Original Code is Lukas Gebauer (Czech Republic).|
-| Portions created by Lukas Gebauer are Copyright (c)2001-2011.                |
+| Portions created by Lukas Gebauer are Copyright (c)2001-2008.                |
 | All Rights Reserved.                                                         |
 |==============================================================================|
 | Contributor(s):                                                              |
@@ -44,9 +44,9 @@
 |==============================================================================}
 
 {: @abstract(Serial port communication library)
-This unit contains a class that implements serial port communication 
- for Windows, Linux, Unix or MacOSx. This class provides numerous methods with 
- same name and functionality as methods of the Ararat Synapse TCP/IP library.
+This unit contains a class that implements serial port communication for Windows
+ or Linux. This class provides numerous methods with same name and functionality
+  as methods of the Ararat Synapse TCP/IP library.
 
 The following is a small example how establish a connection by modem (in this
 case with my USB modem):
@@ -69,23 +69,9 @@ case with my USB modem):
 #)
 }
 
-//old Delphi does not have MSWINDOWS define.
-{$IFDEF WIN32}
-  {$IFNDEF MSWINDOWS}
-    {$DEFINE MSWINDOWS}
-  {$ENDIF}
-{$ENDIF}
-
-//Kylix does not known UNIX define
-{$IFDEF LINUX}
-  {$IFNDEF UNIX}
-    {$DEFINE UNIX}
-  {$ENDIF}
-{$ENDIF}
-
 {$IFDEF FPC}
   {$MODE DELPHI}
-  {$IFDEF MSWINDOWS}
+  {$IFDEF WIN32}
     {$ASMMODE intel}
   {$ENDIF}
   {define working mode w/o LIBC for fpc}
@@ -100,7 +86,7 @@ unit synaser;
 interface
 
 uses
-{$IFNDEF MSWINDOWS}
+{$IFNDEF WIN32}
   {$IFNDEF NO_LIBC}
   Libc,
   KernelIoctl,
@@ -170,13 +156,13 @@ const
   {:stopbit value for 2 stopbits}
   SB2 = 2;
 
-{$IFNDEF MSWINDOWS}
+{$IFNDEF WIN32}
 const
   INVALID_HANDLE_VALUE = THandle(-1);
   CS7fix = $0000020;
 
 type
-  TDCB = record
+  TDCB = packed record
     DCBlength: DWORD;
     BaudRate: DWORD;
     Flags: Longint;
@@ -196,15 +182,8 @@ type
   PDCB = ^TDCB;
 
 const
-{$IFDEF UNIX}
-  {$IFDEF DARWIN}
-  MaxRates = 18;  //MAC
-  {$ELSE}
-   MaxRates = 30; //UNIX
-  {$ENDIF}
-{$ELSE}
-  MaxRates = 19;  //WIN
-{$ENDIF}
+//  MaxRates = 30;
+  MaxRates = 19;  //FPC on some platforms not know high speeds?
   Rates: array[0..MaxRates, 0..1] of cardinal =
   (
     (0, B0),
@@ -225,11 +204,9 @@ const
     (38400, B38400),
     (57600, B57600),
     (115200, B115200),
-    (230400, B230400)
-{$IFNDEF DARWIN}
-    ,(460800, B460800)
-  {$IFDEF UNIX}
-    ,(500000, B500000),
+    (230400, B230400),
+    (460800, B460800){,
+    (500000, B500000),
     (576000, B576000),
     (921600, B921600),
     (1000000, B1000000),
@@ -239,15 +216,8 @@ const
     (2500000, B2500000),
     (3000000, B3000000),
     (3500000, B3500000),
-    (4000000, B4000000)
-  {$ENDIF}
-{$ENDIF}
+    (4000000, B4000000)}
     );
-{$ENDIF}
-
-{$IFDEF DARWIN}
-const // From fcntl.h
-  O_SYNC = $0080;  { synchronous writes }
 {$ENDIF}
 
 const
@@ -287,7 +257,7 @@ type
     FDevice: string;
     FLastError: integer;
     FLastErrorDesc: string;
-    FBuffer: AnsiString;
+    FBuffer: string;
     FRaiseExcept: boolean;
     FRecvBuffer: integer;
     FSendBuffer: integer;
@@ -310,7 +280,7 @@ type
     FAtTimeout: integer;
     FInterPacketTimeout: Boolean;
     FComNr: integer;
-{$IFDEF MSWINDOWS}
+{$IFDEF WIN32}
     FPortAddr: Word;
     function CanEvent(Event: dword; Timeout: integer): boolean;
     procedure DecodeCommError(Error: DWord); virtual;
@@ -328,9 +298,11 @@ type
     procedure GetComNr(Value: string); virtual;
     function PreTestFailing: boolean; virtual;{HGJ}
     function TestCtrlLine: Boolean; virtual;
-{$IFDEF UNIX}    
+{$IFNDEF WIN32}
     procedure DcbToTermios(const dcb: TDCB; var term: termios); virtual;
     procedure TermiosToDcb(const term: termios; var dcb: TDCB); virtual;
+{$ENDIF}
+{$IFDEF LINUX}
     function ReadLockfile: integer; virtual;
     function LockfileName: String; virtual;
     procedure CreateLockfile(PidNr: integer); virtual;
@@ -341,7 +313,7 @@ type
     {: data Control Block with communication parameters. Usable only when you
      need to call API directly.}
     DCB: Tdcb;
-{$IFDEF UNIX}
+{$IFNDEF WIN32}
     TermiosStruc: termios;
 {$ENDIF}
     {:Object constructor.}
@@ -414,14 +386,14 @@ type
 
      Since no terminator is appended, you can use this function for sending
      binary data too.}
-    procedure SendString(data: AnsiString); virtual;
+    procedure SendString(data: string); virtual;
 
     {:send four bytes as integer.}
     procedure SendInteger(Data: integer); virtual;
 
     {:send data as one block. Each block begins with integer value with Length
      of block.}
-    procedure SendBlock(const Data: AnsiString); virtual;
+    procedure SendBlock(const Data: string); virtual;
 
     {:send content of stream from current position}
     procedure SendStreamRaw(const Stream: TStream); virtual;
@@ -452,12 +424,12 @@ type
 
     {:It is like recvBufferEx, but data is readed to dynamicly allocated binary
      string.}
-    function RecvBufferStr(Length: Integer; Timeout: Integer): AnsiString; virtual;
+    function RecvBufferStr(Length: Integer; Timeout: Integer): string; virtual;
 
     {:Read all available data and return it in the function result string. This
      function may be combined with @link(RecvString), @link(RecvByte) or related
      methods.}
-    function RecvPacket(Timeout: Integer): AnsiString; virtual;
+    function RecvPacket(Timeout: Integer): string; virtual;
 
     {:Waits until one data byte is received which is returned as the function
      result. If no data is received within the Timeout (in milliseconds) period,
@@ -468,7 +440,7 @@ type
      is terminated by the Terminator string. The resulting string is returned
      without this termination string! If no data is received within the Timeout
      (in milliseconds) period, @link(LastError) is set to @link(ErrTimeout).}
-    function RecvTerminated(Timeout: Integer; const Terminator: AnsiString): AnsiString; virtual;
+    function RecvTerminated(Timeout: Integer; const Terminator: string): string; virtual;
 
     {:This method waits until a terminated data string is received. The string
      is terminated by a CR/LF sequence. The resulting string is returned without
@@ -481,7 +453,7 @@ type
      This method serves for line protocol implementation and uses its own
      buffers to maximize performance. Therefore do NOT use this method with the
      @link(RecvBuffer) method to receive data as it may cause data loss.}
-    function Recvstring(timeout: integer): AnsiString; virtual;
+    function Recvstring(timeout: integer): string; virtual;
 
     {:Waits until four data bytes are received which is returned as the function
      integer result. If no data is received within the Timeout (in milliseconds) period,
@@ -491,7 +463,7 @@ type
     {:Waits until one data block is received. See @link(sendblock). If no data
      is received within the Timeout (in milliseconds) period, @link(LastError)
      is set to @link(ErrTimeout).}
-    function RecvBlock(Timeout: Integer): AnsiString; virtual;
+    function RecvBlock(Timeout: Integer): string; virtual;
 
     {:Receive all data to stream, until some error occured. (for example timeout)}
     procedure RecvStreamRaw(const Stream: TStream; Timeout: Integer); virtual;
@@ -582,7 +554,7 @@ type
      Now you can send AT commands to the modem. If you need to transfer data to
      the modem on the other side of the line, you must first switch to data mode
      using the @link(ATConnect) method.}
-    function ATCommand(value: AnsiString): AnsiString; virtual;
+    function ATCommand(value: string): string; virtual;
 
     {:This function is used to send connect type AT commands to the modem. It is
      for commands to switch to connected state. (ATD, ATA, ATO,...)
@@ -601,7 +573,7 @@ type
      modem on other side of the line. Now you can transfer your data.
      If the connection attempt failed (@link(ATResult) is @False), then the
      modem is still in AT command mode.}
-    function ATConnect(value: AnsiString): AnsiString; virtual;
+    function ATConnect(value: string): string; virtual;
 
     {:If you "manually" call API functions, forward their return code in
      the SerialResult parameter to this function, which evaluates it and sets
@@ -619,7 +591,7 @@ type
 
     {:Raise Synaser error with ErrNumber code. Usually used by internal routines.}
     procedure RaiseSynaError(ErrNumber: integer); virtual;
-{$IFDEF UNIX}
+{$IFDEF LINUX}
     function  cpomComportAccessible: boolean; virtual;{HGJ}
     procedure cpomReleaseComport; virtual; {HGJ}
 {$ENDIF}
@@ -688,7 +660,7 @@ type
     property Handle: THandle read Fhandle write FHandle;
 
     {:Internally used read buffer.}
-    property LineBuffer: AnsiString read FBuffer write FBuffer;
+    property LineBuffer: string read FBuffer write FBuffer;
 
     {:If @true, communication errors raise exceptions. If @false (default), only
      the @link(LastError) value is set.}
@@ -780,7 +752,7 @@ end;
 
 class function TBlockSerial.GetVersion: string;
 begin
-	Result := 'SynaSer 7.5.0';
+	Result := 'SynaSer 6.3.5';
 end;
 
 procedure TBlockSerial.CloseSocket;
@@ -790,11 +762,11 @@ begin
     Purge;
     RTS := False;
     DTR := False;
-    FileClose(FHandle);
+    FileClose(integer(FHandle));
   end;
   if InstanceActive then
   begin
-    {$IFDEF UNIX}
+    {$IFDEF LINUX}
     if FLinuxLock then
       cpomReleaseComport;
     {$ENDIF}
@@ -806,7 +778,7 @@ begin
   DoStatus(HR_SerialClose, FDevice);
 end;
 
-{$IFDEF MSWINDOWS}
+{$IFDEF WIN32}
 function TBlockSerial.GetPortAddr: Word;
 begin
   Result := 0;
@@ -877,7 +849,6 @@ procedure TBlockSerial.Config(baud, bits: integer; parity: char; stop: integer;
   softflow, hardflow: boolean);
 begin
   FillChar(dcb, SizeOf(dcb), 0);
-  GetCommState;
   dcb.DCBlength := SizeOf(dcb);
   dcb.BaudRate := baud;
   dcb.ByteSize := bits;
@@ -907,7 +878,7 @@ begin
 end;
 
 procedure TBlockSerial.Connect(comport: string);
-{$IFDEF MSWINDOWS}
+{$IFDEF WIN32}
 var
   CommTimeouts: TCommTimeouts;
 {$ENDIF}
@@ -921,7 +892,7 @@ begin
   FBuffer := '';
   FDevice := comport;
   GetComNr(comport);
-{$IFDEF MSWINDOWS}
+{$IFDEF WIN32}
   SetLastError (sOK);
 {$ELSE}
   {$IFNDEF FPC}
@@ -930,7 +901,7 @@ begin
   fpSetErrno(sOK);
   {$ENDIF}
 {$ENDIF}
-{$IFNDEF MSWINDOWS}
+{$IFNDEF WIN32}
   if FComNr <> PortIsClosed then
     FDevice := '/dev/ttyS' + IntToStr(FComNr);
   // Comport already owned by another process?          {HGJ}
@@ -945,11 +916,8 @@ begin
 {$ELSE}
   FHandle := THandle(fpOpen(FDevice, O_RDWR or O_SYNC));
 {$ENDIF}
-  if FHandle = INVALID_HANDLE_VALUE then  //because THandle is not integer on all platforms!
-    SerialCheck(-1)
-  else
-    SerialCheck(0);
-  {$IFDEF UNIX}
+  SerialCheck(integer(FHandle));
+  {$IFDEF LINUX}
   if FLastError <> sOK then
     if FLinuxLock then
       cpomReleaseComport;
@@ -962,10 +930,7 @@ begin
     FDevice := '\\.\COM' + IntToStr(FComNr + 1);
   FHandle := THandle(CreateFile(PChar(FDevice), GENERIC_READ or GENERIC_WRITE,
     0, nil, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL or FILE_FLAG_OVERLAPPED, 0));
-  if FHandle = INVALID_HANDLE_VALUE then  //because THandle is not integer on all platforms!
-    SerialCheck(-1)
-  else
-    SerialCheck(0);
+  SerialCheck(integer(FHandle));
   ExceptCheck;
   if FLastError <> sOK then
     Exit;
@@ -983,8 +948,8 @@ begin
   if not TestCtrlLine then  {HGJ}
   begin
     SetSynaError(ErrNoDeviceAnswer);
-    FileClose(FHandle);         {HGJ}
-    {$IFDEF UNIX}
+    FileClose(integer(FHandle));         {HGJ}
+    {$IFDEF LINUX}
     if FLinuxLock then
       cpomReleaseComport;                {HGJ}
     {$ENDIF}                             {HGJ}
@@ -1003,7 +968,7 @@ begin
 end;
 
 function TBlockSerial.SendBuffer(buffer: pointer; length: integer): integer;
-{$IFDEF MSWINDOWS}
+{$IFDEF WIN32}
 var
   Overlapped: TOverlapped;
   x, y, Err: DWord;
@@ -1018,8 +983,8 @@ begin
     Flush;
     RTS := True;
   end;
-{$IFNDEF MSWINDOWS}
-  result := FileWrite(Fhandle, Buffer^, Length);
+{$IFNDEF WIN32}
+  result := FileWrite(integer(Fhandle), Buffer^, Length);
   serialcheck(result);
 {$ELSE}
   FillChar(Overlapped, Sizeof(Overlapped), 0);
@@ -1058,7 +1023,7 @@ begin
   SendBuffer(@Data, 1);
 end;
 
-procedure TBlockSerial.SendString(data: AnsiString);
+procedure TBlockSerial.SendString(data: string);
 begin
   SendBuffer(Pointer(Data), Length(Data));
 end;
@@ -1068,7 +1033,7 @@ begin
   SendBuffer(@data, SizeOf(Data));
 end;
 
-procedure TBlockSerial.SendBlock(const Data: AnsiString);
+procedure TBlockSerial.SendBlock(const Data: string);
 begin
   SendInteger(Length(data));
   SendString(Data);
@@ -1078,7 +1043,7 @@ procedure TBlockSerial.SendStreamRaw(const Stream: TStream);
 var
   si: integer;
   x, y, yr: integer;
-  s: AnsiString;
+  s: string;
 begin
   si := Stream.Size - Stream.Position;
   x := 0;
@@ -1088,7 +1053,7 @@ begin
     if y > cSerialChunk then
       y := cSerialChunk;
     Setlength(s, y);
-    yr := Stream.read(PAnsiChar(s)^, y);
+    yr := Stream.read(Pchar(s)^, y);
     if yr > 0 then
     begin
       SetLength(s, yr);
@@ -1120,13 +1085,13 @@ begin
 end;
 
 function TBlockSerial.RecvBuffer(buffer: pointer; length: integer): integer;
-{$IFNDEF MSWINDOWS}
+{$IFNDEF WIN32}
 begin
   Result := 0;
   if PreTestFailing then   {HGJ}
     Exit;                  {HGJ}
   LimitBandwidth(Length, FMaxRecvBandwidth, FNextRecv);
-  result := FileRead(FHandle, Buffer^, length);
+  result := FileRead(integer(FHandle), Buffer^, length);
   serialcheck(result);
 {$ELSE}
 var
@@ -1164,7 +1129,7 @@ end;
 
 function TBlockSerial.RecvBufferEx(buffer: pointer; length: integer; timeout: integer): integer;
 var
-  s: AnsiString;
+  s: string;
   rl, l: integer;
   ti: LongWord;
 begin
@@ -1200,7 +1165,7 @@ begin
   Result := rl;
 end;
 
-function TBlockSerial.RecvBufferStr(Length: Integer; Timeout: Integer): AnsiString;
+function TBlockSerial.RecvBufferStr(Length: Integer; Timeout: Integer): string;
 var
   x: integer;
 begin
@@ -1211,7 +1176,7 @@ begin
   if Length > 0 then
   begin
     Setlength(Result, Length);
-    x := RecvBufferEx(PAnsiChar(Result), Length , Timeout);
+    x := RecvBufferEx(PChar(Result), Length , Timeout);
     if FLastError = sOK then
       SetLength(Result, x)
     else
@@ -1219,7 +1184,7 @@ begin
   end;
 end;
 
-function TBlockSerial.RecvPacket(Timeout: Integer): AnsiString;
+function TBlockSerial.RecvPacket(Timeout: Integer): string;
 var
   x: integer;
 begin
@@ -1283,10 +1248,10 @@ begin
   ExceptCheck;
 end;
 
-function TBlockSerial.RecvTerminated(Timeout: Integer; const Terminator: AnsiString): AnsiString;
+function TBlockSerial.RecvTerminated(Timeout: Integer; const Terminator: string): string;
 var
   x: Integer;
-  s: AnsiString;
+  s: string;
   l: Integer;
   CorCRLF: Boolean;
   t: ansistring;
@@ -1360,9 +1325,9 @@ begin
 end;
 
 
-function TBlockSerial.RecvString(Timeout: Integer): AnsiString;
+function TBlockSerial.RecvString(Timeout: Integer): string;
 var
-  s: AnsiString;
+  s: string;
 begin
   Result := '';
   s := RecvTerminated(Timeout, #13 + #10);
@@ -1372,7 +1337,7 @@ end;
 
 function TBlockSerial.RecvInteger(Timeout: Integer): Integer;
 var
-  s: AnsiString;
+  s: string;
 begin
   Result := 0;
   s := RecvBufferStr(4, Timeout);
@@ -1380,7 +1345,7 @@ begin
     Result := (ord(s[1]) + ord(s[2]) * 256) + (ord(s[3]) + ord(s[4]) * 256) * 65536;
 end;
 
-function TBlockSerial.RecvBlock(Timeout: Integer): AnsiString;
+function TBlockSerial.RecvBlock(Timeout: Integer): string;
 var
   x: integer;
 begin
@@ -1392,7 +1357,7 @@ end;
 
 procedure TBlockSerial.RecvStreamRaw(const Stream: TStream; Timeout: Integer);
 var
-  s: AnsiString;
+  s: string;
 begin
   repeat
     s := RecvPacket(Timeout);
@@ -1403,7 +1368,7 @@ end;
 
 procedure TBlockSerial.RecvStreamSize(const Stream: TStream; Timeout: Integer; Size: Integer);
 var
-  s: AnsiString;
+  s: string;
   n: integer;
 begin
   for n := 1 to (Size div cSerialChunk) do
@@ -1411,7 +1376,7 @@ begin
     s := RecvBufferStr(cSerialChunk, Timeout);
     if FLastError <> 0 then
       Exit;
-    Stream.Write(PAnsichar(s)^, cSerialChunk);
+    Stream.Write(Pchar(s)^, cSerialChunk);
   end;
   n := Size mod cSerialChunk;
   if n > 0 then
@@ -1419,7 +1384,7 @@ begin
     s := RecvBufferStr(n, Timeout);
     if FLastError <> 0 then
       Exit;
-    Stream.Write(PAnsichar(s)^, n);
+    Stream.Write(Pchar(s)^, n);
   end;
 end;
 
@@ -1442,11 +1407,11 @@ begin
     RecvStreamSize(Stream, Timeout, x);
 end;
 
-{$IFNDEF MSWINDOWS}
+{$IFNDEF WIN32}
 function TBlockSerial.WaitingData: integer;
 begin
 {$IFNDEF FPC}
-  serialcheck(ioctl(FHandle, FIONREAD, @result));
+  serialcheck(ioctl(integer(FHandle), FIONREAD, @result));
 {$ELSE}
   serialcheck(fpIoctl(FHandle, FIONREAD, @result));
 {$ENDIF}
@@ -1482,7 +1447,7 @@ begin
   	Result := Waitingdata;
 end;
 
-{$IFNDEF MSWINDOWS}
+{$IFNDEF WIN32}
 function TBlockSerial.SendingData: integer;
 begin
   SetSynaError(sOK);
@@ -1502,7 +1467,7 @@ begin
 end;
 {$ENDIF}
 
-{$IFNDEF MSWINDOWS}
+{$IFNDEF WIN32}
 procedure TBlockSerial.DcbToTermios(const dcb: TDCB; var term: termios);
 var
   n: integer;
@@ -1625,11 +1590,11 @@ begin
 end;
 {$ENDIF}
 
-{$IFNDEF MSWINDOWS}
+{$IFNDEF WIN32}
 procedure TBlockSerial.SetCommState;
 begin
   DcbToTermios(dcb, termiosstruc);
-  SerialCheck(tcsetattr(FHandle, TCSANOW, termiosstruc));
+  SerialCheck(tcsetattr(integer(FHandle), TCSANOW, termiosstruc));
   ExceptCheck;
 end;
 {$ELSE}
@@ -1642,10 +1607,10 @@ begin
 end;
 {$ENDIF}
 
-{$IFNDEF MSWINDOWS}
+{$IFNDEF WIN32}
 procedure TBlockSerial.GetCommState;
 begin
-  SerialCheck(tcgetattr(FHandle, termiosstruc));
+  SerialCheck(tcgetattr(integer(FHandle), termiosstruc));
   ExceptCheck;
   TermiostoDCB(termiosstruc, dcb);
 end;
@@ -1661,7 +1626,7 @@ end;
 
 procedure TBlockSerial.SetSizeRecvBuffer(size: integer);
 begin
-{$IFDEF MSWINDOWS}
+{$IFDEF WIN32}
   SetupComm(Fhandle, size, 0);
   GetCommState;
   dcb.XonLim := size div 4;
@@ -1674,7 +1639,7 @@ end;
 function TBlockSerial.GetDSR: Boolean;
 begin
   ModemStatus;
-{$IFNDEF MSWINDOWS}
+{$IFNDEF WIN32}
   Result := (FModemWord and TIOCM_DSR) > 0;
 {$ELSE}
   Result := (FModemWord and MS_DSR_ON) > 0;
@@ -1683,16 +1648,16 @@ end;
 
 procedure TBlockSerial.SetDTRF(Value: Boolean);
 begin
-{$IFNDEF MSWINDOWS}
+{$IFNDEF WIN32}
   ModemStatus;
   if Value then
     FModemWord := FModemWord or TIOCM_DTR
   else
     FModemWord := FModemWord and not TIOCM_DTR;
   {$IFNDEF FPC}
-  ioctl(FHandle, TIOCMSET, @FModemWord);
+  ioctl(integer(FHandle), TIOCMSET, @FModemWord);
   {$ELSE}
-  fpioctl(FHandle, TIOCMSET, @FModemWord);
+  fpioctl(integer(FHandle), TIOCMSET, @FModemWord);
   {$ENDIF}
 {$ELSE}
   if Value then
@@ -1705,7 +1670,7 @@ end;
 function TBlockSerial.GetCTS: Boolean;
 begin
   ModemStatus;
-{$IFNDEF MSWINDOWS}
+{$IFNDEF WIN32}
   Result := (FModemWord and TIOCM_CTS) > 0;
 {$ELSE}
   Result := (FModemWord and MS_CTS_ON) > 0;
@@ -1714,16 +1679,16 @@ end;
 
 procedure TBlockSerial.SetRTSF(Value: Boolean);
 begin
-{$IFNDEF MSWINDOWS}
+{$IFNDEF WIN32}
   ModemStatus;
   if Value then
     FModemWord := FModemWord or TIOCM_RTS
   else
     FModemWord := FModemWord and not TIOCM_RTS;
   {$IFNDEF FPC}
-  ioctl(FHandle, TIOCMSET, @FModemWord);
+  ioctl(integer(FHandle), TIOCMSET, @FModemWord);
   {$ELSE}
-  fpioctl(FHandle, TIOCMSET, @FModemWord);
+  fpioctl(integer(FHandle), TIOCMSET, @FModemWord);
   {$ENDIF}
 {$ELSE}
   if Value then
@@ -1736,7 +1701,7 @@ end;
 function TBlockSerial.GetCarrier: Boolean;
 begin
   ModemStatus;
-{$IFNDEF MSWINDOWS}
+{$IFNDEF WIN32}
   Result := (FModemWord and TIOCM_CAR) > 0;
 {$ELSE}
   Result := (FModemWord and MS_RLSD_ON) > 0;
@@ -1746,14 +1711,14 @@ end;
 function TBlockSerial.GetRing: Boolean;
 begin
   ModemStatus;
-{$IFNDEF MSWINDOWS}
+{$IFNDEF WIN32}
   Result := (FModemWord and TIOCM_RNG) > 0;
 {$ELSE}
   Result := (FModemWord and MS_RING_ON) > 0;
 {$ENDIF}
 end;
 
-{$IFDEF MSWINDOWS}
+{$IFDEF WIN32}
 function TBlockSerial.CanEvent(Event: dword; Timeout: integer): boolean;
 var
   ex: DWord;
@@ -1788,7 +1753,7 @@ begin
 end;
 {$ENDIF}
 
-{$IFNDEF MSWINDOWS}
+{$IFNDEF WIN32}
 function TBlockSerial.CanRead(Timeout: integer): boolean;
 var
   FDSet: TFDSet;
@@ -1803,12 +1768,12 @@ begin
     TimeVal := nil;
   {$IFNDEF FPC}
   FD_ZERO(FDSet);
-  FD_SET(FHandle, FDSet);
-  x := Select(FHandle + 1, @FDSet, nil, nil, TimeVal);
+  FD_SET(integer(FHandle), FDSet);
+  x := Select(integer(FHandle) + 1, @FDSet, nil, nil, TimeVal);
   {$ELSE}
   fpFD_ZERO(FDSet);
-  fpFD_SET(FHandle, FDSet);
-  x := fpSelect(FHandle + 1, @FDSet, nil, nil, TimeVal);
+  fpFD_SET(integer(FHandle), FDSet);
+  x := fpSelect(integer(FHandle) + 1, @FDSet, nil, nil, TimeVal);
   {$ENDIF}
   SerialCheck(x);
   if FLastError <> sOK then
@@ -1823,14 +1788,13 @@ function TBlockSerial.CanRead(Timeout: integer): boolean;
 begin
   Result := WaitingData > 0;
   if not Result then
-    Result := CanEvent(EV_RXCHAR, Timeout) or (WaitingData > 0);
-    //check WaitingData again due some broken virtual ports
+    Result := CanEvent(EV_RXCHAR, Timeout);
   if Result then
     DoStatus(HR_CanRead, '');
 end;
 {$ENDIF}
 
-{$IFNDEF MSWINDOWS}
+{$IFNDEF WIN32}
 function TBlockSerial.CanWrite(Timeout: integer): boolean;
 var
   FDSet: TFDSet;
@@ -1845,12 +1809,12 @@ begin
     TimeVal := nil;
   {$IFNDEF FPC}
   FD_ZERO(FDSet);
-  FD_SET(FHandle, FDSet);
-  x := Select(FHandle + 1, nil, @FDSet, nil, TimeVal);
+  FD_SET(integer(FHandle), FDSet);
+  x := Select(integer(FHandle) + 1, nil, @FDSet, nil, TimeVal);
   {$ELSE}
   fpFD_ZERO(FDSet);
-  fpFD_SET(FHandle, FDSet);
-  x := fpSelect(FHandle + 1, nil, @FDSet, nil, TimeVal);
+  fpFD_SET(integer(FHandle), FDSet);
+  x := fpSelect(integer(FHandle) + 1, nil, @FDSet, nil, TimeVal);
   {$ENDIF}
   SerialCheck(x);
   if FLastError <> sOK then
@@ -1894,7 +1858,7 @@ end;
 procedure TBlockSerial.EnableRTSToggle(Value: boolean);
 begin
   SetSynaError(sOK);
-{$IFNDEF MSWINDOWS}
+{$IFNDEF WIN32}
   FRTSToggle := Value;
   if Value then
     RTS:=False;
@@ -1919,8 +1883,8 @@ end;
 
 procedure TBlockSerial.Flush;
 begin
-{$IFNDEF MSWINDOWS}
-  SerialCheck(tcdrain(FHandle));
+{$IFNDEF WIN32}
+  SerialCheck(tcdrain(integer(FHandle)));
 {$ELSE}
   SetSynaError(sOK);
   if not Flushfilebuffers(FHandle) then
@@ -1929,17 +1893,13 @@ begin
   ExceptCheck;
 end;
 
-{$IFNDEF MSWINDOWS}
+{$IFNDEF WIN32}
 procedure TBlockSerial.Purge;
 begin
   {$IFNDEF FPC}
-  SerialCheck(ioctl(FHandle, TCFLSH, TCIOFLUSH));
+  SerialCheck(ioctl(integer(FHandle), TCFLSH, TCIOFLUSH));
   {$ELSE}
-    {$IFDEF DARWIN}
-    SerialCheck(fpioctl(FHandle, TCIOflush, TCIOFLUSH));
-    {$ELSE}
-    SerialCheck(fpioctl(FHandle, TCFLSH, TCIOFLUSH));
-    {$ENDIF}
+  SerialCheck(fpioctl(integer(FHandle), TCFLSH, TCIOFLUSH));
   {$ENDIF}
   FBuffer := '';
   ExceptCheck;
@@ -1961,11 +1921,11 @@ end;
 function TBlockSerial.ModemStatus: integer;
 begin
   Result := 0;
-{$IFNDEF MSWINDOWS}
+{$IFNDEF WIN32}
   {$IFNDEF FPC}
-  SerialCheck(ioctl(FHandle, TIOCMGET, @Result));
+  SerialCheck(ioctl(integer(FHandle), TIOCMGET, @Result));
   {$ELSE}
-  SerialCheck(fpioctl(FHandle, TIOCMGET, @Result));
+  SerialCheck(fpioctl(integer(FHandle), TIOCMGET, @Result));
   {$ENDIF}
 {$ELSE}
   SetSynaError(sOK);
@@ -1978,8 +1938,8 @@ end;
 
 procedure TBlockSerial.SetBreak(Duration: integer);
 begin
-{$IFNDEF MSWINDOWS}
-  SerialCheck(tcsendbreak(FHandle, Duration));
+{$IFNDEF WIN32}
+  SerialCheck(tcsendbreak(integer(FHandle), Duration));
 {$ELSE}
   SetCommBreak(FHandle);
   Sleep(Duration);
@@ -1989,7 +1949,7 @@ begin
 {$ENDIF}
 end;
 
-{$IFDEF MSWINDOWS}
+{$IFDEF WIN32}
 procedure TBlockSerial.DecodeCommError(Error: DWord);
 begin
   if (Error and DWord(CE_FRAME)) > 1 then
@@ -2024,9 +1984,9 @@ begin
   result := ((not FTestDSR) or DSR) and ((not FTestCTS) or CTS);
 end;
 
-function TBlockSerial.ATCommand(value: AnsiString): AnsiString;
+function TBlockSerial.ATCommand(value: string): string;
 var
-  s: AnsiString;
+  s: string;
   ConvSave: Boolean;
 begin
   result := '';
@@ -2053,9 +2013,9 @@ begin
 end;
 
 
-function TBlockSerial.ATConnect(value: AnsiString): AnsiString;
+function TBlockSerial.ATConnect(value: string): string;
 var
-  s: AnsiString;
+  s: string;
   ConvSave: Boolean;
 begin
   result := '';
@@ -2090,7 +2050,7 @@ end;
 function TBlockSerial.SerialCheck(SerialResult: integer): integer;
 begin
   if SerialResult = integer(INVALID_HANDLE_VALUE) then
-{$IFDEF MSWINDOWS}
+{$IFDEF WIN32}
     result := GetLastError
 {$ELSE}
   {$IFNDEF FPC}
@@ -2147,7 +2107,7 @@ begin
     sOK:               Result := 'OK';
     ErrAlreadyOwned:   Result := 'Port owned by other process';{HGJ}
     ErrAlreadyInUse:   Result := 'Instance already in use';    {HGJ}
-    ErrWrongParameter: Result := 'Wrong parameter at call';     {HGJ}
+    ErrWrongParameter: Result := 'Wrong paramter at call';     {HGJ}
     ErrPortNotOpen:    Result := 'Instance not yet connected'; {HGJ}
     ErrNoDeviceAnswer: Result := 'No device answer detected';  {HGJ}
     ErrMaxBuffer:      Result := 'Maximal buffer length exceeded';
@@ -2175,7 +2135,7 @@ end;
   Ownership Manager.
 }
 
-{$IFDEF UNIX}
+{$IFDEF LINUX}
 
 function TBlockSerial.LockfileName: String;
 var
@@ -2206,8 +2166,7 @@ begin
     // Allow all users to enjoy the benefits of cpom
     s := 'chmod a+rw ' + LockfileName;
 {$IFNDEF FPC}
-    FileSetReadOnly( LockfileName, False ) ;
- // Libc.system(pchar(s));
+    Libc.system(pchar(s));
 {$ELSE}
     fpSystem(s);
 {$ENDIF}
@@ -2277,7 +2236,7 @@ end;
 {$ENDIF}
 {----------------------------------------------------------------}
 
-{$IFDEF MSWINDOWS}
+{$IFDEF WIN32}
 function GetSerialPortNames: string;
 var
   reg: TRegistry;
@@ -2306,7 +2265,7 @@ begin
   end;
 end;
 {$ENDIF}
-{$IFNDEF MSWINDOWS}
+{$IFNDEF WIN32}
 function GetSerialPortNames: string;
 var
   Index: Integer;

@@ -43,7 +43,7 @@ OpenSSL support</p>
 <td class="itemcode"><code>procedure <b><a   href="ssl_openssl_lib.html#SslLoadErrorStrings">SslLoadErrorStrings</a></b>;</code></td>
 </tr>
 <tr class="list2">
-<td class="itemcode"><code>function <b><a   href="ssl_openssl_lib.html#SslCtxSetCipherList">SslCtxSetCipherList</a></b>(arg0: <a   href="ssl_openssl_lib.html#PSSL_CTX">PSSL_CTX</a>; var str: String):Integer;</code></td>
+<td class="itemcode"><code>function <b><a   href="ssl_openssl_lib.html#SslCtxSetCipherList">SslCtxSetCipherList</a></b>(arg0: <a   href="ssl_openssl_lib.html#PSSL_CTX">PSSL_CTX</a>; var str: AnsiString):Integer;</code></td>
 </tr>
 <tr class="list">
 <td class="itemcode"><code>function <b><a   href="ssl_openssl_lib.html#SslCtxNew">SslCtxNew</a></b>(meth: <a   href="ssl_openssl_lib.html#PSSL_METHOD">PSSL_METHOD</a>):<a   href="ssl_openssl_lib.html#PSSL_CTX">PSSL_CTX</a>;</code></td>
@@ -70,22 +70,22 @@ OpenSSL support</p>
 <td class="itemcode"><code>function <b><a   href="ssl_openssl_lib.html#SslCtxUsePrivateKey">SslCtxUsePrivateKey</a></b>(ctx: <a   href="ssl_openssl_lib.html#PSSL_CTX">PSSL_CTX</a>; pkey: <a   href="ssl_openssl_lib.html#SslPtr">SslPtr</a>):Integer;</code></td>
 </tr>
 <tr class="list">
-<td class="itemcode"><code>function <b><a   href="ssl_openssl_lib.html#SslCtxUsePrivateKeyASN1">SslCtxUsePrivateKeyASN1</a></b>(pk: integer; ctx: <a   href="ssl_openssl_lib.html#PSSL_CTX">PSSL_CTX</a>; d: String; len: integer):Integer;</code></td>
+<td class="itemcode"><code>function <b><a   href="ssl_openssl_lib.html#SslCtxUsePrivateKeyASN1">SslCtxUsePrivateKeyASN1</a></b>(pk: integer; ctx: <a   href="ssl_openssl_lib.html#PSSL_CTX">PSSL_CTX</a>; d: AnsiString; len: integer):Integer;</code></td>
 </tr>
 <tr class="list2">
-<td class="itemcode"><code>function <b><a   href="ssl_openssl_lib.html#SslCtxUsePrivateKeyFile">SslCtxUsePrivateKeyFile</a></b>(ctx: <a   href="ssl_openssl_lib.html#PSSL_CTX">PSSL_CTX</a>; const _file: String; _type: Integer):Integer;</code></td>
+<td class="itemcode"><code>function <b><a   href="ssl_openssl_lib.html#SslCtxUsePrivateKeyFile">SslCtxUsePrivateKeyFile</a></b>(ctx: <a   href="ssl_openssl_lib.html#PSSL_CTX">PSSL_CTX</a>; const _file: AnsiString; _type: Integer):Integer;</code></td>
 </tr>
 <tr class="list">
 <td class="itemcode"><code>function <b><a   href="ssl_openssl_lib.html#SslCtxUseCertificate">SslCtxUseCertificate</a></b>(ctx: <a   href="ssl_openssl_lib.html#PSSL_CTX">PSSL_CTX</a>; x: <a   href="ssl_openssl_lib.html#SslPtr">SslPtr</a>):Integer;</code></td>
 </tr>
 <tr class="list2">
-<td class="itemcode"><code>function <b><a   href="ssl_openssl_lib.html#SslCtxUseCertificateASN1">SslCtxUseCertificateASN1</a></b>(ctx: <a   href="ssl_openssl_lib.html#PSSL_CTX">PSSL_CTX</a>; len: integer; d: String):Integer;</code></td>
+<td class="itemcode"><code>function <b><a   href="ssl_openssl_lib.html#SslCtxUseCertificateASN1">SslCtxUseCertificateASN1</a></b>(ctx: <a   href="ssl_openssl_lib.html#PSSL_CTX">PSSL_CTX</a>; len: integer; d: AnsiString):Integer;</code></td>
 </tr>
 <tr class="list">
-<td class="itemcode"><code>function <b><a   href="ssl_openssl_lib.html#SslCtxUseCertificateFile">SslCtxUseCertificateFile</a></b>(ctx: <a   href="ssl_openssl_lib.html#PSSL_CTX">PSSL_CTX</a>; const _file: String; _type: Integer):Integer;</code></td>
+<td class="itemcode"><code>function <b><a   href="ssl_openssl_lib.html#SslCtxUseCertificateFile">SslCtxUseCertificateFile</a></b>(ctx: <a   href="ssl_openssl_lib.html#PSSL_CTX">PSSL_CTX</a>; const _file: AnsiString; _type: Integer):Integer;</code></td>
 </tr>
 <tr class="list2">
-<td class="itemcode"><code>function <b><a   href="ssl_openssl_lib.html#SslCtxUseCertificateChainFile">SslCtxUseCertificateChainFile</a></b>(ctx: <a   href="ssl_openssl_lib.html#PSSL_CTX">PSSL_CTX</a>; const _file: String):Integer;</code></td>
+<td class="itemcode"><code>function <b><a   href="ssl_openssl_lib.html#SslCtxUseCertificateChainFile">SslCtxUseCertificateChainFile</a></b>(ctx: <a   href="ssl_openssl_lib.html#PSSL_CTX">PSSL_CTX</a>; const _file: AnsiString):Integer;</code></td>
 </tr>
 <tr class="list">
 <td class="itemcode"><code>function <b><a   href="ssl_openssl_lib.html#SslCtxCheckPrivateKeyFile">SslCtxCheckPrivateKeyFile</a></b>(ctx: <a   href="ssl_openssl_lib.html#PSSL_CTX">PSSL_CTX</a>):Integer;</code></td>
@@ -97,7 +97,7 @@ OpenSSL support</p>
 <td class="itemcode"><code>procedure <b><a   href="ssl_openssl_lib.html#SslCtxSetDefaultPasswdCbUserdata">SslCtxSetDefaultPasswdCbUserdata</a></b>(ctx: <a   href="ssl_openssl_lib.html#PSSL_CTX">PSSL_CTX</a>; u: <a   href="ssl_openssl_lib.html#SslPtr">SslPtr</a>);</code></td>
 </tr>
 <tr class="list2">
-<td class="itemcode"><code>function <b><a   href="ssl_openssl_lib.html#SslCtxLoadVerifyLocations">SslCtxLoadVerifyLocations</a></b>(ctx: <a   href="ssl_openssl_lib.html#PSSL_CTX">PSSL_CTX</a>; const CAfile: String; const CApath: String):Integer;</code></td>
+<td class="itemcode"><code>function <b><a   href="ssl_openssl_lib.html#SslCtxLoadVerifyLocations">SslCtxLoadVerifyLocations</a></b>(ctx: <a   href="ssl_openssl_lib.html#PSSL_CTX">PSSL_CTX</a>; const CAfile: AnsiString; const CApath: AnsiString):Integer;</code></td>
 </tr>
 <tr class="list">
 <td class="itemcode"><code>function <b><a   href="ssl_openssl_lib.html#SslNew">SslNew</a></b>(ctx: <a   href="ssl_openssl_lib.html#PSSL_CTX">PSSL_CTX</a>):<a   href="ssl_openssl_lib.html#PSSL">PSSL</a>;</code></td>
@@ -127,7 +127,7 @@ OpenSSL support</p>
 <td class="itemcode"><code>function <b><a   href="ssl_openssl_lib.html#SslPending">SslPending</a></b>(ssl: <a   href="ssl_openssl_lib.html#PSSL">PSSL</a>):Integer;</code></td>
 </tr>
 <tr class="list2">
-<td class="itemcode"><code>function <b><a   href="ssl_openssl_lib.html#SslGetVersion">SslGetVersion</a></b>(ssl: <a   href="ssl_openssl_lib.html#PSSL">PSSL</a>):String;</code></td>
+<td class="itemcode"><code>function <b><a   href="ssl_openssl_lib.html#SslGetVersion">SslGetVersion</a></b>(ssl: <a   href="ssl_openssl_lib.html#PSSL">PSSL</a>):AnsiString;</code></td>
 </tr>
 <tr class="list">
 <td class="itemcode"><code>function <b><a   href="ssl_openssl_lib.html#SslGetPeerCertificate">SslGetPeerCertificate</a></b>(ssl: <a   href="ssl_openssl_lib.html#PSSL">PSSL</a>):<a   href="ssl_openssl_lib.html#PX509">PX509</a>;</code></td>
@@ -139,7 +139,7 @@ OpenSSL support</p>
 <td class="itemcode"><code>function <b><a   href="ssl_openssl_lib.html#SSLGetCurrentCipher">SSLGetCurrentCipher</a></b>(s: <a   href="ssl_openssl_lib.html#PSSL">PSSL</a>):<a   href="ssl_openssl_lib.html#SslPtr">SslPtr</a>;</code></td>
 </tr>
 <tr class="list2">
-<td class="itemcode"><code>function <b><a   href="ssl_openssl_lib.html#SSLCipherGetName">SSLCipherGetName</a></b>(c: <a   href="ssl_openssl_lib.html#SslPtr">SslPtr</a>): String;</code></td>
+<td class="itemcode"><code>function <b><a   href="ssl_openssl_lib.html#SSLCipherGetName">SSLCipherGetName</a></b>(c: <a   href="ssl_openssl_lib.html#SslPtr">SslPtr</a>): AnsiString;</code></td>
 </tr>
 <tr class="list">
 <td class="itemcode"><code>function <b><a   href="ssl_openssl_lib.html#SSLCipherGetBits">SSLCipherGetBits</a></b>(c: <a   href="ssl_openssl_lib.html#SslPtr">SslPtr</a>; var alg_bits: Integer):Integer;</code></td>
@@ -154,7 +154,7 @@ OpenSSL support</p>
 <td class="itemcode"><code>procedure <b><a   href="ssl_openssl_lib.html#X509Free">X509Free</a></b>(x: <a   href="ssl_openssl_lib.html#PX509">PX509</a>);</code></td>
 </tr>
 <tr class="list">
-<td class="itemcode"><code>function <b><a   href="ssl_openssl_lib.html#X509NameOneline">X509NameOneline</a></b>(a: <a   href="ssl_openssl_lib.html#PX509_NAME">PX509_NAME</a>; var buf: String; size: Integer):String;</code></td>
+<td class="itemcode"><code>function <b><a   href="ssl_openssl_lib.html#X509NameOneline">X509NameOneline</a></b>(a: <a   href="ssl_openssl_lib.html#PX509_NAME">PX509_NAME</a>; var buf: AnsiString; size: Integer):AnsiString;</code></td>
 </tr>
 <tr class="list2">
 <td class="itemcode"><code>function <b><a   href="ssl_openssl_lib.html#X509GetSubjectName">X509GetSubjectName</a></b>(a: <a   href="ssl_openssl_lib.html#PX509">PX509</a>):<a   href="ssl_openssl_lib.html#PX509_NAME">PX509_NAME</a>;</code></td>
@@ -166,7 +166,7 @@ OpenSSL support</p>
 <td class="itemcode"><code>function <b><a   href="ssl_openssl_lib.html#X509NameHash">X509NameHash</a></b>(x: <a   href="ssl_openssl_lib.html#PX509_NAME">PX509_NAME</a>):Cardinal;</code></td>
 </tr>
 <tr class="list">
-<td class="itemcode"><code>function <b><a   href="ssl_openssl_lib.html#X509Digest">X509Digest</a></b>(data: <a   href="ssl_openssl_lib.html#PX509">PX509</a>; _type: <a   href="ssl_openssl_lib.html#PEVP_MD">PEVP_MD</a>; md: String; var len: Integer):Integer;</code></td>
+<td class="itemcode"><code>function <b><a   href="ssl_openssl_lib.html#X509Digest">X509Digest</a></b>(data: <a   href="ssl_openssl_lib.html#PX509">PX509</a>; _type: <a   href="ssl_openssl_lib.html#PEVP_MD">PEVP_MD</a>; md: AnsiString; var len: Integer):Integer;</code></td>
 </tr>
 <tr class="list2">
 <td class="itemcode"><code>function <b><a   href="ssl_openssl_lib.html#X509print">X509print</a></b>(b: <a   href="ssl_openssl_lib.html#PBIO">PBIO</a>; a: <a   href="ssl_openssl_lib.html#PX509">PX509</a>): integer;</code></td>
@@ -181,7 +181,7 @@ OpenSSL support</p>
 <td class="itemcode"><code>function <b><a   href="ssl_openssl_lib.html#X509SetIssuerName">X509SetIssuerName</a></b>(x: <a   href="ssl_openssl_lib.html#PX509">PX509</a>; name: <a   href="ssl_openssl_lib.html#PX509_NAME">PX509_NAME</a>): integer;</code></td>
 </tr>
 <tr class="list2">
-<td class="itemcode"><code>function <b><a   href="ssl_openssl_lib.html#X509NameAddEntryByTxt">X509NameAddEntryByTxt</a></b>(name: <a   href="ssl_openssl_lib.html#PX509_NAME">PX509_NAME</a>; field: string; _type: integer; bytes: string; len, loc, _set: integer): integer;</code></td>
+<td class="itemcode"><code>function <b><a   href="ssl_openssl_lib.html#X509NameAddEntryByTxt">X509NameAddEntryByTxt</a></b>(name: <a   href="ssl_openssl_lib.html#PX509_NAME">PX509_NAME</a>; field: Ansistring; _type: integer; bytes: Ansistring; len, loc, _set: integer): integer;</code></td>
 </tr>
 <tr class="list">
 <td class="itemcode"><code>function <b><a   href="ssl_openssl_lib.html#X509Sign">X509Sign</a></b>(x: <a   href="ssl_openssl_lib.html#PX509">PX509</a>; pkey: <a   href="ssl_openssl_lib.html#EVP_PKEY">EVP_PKEY</a>; const md: <a   href="ssl_openssl_lib.html#PEVP_MD">PEVP_MD</a>): integer;</code></td>
@@ -208,16 +208,16 @@ OpenSSL support</p>
 <td class="itemcode"><code>function <b><a   href="ssl_openssl_lib.html#EvpPkeyAssign">EvpPkeyAssign</a></b>(pkey: <a   href="ssl_openssl_lib.html#EVP_PKEY">EVP_PKEY</a>; _type: integer; key: <a   href="ssl_openssl_lib.html#PRSA">Prsa</a>): integer;</code></td>
 </tr>
 <tr class="list">
-<td class="itemcode"><code>function <b><a   href="ssl_openssl_lib.html#EvpGetDigestByName">EvpGetDigestByName</a></b>(Name: String): <a   href="ssl_openssl_lib.html#PEVP_MD">PEVP_MD</a>;</code></td>
+<td class="itemcode"><code>function <b><a   href="ssl_openssl_lib.html#EvpGetDigestByName">EvpGetDigestByName</a></b>(Name: AnsiString): <a   href="ssl_openssl_lib.html#PEVP_MD">PEVP_MD</a>;</code></td>
 </tr>
 <tr class="list2">
 <td class="itemcode"><code>procedure <b><a   href="ssl_openssl_lib.html#EVPcleanup">EVPcleanup</a></b>;</code></td>
 </tr>
 <tr class="list">
-<td class="itemcode"><code>function <b><a   href="ssl_openssl_lib.html#SSLeayversion">SSLeayversion</a></b>(t: integer): string;</code></td>
+<td class="itemcode"><code>function <b><a   href="ssl_openssl_lib.html#SSLeayversion">SSLeayversion</a></b>(t: integer): Ansistring;</code></td>
 </tr>
 <tr class="list2">
-<td class="itemcode"><code>procedure <b><a   href="ssl_openssl_lib.html#ErrErrorString">ErrErrorString</a></b>(e: integer; var buf: string; len: integer);</code></td>
+<td class="itemcode"><code>procedure <b><a   href="ssl_openssl_lib.html#ErrErrorString">ErrErrorString</a></b>(e: integer; var buf: Ansistring; len: integer);</code></td>
 </tr>
 <tr class="list">
 <td class="itemcode"><code>function <b><a   href="ssl_openssl_lib.html#ErrGetError">ErrGetError</a></b>: integer;</code></td>
@@ -253,16 +253,16 @@ OpenSSL support</p>
 <td class="itemcode"><code>function <b><a   href="ssl_openssl_lib.html#BioCtrlPending">BioCtrlPending</a></b>(b: <a   href="ssl_openssl_lib.html#PBIO">PBIO</a>): integer;</code></td>
 </tr>
 <tr class="list2">
-<td class="itemcode"><code>function <b><a   href="ssl_openssl_lib.html#BioRead">BioRead</a></b>(b: <a   href="ssl_openssl_lib.html#PBIO">PBIO</a>; var Buf: String; Len: integer): integer;</code></td>
+<td class="itemcode"><code>function <b><a   href="ssl_openssl_lib.html#BioRead">BioRead</a></b>(b: <a   href="ssl_openssl_lib.html#PBIO">PBIO</a>; var Buf: AnsiString; Len: integer): integer;</code></td>
 </tr>
 <tr class="list">
-<td class="itemcode"><code>function <b><a   href="ssl_openssl_lib.html#BioWrite">BioWrite</a></b>(b: <a   href="ssl_openssl_lib.html#PBIO">PBIO</a>; Buf: String; Len: integer): integer;</code></td>
+<td class="itemcode"><code>function <b><a   href="ssl_openssl_lib.html#BioWrite">BioWrite</a></b>(b: <a   href="ssl_openssl_lib.html#PBIO">PBIO</a>; Buf: AnsiString; Len: integer): integer;</code></td>
 </tr>
 <tr class="list2">
 <td class="itemcode"><code>function <b><a   href="ssl_openssl_lib.html#d2iPKCS12bio">d2iPKCS12bio</a></b>(b:<a   href="ssl_openssl_lib.html#PBIO">PBIO</a>; Pkcs12: <a   href="ssl_openssl_lib.html#SslPtr">SslPtr</a>): <a   href="ssl_openssl_lib.html#SslPtr">SslPtr</a>;</code></td>
 </tr>
 <tr class="list">
-<td class="itemcode"><code>function <b><a   href="ssl_openssl_lib.html#PKCS12parse">PKCS12parse</a></b>(p12: <a   href="ssl_openssl_lib.html#SslPtr">SslPtr</a>; pass: string; var pkey, cert, ca: <a   href="ssl_openssl_lib.html#SslPtr">SslPtr</a>): integer;</code></td>
+<td class="itemcode"><code>function <b><a   href="ssl_openssl_lib.html#PKCS12parse">PKCS12parse</a></b>(p12: <a   href="ssl_openssl_lib.html#SslPtr">SslPtr</a>; pass: Ansistring; var pkey, cert, ca: <a   href="ssl_openssl_lib.html#SslPtr">SslPtr</a>): integer;</code></td>
 </tr>
 <tr class="list2">
 <td class="itemcode"><code>procedure <b><a   href="ssl_openssl_lib.html#PKCS12free">PKCS12free</a></b>(p12: <a   href="ssl_openssl_lib.html#SslPtr">SslPtr</a>);</code></td>
@@ -584,7 +584,7 @@ OpenSSL support</p>
 </table>
 &nbsp;<table class="detail">
 <tr class="list">
-<td class="itemcode"><a name="SslCtxSetCipherList"></a><code>function <b>SslCtxSetCipherList</b>(arg0: <a   href="ssl_openssl_lib.html#PSSL_CTX">PSSL_CTX</a>; var str: String):Integer;</code></td>
+<td class="itemcode"><a name="SslCtxSetCipherList"></a><code>function <b>SslCtxSetCipherList</b>(arg0: <a   href="ssl_openssl_lib.html#PSSL_CTX">PSSL_CTX</a>; var str: AnsiString):Integer;</code></td>
 </tr>
 </table>
 &nbsp;<table class="detail">
@@ -629,12 +629,12 @@ OpenSSL support</p>
 </table>
 &nbsp;<table class="detail">
 <tr class="list">
-<td class="itemcode"><a name="SslCtxUsePrivateKeyASN1"></a><code>function <b>SslCtxUsePrivateKeyASN1</b>(pk: integer; ctx: <a   href="ssl_openssl_lib.html#PSSL_CTX">PSSL_CTX</a>; d: String; len: integer):Integer;</code></td>
+<td class="itemcode"><a name="SslCtxUsePrivateKeyASN1"></a><code>function <b>SslCtxUsePrivateKeyASN1</b>(pk: integer; ctx: <a   href="ssl_openssl_lib.html#PSSL_CTX">PSSL_CTX</a>; d: AnsiString; len: integer):Integer;</code></td>
 </tr>
 </table>
 &nbsp;<table class="detail">
 <tr class="list">
-<td class="itemcode"><a name="SslCtxUsePrivateKeyFile"></a><code>function <b>SslCtxUsePrivateKeyFile</b>(ctx: <a   href="ssl_openssl_lib.html#PSSL_CTX">PSSL_CTX</a>; const _file: String; _type: Integer):Integer;</code></td>
+<td class="itemcode"><a name="SslCtxUsePrivateKeyFile"></a><code>function <b>SslCtxUsePrivateKeyFile</b>(ctx: <a   href="ssl_openssl_lib.html#PSSL_CTX">PSSL_CTX</a>; const _file: AnsiString; _type: Integer):Integer;</code></td>
 </tr>
 </table>
 &nbsp;<table class="detail">
@@ -644,17 +644,17 @@ OpenSSL support</p>
 </table>
 &nbsp;<table class="detail">
 <tr class="list">
-<td class="itemcode"><a name="SslCtxUseCertificateASN1"></a><code>function <b>SslCtxUseCertificateASN1</b>(ctx: <a   href="ssl_openssl_lib.html#PSSL_CTX">PSSL_CTX</a>; len: integer; d: String):Integer;</code></td>
+<td class="itemcode"><a name="SslCtxUseCertificateASN1"></a><code>function <b>SslCtxUseCertificateASN1</b>(ctx: <a   href="ssl_openssl_lib.html#PSSL_CTX">PSSL_CTX</a>; len: integer; d: AnsiString):Integer;</code></td>
 </tr>
 </table>
 &nbsp;<table class="detail">
 <tr class="list">
-<td class="itemcode"><a name="SslCtxUseCertificateFile"></a><code>function <b>SslCtxUseCertificateFile</b>(ctx: <a   href="ssl_openssl_lib.html#PSSL_CTX">PSSL_CTX</a>; const _file: String; _type: Integer):Integer;</code></td>
+<td class="itemcode"><a name="SslCtxUseCertificateFile"></a><code>function <b>SslCtxUseCertificateFile</b>(ctx: <a   href="ssl_openssl_lib.html#PSSL_CTX">PSSL_CTX</a>; const _file: AnsiString; _type: Integer):Integer;</code></td>
 </tr>
 </table>
 &nbsp;<table class="detail">
 <tr class="list">
-<td class="itemcode"><a name="SslCtxUseCertificateChainFile"></a><code>function <b>SslCtxUseCertificateChainFile</b>(ctx: <a   href="ssl_openssl_lib.html#PSSL_CTX">PSSL_CTX</a>; const _file: String):Integer;</code></td>
+<td class="itemcode"><a name="SslCtxUseCertificateChainFile"></a><code>function <b>SslCtxUseCertificateChainFile</b>(ctx: <a   href="ssl_openssl_lib.html#PSSL_CTX">PSSL_CTX</a>; const _file: AnsiString):Integer;</code></td>
 </tr>
 </table>
 &nbsp;<table class="detail">
@@ -674,7 +674,7 @@ OpenSSL support</p>
 </table>
 &nbsp;<table class="detail">
 <tr class="list">
-<td class="itemcode"><a name="SslCtxLoadVerifyLocations"></a><code>function <b>SslCtxLoadVerifyLocations</b>(ctx: <a   href="ssl_openssl_lib.html#PSSL_CTX">PSSL_CTX</a>; const CAfile: String; const CApath: String):Integer;</code></td>
+<td class="itemcode"><a name="SslCtxLoadVerifyLocations"></a><code>function <b>SslCtxLoadVerifyLocations</b>(ctx: <a   href="ssl_openssl_lib.html#PSSL_CTX">PSSL_CTX</a>; const CAfile: AnsiString; const CApath: AnsiString):Integer;</code></td>
 </tr>
 </table>
 &nbsp;<table class="detail">
@@ -724,7 +724,7 @@ OpenSSL support</p>
 </table>
 &nbsp;<table class="detail">
 <tr class="list">
-<td class="itemcode"><a name="SslGetVersion"></a><code>function <b>SslGetVersion</b>(ssl: <a   href="ssl_openssl_lib.html#PSSL">PSSL</a>):String;</code></td>
+<td class="itemcode"><a name="SslGetVersion"></a><code>function <b>SslGetVersion</b>(ssl: <a   href="ssl_openssl_lib.html#PSSL">PSSL</a>):AnsiString;</code></td>
 </tr>
 </table>
 &nbsp;<table class="detail">
@@ -744,7 +744,7 @@ OpenSSL support</p>
 </table>
 &nbsp;<table class="detail">
 <tr class="list">
-<td class="itemcode"><a name="SSLCipherGetName"></a><code>function <b>SSLCipherGetName</b>(c: <a   href="ssl_openssl_lib.html#SslPtr">SslPtr</a>): String;</code></td>
+<td class="itemcode"><a name="SSLCipherGetName"></a><code>function <b>SSLCipherGetName</b>(c: <a   href="ssl_openssl_lib.html#SslPtr">SslPtr</a>): AnsiString;</code></td>
 </tr>
 </table>
 &nbsp;<table class="detail">
@@ -769,7 +769,7 @@ OpenSSL support</p>
 </table>
 &nbsp;<table class="detail">
 <tr class="list">
-<td class="itemcode"><a name="X509NameOneline"></a><code>function <b>X509NameOneline</b>(a: <a   href="ssl_openssl_lib.html#PX509_NAME">PX509_NAME</a>; var buf: String; size: Integer):String;</code></td>
+<td class="itemcode"><a name="X509NameOneline"></a><code>function <b>X509NameOneline</b>(a: <a   href="ssl_openssl_lib.html#PX509_NAME">PX509_NAME</a>; var buf: AnsiString; size: Integer):AnsiString;</code></td>
 </tr>
 </table>
 &nbsp;<table class="detail">
@@ -789,7 +789,7 @@ OpenSSL support</p>
 </table>
 &nbsp;<table class="detail">
 <tr class="list">
-<td class="itemcode"><a name="X509Digest"></a><code>function <b>X509Digest</b>(data: <a   href="ssl_openssl_lib.html#PX509">PX509</a>; _type: <a   href="ssl_openssl_lib.html#PEVP_MD">PEVP_MD</a>; md: String; var len: Integer):Integer;</code></td>
+<td class="itemcode"><a name="X509Digest"></a><code>function <b>X509Digest</b>(data: <a   href="ssl_openssl_lib.html#PX509">PX509</a>; _type: <a   href="ssl_openssl_lib.html#PEVP_MD">PEVP_MD</a>; md: AnsiString; var len: Integer):Integer;</code></td>
 </tr>
 </table>
 &nbsp;<table class="detail">
@@ -814,7 +814,7 @@ OpenSSL support</p>
 </table>
 &nbsp;<table class="detail">
 <tr class="list">
-<td class="itemcode"><a name="X509NameAddEntryByTxt"></a><code>function <b>X509NameAddEntryByTxt</b>(name: <a   href="ssl_openssl_lib.html#PX509_NAME">PX509_NAME</a>; field: string; _type: integer; bytes: string; len, loc, _set: integer): integer;</code></td>
+<td class="itemcode"><a name="X509NameAddEntryByTxt"></a><code>function <b>X509NameAddEntryByTxt</b>(name: <a   href="ssl_openssl_lib.html#PX509_NAME">PX509_NAME</a>; field: Ansistring; _type: integer; bytes: Ansistring; len, loc, _set: integer): integer;</code></td>
 </tr>
 </table>
 &nbsp;<table class="detail">
@@ -859,7 +859,7 @@ OpenSSL support</p>
 </table>
 &nbsp;<table class="detail">
 <tr class="list">
-<td class="itemcode"><a name="EvpGetDigestByName"></a><code>function <b>EvpGetDigestByName</b>(Name: String): <a   href="ssl_openssl_lib.html#PEVP_MD">PEVP_MD</a>;</code></td>
+<td class="itemcode"><a name="EvpGetDigestByName"></a><code>function <b>EvpGetDigestByName</b>(Name: AnsiString): <a   href="ssl_openssl_lib.html#PEVP_MD">PEVP_MD</a>;</code></td>
 </tr>
 </table>
 &nbsp;<table class="detail">
@@ -869,12 +869,12 @@ OpenSSL support</p>
 </table>
 &nbsp;<table class="detail">
 <tr class="list">
-<td class="itemcode"><a name="SSLeayversion"></a><code>function <b>SSLeayversion</b>(t: integer): string;</code></td>
+<td class="itemcode"><a name="SSLeayversion"></a><code>function <b>SSLeayversion</b>(t: integer): Ansistring;</code></td>
 </tr>
 </table>
 &nbsp;<table class="detail">
 <tr class="list">
-<td class="itemcode"><a name="ErrErrorString"></a><code>procedure <b>ErrErrorString</b>(e: integer; var buf: string; len: integer);</code></td>
+<td class="itemcode"><a name="ErrErrorString"></a><code>procedure <b>ErrErrorString</b>(e: integer; var buf: Ansistring; len: integer);</code></td>
 </tr>
 </table>
 &nbsp;<table class="detail">
@@ -934,12 +934,12 @@ OpenSSL support</p>
 </table>
 &nbsp;<table class="detail">
 <tr class="list">
-<td class="itemcode"><a name="BioRead"></a><code>function <b>BioRead</b>(b: <a   href="ssl_openssl_lib.html#PBIO">PBIO</a>; var Buf: String; Len: integer): integer;</code></td>
+<td class="itemcode"><a name="BioRead"></a><code>function <b>BioRead</b>(b: <a   href="ssl_openssl_lib.html#PBIO">PBIO</a>; var Buf: AnsiString; Len: integer): integer;</code></td>
 </tr>
 </table>
 &nbsp;<table class="detail">
 <tr class="list">
-<td class="itemcode"><a name="BioWrite"></a><code>function <b>BioWrite</b>(b: <a   href="ssl_openssl_lib.html#PBIO">PBIO</a>; Buf: String; Len: integer): integer;</code></td>
+<td class="itemcode"><a name="BioWrite"></a><code>function <b>BioWrite</b>(b: <a   href="ssl_openssl_lib.html#PBIO">PBIO</a>; Buf: AnsiString; Len: integer): integer;</code></td>
 </tr>
 </table>
 &nbsp;<table class="detail">
@@ -949,7 +949,7 @@ OpenSSL support</p>
 </table>
 &nbsp;<table class="detail">
 <tr class="list">
-<td class="itemcode"><a name="PKCS12parse"></a><code>function <b>PKCS12parse</b>(p12: <a   href="ssl_openssl_lib.html#SslPtr">SslPtr</a>; pass: string; var pkey, cert, ca: <a   href="ssl_openssl_lib.html#SslPtr">SslPtr</a>): integer;</code></td>
+<td class="itemcode"><a name="PKCS12parse"></a><code>function <b>PKCS12parse</b>(p12: <a   href="ssl_openssl_lib.html#SslPtr">SslPtr</a>; pass: Ansistring; var pkey, cert, ca: <a   href="ssl_openssl_lib.html#SslPtr">SslPtr</a>): integer;</code></td>
 </tr>
 </table>
 &nbsp;<table class="detail">
@@ -1440,6 +1440,6 @@ OpenSSL support</p>
 <td class="itemcode"><a name="SSLUtilFile"></a><code><b>SSLUtilFile</b>: string = '';</code></td>
 </tr>
 </table>
-&nbsp;<hr noshade size="1"><span class="appinfo"><em>Generated by <a  target="_parent" href="http://pasdoc.sourceforge.net/">PasDoc 0.9.0</a> on 2007-12-20 22:45:44</em>
+&nbsp;<hr noshade size="1"><span class="appinfo"><em>Generated by <a  target="_parent" href="http://pasdoc.sourceforge.net/">PasDoc 0.9.0</a> on 2009-10-08 16:24:26</em>
 </span>
 </body></html>

@@ -91,6 +91,8 @@ DiGraph Classes {
   TTelnetSend [href="tlntsend.TTelnetSend.html"]
   TTFTPSend -> TSynaClient
   TTFTPSend [href="ftptsend.TTFTPSend.html"]
+  TSynaDebug -> TObject
+  TSynaDebug [href="synadbg.TSynaDebug.html"]
   TSynaOption -> TObject
   TSynaOption [href="blcksock.TSynaOption.html"]
   TSyslogMessage -> TObject

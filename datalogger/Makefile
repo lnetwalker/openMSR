@@ -31,8 +31,8 @@ clean :
 
 build :
 ifeq ($(BLD_ARCH),win32)
-	-cp datalogger.exe /tmp/build/datalogger/
+	-cp datalogger.exe /tmp/$(USER)/build/datalogger/
 else
-	-cp datalogger /tmp/build/datalogger/
+	-cp datalogger /tmp/$(USER)/build/datalogger/
 endif
-	-cp .datalogger.cfg /tmp/build/datalogger/
+	-cp .datalogger.cfg /tmp/$(USER)/build/datalogger/

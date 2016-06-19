@@ -1,0 +1,1 @@
+FPC=/usr/lib/fpc/2.4.4/ppcross386 -TWin32

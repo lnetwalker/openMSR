@@ -56,7 +56,7 @@ const
 {$endif}
 {$endif}	
 	ProgNamVer  =' RUN_SPS  for'+Platform+version+' '+datum+' ';
-	Copyright   =' (c)  1989 - 2014 by Hartmut Eilers ';
+	Copyright   =' (c)  1989 - 2009 by Hartmut Eilers ';
 
 var
 	i					: integer;
@@ -191,9 +191,6 @@ begin                              { SPS_SIMULATION           }
 	//nice(20);
 
 	{ signal handling is done here, also the program goes in background 	}
-	{ thanks to the unknown author of this free code. I found this example	}
-	{ at any place in the net, sorry I don't remember, if it's yours	}
-	{ drop me note to add you to the credits page				}
 
 	fpsigemptyset(zerosigs);
 

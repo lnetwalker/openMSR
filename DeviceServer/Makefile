@@ -32,18 +32,18 @@ clean :
 	-rm *.exe
 
 build:
-	-mkdir /tmp/build/DeviceServer/docroot
-	-mkdir /tmp/build/DeviceServer/docroot/images
-	-mkdir /tmp/build/DeviceServer/docroot/js
-	-cp docroot/images/*.jpg /tmp/build/DeviceServer/docroot/images/
-	-cp docroot/images/*.png /tmp/build/DeviceServer/docroot/images/
-	-cp docroot/js/* /tmp/build/DeviceServer/docroot/js/
-	-cp docroot/*.html  /tmp/build/DeviceServer/docroot/
-	-cp docroot/Meter* /tmp/build/DeviceServer/docroot/
+	-mkdir /tmp/$(USER)/build/DeviceServer/docroot
+	-mkdir /tmp/$(USER)/build/DeviceServer/docroot/images
+	-mkdir /tmp/$(USER)/build/DeviceServer/docroot/js
+	-cp docroot/images/*.jpg /tmp/$(USER)/build/DeviceServer/docroot/images/
+	-cp docroot/images/*.png /tmp/$(USER)/build/DeviceServer/docroot/images/
+	-cp docroot/js/* /tmp/$(USER)/build/DeviceServer/docroot/js/
+	-cp docroot/*.html  /tmp/$(USER)/build/DeviceServer/docroot/
+	-cp docroot/Meter* /tmp/$(USER)/build/DeviceServer/docroot/
 ifeq ($(BLD_ARCH),win32)
-	-cp DeviceServer.exe /tmp/build/DeviceServer/
+	-cp DeviceServer.exe /tmp/$(USER)/build/DeviceServer/
 else
-	-cp DeviceServer /tmp/build/DeviceServer/
+	-cp DeviceServer /tmp/$(USER)/build/DeviceServer/
 endif
-	-cp DeviceServer.cfg /tmp/build/DeviceServer/
-	-cp digi*.sh /tmp/build/DeviceServer/
+	-cp DeviceServer.cfg /tmp/$(USER)/build/DeviceServer/
+	-cp digi*.sh /tmp/$(USER)/build/DeviceServer/

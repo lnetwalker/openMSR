@@ -33,14 +33,14 @@ clean :
 	-rm $(OBJECTS)
 
 build:
-	-rmdir /tmp/build/fktplot
-	-mkdir -p /tmp/build/OpenLabCalc
+	-rmdir /tmp/$(USER)/build/fktplot
+	-mkdir -p /tmp/$(USER)/build/OpenLabCalc
 ifeq ($(BLD_ARCH),win32)
-	-cp OpenLabCalc.exe /tmp/build/OpenLabCalc
-	-cp fktplot.exe /tmp/build/OpenLabCalc
+	-cp OpenLabCalc.exe /tmp/$(USER)/build/OpenLabCalc
+	-cp fktplot.exe /tmp/$(USER)/build/OpenLabCalc
 else
-	-cp OpenLabCalc /tmp/build/OpenLabCalc
-	-cp fktplot /tmp/build/OpenLabCalc
+	-cp OpenLabCalc /tmp/$(USER)/build/OpenLabCalc
+	-cp fktplot /tmp/$(USER)/build/OpenLabCalc
 endif
-	-cp OpenLabCalc.cfg /tmp/build/OpenLabCalc
+	-cp OpenLabCalc.cfg /tmp/$(USER)/build/OpenLabCalc
 

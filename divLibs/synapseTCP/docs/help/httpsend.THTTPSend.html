@@ -87,49 +87,53 @@ abstract(Implementation of HTTP protocol.)</p>
 </tr>
 <tr class="list">
 <td class="visibility"><a   href="legend.html"><img  src="published.gif" alt="Published" title="Published"></a></td>
-<td class="itemcode"><code>property <b><a   href="httpsend.THTTPSend.html#Status100">Status100</a></b>: Boolean read FStatus100 Write FStatus100;</code></td>
+<td class="itemcode"><code>property <b><a   href="httpsend.THTTPSend.html#KeepAliveTimeout">KeepAliveTimeout</a></b>: integer read FKeepAliveTimeout Write FKeepAliveTimeout;</code></td>
 </tr>
 <tr class="list2">
+<td class="visibility"><a   href="legend.html"><img  src="published.gif" alt="Published" title="Published"></a></td>
+<td class="itemcode"><code>property <b><a   href="httpsend.THTTPSend.html#Status100">Status100</a></b>: Boolean read FStatus100 Write FStatus100;</code></td>
+</tr>
+<tr class="list">
 <td class="visibility"><a   href="legend.html"><img  src="published.gif" alt="Published" title="Published"></a></td>
 <td class="itemcode"><code>property <b><a   href="httpsend.THTTPSend.html#ProxyHost">ProxyHost</a></b>: string read FProxyHost Write FProxyHost;</code></td>
 </tr>
-<tr class="list">
+<tr class="list2">
 <td class="visibility"><a   href="legend.html"><img  src="published.gif" alt="Published" title="Published"></a></td>
 <td class="itemcode"><code>property <b><a   href="httpsend.THTTPSend.html#ProxyPort">ProxyPort</a></b>: string read FProxyPort Write FProxyPort;</code></td>
 </tr>
-<tr class="list2">
+<tr class="list">
 <td class="visibility"><a   href="legend.html"><img  src="published.gif" alt="Published" title="Published"></a></td>
 <td class="itemcode"><code>property <b><a   href="httpsend.THTTPSend.html#ProxyUser">ProxyUser</a></b>: string read FProxyUser Write FProxyUser;</code></td>
 </tr>
-<tr class="list">
+<tr class="list2">
 <td class="visibility"><a   href="legend.html"><img  src="published.gif" alt="Published" title="Published"></a></td>
 <td class="itemcode"><code>property <b><a   href="httpsend.THTTPSend.html#ProxyPass">ProxyPass</a></b>: string read FProxyPass Write FProxyPass;</code></td>
 </tr>
-<tr class="list2">
+<tr class="list">
 <td class="visibility"><a   href="legend.html"><img  src="published.gif" alt="Published" title="Published"></a></td>
 <td class="itemcode"><code>property <b><a   href="httpsend.THTTPSend.html#UserAgent">UserAgent</a></b>: string read FUserAgent Write FUserAgent;</code></td>
 </tr>
-<tr class="list">
+<tr class="list2">
 <td class="visibility"><a   href="legend.html"><img  src="published.gif" alt="Published" title="Published"></a></td>
 <td class="itemcode"><code>property <b><a   href="httpsend.THTTPSend.html#ResultCode">ResultCode</a></b>: Integer read FResultCode;</code></td>
 </tr>
-<tr class="list2">
+<tr class="list">
 <td class="visibility"><a   href="legend.html"><img  src="published.gif" alt="Published" title="Published"></a></td>
 <td class="itemcode"><code>property <b><a   href="httpsend.THTTPSend.html#ResultString">ResultString</a></b>: string read FResultString;</code></td>
 </tr>
-<tr class="list">
+<tr class="list2">
 <td class="visibility"><a   href="legend.html"><img  src="published.gif" alt="Published" title="Published"></a></td>
 <td class="itemcode"><code>property <b><a   href="httpsend.THTTPSend.html#DownloadSize">DownloadSize</a></b>: integer read FDownloadSize;</code></td>
 </tr>
-<tr class="list2">
+<tr class="list">
 <td class="visibility"><a   href="legend.html"><img  src="published.gif" alt="Published" title="Published"></a></td>
 <td class="itemcode"><code>property <b><a   href="httpsend.THTTPSend.html#UploadSize">UploadSize</a></b>: integer read FUploadSize;</code></td>
 </tr>
-<tr class="list">
+<tr class="list2">
 <td class="visibility"><a   href="legend.html"><img  src="published.gif" alt="Published" title="Published"></a></td>
 <td class="itemcode"><code>property <b><a   href="httpsend.THTTPSend.html#Sock">Sock</a></b>: <a   href="blcksock.TTCPBlockSocket.html">TTCPBlockSocket</a> read FSock;</code></td>
 </tr>
-<tr class="list2">
+<tr class="list">
 <td class="visibility"><a   href="legend.html"><img  src="published.gif" alt="Published" title="Published"></a></td>
 <td class="itemcode"><code>property <b><a   href="httpsend.THTTPSend.html#AddPortNumberToHost">AddPortNumberToHost</a></b>: Boolean read FAddPortNumberToHost write FAddPortNumberToHost;</code></td>
 </tr>
@@ -250,6 +254,14 @@ If <code>True</code> (default value), keepalives in HTTP protocol 1.1 is enabled
 <table class="detail">
 <tr class="list">
 <td class="visibility"><a   href="legend.html"><img  src="published.gif" alt="Published" title="Published"></a></td>
+<td class="itemcode"><a name="KeepAliveTimeout"></a><code>property <b>KeepAliveTimeout</b>: integer read FKeepAliveTimeout Write FKeepAliveTimeout;</code></td>
+</tr>
+</table>
+<p>
+Define timeout for keepalives in seconds!</p>
+<table class="detail">
+<tr class="list">
+<td class="visibility"><a   href="legend.html"><img  src="published.gif" alt="Published" title="Published"></a></td>
 <td class="itemcode"><a name="Status100"></a><code>property <b>Status100</b>: Boolean read FStatus100 Write FStatus100;</code></td>
 </tr>
 </table>
@@ -343,6 +355,6 @@ Socket object used for TCP/IP operation. Good for seting OnStatus hook, etc.</p>
 </table>
 <p>
 To have possibility to switch off port number in 'Host:' HTTP header, by default <code>True</code>. Some buggy servers not like port informations in this header.</p>
-<hr noshade size="1"><span class="appinfo"><em>Generated by <a  target="_parent" href="http://pasdoc.sourceforge.net/">PasDoc 0.9.0</a> on 2007-12-20 22:45:43</em>
+<hr noshade size="1"><span class="appinfo"><em>Generated by <a  target="_parent" href="http://pasdoc.sourceforge.net/">PasDoc 0.9.0</a> on 2009-10-08 16:24:25</em>
 </span>
 </body></html>
