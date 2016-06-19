@@ -1,9 +1,9 @@
 {==============================================================================|
-| Project : Ararat Synapse                                       | 003.012.006 |
+| Project : Ararat Synapse                                       | 003.012.002 |
 |==============================================================================|
 | Content: HTTP client                                                         |
 |==============================================================================|
-| Copyright (c)1999-2011, Lukas Gebauer                                        |
+| Copyright (c)1999-2008, Lukas Gebauer                                        |
 | All rights reserved.                                                         |
 |                                                                              |
 | Redistribution and use in source and binary forms, with or without           |
@@ -33,7 +33,7 @@
 | DAMAGE.                                                                      |
 |==============================================================================|
 | The Initial Developer of the Original Code is Lukas Gebauer (Czech Republic).|
-| Portions created by Lukas Gebauer are Copyright (c) 1999-2011.               |
+| Portions created by Lukas Gebauer are Copyright (c) 1999-2008.               |
 | All Rights Reserved.                                                         |
 |==============================================================================|
 | Contributor(s):                                                              |
@@ -51,17 +51,6 @@ Used RFC: RFC-1867, RFC-1947, RFC-2388, RFC-2616
   {$MODE DELPHI}
 {$ENDIF}
 {$H+}
-//old Delphi does not have MSWINDOWS define.
-{$IFDEF WIN32}
-  {$IFNDEF MSWINDOWS}
-    {$DEFINE MSWINDOWS}
-  {$ENDIF}
-{$ENDIF}
-
-{$IFDEF UNICODE}
-  {$WARN IMPLICIT_STRING_CAST OFF}
-  {$WARN IMPLICIT_STRING_CAST_LOSS OFF}
-{$ENDIF}
 
 unit httpsend;
 
@@ -110,7 +99,7 @@ type
     function ReadIdentity(Size: Integer): Boolean;
     function ReadChunked: Boolean;
     procedure ParseCookies;
-    function PrepareHeaders: AnsiString;
+    function PrepareHeaders: string;
     function InternalDoConnect(needssl: Boolean): Boolean;
     function InternalConnect(needssl: Boolean): Boolean;
   public
@@ -275,7 +264,6 @@ begin
   FCookies := TStringList.Create;
   FDocument := TMemoryStream.Create;
   FSock := TTCPBlockSocket.Create;
-  FSock.Owner := self;
   FSock.ConvertLineEnd := True;
   FSock.SizeRecvBuffer := c64k;
   FSock.SizeSendBuffer := c64k;
@@ -328,13 +316,13 @@ begin
     FResultString := '';
 end;
 
-function THTTPSend.PrepareHeaders: AnsiString;
+function THTTPSend.PrepareHeaders: string;
 begin
   if FProtocol = '0.9' then
     Result := FHeaders[0] + CRLF
   else
-{$IFNDEF MSWINDOWS}
-    Result := {$IFDEF UNICODE}AnsiString{$ENDIF}(AdjustLineBreaks(FHeaders.Text, tlbsCRLF));
+{$IFNDEF WIN32}
+    Result := AdjustLineBreaks(FHeaders.Text, tlbsCRLF);
 {$ELSE}
     Result := FHeaders.Text;
 {$ENDIF}
@@ -381,7 +369,7 @@ var
   ToClose: Boolean;
   Size: Integer;
   Prot, User, Pass, Host, Port, Path, Para, URI: string;
-  s, su: AnsiString;
+  s, su: string;
   HttpTunnel: Boolean;
   n: integer;
   pp: string;
@@ -397,8 +385,6 @@ begin
   FUploadSize := 0;
 
   URI := ParseURL(URL, Prot, User, Pass, Host, Port, Path, Para);
-  User := DecodeURL(user);
-  Pass := DecodeURL(pass);
   if User = '' then
   begin
     User := FUsername;
@@ -672,7 +658,7 @@ end;
 
 function THTTPSend.ReadUnknown: Boolean;
 var
-  s: ansistring;
+  s: string;
 begin
   Result := false;
   repeat
@@ -702,7 +688,7 @@ end;
 
 function THTTPSend.ReadChunked: Boolean;
 var
-  s: ansistring;
+  s: string;
   Size: Integer;
 begin
   repeat

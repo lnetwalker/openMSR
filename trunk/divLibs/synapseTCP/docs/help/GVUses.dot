@@ -112,6 +112,10 @@ DiGraph Uses {
   synacode [href="synacode.html"]
   synacrypt -> synautil
   synacrypt [href="synacrypt.html"]
+  synadbg -> blcksock
+  synadbg -> synsock
+  synadbg -> synautil
+  synadbg [href="synadbg.html"]
   synaicnv -> synafpc
   synaicnv [href="synaicnv.html"]
   synaip -> SynaUtil

@@ -1,2 +1,1 @@
-FPC=/usr/local/bin/ppcrosswin
-FPC_FLAGS= -Twin32 -dnewio
+FPC_FLAGS= -uUSB92 -uLINUX -dwin32 

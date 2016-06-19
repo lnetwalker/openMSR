@@ -13,8 +13,7 @@ or read/print sps.doc in German  or sps-e.doc in english.
 default language for the doc is german, if you want to change it to
 english docs just change the link for sps.doc to sps-e.doc
 
-on Linux runs_sps starts as a daemon and runs in the background.
-To cleanly end it send a SIGTERM signal to the PID of run_sps.
+
 
 
 PROGRAMMING

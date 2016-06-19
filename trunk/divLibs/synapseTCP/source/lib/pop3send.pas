@@ -1,9 +1,9 @@
 {==============================================================================|
-| Project : Ararat Synapse                                       | 002.006.002 |
+| Project : Ararat Synapse                                       | 002.006.000 |
 |==============================================================================|
 | Content: POP3 client                                                         |
 |==============================================================================|
-| Copyright (c)1999-2010, Lukas Gebauer                                        |
+| Copyright (c)1999-2007, Lukas Gebauer                                        |
 | All rights reserved.                                                         |
 |                                                                              |
 | Redistribution and use in source and binary forms, with or without           |
@@ -33,7 +33,7 @@
 | DAMAGE.                                                                      |
 |==============================================================================|
 | The Initial Developer of the Original Code is Lukas Gebauer (Czech Republic).|
-| Portions created by Lukas Gebauer are Copyright (c)2001-2010.                |
+| Portions created by Lukas Gebauer are Copyright (c)2001-2007.                |
 | All Rights Reserved.                                                         |
 |==============================================================================|
 | Contributor(s):                                                              |
@@ -51,12 +51,6 @@ Used RFC: RFC-1734, RFC-1939, RFC-2195, RFC-2449, RFC-2595
   {$MODE DELPHI}
 {$ENDIF}
 {$H+}
-{$M+}
-
-{$IFDEF UNICODE}
-  {$WARN IMPLICIT_STRING_CAST OFF}
-  {$WARN IMPLICIT_STRING_CAST_LOSS OFF}
-{$ENDIF}
 
 unit pop3send;
 
@@ -209,7 +203,6 @@ begin
   FFullResult := TStringList.Create;
   FPOP3cap := TStringList.Create;
   FSock := TTCPBlockSocket.Create;
-  FSock.Owner := self;
   FSock.ConvertLineEnd := true;
   FTimeout := 60000;
   FTargetPort := cPop3Protocol;
@@ -231,7 +224,7 @@ end;
 
 function TPOP3Send.ReadResult(Full: Boolean): Integer;
 var
-  s: AnsiString;
+  s: string;
 begin
   Result := 0;
   FFullResult.Clear;

@@ -1,9 +1,9 @@
 {==============================================================================|
-| Project : Ararat Synapse                                       | 001.003.001 |
+| Project : Ararat Synapse                                       | 001.003.000 |
 |==============================================================================|
 | Content: misc. procedures and functions                                      |
 |==============================================================================|
-| Copyright (c)1999-2010, Lukas Gebauer                                        |
+| Copyright (c)1999-2008, Lukas Gebauer                                        |
 | All rights reserved.                                                         |
 |                                                                              |
 | Redistribution and use in source and binary forms, with or without           |
@@ -33,7 +33,7 @@
 | DAMAGE.                                                                      |
 |==============================================================================|
 | The Initial Developer of the Original Code is Lukas Gebauer (Czech Republic).|
-| Portions created by Lukas Gebauer are Copyright (c) 2002-2010.               |
+| Portions created by Lukas Gebauer are Copyright (c) 2002-2008.               |
 | All Rights Reserved.                                                         |
 |==============================================================================|
 | Contributor(s):                                                              |
@@ -50,18 +50,6 @@
 {$Q-}
 {$H+}
 
-//Kylix does not known UNIX define
-{$IFDEF LINUX}
-  {$IFNDEF UNIX}
-    {$DEFINE UNIX}
-  {$ENDIF}
-{$ENDIF}
-
-{$IFDEF UNICODE}
-  {$WARN IMPLICIT_STRING_CAST OFF}
-  {$WARN IMPLICIT_STRING_CAST_LOSS OFF}
-{$ENDIF}
-
 unit synamisc;
 
 interface
@@ -75,15 +63,12 @@ interface
 {$ENDIF}
 
 uses
-  synautil, blcksock, SysUtils, Classes
-{$IFDEF UNIX}
-  {$IFNDEF FPC}
-  , Libc
-  {$ENDIF}
+  synautil, blcksock, SysUtils, Classes,
+{$IFDEF LINUX}
+  Libc;
 {$ELSE}
-  , Windows
+  Windows;
 {$ENDIF}
-;
 
 Type
   {:@abstract(This record contains information about proxy setting.)}
@@ -155,7 +140,7 @@ end;
 
 {==============================================================================}
 
-{$IFNDEF UNIX}
+{$IFNDEF LINUX}
 function GetDNSbyIpHlp: string;
 type
   PTIP_ADDRESS_STRING = ^TIP_ADDRESS_STRING;
@@ -247,7 +232,7 @@ end ;
 {$ENDIF}
 
 function GetDNS: string;
-{$IFDEF UNIX}
+{$IFDEF LINUX}
 var
   l: TStringList;
   n: integer;
@@ -294,7 +279,7 @@ end;
 {==============================================================================}
 
 function GetIEProxy(protocol: string): TProxySetting;
-{$IFDEF UNIX}
+{$IFDEF LINUX}
 begin
   Result.Host := '';
   Result.Port := '';

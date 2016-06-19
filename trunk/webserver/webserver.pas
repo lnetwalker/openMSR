@@ -491,7 +491,11 @@ end;
 
 
 { this thread serves a connection until any ioerrors }
+{$ifdef linux64} 
+function KeepAliveThread(p: pointer):Int64;
+{$else}
 function KeepAliveThread(p: pointer):LongInt;
+{$endif}
 
 var
 	endThread		: Boolean;

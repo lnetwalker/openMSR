@@ -37,23 +37,23 @@ clean:
 	-rm *.exe
 	
 build :
-	-mkdir /tmp/build/sps/awls
-	-mkdir /tmp/build/sps/awls/WerkzeugmaschineNT
-	-cp awls/WerkzeugmaschineNT/werkzeugmaschine2.pdf /tmp/build/sps/awls/WerkzeugmaschineNT/
-	-cp awls/WerkzeugmaschineNT/werkzeugmaschine2.sps /tmp/build/sps/awls/WerkzeugmaschineNT/
-	-cp awls/* /tmp/build/sps/awls/
-	-cp LICENSE /tmp/build/sps/
-	-cp README /tmp/build/sps/
+	-mkdir /tmp/$(USER)/build/sps/awls
+	-mkdir /tmp/$(USER)/build/sps/awls/WerkzeugmaschineNT
+	-cp awls/WerkzeugmaschineNT/werkzeugmaschine2.pdf /tmp/$(USER)/build/sps/awls/WerkzeugmaschineNT/
+	-cp awls/WerkzeugmaschineNT/werkzeugmaschine2.sps /tmp/$(USER)/build/sps/awls/WerkzeugmaschineNT/
+	-cp awls/* /tmp/$(USER)/build/sps/awls/
+	-cp LICENSE /tmp/$(USER)/build/sps/
+	-cp README /tmp/$(USER)/build/sps/
 ifeq ($(BLD_ARCH),win32)
-	-cp sps.exe /tmp/build/sps
-	-cp run_sps.exe /tmp/build/sps
+	-cp sps.exe /tmp/$(USER)/build/sps
+	-cp run_sps.exe /tmp/$(USER)/build/sps
 else
-	-cp sps /tmp/build/sps/
-	-cp run_sps /tmp/build/sps/
+	-cp sps /tmp/$(USER)/build/sps/
+	-cp run_sps /tmp/$(USER)/build/sps/
 endif
-	-cp .run_sps.cfg /tmp/build/sps/
-	-cp sps.cfg /tmp/build/sps/
-	-cp sps.doc /tmp/build/sps/
-	-cp sps-d.doc /tmp/build/sps/
-	-cp sps-e.doc /tmp/build/sps/
+	-cp .run_sps.cfg /tmp/$(USER)/build/sps/
+	-cp sps.cfg /tmp/$(USER)/build/sps/
+	-cp sps.doc /tmp/$(USER)/build/sps/
+	-cp sps-d.doc /tmp/$(USER)/build/sps/
+	-cp sps-e.doc /tmp/$(USER)/build/sps/
 

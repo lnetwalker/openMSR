@@ -32,8 +32,8 @@ clean :
 
 build:
 ifeq ($(BLD_ARCH),win32)
-	-cp oszi.exe /tmp/build/oszi/
+	-cp oszi.exe /tmp/$(USER)/build/oszi/
 else
-	-cp oszi /tmp/build/oszi/
+	-cp oszi /tmp/$(USER)/build/oszi/
 endif
-	-cp .oszi.cfg /tmp/build/oszi/
+	-cp .oszi.cfg /tmp/$(USER)/build/oszi/

@@ -1,9 +1,9 @@
 {==============================================================================|
-| Project : Ararat Synapse                                       | 002.002.001 |
+| Project : Ararat Synapse                                       | 002.002.000 |
 |==============================================================================|
 | Content: Coding and decoding support                                         |
 |==============================================================================|
-| Copyright (c)1999-2010, Lukas Gebauer                                        |
+| Copyright (c)1999-2007, Lukas Gebauer                                        |
 | All rights reserved.                                                         |
 |                                                                              |
 | Redistribution and use in source and binary forms, with or without           |
@@ -33,7 +33,7 @@
 | DAMAGE.                                                                      |
 |==============================================================================|
 | The Initial Developer of the Original Code is Lukas Gebauer (Czech Republic).|
-| Portions created by Lukas Gebauer are Copyright (c)2000-2010.                |
+| Portions created by Lukas Gebauer are Copyright (c)2000-2007.                |
 | All Rights Reserved.                                                         |
 |==============================================================================|
 | Contributor(s):                                                              |
@@ -49,12 +49,6 @@
 {$Q-}
 {$R-}
 {$H+}
-
-{$IFDEF UNICODE}
-  {$WARN IMPLICIT_STRING_CAST OFF}
-  {$WARN IMPLICIT_STRING_CAST_LOSS OFF}
-  {$WARN SUSPICIOUS_TYPECAST OFF}
-{$ENDIF}
 
 unit synacode;
 
@@ -72,7 +66,7 @@ const
   ['=', '(', ')', '[', ']', '<', '>', ':', ';', ',', '@', '/', '?', '\',
     '"', '_'];
   NonAsciiChar: TSpecials =
-  [#0..#31, #127..#255];
+  [Char(0)..Char(31), Char(127)..Char(255)];
   URLFullSpecialChar: TSpecials =
   [';', '/', '?', ':', '@', '=', '&', '#', '+'];
   URLSpecialChar: TSpecials =

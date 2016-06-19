@@ -1,0 +1,2 @@
+FPC_FLAGS=  -dUSB92  -CpARMV5 -darm -dFPC_ARMEL -dGnublin -XParm-unknown-linux-uclibcgnueabi- -Fl/usr/libcalao 
+

@@ -18,41 +18,60 @@ fi
 
 RELEASE=$REL-$ARCH
 
-mkdir /tmp/build
+BUILD_DIR=/tmp/$USER/build
+mkdir -p $BUILD_DIR
 
 # copy libs
-mkdir /tmp/build/libs
+mkdir $BUILD_DIR/libs
 if [ "$ARCH" = "linuxfree" ]; then
-  cp extLib/free/i386/* /tmp/build/libs
+  cp extLib/free/i386/* $BUILD_DIR/libs
 else
-  cp -a extLib/* /tmp/build/libs
+  cp -a extLib/* $BUILD_DIR/libs
 fi
 
+echo "cleaning up sources for old stuff"
+find . -name "*.ppu" -exec rm -f {} \;
+find . -name "*.exe" -exec rm -f {} \;
+find . -name "*.o" -exec rm -f {} \;
+find . -name "*.a" -exec rm -f {} \;
+find . -name "*.s" -exec rm -f {} \;
+
+
 # build the targets
-targets="datalogger DeviceServer ObjectRecognition OpenLabDocs oszi sps fktplot FunkIO LogicSim2.4"
+targets="datalogger DeviceServer oszi sps fktplot FunkIO OpenLabDocs LogicSim2.4 ObjectRecognition"
+targets="datalogger DeviceServer oszi sps fktplot"
 for i in $targets; do 
-  mkdir -p /tmp/build/$i
+  echo "************** building target $i *******************"
+  mkdir -p $BUILD_DIR/$i
   cd $i;
-  . ./environment
+  if [ -e ./environment ]; then
+    . ./environment
+  fi
   export SPSVERSION=$REL
   make BLD_ARCH=$ARCH clean
   make BLD_ARCH=$ARCH
+  if [ $? != 0 ]; then
+    echo "error: in build of $i"
+    exit 1
+  fi
+
   make BLD_ARCH=$ARCH build
   cd ..;
 done;
 
-cp CREDITS /tmp/build/
-cp README /tmp/build/
-cp CHANGES /tmp/build/
+echo "************ all targets done, copying stuff ****************"
+cp CREDITS $BUILD_DIR/
+cp README $BUILD_DIR/
+cp CHANGES $BUILD_DIR/
 
 # remove .svn stuff
-find /tmp/build/ -name ".svn" -exec rm -rf {} \;
+find $BUILD_DIR -name ".svn" -exec rm -rf {} \;
 
 mkdir $RELEASE
-cp -a /tmp/build/* $RELEASE/
-tar -czvf /data/hartmut/src/Releases/$RELEASE.tar.gz $RELEASE
+cp -a $BUILD_DIR/* $RELEASE/
+#tar -czvf /data/hartmut/src/Releases/$RELEASE.tar.gz $RELEASE
 
-rm -rf /tmp/build
+rm -rf $BUILD_DIR
 
 echo "Please check directory $RELEASE and remove it when everything is done"
 

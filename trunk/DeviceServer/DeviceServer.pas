@@ -201,8 +201,11 @@ begin
 
 end;
 
-
+{$ifdef linux64}
+function TelnetThread(p: pointer):Int64;
+{$else}
 function TelnetThread(p: pointer):LongInt;
+{$endif}
 { this is the telnet thread, setup the interpreter function }
 { and check for incomming requests }
 
@@ -229,8 +232,11 @@ end;
 
 
 // the devicehandler - for each configured device one thread to serve it is started
-
+{$ifdef linux64}
+function DeviceHandler(p: pointer):Int64;
+{$else}
 function DeviceHandler(p: pointer):LongInt;
+{$endif}
 var 
 	MySelf		: LongInt;
 
@@ -393,7 +399,7 @@ begin
 			inc(Loops);
 			Params:=copy(Params,Trenner+2,Length(Params));
 		until ( length(Params)  = 0 );
-	//end
+	//endprocedure
 	//else
 	//	IOGroupList[1]:=IOGroup;
 	
@@ -606,7 +612,12 @@ begin
 end;
 
 
+{$ifdef linux64} 
+function WebserverThread(p: Pointer):Int64;
+{$else}
 function WebserverThread(p: Pointer):LongInt;
+{$endif}
+
 { the real serving thread }
 var 
 	MySelf		: LongInt;
@@ -647,7 +658,11 @@ begin
 end;					{ Webserver Thread end }
 
 
+{$ifdef linux64} 
+function StatisticsThread(p: pointer):Int64;
+{$else}
 function StatisticsThread(p: pointer):LongInt;
+{$endif}
 // claculates the number of threadruns for each thread
 
 var
@@ -694,7 +709,11 @@ begin
 end;
 
 
+{$ifdef linux64} 
+function TimeControlThread(p: pointer):Int64;
+{$else}
 function TimeControlThread(p: pointer):LongInt;
+{$endif}
 // thread to change Input and Output variables time dependend
 var 
 	MySelf		: LongInt;
