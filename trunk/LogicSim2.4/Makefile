@@ -30,9 +30,9 @@ clean:
 	-rm *.jar
 
 build:
-	-mkdir /tmp/build/LogicSim2.4/languages
-	-mkdir /tmp/build/LogicSim2.4/modules
-	-cp logicsim.cfg /tmp/build/LogicSim2.4/
-	-cp LogicSim.jar /tmp/build/LogicSim2.4/
-	-cp modules/*    /tmp/build/LogicSim2.4/modules/
-	-cp languages/*  /tmp/build/LogicSim2.4/languages/
+	-mkdir /tmp/$(USER)/build/LogicSim2.4/languages
+	-mkdir /tmp/$(USER)/build/LogicSim2.4/modules
+	-cp logicsim.cfg /tmp/$(USER)/build/LogicSim2.4/
+	-cp LogicSim.jar /tmp/$(USER)/build/LogicSim2.4/
+	-cp modules/*    /tmp/$(USER)/build/LogicSim2.4/modules/
+	-cp languages/*  /tmp/$(USER)/build/LogicSim2.4/languages/

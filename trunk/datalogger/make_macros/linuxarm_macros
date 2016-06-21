@@ -1,2 +1,2 @@
-FPC_FLAGS=  -dUSB92  -CpARMV5 -darm -dFPC_ARMEL -dGnublin -XParm-linux- -Fl/usr/libgnublin/ 
+FPC_FLAGS=  -CpARMV5 -darm -dFPC_ARMEL -dGnublin -XParm-linux- -Fl/usr/libgnublin/ 
 
