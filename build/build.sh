@@ -2,21 +2,34 @@
 # (c) 2009 by Hartmut Eilers
 # <hartmut@eilers.net>
 
+# error handling stuff
+yell() { echo "$0: $*" >&2; }
+die() { yell "$*"; exit 111; }
+try() { "$@" || die "cannot $*"; }
+
+
 if [ "$1" = "" ]; then
-  echo " please supply a release name e.g. openlab-1.0.1"
+  echo " please supply a build Id"
   exit 2
 else
-  REL=$1
+  BUILDID=$1
 fi
 
 if [ "$2" = "" ]; then
-  echo " please supply a target platform [linuxarm|linux386|linux64|win32|gnublin|linuxfree] "
-  exit 3
+  echo " please supply a release name e.g. openlab-1.0.1"
+  exit 2
 else
-  ARCH=$2
+  REL=$2
 fi
 
-RELEASE=$REL-$ARCH
+if [ "$3" = "" ]; then
+  echo " please supply a target platform [linuxarm|linux386|linux64|win32|gnublin|linuxfree] "
+  exit 2
+else
+  ARCH=$3
+fi
+
+RELEASE=$REL-$BUILDID-$ARCH
 
 BUILD_DIR=/tmp/$USER/build
 mkdir -p $BUILD_DIR
@@ -39,7 +52,7 @@ find . -name "*.s" -exec rm -f {} \;
 
 # build the targets
 targets="datalogger DeviceServer oszi sps fktplot FunkIO OpenLabDocs LogicSim2.4 ObjectRecognition"
-targets="datalogger DeviceServer oszi sps fktplot"
+#targets="datalogger DeviceServer oszi sps fktplot"
 for i in $targets; do 
   echo "************** building target $i *******************"
   mkdir -p $BUILD_DIR/$i
@@ -49,7 +62,7 @@ for i in $targets; do
   fi
   export SPSVERSION=$REL
   make BLD_ARCH=$ARCH clean
-  make BLD_ARCH=$ARCH
+  make BLD_ARCH=$ARCH;
   if [ $? != 0 ]; then
     echo "error: in build of $i"
     exit 1
@@ -69,7 +82,7 @@ find $BUILD_DIR -name ".svn" -exec rm -rf {} \;
 
 mkdir $RELEASE
 cp -a $BUILD_DIR/* $RELEASE/
-#tar -czvf /data/hartmut/src/Releases/$RELEASE.tar.gz $RELEASE
+tar -czvf /data/hartmut/src/Releases/$RELEASE.tar.gz $RELEASE
 
 rm -rf $BUILD_DIR
 
