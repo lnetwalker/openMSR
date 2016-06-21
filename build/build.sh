@@ -14,7 +14,7 @@ if [ "$1" = "" ]; then
 else
   BUILDID=$1
 fi
-
+ 
 if [ "$2" = "" ]; then
   echo " please supply a release name e.g. openlab-1.0.1"
   exit 2
@@ -28,7 +28,7 @@ if [ "$3" = "" ]; then
 else
   ARCH=$3
 fi
-
+ 
 RELEASE=$REL-$BUILDID-$ARCH
 
 BUILD_DIR=/tmp/$USER/build
@@ -62,7 +62,7 @@ for i in $targets; do
   fi
   export SPSVERSION=$REL
   make BLD_ARCH=$ARCH clean
-  make BLD_ARCH=$ARCH;
+  make BLD_ARCH=$ARCH
   if [ $? != 0 ]; then
     echo "error: in build of $i"
     exit 1
