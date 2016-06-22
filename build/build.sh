@@ -82,7 +82,7 @@ find $BUILD_DIR -name ".svn" -exec rm -rf {} \;
 
 mkdir $RELEASE
 cp -a $BUILD_DIR/* $RELEASE/
-tar -czvf /data/hartmut/src/Releases/$RELEASE.tar.gz $RELEASE
+tar -czvf /home/hartmut/daten/src/Releases/$RELEASE.tar.gz $RELEASE
 
 rm -rf $BUILD_DIR
 
