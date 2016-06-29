@@ -8,21 +8,24 @@
 # make it crosscompilable for linux i386,x64 and arm
 # just copy info stuff for win32 !
 
-OBJECTS=ObjRec
+OBJECTS=ObjRec ObjectRecognition
 
 all: $(OBJECTS)
 
 
 # the physical Machine access layer
-ObjRec: 	main.cpp
-	c++ main.cpp -Wno-deprecated -L/usr/lib/X11 -lX11  -o ObjRec
+ObjectRecognition: 	main.cpp ObjRec.cpp
+	c++ main.cpp ObjRec.cpp webcam.cpp -Wno-deprecated -L/usr/lib/X11 -lX11  -o ObjectRecognition
 
+ObjRec: 	ObjRec.cpp
+	c++ -c ObjRec.cpp -Wno-deprecated -fPIC
 clear:
 			
 clean :
 
 	-rm *~
 	-rm $(OBJECTS)
+	-rm ObjRec.o
 
 build:
 	-cp README /tmp/build/ObjectRecognition/
