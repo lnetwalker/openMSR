@@ -1,0 +1,5 @@
+2177  c++ -c ObjRec.cpp -Wno-deprecated -fPIC 
+ 2178  gcc -shared -o libObjRec.so ObjRec.o
+ 2179  c++ main.cpp -Wno-deprecated  -L/usr/lib/X11 -lX11  -o main
+ 2180  c++ main.cpp -Wno-deprecated  -L/usr/lib/X11 -lX11  -lObjRec -o main
+
