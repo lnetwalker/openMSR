@@ -1,8 +1,9 @@
+program ghomatest;
+
 { testcode for gHoma WLAN power switch				}
 { (c) 2016 by Hartmut Eilers <hartmut_at_eilers.net		}
 { licensend under the terms of the GNU GPL V 2.0 or later 	}
-
-program ghomatest;
+uses ghoma_io_access;
 
 { programming reference:					}
 { http://forum.loxone.com/archive/index.php/t-10311.html	}
@@ -50,9 +51,8 @@ program ghomatest;
 {                                  MM MM MM
 { beides wird quittiert (ebenso wird auch bei lokaler betaetigung quittiert) -> siehe 3. Antwort auf Init 2	}
 
-var
 
 begin
-
+    ghoma_init("ACFFAE00506EBBAACC114433:192.168.2.14:4256:1")
 
 end.
