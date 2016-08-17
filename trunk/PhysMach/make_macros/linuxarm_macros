@@ -1,1 +1,1 @@
-FPC_FLAGS=  -dUSB92  -CpARMV5 -darm -dFPC_ARMEL -Fl/usr/libgnublin -XP/usr/local/xtools/arm-unknown-linux-uclibcgnueabi/bin/arm-linux-gcc- 
+FPC_FLAGS=  -CpARMV5 -darm -dFPC_ARMEL  -Xd -Xr/usr/libgnublin -Fl/usr/libgnublin -XParm-linux- 
