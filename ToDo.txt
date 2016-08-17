@@ -3,9 +3,10 @@ BUILD:
 - get working build environment for all Linux[ARM,X64,i386], Win, OSX
  v X64
  - ARM
- - i386
- - Win
+ v i386
+ v Win
  - OSX
+ v Gnublin
 
 
 GENERAL:
@@ -13,7 +14,7 @@ GENERAL:
 v add project to ohloh 10.2012
 - introduce commandline parameters ( eg cfg file etc )
 - more error checking
-- add README, LICENSE, CHANGELOG files
+v add README, LICENSE, CHANGELOG files
 - add usage of PhysMach Config file in all other tools ( see PhysMach Callback function PhysMachRegCfg )
 - test all supported hardware
   done for Joystick, IOWarrior 24/40, LPT, BMCM, EXEC ( digitemp ),
@@ -117,4 +118,9 @@ EVENTMANAGER:
 
 MYSQL LOGGER:
 - implement a mysql db logger feature
+
+Object Recognition:
+- rewrite GUI to enable other image sources
+- update to V4L2
+- make it available on other plattforms
 
