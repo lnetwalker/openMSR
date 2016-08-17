@@ -115,7 +115,7 @@ begin
 	    // generate a string from the PORT
 	    str(i,DIGPORT);
 	    cmd:='SETPORT ' + DIGPORT + '.' + bit_value;
-	    response:=CommandResult(Command),wert);
+	    response:=CommandResult(cmd);
 	    if debug then
 	      if ( response = 'NAK' ) then 
 		writeln('Setting PORT ' + DIGPORT + '.' + bit_value + ' failed')
