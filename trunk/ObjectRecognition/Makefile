@@ -10,12 +10,17 @@
 
 OBJECTS=ObjRec ObjectRecognition
 
+# get compiler and flags for the given platform
+include ../build/make_includes/$(BLD_ARCH)
+include ./make_macros/$(BLD_ARCH)_macros
+include ../build/make_includes/unit-searchpath
+
 all: $(OBJECTS)
 
 
 # the physical Machine access layer
-ObjectRecognition: 	main.cpp ObjRec.cpp
-	c++ main.cpp ObjRec.cpp webcam.cpp -Wno-deprecated -L/usr/lib/X11 -lX11  -o ObjectRecognition
+ObjectRecognition: 	main.cpp ObjRec.cpp webcam.cpp
+	$(CXX) main.cpp ObjRec.cpp webcam.cpp $(CFLAGS) -Wno-deprecated -Llib/X11 -lX11  -o ObjectRecognition
 
 ObjRec: 	ObjRec.cpp
 	c++ -c ObjRec.cpp -Wno-deprecated -fPIC
