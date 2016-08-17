@@ -16,6 +16,13 @@ unit PhysMach;
 
 { the following defines are used in the code:				}
 
+{$ifdef arm}
+	{$define LINUX}
+	{$define SOFTIO}
+	{$define USB8}
+	{$define ARMGENERIC}
+{$endif}
+
 {$ifdef MaxOSX}
 	{$undef IOwarrior}
 {$endif}
@@ -176,6 +183,9 @@ uses
 		rnd_io_access,
 		exec_io_access,
 {$endif}
+{$ifdef ARMGENERIC}
+		armgeneric_io_access,
+{$endif}
 		StringCut;
 
 const
@@ -248,6 +258,9 @@ begin
 {$ifdef Gnublin}
 		'G'	: wert:=gnublin_read_ports(Address);
 {$endif}
+{$ifdef ARMGENERIC}
+		'A'	: wert:=armgeneric_read_ports(Address);
+{$endif}	
 	end;
 
 	if (debugFlag) then 
@@ -337,7 +350,9 @@ begin
 {$ifdef Gnublin}
 			'G'	: gnublin_write_ports(Address,Value);
 {$endif}
-
+{$ifdef ARMGENERIC}
+			'A'	: armgeneric_write_ports(Address,Value);
+{$endif}
 		end;
 	end;
 end;
@@ -369,6 +384,9 @@ begin
 {$endif}
 {$ifdef Gnublin}
 			'G'	: analog_in[IOGroup]:=gnublin_read_analog(a_address[IOGroup]);
+{$endif}
+{$ifdef ARMGENERIC}
+			'A'	: analog_in[IOGroup]:=armgeneric_read_analog(a_address[IOGroup]);
 {$endif}
 
 		end;
@@ -443,6 +461,9 @@ begin
 {$endif}
 {$ifdef Gnublin}
 				'G'	: wert:=gnublin_read_ports(c_address[IOGroup]);
+{$endif}
+{$ifdef ARMGENERIC}
+				'A'	: wert:=armgeneric_read_ports(c_address[IOGroup]);
 {$endif}
 			end;
 		end
@@ -610,6 +631,12 @@ begin
 						HWPlatform:=HWPlatform+',Gnublin-IO ';
 					  end;
 {$endif}
+{$ifdef ARMGENERIC}
+				'A'	: begin
+						armgeneric_hwinit(initstring,DeviceNumber);
+						HWPlatform:=HWPlatform+',Gnublin-IO ';
+					  end;
+{$endif}
 
 				else begin
 				    writeln('unknown device in config file: ',zeile);
@@ -646,9 +673,6 @@ begin
 			end 
 			else
 			    if ( GetNumberOfElements(zeile,Trenner) < 5 ) then begin
-				writeln (' Error in config file too few arguments line ');
-				writeln ( zeile );
-				halt (1);
 			    end;
 			    
 			if debugFlag then writeln('PhysMachLoadCfg: dir=',dir,' iogroup=',iogroup,' addr=',ConfigTags[4]);
@@ -679,6 +703,21 @@ begin
 				if debugFlag then writeln('Analog OutLine=',iogroup,' Address=',a_address[iogroup]);
 			end;
 		end
+		else if (ConfigTags[1] = 'ASSIGN') then begin
+			{ for ARMgeneric and GHoma WLAN Power Plug this is needed to get additional config data }
+			{ Syntax: ASSIGN DEVICE ADDRESS BIT DATA 						}
+			if (ConfigTags[2] = 'A') then begin
+
+			end 
+			else if (ConfigTags[2] = 'W') then begin
+
+			end 
+			else begin
+				writeln (' Error in config file, wrong Device in ASSIGN Statement ');
+				writeln ( zeile );
+				halt (1);
+			end
+		end  
 		{ if a callback function is registered  call this function }
 		else begin
 		    if CfgCallbackFunc <> nil then begin
@@ -813,6 +852,11 @@ begin
 {$ifdef Gnublin}
 		'G'	: begin
 				gnublin_close(initstring);
+			  end;
+{$endif}
+{$ifdef ARMGENERIC}
+		'A'	: begin
+				armgeneric_close(initstring);
 			  end;
 {$endif}
 	end;
@@ -954,7 +998,7 @@ begin
 
 		// handle analog inputs
 		if (a_devicetype[IOGroup] = DeviceType) then
-			PhysMAchReadAnalogDevice(IOGroup);
+			PhysMachReadAnalogDevice(IOGroup);
 
 		// handle counters
 		if (c_devicetype[IOGroup] = DeviceType) then
