@@ -1,0 +1,10 @@
+SYSROOT:=/opt/arm-linux-gnueabihf/
+CROSS_COMPILE:=arm-linux-gnueabihf-
+
+CFLAGS=--sysroot $(SYSROOT)
+LDLIBS=-lrt
+CC=$(CROSS_COMPILE)gcc
+LD=$(CROSS_COMPILE)ld
+AR=$(CROSS_COMPILE)ar
+AS=$(CROSS_COMPILE)as
+CXX=$(CROSS_COMPILE)g++

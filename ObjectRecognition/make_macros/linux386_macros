@@ -1,0 +1,7 @@
+CFLAGS=
+LDLIBS=-lrt
+CC=gcc
+LD=ld
+AR=ar
+AS=as
+CXX=c++
