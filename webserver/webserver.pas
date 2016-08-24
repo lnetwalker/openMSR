@@ -34,7 +34,7 @@ unit webserver;
 { 07.02.2011 worked on thread support, added better IO Error checking		}
 
 interface
-uses classes;
+uses classes, sysutils;
 
 procedure start_server(address:string;port:word;BlockMode: Boolean;doc_root,logfile:string;ThreadMode : Boolean ;DebugMode : Boolean);
 procedure SetupSpecialURL(URL:string;proc : tprocedure);
@@ -312,8 +312,11 @@ begin
 	i:=0;
 	repeat
 		inc(i);
-	until (copy(post[i],1,10)='User-Agent');
-	useragent:=copy(post[i],13,7);
+	until (UpperCase(copy(post[i],1,10))='USER-AGENT') or ( i = Length(post) );
+	if (UpperCase(copy(post[i],1,10))='USER-AGENT') then
+	  useragent:=copy(post[i],13,7)
+	else
+	  useragent:='bonita-client';
 	//EnterCriticalSection(ProtectDataSend);
 	if debug then writeLOG('SendPage '+IntToStr(WhoAmI)+': ' +useragent + ' -> sending header');
 	reply_sock.SendString(header);
