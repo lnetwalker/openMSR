@@ -25,7 +25,7 @@ function joy_close():boolean;
 
 implementation
 
-// uses crt;
+uses crt;
 
 const	
 	debug           = false;
