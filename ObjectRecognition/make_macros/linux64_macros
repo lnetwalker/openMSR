@@ -1,1 +1,4 @@
 FPC_FLAGS= -dLINUX -dLinux64
+CC=c++
+CFLAGS=-m64
+
