@@ -1,7 +1,7 @@
 Unit armgeneric_io_access;
 
 { diese Unit stellt Funktionen zum I/O Access auf			} 
-{ die in generischen ARM Boards eingebaute Hardware			}
+{ die in generischen ARM Boards eingebaute GPIO Ports			}
 { zur Verfügung								}
 
 { If you have improvements please contact me at 			}
@@ -21,14 +21,18 @@ INTERFACE
 
 function armgeneric_hwinit(initstring:string;DeviceNumber:byte):boolean;
 function armgeneric_read_ports(io_port:longint):byte;
-function armgeneric_read_analog(io_port:longint):longint;
 function armgeneric_write_ports(io_port:longint;byte_value:byte):byte;
 function armgeneric_close(initstring:string):boolean;
+function armgeneric_gpio(adr:byte;bit:byte;gpiobit:byte):byte;
+function armgeneric_gpiodir(adr:byte;io_port:byte;dir:byte):byte;
 
 IMPLEMENTATION
 uses 
-//  Classes, SysUtils, baseunix, PXL.Timing, PXL.Boards.Types, PXL.Sysfs.GPIO;
-  Classes, SysUtils, baseunix;
+  Classes, SysUtils, baseunix, StringCut;
+
+type	
+  GPIO_TYPE 		= array[0..255,0..255] of byte;
+  GPIO_ADR_TYPE 	= array[0..255,0..255] of byte;
   
 const
 	debug      	= false;
@@ -36,23 +40,23 @@ const
 
 var
 	gpiodirection	: string;
-	//GPIO		: TCustomGPIO = nil;
 	TurnedOn	: Boolean = False;
-
+	GPIO		: GPIO_TYPE;
+	GPIO_ADR	: GPIO_ADR_TYPE;
+	GPIO_DIR	: array[0..255] of byte;
 
 function armgeneric_close(initstring:string):boolean;
 
 begin
   // Dummy must be filled !
-  //GPIO.Free;
-  //armgeneric_close:=true;
+  armgeneric_close:=true;
 end;
 
 
 
 function armgeneric_read_ports(io_port:longint):byte;
 var	
-  i			: byte;
+  i			: ShortInt;
   value			: String[1] = '1';
   returnvalue		: byte;
   fileDesc		: INTEGER;
@@ -61,13 +65,8 @@ var
 
 begin
   returnvalue:=0;
-  { leave off the  GPIO 3 it is fixed output }
-  for i:= 2 to 5 do begin { the first val of gpiodirection is always o its gpio3 ( LED) }
-    if ( gpiodirection[i]='i') then begin 
-	if ( i=2 ) then  
-	  gpiodevicenumber:='11'
-	else
-	  gpiodevicenumber:=IntToStr(10+i);
+  for i:= 0 to 7 do begin
+  	gpiodevicenumber:=IntToStr(GPIO[GPIO_ADR[0,io_port],i]);
 
 	try
 	  fileDesc := fpopen('/sys/class/gpio/gpio' + gpiodevicenumber + '/value', O_RdOnly);
@@ -77,7 +76,6 @@ begin
 	end;
 	if ( value = '1' ) then
 	  returnvalue:=returnvalue+power[i-1];
-    end;
   end;
   armgeneric_read_ports:=returnvalue;
 end;
@@ -97,7 +95,6 @@ const
     PIN_OFF: PChar = '0';
 
 begin
-  { the ioport is currently ignored }
   for i:=7 downto 0 do begin
     { check for value of bit }
     if byte_value>=power[i] then begin
@@ -106,128 +103,76 @@ begin
     end
     else
       out:=PIN_OFF;
-    
-    { if one of the implemented GPIO Lines }
-    if ( i=7 ) then begin
-      { this one is always out, it's the red led on board }
-      { assign devices depending on bit }
-      try
-	fileDesc := fpopen('/sys/class/gpio/gpio3/value', O_WrOnly);
+   
+    gpiodevicenumber:=IntToStr(GPIO[GPIO_ADR[1,io_port],i]);
+
+    try
+	fileDesc := fpopen('/sys/class/gpio/gpio' + gpiodevicenumber + '/value', O_WrOnly);
 	gReturnCode := fpwrite(fileDesc, out[0], 1);
-      finally
+    finally
 	gReturnCode := fpclose(fileDesc);
-      end;
-    end
-    else if ( i < 4 ) then
-      { if the programmed direction is out }
-      if ( gpiodirection[i+2]='o' ) then begin
-	{ assign devices depending on bit }
-	if ( i=0 ) then
-	  gpiodevicenumber:='11'
-	else
-	  gpiodevicenumber:=IntToStr(12+i);
-	try
-	  fileDesc := fpopen('/sys/class/gpio/gpio' + gpiodevicenumber + '/value', O_WrOnly);
-	  gReturnCode := fpwrite(fileDesc, out[0], 1);
-	finally
-	  gReturnCode := fpclose(fileDesc);
-	end;
-      end;
-    armgeneric_write_ports:=0;
+    end;
   end;
+  armgeneric_write_ports:=0;
 end;
-
-
-
-
-function armgeneric_read_analog(io_port:longint):longint;
-	// currently the io_port must be between 0 and 3 !
-var
-    ad_wert 		: Integer;
-    fileDesc		: integer;
-    gReturnCode	: Byte;
-    value		: String[5] = '1';
-    out 		: PChar;
-    bytecnt		: byte;
-    Code		: word;
-
-begin
-  out:= PChar(IntToStr(io_port));
-  bytecnt:= length(IntToStr(io_port));
-  //writeln ('ADC: ', io_port, ' out: ',out[0],' cnt: ',bytecnt);
-  // choose the adc channel
-  try
-    fileDesc := fpopen('/dev/lpc313x_adc',O_RdWr);
-    gReturnCode := fpwrite(fileDesc, out[0], bytecnt);
-  finally
-    gReturnCode := fpclose(fileDesc);
-  end;
-  // read the selected adc channel
-  try
-    fileDesc := fpopen('/dev/lpc313x_adc',O_RdOnly);
-    gReturnCode := fpread(fileDesc, value[0], 5);
-  finally
-    gReturnCode := fpclose(fileDesc);
-  end;
-  Val (value,ad_wert,Code);
-  //writeln ( 'String: ',value,' Zahl: ',ad_wert,' Fehler: ',Code);
-
-  armgeneric_read_analog:=ad_wert;
-end;
-
-
 
 
 function armgeneric_hwinit(initstring:string;DeviceNumber:byte):boolean;
-var i 			: byte;
+var l,b,ListCnt 	: byte;
     fileDesc		: integer;
     gpiodevicenumber 	: PChar;
-    gReturnCode	: Byte;
+    gReturnCode		: Byte;
+    Liste		: StringArray;	
 
 const
     OUT_DIRECTION: PChar = 'out';
     IN_DIRECTION:  PChar = 'in';
 
 begin
-  //GPIO := TSysfsGPIO.Create;
+  { initstring is a list of used adresses by this device }
 
-  
-  { initstring is 4 chars each one i or o for in and out 	}
-  { representing the gpio 11, 13, 14, 15			}
-  { assigned as bits 0-3					}
-  { gio3 is fixed set to output and assigned as highest bit	}
-  { and added in front of initstring 				}
-  { DeviceNumber is currently not used			}
-  gpiodirection:='o' + initstring;
-  for i:= 1 to 5 do begin
-    { enable the GPIO line }
-    { build the devicefile number }
-    if ( i=1 ) then
-	gpiodevicenumber:=PChar('3')
-    else if ( i=2 ) then
-	    gpiodevicenumber:=PChar('11')
-	  else
-	    gpiodevicenumber:=PChar(IntToStr(10+i));
+  { Prepare GPIO for access: }
+  Liste:=StringSplit(initstring,',');
+  ListCnt:=length(Liste);
+  for l:=1 to ListCnt do begin
+    for b:=0 to 7 do begin
+      { Set GPIO directions }
+      gpiodevicenumber:=PChar(IntToStr(GPIO[StrToInt(Liste[l]),b]));
 
-    { Prepare GPIO for access: }
-    try
-      fileDesc := fpopen('/sys/class/gpio/export', O_WrOnly);
-      gReturnCode := fpwrite(fileDesc, gpiodevicenumber[0], 2);
-    finally
-      gReturnCode := fpclose(fileDesc);
+      { Prepare GPIO for access: }
+      try
+	fileDesc := fpopen('/sys/class/gpio/export', O_WrOnly);
+        gReturnCode := fpwrite(fileDesc, gpiodevicenumber[0], 2);
+      finally
+        gReturnCode := fpclose(fileDesc);
+      end;
+      { Set GPIO directions }
+      try
+        fileDesc := fpopen('/sys/class/gpio/gpio' + IntToStr(ptruint(gpiodevicenumber)) + '/direction', O_WrOnly);
+        if ( GPIO_DIR[l] = 0 ) then 
+	  gReturnCode := fpwrite(fileDesc, IN_DIRECTION[0], 2)
+        else
+	  gReturnCode := fpwrite(fileDesc, OUT_DIRECTION[0], 3);
+      finally
+        gReturnCode := fpclose(fileDesc);
+      end;
     end;
-    { Set GPIO directions }
-    try
-      fileDesc := fpopen('/sys/class/gpio/gpio' + IntToStr(ptruint(gpiodevicenumber)) + '/direction', O_WrOnly);
-      if ( gpiodirection[i] = 'i' ) then 
-	gReturnCode := fpwrite(fileDesc, IN_DIRECTION[0], 2)
-      else
-	gReturnCode := fpwrite(fileDesc, OUT_DIRECTION[0], 3);
-    finally
-      gReturnCode := fpclose(fileDesc);
-    end;
-
   end;
+end;
+
+
+function armgeneric_gpio(adr:byte;bit:byte;gpiobit:byte):byte;
+
+begin
+  GPIO[adr,bit]:=gpiobit;
+end;
+
+
+function armgeneric_gpiodir(adr:byte;io_port:byte;dir:byte):byte;
+
+begin
+  GPIO_ADR[dir,io_port]:=adr;
+  GPIO_DIR[adr]:=dir;
 end;
 
 
