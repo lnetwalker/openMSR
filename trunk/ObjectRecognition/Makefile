@@ -20,10 +20,10 @@ all: $(OBJECTS)
 
 # the physical Machine access layer
 ObjectRecognition: 	main.cpp ObjRec.cpp webcam.cpp
-	$(CXX) main.cpp ObjRec.cpp webcam.cpp $(CFLAGS) -Wno-deprecated -Llib/X11 -lX11  -o ObjectRecognition
+	$(CC) main.cpp ObjRec.cpp webcam.cpp $(CFLAGS) -Wno-deprecated -Llib/X11 -lX11  -o ObjectRecognition $(EXTRA_FLAGS)
 
 ObjRec: 	ObjRec.cpp
-	c++ -c ObjRec.cpp -Wno-deprecated -fPIC
+	$(CC) -c ObjRec.cpp -Wno-deprecated -fPIC
 clear:
 			
 clean :
