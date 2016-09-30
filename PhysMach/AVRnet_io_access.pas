@@ -1,4 +1,4 @@
-Unit avrnet_io_access;
+Unit AVRnet_io_access;
 
 { diese Unit stellt Funktionen zum I/O Access auf				} 
 { das Pollin AVR-NET-IO Board							}	
@@ -18,14 +18,14 @@ function avrnet_read_ports(io_port:longint):byte;
 function avrnet_write_ports(io_port:longint;byte_value:byte):byte;
 function avrnet_read_analog(io_port:longint):LongInt;
 function avrnet_hwinit(initdata:string;DeviceNumber:byte):boolean;
-function avrnet_close():boolean;
+function avrnet_close(initstring:string):boolean;
 
 implementation
 uses SysUtils,CommonHelper,classes,telnetsshclient,
 {$ifdef Linux}
 UnixUtil,
 {$endif}
-tlntsend
+math
 ;
 
 const	
@@ -38,7 +38,7 @@ var
 	DeviceIndex		: byte;
 
 
-function avrnet_close():boolean;
+function avrnet_close(initstring:string):boolean;
 begin
     avrnet_close:=true;
 end;
@@ -47,34 +47,44 @@ end;
 function avrnet_read_ports(io_port:longint):byte;
 
 var	
-	TmpVal,TmpStrg	: string;
-	dev		: byte;
-	HTTP		: THTTPSend;
-	response	: tstringlist;
-	
+	TmpStrg				: string;
+	wert				: LongInt;
+	dev				: byte;
+	cmd				: AnsiString;
+	CON				: TTelnetSSHClient;
+	Result				: byte;
+	i				: byte;
 
 begin
-	HTTP := THTTPSend.Create;
-	HTTP.UserAgent:='Mozilla/4.0 (' + AppName + ')';
-	response := TStringList.create;
- 	{ extract the device number as key to the device handle }
-	dev:=round(io_port/10);
-	{ extract the port }
-	io_port:=round(frac(io_port/10)*10);
+	{ extract the device number as key to the device handle }
 	str(io_port,TmpStrg);
-	TmpStrg:=R_URL[dev]+TmpStrg;
-	if not HTTP.HTTPMethod('GET', TmpStrg) then begin
-		writeln('ERROR');
-		writeln(Http.Resultcode);
-	end
-	else begin
-		response.loadfromstream(Http.Document);
-		TmpVal:=deHTML(response.text);
-	end;
-	if debug then writeln('avrnet_read_ports(',TmpStrg,') returned ',TmpVal);
-	HTTP.Free;
-	response.free;
-	avrnet_read_ports:=BinToInt(TmpVal);
+	val(copy(TmpStrg,1,1),dev);
+	{ extract the port }
+	val(copy(TmpStrg,2,1),io_port);
+
+	Result:=0;
+	
+	CON:= TTelnetSSHClient.Create;
+	CON.HostName:=SERVER[dev];		// IP or name of device
+	CON.TargetPort:=PORT[dev];		// port of selected device
+	CON.ProtocolType:=Telnet;		// Telnet or SSH
+	if debug then writeln(CON.Connect); 	// Show result of connection
+	if CON.Connected then begin
+	  if debug then writeln(CON.WelcomeMessage);
+	  for i:=1 to 4 do begin
+	    cmd:='GETPORT ' + IntToStr(i);
+	    val(CON.CommandResult(cmd),wert);
+	    if wert = 1 then Result:=Result + 2**i;
+	  end;  
+	end  
+	else 
+	  if debug then begin
+	    writeln('Connection to ' +
+	    CON.HostName + ':' +
+	    CON.TargetPort + ' failed.');
+	  end;
+	CON.Free;
+	avrnet_read_ports:=Result;
 end;
 
     
@@ -84,11 +94,11 @@ function avrnet_write_ports(io_port:longint;byte_value:byte):byte;
 var	
 	TmpStrg			: string;
 	dev			: byte;
-	TELNET			: TTelnetSSHClient;
+	CON			: TTelnetSSHClient;
 	response		: string;	
 	i			: byte;
 	cmd			: string;
-	bit_value,DIGPORT	: char;
+	bit_value		: char;
 
 begin
 	{ extract the device number as key to the device handle }
@@ -96,40 +106,40 @@ begin
 	val(copy(TmpStrg,1,1),dev);
 	{ extract the port ( must be 1 ! ) }
 	val(copy(TmpStrg,2,1),io_port);
-
-	TELNET := TTelnetSSHClient.Create;
-	TELNET.HostName:= SERVER[DEV];	// IP or name of device
-	TELNET.TargetPort:=PORT[dev];		// port of selected device
-	TELNET.ProtocolType:=Telnet;		// Telnet or SSH
-	if debug then writeln(TELNET.Connect); // Show result of connection
-	if TELNET.Connected then begin
-	  if debug then writeln(TELNET.WelcomeMessage);
+	if debug then writeln('avrnet_io_write_ports: ',byte_value);
+	CON:= TTelnetSSHClient.Create;
+	CON.HostName:= SERVER[dev];		// IP or name of device
+	CON.TargetPort:=PORT[dev];		// port of selected device
+	CON.ProtocolType:=Telnet;		// Telnet or SSH
+	if debug then writeln(CON.Connect); 	// Show result of connection
+	if CON.Connected then begin
+	  if debug then writeln(CON.WelcomeMessage);
 	  for i:=7 downto 0 do begin
 	    // now set the bits one after another
-	    if ( (byte_value - power[i]) > 0 ) then begin
-	      bit_value='1';
+	    if ( (byte_value - power[i]) >= 0 ) then begin
+	      bit_value:='1';
 	      byte_value:=byte_value-power[i];
 	    end
 	    else
 	      bit_value:='0';
 	    // generate a string from the PORT
-	    str(i,DIGPORT);
-	    cmd:='SETPORT ' + DIGPORT + '.' + bit_value;
-	    response:=CommandResult(cmd);
+	    cmd:='SETPORT ' + IntToStr(i+1) + '.' + bit_value;
+	    response:=CON.CommandResult(cmd);
 	    if debug then
+	      writeln('Response from TELNET WritePort: ',response);
 	      if ( response = 'NAK' ) then 
-		writeln('Setting PORT ' + DIGPORT + '.' + bit_value + ' failed')
+		writeln('Setting PORT ' + IntToStr(i+1) + '.' + bit_value + ' failed')
 	      else
-		writeln('Setting PORT ' + DIGPORT + '.' + bit_value + ' success');
+		writeln('Setting PORT ' + IntToStr(i+1) + '.' + bit_value + ' success');
 	  end;
 	end  
 	else 
 	  if debug then begin
 	    writeln('Connection to ' +
-	    TELNET.HostName + ':' +
-	    TELNET.TargetPort + ' failed.');
+	    CON.HostName + ':' +
+	    CON.TargetPort + ' failed.');
 	  end;
-	TELNET.Free;
+	CON.Free;
 
 end;
 
@@ -140,8 +150,8 @@ var
 	wert				: LongInt;
 	dev				: byte;
 	cmd				: AnsiString;
-	TELNET				: TTelnetSSHClient;
-	ADCPORT				: char;
+	CON				: TTelnetSSHClient;
+	ADCPORT				: String;
 	
 begin
 	{ extract the device number as key to the device handle }
@@ -150,25 +160,25 @@ begin
 	{ extract the port }
 	val(copy(TmpStrg,2,1),io_port);
 	// generate a string from the PORT
-	str(io_port,ADCPORT);
+	ADCPORT:=TmpStrg;
 
-	TELNET := TTelnetSSHClient.Create;
-	TELNET.HostName:= SERVER[DEV];	// IP or name of device
-	TELNET.TargetPort:=PORT[dev];		// port of selected device
-	TELNET.ProtocolType:=Telnet;		// Telnet or SSH
-	if debug then writeln(TELNET.Connect); // Show result of connection
-	if TELNET.Connected then begin
-	  if debug then writeln(TELNET.WelcomeMessage);
+	CON := TTelnetSSHClient.Create;
+	CON.HostName:= SERVER[dev];		// IP or name of device
+	CON.TargetPort:=PORT[dev];		// port of selected device
+	CON.ProtocolType:=Telnet;		// Telnet or SSH
+	if debug then writeln(CON.Connect); 	// Show result of connection
+	if CON.Connected then begin
+	  if debug then writeln(CON.WelcomeMessage);
 	  cmd:='GETADC ' + ADCPORT;
-	  val(TELNET.CommandResult(Command),wert);
+	  val(CON.CommandResult(cmd),wert);
 	end  
 	else 
 	  if debug then begin
 	    writeln('Connection to ' +
-	    TELNET.HostName + ':' +
-	    TELNET.TargetPort + ' failed.');
+	    CON.HostName + ':' +
+	    CON.TargetPort + ' failed.');
 	  end;
-	TELNET.Free;
+	CON.Free;
 	avrnet_read_analog:=wert;
 end;
 
