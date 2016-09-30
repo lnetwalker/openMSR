@@ -801,7 +801,9 @@ begin					{ Main program }
 
 	// stop threads
 	shutdown:=true;
-
+	// disable hardware
+	PhysMachEnd;
+	
 	// wait for threads to finish
 	DSdebugLOG('waiting for threads to finish...');
 	for i:=1 to NumOfThreads do begin
