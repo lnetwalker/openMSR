@@ -89,7 +89,6 @@ begin
 				help:=not(eingang[par[k]])
 			else
 				help:=eingang[par[k]];
-
 		'E':	if inv then
 				help:=not(eingang[par[k]])
 			else
@@ -114,10 +113,11 @@ begin
 				help:=not(zahler[par[k]])
 			else
 				help:=zahler[par[k]];
-		'Z':  if inv then
+		'Z':	if inv then
 				help:=not(zahler[par[k]])
 			else
-				help:=zahler[par[k]];
+			  help:=zahler[par[k]];
+		'J':	if debug then writeln('analoh input');
 	else
 	    begin
 		{ errorabfrage }
