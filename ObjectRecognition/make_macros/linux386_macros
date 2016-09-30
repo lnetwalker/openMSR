@@ -1,2 +1,3 @@
 CFLAGS=-m32
 CC=c++
+PLATFORM=i386

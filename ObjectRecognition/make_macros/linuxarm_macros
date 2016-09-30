@@ -1,3 +1,4 @@
+PLATFORM=arm
 SYSROOT:=/opt/arm-linux-gnueabihf/
 CROSS_COMPILE:=arm-linux-gnueabihf-
 
