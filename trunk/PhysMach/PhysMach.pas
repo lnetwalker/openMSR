@@ -57,8 +57,9 @@ unit PhysMach;
 {$ifdef Linux64}
 	{$define LINUX}
 	{$define SOFTIO}
-	{$define IOW}
 	{$define USB8}
+	{$define FUNK}
+	{$define JOY}
 {$endif}
 
 {$ifdef Gnublin}
@@ -78,6 +79,7 @@ unit PhysMach;
 	{$define RND}
 	{$define HTTP}
 	{$define EXEC}
+	{$define AVR}
 {$endif}
 
 interface
@@ -98,7 +100,7 @@ type
 
 var
 	marker 			: array[1..marker_max]   of boolean;
-	eingang,ausgang	: array[1..io_max]	 of boolean;
+	eingang,ausgang		: array[1..io_max]	 of boolean;
 	zust			: array[1..io_max]	 of boolean;
 	lastakku		: array[1..akku_max]     of boolean;
 	zahler			: array[1..cnt_max]	 of boolean;
@@ -133,12 +135,13 @@ procedure PhysMachReadDigital;
 procedure PhysMachWriteDigital;
 procedure PhysMachCounter;
 procedure PhysMachloadCfg(cfgFilename : string);
-procedure PhysMachRegCfg(proc : tprocedure);
 procedure PhysMachReadAnalog;
 procedure PhysMachWriteAnalog;
 procedure PhysMachTimer;
 function  PhysMachGetDevices:DeviceTypeArray;
 procedure PhysMachIOByDevice(DeviceType:char);
+//procedure PhysMachRegCfg(proc : TProcedure);
+
 
 implementation
 
@@ -182,11 +185,12 @@ uses
 		http_io_access,
 		rnd_io_access,
 		exec_io_access,
+		AVRnet_io_access,
 {$endif}
 {$ifdef ARMGENERIC}
 		armgeneric_io_access,
 {$endif}
-		StringCut;
+		StringCut, sysutils;
 
 const
 	debugFlag 		= false;
@@ -195,13 +199,8 @@ const
 
 var
 	x			: word;
-	CfgCallbackFunc	: tprocedure;
+	CfgCallbackFunc		: TProcedure;
 	
-
-procedure PhysMachRegCfg(proc : tprocedure);
-begin
-	if proc <> nil then CfgCallbackFunc:=proc;
-end;
 
 
 //Private functions
@@ -260,6 +259,9 @@ begin
 {$endif}
 {$ifdef ARMGENERIC}
 		'A'	: wert:=armgeneric_read_ports(Address);
+{$endif}	
+{$ifdef AVR}
+		'N'	: wert:=avrnet_read_ports(Address);
 {$endif}	
 	end;
 
@@ -353,6 +355,9 @@ begin
 {$ifdef ARMGENERIC}
 			'A'	: armgeneric_write_ports(Address,Value);
 {$endif}
+{$ifdef AVR}
+			'N'	: avrnet_write_ports(Address,Value);
+{$endif}
 		end;
 	end;
 end;
@@ -385,8 +390,8 @@ begin
 {$ifdef Gnublin}
 			'G'	: analog_in[IOGroup]:=gnublin_read_analog(a_address[IOGroup]);
 {$endif}
-{$ifdef ARMGENERIC}
-			'A'	: analog_in[IOGroup]:=armgeneric_read_analog(a_address[IOGroup]);
+{$ifdef AVR}
+			'N'	: analog_in[IOGroup]:=avrnet_read_analog(a_address[IOGroup]);
 {$endif}
 
 		end;
@@ -465,6 +470,9 @@ begin
 {$ifdef ARMGENERIC}
 				'A'	: wert:=armgeneric_read_ports(c_address[IOGroup]);
 {$endif}
+{$ifdef AVR}
+				'N'	: wert:=avrnet_read_ports(c_address[IOGroup]);
+{$endif}
 			end;
 		end
 		else
@@ -493,7 +501,10 @@ end;
 
 
 // exported functions
-
+procedure PhysMachRegCfg(proc : TProcedure);
+begin
+	if proc <> nil then CfgCallbackFunc:=proc;
+end;
 
 
 procedure PhysMachloadCfg(cfgFilename : string);
@@ -634,7 +645,13 @@ begin
 {$ifdef ARMGENERIC}
 				'A'	: begin
 						armgeneric_hwinit(initstring,DeviceNumber);
-						HWPlatform:=HWPlatform+',Gnublin-IO ';
+						HWPlatform:=HWPlatform+',ARM generic GPIO ';
+					  end;
+{$endif}
+{$ifdef AVR}
+				'N'	: begin
+						avrnet_hwinit(initstring,DeviceNumber);
+						HWPlatform:=HWPlatform+',AVRNet IO ';
 					  end;
 {$endif}
 
@@ -680,12 +697,20 @@ begin
 			if     ( dir = 'I' ) then begin
 				val(ConfigTags[4],i_address[iogroup]);
 				i_devicetype[iogroup]:=ConfigTags[5,1];
+{$IFDEF ARMGENERIC}
+				if ( ConfigTags[5]='A' ) then     // ARMGENERIC Device
+				  armgeneric_gpiodir(i_address[iogroup],iogroup,0); //Dir=0 -> In dir
+{$ENDIF}
 				if (debugFlag) then writeln('Input Group ',iogroup,'devicetype=',i_devicetype[iogroup]);
 			end	
 			else if( dir = 'O' ) then begin
 				val(ConfigTags[4],o_address[iogroup]);
 				o_devicetype[iogroup]:=ConfigTags[5,1];
-				if (debugFlag) then writeln('Output Group ',iogroup,'devicetype=',i_devicetype[iogroup]);
+{$IFDEF ARMGENERIC}
+				if ( ConfigTags[5]='A' ) then
+				  armgeneric_gpiodir(o_address[iogroup],iogroup,1); //Dir=1 -> out dir
+{$ENDIF}
+				if (debugFlag) then writeln('Output Group ',iogroup,'devicetype=',o_devicetype[iogroup]);
 			end
 			else if( dir = 'C' ) then begin
 				val(ConfigTags[4],c_address[iogroup]);
@@ -706,16 +731,21 @@ begin
 		else if (ConfigTags[1] = 'ASSIGN') then begin
 			{ for ARMgeneric and GHoma WLAN Power Plug this is needed to get additional config data }
 			{ Syntax: ASSIGN DEVICE ADDRESS BIT DATA 						}
-			if (ConfigTags[2] = 'A') then begin
+			case char(ConfigTags[2,1]) of
+{$IFDEF ARMGENERIC}
+			  'A' : begin
+				armgeneric_gpio(StrToInt(ConfigTags[3]),StrToInt(ConfigTags[4]),StrToInt(ConfigTags[5]));
+			      end; 
+{$ENDIF}
+			  'W' : begin
+				//GHoma WLAN Power Plug
+			      end 
 
-			end 
-			else if (ConfigTags[2] = 'W') then begin
-
-			end 
-			else begin
+			  else begin
 				writeln (' Error in config file, wrong Device in ASSIGN Statement ');
 				writeln ( zeile );
 				halt (1);
+			  end
 			end
 		end  
 		{ if a callback function is registered  call this function }
@@ -857,6 +887,11 @@ begin
 {$ifdef ARMGENERIC}
 		'A'	: begin
 				armgeneric_close(initstring);
+			  end;
+{$endif}
+{$ifdef AVR}
+		'N'	: begin
+				avrnet_close(initstring);
 			  end;
 {$endif}
 	end;
