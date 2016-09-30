@@ -58,9 +58,9 @@ var
 begin
 	str(io_port,number);
 	ser.SendString('c0'+number);	// number is the channel to read 1-8
-	MSB:=ser.RecvByte(10000);
-	LSB:=ser.RecvByte(10000);
-	chk:=ser.RecvByte(10000);
+	MSB:=ser.RecvByte(100);
+	LSB:=ser.RecvByte(100);
+	chk:=ser.RecvByte(100);
 	if debug then
 	  if ( LSB + MSB <> chk ) then writeln ( 'Checksum Error');
 	usb8_read_analog:=MSB * 256 + LSB;
@@ -68,15 +68,16 @@ end;
 
 function usb8_write_ports(io_port:longint;byte_value:byte):byte;
 var 
-	response	: byte;
+  response,cmd		: string;
+  i			: byte;
 begin
-	ser.SendString('c19');
-	ser.SendByte(byte_value);
-	ser.SendByte(not(byte_value));
-	response:=ser.RecvByte(10000);
-	if debug then
-	  writeln ( 'usb8_write_ports');
-	usb8_write_ports:=0;
+  cmd:='c19'+char(byte_value)+char(not(byte_value));
+  ser.SendString(cmd);
+  response:='';
+  for i:=1 to 6 do response:=response + char(ser.RecvByte(100));
+  if debug then
+    writeln ( 'usb8_write_ports, ', IntToHex(byte_value,2),' , ',response);
+  usb8_write_ports:=0;
 end;
 
 function usb8_hwinit(initstring:string;DeviceNumber:byte):boolean;
@@ -84,11 +85,11 @@ function usb8_hwinit(initstring:string;DeviceNumber:byte):boolean;
 begin
 	ser:=TBlockSerial.Create;
 	ser.Connect(initstring); //ComPort
-	Sleep(1000);
+	Sleep(10);
 	ser.config(115000, 8, 'N', SB1, False, False);
 	Write('Device: ' + ser.Device + '   Status: ' + ser.LastErrorDesc +' '+
 	Inttostr(ser.LastError));
-	Sleep(1000);
+	Sleep(10);
 end;
 
 begin
