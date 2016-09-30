@@ -28,13 +28,10 @@ dos,crt,porting,printer,popmenu,browse,PhysMach;
 {$i ./run_awl.pas}
 {$i ./kop.pas}
 
-{ new platform: Zaurus = Linux on ARM CPU }
-{$undef ZAURUS}
 
 procedure checkScreenSize;
 
 begin
-{$ifdef Gnublin}
      screenx:=GetScreenMaxX;
      screeny:=GetScreenMaxY;
      if ((screenx<minScreenX) or (screeny<minScreenY)) then
@@ -43,7 +40,6 @@ begin
      	writeln('Screen is too small - minimum Screensize is',minScreenX,' x ',minScreenY);
      	halt(2);
      end;
-{$endif}
 end;
 
 procedure configuration;
@@ -140,7 +136,7 @@ begin                              { SPS_SIMULATION }
 	if ( paramcount > 0 ) then ConfFile:=paramstr(1)
 	else ConfFile:='.run_sps.cfg';
 	PhysMachInit;
-	PhysMachRegCfg(@SpsConfig);
+	//PhysMachRegCfg(@SpsConfig);
 	PhysMachLoadCfg(ConfFile);
 	{
 	writeln('Zeilenvorschub :',zeilenvorschub);
