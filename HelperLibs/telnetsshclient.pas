@@ -26,7 +26,7 @@ Uses other libraries/components; different licenses may apply that also can infl
 }
  
 {$mode objfpc}{$H+}
-{$DEFINE HAS_SSH_SUPPORT} //comment out if only telnet support required
+//{$DEFINE HAS_SSH_SUPPORT} //comment out if only telnet support required
 {$DEFINE LIBSSH2}
  
 interface
@@ -57,7 +57,7 @@ type
     FProtocolType: TProtocolType;
     FServerLineEnding: string; //depends on FServerType
     FServerType: TServerType;
-    FWelcomeMessage: string;
+    FWelcomeMessage, FTelnetLoginPrompt, FTelnetPasswordPrompt: string;
     procedure SetPrivateKeyFile(Value: string);
     function GetPrivateKeyFile: string;
     { Based on protocol and servertype, set expected serverside line ending}
@@ -80,6 +80,10 @@ type
     property Port: String read FTargetPort write FTargetPort;
     {Location of private key file.}
     property PrivateKeyFile: string read GetPrivateKeyFile write SetPrivateKeyFile;
+    {Telnet login prompt}
+    property TelnetLoginPrompt: string read FTelnetLoginPrompt write FTelnetLoginPrompt;
+    {Telnet password prompt}
+    property TelnetPasswordPrompt: string read FTelnetPasswordPrompt write FTelnetPasswordPrompt;
     {Username used when connecting}
     property UserName: string read FUserName write FUserName;
     {Password used when connecting. Used as passphrase if PrivateKey is used}
@@ -142,7 +146,7 @@ begin
   if FTargetPort = '' then
     //Set default port for protocol
   begin
-    case ProtocolType of
+    case FProtocolType of
       Telnet: FTargetPort := '23';
       SSH: FTargetPort := '22';
       else
@@ -159,9 +163,6 @@ begin
 end;
  
 function TTelnetSSHClient.Connect: string;
-const
-  TelnetLoginPrompt='login:'; //Must be lower case
-  TelnetPasswordPrompt='password:'; //Must be lower case
 var
   Received: string;
 begin
@@ -232,16 +233,16 @@ begin
   if FConnected = True then
   begin
     FWelcomeMessage := ReceiveData;
-    if ProtocolType=Telnet then
+    if FProtocolType=Telnet then
     begin
       //Unfortunately, we'll have to extract login ourselves
       //Hope it applies to all server types.
-      if (AnsiPos(TelnetLoginPrompt,AnsiLowerCase(FWelcomeMessage))>0) then
+      if (AnsiPos(AnsiLowerCase(FTelnetLoginPrompt),AnsiLowerCase(FWelcomeMessage))>0) then
       begin
         SendData(UserName);
       end;
       Received:=ReceiveData;
-      if (AnsiPos(TelnetPasswordPrompt,AnsiLowerCase(Received))>0) then
+      if (AnsiPos(AnsiLowerCase(FTelnetPasswordPrompt),AnsiLowerCase(Received))>0) then
       begin
         SendData(Password);
       end;
@@ -292,7 +293,7 @@ end;
 function TTelnetSSHClient.CommandResult(Command: string): string;
 begin
   Result := '';
-  if Connected then
+  if FConnected then
   begin
     SendData(Command);
     Result := ReceiveData; //gets too much
@@ -311,6 +312,8 @@ begin
   FConnected := False;
   FProtocolType := SSH; //Could be telnet, too
   FServerType := Unix; //Probably a safe default.
+  FTelnetLoginPrompt := 'login:';
+  FTelnetPasswordPrompt := 'password:';
   DetermineLineEnding;
   DeterminePort;
 end;
