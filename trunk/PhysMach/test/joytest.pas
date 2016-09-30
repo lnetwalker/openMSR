@@ -18,5 +18,6 @@ begin
 		    write(axis,' : ',joy_read_aports($10 + axis));
 		write ('Binary in: ');
 		writeln(joy_read_ports($10));
+		delay(500);
 	until keypressed;
 end.
