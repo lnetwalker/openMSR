@@ -51,7 +51,8 @@ find . -name "*.s" -exec rm -f {} \;
 
 
 # build the targets
-targets="datalogger DeviceServer oszi sps fktplot FunkIO OpenLabDocs LogicSim2.4 ObjectRecognition"
+targets="datalogger DeviceServer oszi sps fktplot FunkIO OpenLabDocs LogicSim2.4"
+# ObjectRecognition"
 #targets="datalogger DeviceServer oszi sps fktplot"
 for i in $targets; do 
   echo "************** building target $i *******************"
