@@ -31,6 +31,7 @@ clean :
 	-rm *~
 	-rm $(OBJECTS)
 	-rm ObjRec.o
+	-rm ObjectRecognition.$(PLATFORM)
 
 build:
 	-cp README /tmp/build/ObjectRecognition/
