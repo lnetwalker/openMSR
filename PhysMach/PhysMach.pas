@@ -21,6 +21,7 @@ unit PhysMach;
 	{$define SOFTIO}
 	{$define USB8}
 	{$define ARMGENERIC}
+	{$undefine IOW}
 {$endif}
 
 {$ifdef MaxOSX}
@@ -65,7 +66,7 @@ unit PhysMach;
 {$ifdef Gnublin}
 	{$define LINUX}
 	{$define SOFTIO}
-	{$define IOW}
+	{$undefine IOW}
 	{$define USB8}
 {$endif}
 
@@ -735,6 +736,7 @@ begin
 {$IFDEF ARMGENERIC}
 			  'A' : begin
 				armgeneric_gpio(StrToInt(ConfigTags[3]),StrToInt(ConfigTags[4]),StrToInt(ConfigTags[5]));
+				armgeneric_exportGPIO(StrToInt(ConfigTags[3]),StrToInt(ConfigTags[4]),StrToInt(ConfigTags[5]));
 			      end; 
 {$ENDIF}
 			  'W' : begin
