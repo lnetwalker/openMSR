@@ -13,7 +13,7 @@ Wenn Java erlaubt ist, zeigen die Applets die Koordinaten.
 Zur Bedienung des Programmes bitte die PDF Datei beachten.
 
 Sollen die Werte auf einen anderen DeviceServer oder eine andere IOGroup geschrieben werden
-müssen Sie die Werte im Quelltext main.cpp ändern und das Programm neu compilieren.
+müssen Sie die Werte im QuelltextObjRec.cpp ändern und das Programm neu compilieren.
 
 Sollten Sie in der Lage sein, das Programm so zu ändern, dass die Werte als Kommandzeilenparameter
 übergeben werden können, freue ich mich auf Ihren Patch
