@@ -9,6 +9,8 @@ Unit armgeneric_io_access;
 { all code is copyright by Hartmut Eilers and released under		}
 { the GNU GPL see www.gnu.org for license details			}
 
+{ for reference see: http://wiki.freepascal.org/Lazarus_on_Raspberry_Pi }
+
 { $Id:$ }
 
 {$mode objfpc}
@@ -25,7 +27,7 @@ function armgeneric_write_ports(io_port:longint;byte_value:byte):byte;
 function armgeneric_close(initstring:string):boolean;
 function armgeneric_gpio(adr:byte;bit:byte;gpiobit:byte):byte;
 function armgeneric_gpiodir(adr:byte;io_port:byte;dir:byte):byte;
-
+function armgeneric_exportGPIO(adr:byte;bit:byte;gpioline:byte):byte;
 IMPLEMENTATION
 uses 
   Classes, SysUtils, baseunix, StringCut;
@@ -44,15 +46,79 @@ var
 	GPIO		: GPIO_TYPE;
 	GPIO_ADR	: GPIO_ADR_TYPE;
 	GPIO_DIR	: array[0..255] of byte;
+	ListCnt 	: byte;
+	Liste		: StringArray;	
+
 
 function armgeneric_close(initstring:string):boolean;
+var l			: byte;
+    fileDesc		: integer;
+    gReturnCode		: Byte;
 
 begin
-  // Dummy must be filled !
+  // loop over the configured GPIOs and unexport them!
+  for l:=1 to ListCnt do begin
+    try
+      try
+	fileDesc := fpopen('/sys/class/gpio/unexport', O_WrOnly);
+	gReturnCode := fpwrite(fileDesc, Liste[l][0], 2);
+      finally
+	gReturnCode := fpclose(fileDesc);
+      end;
+    except
+      writeln('Error unexporting GPIO ',Liste[l][0]);
+    end;
+  end;
   armgeneric_close:=true;
 end;
 
 
+function armgeneric_exportGPIO(adr:byte;bit:byte;gpioline:byte):byte;
+var
+    fileDesc		: integer;
+    gReturnCode		: Integer;
+    gCloseCode		: Byte;
+    gpiodevicenumber 	: PChar;
+    //cmd			: String;
+
+const
+    OUT_DIRECTION: PChar = 'out';
+    IN_DIRECTION:  PChar = 'in';
+
+
+begin  
+    writeln(' Found GPIO Line ',gpioline,' in config file ');
+    { Set GPIO directions }
+    gpiodevicenumber:=PChar(IntToStr(gpioline));
+    { Prepare GPIO for access: }
+    try
+	write ('GPIO[',gpioline,']=',gpiodevicenumber);
+	fileDesc := fpopen('/sys/class/gpio/export', O_WrOnly);
+	gReturnCode := fpwrite(fileDesc, gpiodevicenumber[0], 2);
+	//cmd:='echo "'+IntToStr(gpioline)+'" > /sys/class/gpio/export';
+        //gReturnCode := fpsystem(cmd);
+	writeln (' Result : ',gReturnCode);
+    finally
+	gCloseCode := fpclose(fileDesc);
+    end;
+    if gReturnCode = -1 then   writeln('Error exporting GPIO ',gpioline);
+    { Set GPIO directions }
+    try
+      fileDesc := fpopen('/sys/class/gpio/gpio' + IntToStr(ptruint(gpiodevicenumber)) + '/direction', O_WrOnly);
+      write('GPIO ', gpioline ,' is ');
+      if ( GPIO_DIR[adr] = 0 ) then begin
+	writeln('Input');
+	gReturnCode := fpwrite(fileDesc, IN_DIRECTION[0], 2)
+	end       
+      else begin
+	writeln('Output');
+	gReturnCode := fpwrite(fileDesc, OUT_DIRECTION[0], 3);
+      end;
+    finally
+      gCloseCode := fpclose(fileDesc);
+    end;
+    if gReturnCode = -1 then writeln ('Error setting GPIO ',gpioline,' to ',GPIO_DIR[adr],' with code ',gReturnCode);
+end;
 
 function armgeneric_read_ports(io_port:longint):byte;
 var	
@@ -118,46 +184,13 @@ end;
 
 
 function armgeneric_hwinit(initstring:string;DeviceNumber:byte):boolean;
-var l,b,ListCnt 	: byte;
-    fileDesc		: integer;
-    gpiodevicenumber 	: PChar;
-    gReturnCode		: Byte;
-    Liste		: StringArray;	
-
-const
-    OUT_DIRECTION: PChar = 'out';
-    IN_DIRECTION:  PChar = 'in';
 
 begin
-  { initstring is a list of used adresses by this device }
-
+  { initstring is a list of used GPIO Lines by this device }
   { Prepare GPIO for access: }
   Liste:=StringSplit(initstring,',');
-  ListCnt:=length(Liste);
-  for l:=1 to ListCnt do begin
-    for b:=0 to 7 do begin
-      { Set GPIO directions }
-      gpiodevicenumber:=PChar(IntToStr(GPIO[StrToInt(Liste[l]),b]));
-
-      { Prepare GPIO for access: }
-      try
-	fileDesc := fpopen('/sys/class/gpio/export', O_WrOnly);
-        gReturnCode := fpwrite(fileDesc, gpiodevicenumber[0], 2);
-      finally
-        gReturnCode := fpclose(fileDesc);
-      end;
-      { Set GPIO directions }
-      try
-        fileDesc := fpopen('/sys/class/gpio/gpio' + IntToStr(ptruint(gpiodevicenumber)) + '/direction', O_WrOnly);
-        if ( GPIO_DIR[l] = 0 ) then 
-	  gReturnCode := fpwrite(fileDesc, IN_DIRECTION[0], 2)
-        else
-	  gReturnCode := fpwrite(fileDesc, OUT_DIRECTION[0], 3);
-      finally
-        gReturnCode := fpclose(fileDesc);
-      end;
-    end;
-  end;
+  ListCnt:=GetNumberOfElements(initstring,',');
+  Writeln('DEVICE has ',ListCnt,' GPIO lines');
 end;
 
 
