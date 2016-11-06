@@ -4,12 +4,22 @@
 # 
 # Just do a "make all", and, when you're finished, a make clean. 
 
-build:
+OBJECTS=Documentation
 
-ifeq ($(BLD_ARCH),linuxfree)
-	-cp  LabTools-UserGuide.pdf /tmp/$(USER)/build/OpenLabDocs/
-	-cp  DeviceServerAPI-english.pdf  /tmp/$(USER)/build/OpenLabDocs/ 
-	-cp  OpenMSR-GUI.pdf /tmp/$(USER)/build/OpenLabDocs/
-else
-	-cp  LabTools-UserGuide-full.pdf /tmp/$(USER)/build/OpenLabDocs/
-endif
+# get compiler and flags for the given platform
+#include ../build/make_includes/$(BLD_ARCH)
+#include ./make_macros/$(BLD_ARCH)_macros
+#include ../build/make_includes/unit-searchpath
+
+all: $(OBJECTS)
+
+# the physical Machine access layer
+Documentation:   LabTools-UserGuide-full.odt
+	soffice --convert-to pdf LabTools-UserGuide-full.odt  --headless
+
+clear:
+
+clean :
+	-rm *~
+
+build:
