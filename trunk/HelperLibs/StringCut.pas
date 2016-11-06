@@ -1,5 +1,3 @@
-unit StringCut;
-
 { this unit provides the function StringSplit which allows you 	}
 { to split a string in words with the possibility to use any	}
 { character as delimiter. The result is an array with the words }
@@ -7,14 +5,20 @@ unit StringCut;
 { counts the elements in the given string.			}
 { this unit is published under the terms of the GPL V 2 or any	}
 { later version. (c) by Hartmut Eilers <hartmut@eilers.net>	}
+unit StringCut;
 
 { $Id$ }
 
 interface
 
+{ used Type definitions }
 type
+  { the string to split }
   String255	= String [255];
+
+  { the resulting array of the splitted string }
   StringArray 	= array [1..255] of String255;
+
 
 function StringSplit(Line : String255; Trenner : Char):StringArray;
 function GetNumberOfElements( Line : String255; Trenner : Char):Integer;
