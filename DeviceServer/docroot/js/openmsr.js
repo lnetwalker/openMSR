@@ -11,6 +11,24 @@
     
 */    
 
+/* History:
+	Sep 2010
+		start
+		DigitalDataReader
+		DigitalDataSender
+		AnalogDataReader
+		Lamp
+		Switch
+		HorMeter
+		Knob
+		
+	Oct 2016
+		added LCDisplay
+		fixed Bug in AnalogReader
+		refactored code
+*/
+
+
 // this function initializes everything
 function OpenMSRInit() {
     // init Event mechanics
@@ -20,7 +38,7 @@ function OpenMSRInit() {
       document.getElementById('debug').value = '';
       DbgMsgCnt = 0;
       // Max Number of Messages in the Message Box
-      DbgMaxMsg = 40;
+      DbgMaxMsg = 250;
     }
     DebugLOG(' Page loaded OpenMSRInit done' );
 }
@@ -55,6 +73,7 @@ function EventInit() {
 // spits out the Timestamp as ms since 1.1.1970 0:00 h
 // and the message in a textarea named debug
 function DebugLOG(msg) {
+    //return;
     if ( document.getElementById('debug')!= null ) {
 	var TimeStamp = new Date;
 	if ( DbgMsgCnt == DbgMaxMsg ) {
@@ -64,7 +83,7 @@ function DebugLOG(msg) {
 	    document.getElementById('debug').value = '';
 	}
 	DbgMsgCnt = DbgMsgCnt + 1;
-	document.getElementById('debug').value = TimeStamp.getTime() + ' ' + msg + '\n' + document.getElementById('debug').value;
+	document.getElementById('debug').value += TimeStamp.getTime() + ' ' + msg + '\n';
     }
 }
 
@@ -79,7 +98,278 @@ function getXMLHttpRequest() {
 	}
 	return httpReq;
 }
+
+// the communication layer between the browser and the DeviceServer
+// functions to query/set the DeviceServer and to use the events
+var DigitalDataReader = function () {
+    /* 
+      this function reads the digital data from the DeviceServer
+      and distributes it over Events
+    */
+
+    this.Adresse = 'http://localhost:10080/digital/ReadInputValues.html';
+    this.IOGroup = 0;
+    this.EventMapping = new Array();
+    //var this.ReaderTimer=null;
+    this.req = null;
+    OldVal = 0;
     
+    var me = this;
+
+    me.TimeIntervall = 400;
+    
+    // Start the asynchronous read request
+    this.SendRequest = function () {
+      //alert('SendRequest ' + me.IOGroup );
+      me.req=getXMLHttpRequest();
+      if (me.req) {
+	//alert ('SendRequest send ' + me.Adresse + '?' + me.IOGroup );
+	me.req.onreadystatechange = me.PrintState;
+	me.req.open("get", me.Adresse + "?" + me.IOGroup, true);
+	me.req.send(null);
+      }
+    }
+    
+    // this function reads the asynchronous response from the AJAX request
+    // and sends the values as events
+    this.PrintState = function () {
+      //alert('PrintState');
+      // readyState 4 gibt an dass der request beendet wurde
+      if ( me.req.readyState ==4 ) {
+	//
+	// in resonseText ist die Antwort des Servers
+	str=me.req.responseText;
+	//alert(str);
+	// remove html tags
+	str = str.replace(/<[^<>]+>/g , "");
+	// remove leading space
+	str = str.replace(/^ /, "");
+	inputs=str.split(" ");
+	// now loop over the result and fire the events
+	for (var i=0;i<8;i++) {
+	  // send out events if the signal has changed since last run
+	  DebugLOG('DigitalDataReader: i=' +i + 'inputs=' + inputs[i] + 'OldVal=' +OldVal[i] );
+	  if ( inputs[i] != OldVal[i] ) {
+	    EventArgs = 'digital' + ' ' + me.EventMapping[i+1] + ' ' + inputs[i];
+	    //DebugLOG('DigitalDataReader: send Event = ' + EventArgs );
+	    // fire event
+	    OpenMSREvent.execute(EventArgs);   
+	  }
+	}
+	// save values for next run
+	OldVal=inputs;
+      }
+    }
+    
+    // this function read the timer value
+    this.TimerVal = function (xx) {
+      me.TimeIntervall = xx;
+    }
+
+    // this function builds the list of event to input mapping
+    this.AssignEvent = function (xx,yy) {
+      me.EventMapping[xx] = yy;
+      //alert(me.EventMapping[xx]);
+    }
+
+    // the URL to read the DeviceServer
+    this.DeviceServerURL = function (xx) {
+      me.Adresse = xx;
+    }
+
+    // the IOGroup to read
+    this.IOGroup = function (xx) {
+      me.IOGroup = xx;
+      //alert(me + ' ' + me.IOGroup);
+ 
+      // establish our own timer to periodically read the signals
+      me.ReaderTimer = setInterval(me.SendRequest,me.TimeIntervall);
+      
+    }
+
+}
+
+
+var DigitalDataSender=function () {
+    /*
+      this function receives events and sends the data to
+      the DeviceServer
+    */
+    this.Adresse = 'http://localhost:10080/digital/WriteOutputValues.html';
+    this.IOGroup = 0;
+    this.EventMapping = new Array();
+    this.ValArray = new Array();
+    this.req = null;
+    this.value = 0;
+    var me = this;
+    
+    me.TimeIntervall=400;
+    
+    // Start the asynchronous write request
+    this.SendRequest = function () {
+	//alert('SendRequest ' + me.IOGroup );
+	me.req=getXMLHttpRequest();
+	if (me.req) {
+	    // calculate the value from the ValArray
+	    me.value=0;
+	    for (var i=1;i<8;i++) {
+		if (me.ValArray[i] == 1) {
+		    me.value=me.value+Math.pow(2,(i-1));
+		}
+	    }
+	    //alert ('SendRequest send ' + me.Adresse + '?' + me.IOGroup + "," + me.value );
+	    me.req.onreadystatechange = me.PrintState;
+	    me.req.open("get", me.Adresse + "?" + me.IOGroup + "," + me.value, true);
+	    me.req.send(null);
+	}
+    }
+    
+    // this function reads the asynchronous response from the AJAX request
+    // and sends the values as events
+    this.PrintState = function () {
+	//alert('PrintState');
+	// readyState 4 gibt an dass der request beendet wurde
+	if ( me.req.readyState ==4 ) {
+	    //
+	    // in resonseText ist die Antwort des Servers
+	    var str=me.req.responseText;
+	    // currently we just read the response, and ignore it
+	}
+    }
+    
+    // this function read the timer value
+    this.TimerVal = function (xx) {
+	me.TimeIntervall = xx;
+    }
+    
+    // this function builds the list of event to input mapping
+    this.AssignEvent = function (xx,yy) {
+	this.EventMapping[xx] = yy;
+	//alert(xx + ' ' + this.EventMapping[xx]);
+    }
+    
+    // the URL to use with the DeviceServer
+    this.DeviceServerURL = function (xx) {
+	this.Adresse = xx;
+    }
+    
+    // the IOGroup to use
+    this.IOGroup = function (xx) {
+	this.IOGroup = xx;
+	//alert(me + ' ' + me.IOGroup);
+	// establish our own timer to periodically read the signals
+	me.SenderTimer = setInterval(me.SendRequest,me.TimeIntervall);
+    }
+    
+    this.ReceiveEvent = function(EventArgs) {
+	// split the event data in its elements
+	var EventArray = EventArgs.split(' ');
+	// check wether the current event is for me
+	// loop over the mapping and store value if mapping matches
+	if ( EventArray[0] == 'digital') {
+	    for (var i=1;i<8;i++) {
+		if (me.EventMapping[i] == EventArray[1] ) {
+		    //alert(me + ' ' + EventArray[2]);
+		    me.ValArray[i]=EventArray[2];
+		}
+	    }
+	}
+    }
+    
+    // install Event Handler
+    OpenMSREvent.addHandler(me.ReceiveEvent);
+}
+
+
+var AnalogDataReader = function () {
+    /* 
+      this function reads the analog data from the DeviceServer
+      and distributes it over Events
+    */
+
+    this.Adresse = 'http://localhost:10080/analog/read.html';
+    this.IOGroup = 0;
+    this.EventMapping = new Array();
+    this.req = null;
+    this.inputs = new Array();
+    var me = this;
+
+    me.TimeIntervall=480;
+    
+    // Start the asynchronous read request
+    this.SendRequest = function () {
+      //alert('SendRequest ' + me.IOGroup );
+      me.req=getXMLHttpRequest();
+      if (me.req) {
+	DebugLOG('AnalogReader.SendRequest send ' + me.Adresse + '?' + me.IOGroup );
+	me.req.onreadystatechange = me.PrintState;
+	me.req.open("get", me.Adresse + "?" + me.IOGroup, true);
+	me.req.send(null);
+      }
+    }
+    
+    
+    // fires one Event
+    this.FireEvent = function (Item,Index) {
+        EventData = 'analog' + ' ' + Item + ' ' + me.inputs[Index];
+        // fire event
+        DebugLOG(' AnalogReader.PrintState fired event ->' + EventData );
+	OpenMSREvent.execute(EventData); 
+    }    
+    
+    
+    // this function reads the asynchronous response from the AJAX request
+    // and sends the values as events
+    this.PrintState = function () {
+      // readyState 4 gibt an dass der request beendet wurde
+      if ( me.req.readyState ==4 ) {
+	// in resonseText ist die Antwort des Servers
+	var str=me.req.responseText;
+	// remove html tags
+	str = str.replace(/<[^<>]+>/g , "");
+	// remove leading space
+	str = str.replace(/^ /, "");
+	me.inputs=str.split(" ");
+	DebugLOG('AnalogReader.PrintState: received ' + me.inputs );
+	// now loop over the result and fire the events
+       //for (i=0;i<8;i++) {
+       //   EventArgs = 'analog' + ' ' + me.EventMapping[i] + ' ' + inputs[i];
+       //   // fire event
+       //   DebugLOG(' AnalogReader.PrintState fired event ->' + EventArgs );
+       //   OpenMSREvent.execute(EventArgs);
+       //}
+        me.EventMapping.forEach(me.FireEvent);
+      }
+    }
+    
+    // this function read the timer value
+    this.TimerVal = function (xx) {
+	me.TimeIntervall = xx;
+    }
+    
+    // this function builds the list of event to input mapping
+    this.AssignEvent = function (xx,yy) {
+      me.EventMapping[xx-1] = yy;
+      //alert(xx + ' ' + me.EventMapping[xx]);
+      DebugLOG(' AnalogReader EventMapping '+ me.EventMapping[xx]);
+    }
+
+    // the URL to read the DeviceServer
+    this.DeviceServerURL = function (xx) {
+      me.Adresse = xx;
+    }
+
+    // the IOGroup to read
+    this.IOGroup = function (xx) {
+      me.IOGroup = xx;
+      //alert(me + ' ' + me.IOGroup);
+      // establish our own timer to periodically read the signals
+      me.ReaderTimer = setInterval(me.SendRequest,me.TimeIntervall);
+    }
+
+}
+ 
+// The different devices that are available 
 
 // the meter is an instrument to show analog values
 var HorMeter = function(CanvasName,Cat,CatNo) {
@@ -558,256 +848,189 @@ function Knob(CanvasName,Cat,CatNo) {
 }
 
 
-var DigitalDataReader = function () {
-    /* 
-      this function reads the digital data from the DeviceServer
-      and distributes it over Events
-    */
+// an LCD Display 
+var LCDisplay = function (CanvasName,Cat,CatNo) {
 
-    this.Adresse = 'http://localhost:10080/digital/ReadInputValues.html';
-    this.IOGroup = 0;
-    this.EventMapping = new Array();
-    //var this.ReaderTimer=null;
-    this.req = null;
-    OldVal = 0;
+    // variables and constants.default values
+    this.file_extension = 'jpg';                     // File extension: all files must have the same extension.
+    this.DigitsNumber = 6;
+    this.Decimals = 2;
+    this.display_name = 'HC1331C';
+    this.Convert = 1;
+    this.ImagePath = '/images/';
+
+    // --------------------------------------------------------------------------
+
+    // set the Display Type
+    // may be one off ITT5870S,ST12C,LT303,HD1131R,TDSG5160,HC1331C
+    this.Display_Type = function (Name) {
+        //alert(Name);
+	this.display_name = Name;
+    }
     
+    // How much Digits the Display should have
+    this.No_of_Digits = function (xx,yy) {
+        this.DigitsNumber = xx;
+        this.Decimals = yy;
+    }
+    
+    // which function should be called to Convert the raw data to the display datat
+    this.Convert = function(xx) {
+        this.ConvertFactor = xx;
+    }
+    
+    // set the Image Path
+    this.setImagePath = function(xx) {
+        this.ImagePath = xx;
+    }
+
+
+    // The main program starts here. 
     var me = this;
+    me.CanvasName = CanvasName;
 
-    me.TimeIntervall = 400;
-    
-    // Start the asynchronous read request
-    this.SendRequest = function () {
-      //alert('SendRequest ' + me.IOGroup );
-      me.req=getXMLHttpRequest();
-      if (me.req) {
-	//alert ('SendRequest send ' + me.Adresse + '?' + me.IOGroup );
-	me.req.onreadystatechange = me.PrintState;
-	me.req.open("get", me.Adresse + "?" + me.IOGroup, true);
-	me.req.send(null);
-      }
-    }
-    
-    // this function reads the asynchronous response from the AJAX request
-    // and sends the values as events
-    this.PrintState = function () {
-      //alert('PrintState');
-      // readyState 4 gibt an dass der request beendet wurde
-      if ( me.req.readyState ==4 ) {
-	//
-	// in resonseText ist die Antwort des Servers
-	str=me.req.responseText;
-	//alert(str);
-	// remove html tags
-	str = str.replace(/<[^<>]+>/g , "");
-	// remove leading space
-	str = str.replace(/^ /, "");
-	inputs=str.split(" ");
-	// now loop over the result and fire the events
-	for (var i=0;i<8;i++) {
-	  // send out events if the signal has changed since last run
-	  DebugLOG('DigitalDataReader: i=' +i + 'inputs=' + inputs[i] + 'OldVal=' +OldVal[i] );
-	  if ( inputs[i] != OldVal[i] ) {
-	    EventArgs = 'digital' + ' ' + me.EventMapping[i+1] + ' ' + inputs[i];
-	    //DebugLOG('DigitalDataReader: send Event = ' + EventArgs );
-	    // fire event
-	    OpenMSREvent.execute(EventArgs);   
-	  }
-	}
-	// save values for next run
-	OldVal=inputs;
-      }
-    }
-    
-    // this function read the timer value
-    this.TimerVal = function (xx) {
-      me.TimeIntervall = xx;
+    // --------------------------------------------------------------------------
+
+
+    // Function to convert digits into file names and extensions.
+    this.digit_name = function(number) {
+        // Each display set is composed by 12 jpg files with digits between 0 and 9 
+        // plus a "dot" or "colon" on and off. File names example for the default 
+        // ITT5870S nixie tube:
+        // "ITT5870S.0.jpg", "ITT5870S.1.jpg", "ITT5870S.2.jpg", "ITT5870S.3.jpg", 
+        // "ITT5870S.4.jpg", "ITT5870S.5.jpg", "ITT5870S.6.jpg", "ITT5870S.7.jpg", 
+        // "ITT5870S.8.jpg", "ITT5870S.9.jpg", "ITT5870S.doton.jpg", 
+        // "ITT5870S.dotoff.jpg"
+        var num = Math.floor(number);
+
+        // it's a number so load digit
+        return me.ImagePath + me.display_name + '.' + num + '.' + me.file_extension;
     }
 
-    // this function builds the list of event to input mapping
-    this.AssignEvent = function (xx,yy) {
-      me.EventMapping[xx] = yy;
-      //alert(me.EventMapping[xx]);
+
+
+    // --------------------------------------------------------------------------
+    // Function to convert colons into file names and extensions.
+    this.colon_name = function (on) {
+        if (on == 0)
+            return me.ImagePath + me.display_name + '.dotoff.' + me.file_extension;
+        else
+            return me.ImagePath + me.display_name + '.doton.' + me.file_extension;
     }
 
-    // the URL to read the DeviceServer
-    this.DeviceServerURL = function (xx) {
-      me.Adresse = xx;
+
+    // --------------------------------------------------------------------------
+    // Function to show characters like blank, E, r ....
+    this.character = function (Char) {
+       // handle blank, -, E, r
+       if (Char == ' ' ) {
+           // treat blank as special
+         Char = 'blank';
+       }
+       return this.ImagePath + this.display_name + '.' + Char + '.' + this.file_extension;
     }
 
-    // the IOGroup to read
-    this.IOGroup = function (xx) {
-      me.IOGroup = xx;
-      //alert(me + ' ' + me.IOGroup);
- 
-      // establish our own timer to periodically read the signals
-      me.ReaderTimer = setInterval(me.SendRequest,me.TimeIntervall);
-      
-    }
-
-}
 
 
-var DigitalDataSender=function () {
-    /*
-      this function receives events and sends the data to
-      the DeviceServer
-    */
-    this.Adresse = 'http://localhost:10080/digital/WriteOutputValues.html';
-    this.IOGroup = 0;
-    this.EventMapping = new Array();
-    this.ValArray = new Array();
-    this.req = null;
-    this.value = 0;
-    var me = this;
-    
-    me.TimeIntervall=400;
-    
-    // Start the asynchronous write request
-    this.SendRequest = function () {
-	//alert('SendRequest ' + me.IOGroup );
-	me.req=getXMLHttpRequest();
-	if (me.req) {
-	    // calculate the value from the ValArray
-	    me.value=0;
-	    for (var i=1;i<8;i++) {
-		if (me.ValArray[i] == 1) {
-		    me.value=me.value+Math.pow(2,(i-1));
+    // --------------------------------------------------------------------------
+    this.HandleDisplayData = function  (EventArgs) {
+		// split the event data in its elements
+		EventArray = EventArgs.split(' ');
+		// check wether the current event is for me
+		if ( EventArray[0] == Cat) {
+			if ( EventArray[1] == CatNo ) {
+				// the event is for me, so display data
+				currentVal = EventArray[2];
+				//me.showLCD(currentVal);
+				DebugLOG('running Display function! currentVal=' + currentVal);
+				var digit_string = '';
+				var Wert = 0;
+				var WertString = '';
+				// get the number to display
+				// and convert if needed
+				if ( me.ConvertFactor != 1 ) { 
+					Wert = currentVal * me.ConvertFactor;
+				}
+		
+				DebugLOG('Display -> ' + me + ' Wert=' + Wert + ' Factor=' + me.ConvertFactor );
+				WertString = Wert.toString();
+				DebugLOG('running Display function! num_as_str=' + WertString);
+				// format the string to wanted standard
+		
+				// no comma in string
+				if ( WertString.indexOf('.') == -1 ) {
+					// append a dot as comma
+					WertString = WertString + '.';
+					// append the number of wanted decimals
+					for ( i=1; i <= me.Decimals ; i++ ) {
+						WertString = WertString + '0';
+					}    
+				}
+
+				// wrong number of decimals, correct by appending zeros or truncating
+				// calculate the number of decimals
+				var CurrentDecimals = WertString.length - ( WertString.indexOf('.') + 1 );
+				DebugLOG('CurrentDecimals=' + CurrentDecimals );
+				if ( CurrentDecimals < me.Decimals ) {
+					// String has not enough decimals -> append zero(s)
+					for ( i=CurrentDecimals; i<me.Decimals; i++ ) {
+						WertString = WertString + '0';
+					}
+				} else {
+					DebugLOG('WertString=' + WertString );
+					// correct number of decimals or too much decimals
+					if ( CurrentDecimals > me.Decimals ) {
+						// too much decimals -> truncate number
+						var too_much_decimals = CurrentDecimals - me.Decimals;
+						WertString = WertString.substring(0,WertString.length - too_much_decimals  );
+					}
+				}    
+				DebugLOG('WertString=' + WertString + ' CurrentDecimals=' + CurrentDecimals + ' 2muchDec=' + too_much_decimals);
+		  
+				// negative numbers !!
+				// think about what needs to be done
+		  
+		  
+				// if string is too long, show err!!
+				if ( WertString.length > me.DigitsNumber ) {
+					WertString = 'Err.';
+				}
+		  
+		
+				// if the string is too short prepend with blanks
+				if ( WertString.length < me.DigitsNumber ) {
+					//alert ('string too short');
+					for ( i = WertString.length; i < me.DigitsNumber; i++ ) {
+						WertString = ' ' + WertString;
+					}
+				}
+		  
+				for ( i=0; i < me.DigitsNumber ; i++ ) {
+					//document.getElementById("Print").value = digit_number;
+					me.digit_string = me.CanvasName + i.toString();
+					document.getElementById(me.digit_string).style.visibility = "visible";
+					if ( WertString[i] == '.' ) {
+						document.getElementById(me.digit_string).src = me.colon_name(1);
+					} else {
+						digit_number = parseInt(WertString[i]);
+						if ( isNaN(digit_number) ) {
+							document.getElementById(me.digit_string).src = me.character(WertString[i]);
+						} else {
+							document.getElementById(me.digit_string).src = me.digit_name(digit_number);    // Yes, change the digits
+						}    
+					}    
+				}
+				DebugLOG('Display ' + Cat + ' ' + CatNo + ' ' + currentVal + ' finished' );
+			}
 		}
-	    }
-	    //alert ('SendRequest send ' + me.Adresse + '?' + me.IOGroup + "," + me.value );
-	    me.req.onreadystatechange = me.PrintState;
-	    me.req.open("get", me.Adresse + "?" + me.IOGroup + "," + me.value, true);
-	    me.req.send(null);
 	}
-    }
-    
-    // this function reads the asynchronous response from the AJAX request
-    // and sends the values as events
-    this.PrintState = function () {
-	//alert('PrintState');
-	// readyState 4 gibt an dass der request beendet wurde
-	if ( me.req.readyState ==4 ) {
-	    //
-	    // in resonseText ist die Antwort des Servers
-	    var str=me.req.responseText;
-	    // currently we just read the response, and ignore it
-	}
-    }
-    
-    // this function read the timer value
-    this.TimerVal = function (xx) {
-	me.TimeIntervall = xx;
-    }
-    
-    // this function builds the list of event to input mapping
-    this.AssignEvent = function (xx,yy) {
-	this.EventMapping[xx] = yy;
-	//alert(xx + ' ' + this.EventMapping[xx]);
-    }
-    
-    // the URL to use with the DeviceServer
-    this.DeviceServerURL = function (xx) {
-	this.Adresse = xx;
-    }
-    
-    // the IOGroup to use
-    this.IOGroup = function (xx) {
-	this.IOGroup = xx;
-	//alert(me + ' ' + me.IOGroup);
-	// establish our own timer to periodically read the signals
-	me.SenderTimer = setInterval(me.SendRequest,me.TimeIntervall);
-    }
-    
-    this.ReceiveEvent = function(EventArgs) {
-	// split the event data in its elements
-	var EventArray = EventArgs.split(' ');
-	// check wether the current event is for me
-	// loop over the mapping and store value if mapping matches
-	if ( EventArray[0] == 'digital') {
-	    for (var i=1;i<8;i++) {
-		if (me.EventMapping[i] == EventArray[1] ) {
-		    //alert(me + ' ' + EventArray[2]);
-		    me.ValArray[i]=EventArray[2];
-		}
-	    }
-	}
-    }
-    
-    // install Event Handler
-    OpenMSREvent.addHandler(me.ReceiveEvent);
+
+    // Finally we can start the display.
+    OpenMSREvent.addHandler(me.HandleDisplayData);                       // Start the display Event Handler
+
+
+    // --------------------------------------------------------------------------
+
 }
 
 
-var AnalogDataReader = function () {
-    /* 
-      this function reads the analog data from the DeviceServer
-      and distributes it over Events
-    */
-
-    this.Adresse = 'http://localhost:10080/analog/read.html';
-    this.IOGroup = 0;
-    this.EventMapping = new Array();
-    this.req = null;
-    var me = this;
-
-    me.TimeIntervall=480;
-    
-    // Start the asynchronous read request
-    this.SendRequest = function () {
-      //alert('SendRequest ' + me.IOGroup );
-      me.req=getXMLHttpRequest();
-      if (me.req) {
-	DebugLOG('AnalogReader.SendRequest send ' + me.Adresse + '?' + me.IOGroup );
-	me.req.onreadystatechange = me.PrintState;
-	me.req.open("get", me.Adresse + "?" + me.IOGroup, true);
-	me.req.send(null);
-      }
-    }
-    
-    // this function reads the asynchronous response from the AJAX request
-    // and sends the values as events
-    this.PrintState = function () {
-      // readyState 4 gibt an dass der request beendet wurde
-      if ( me.req.readyState ==4 ) {
-	// in resonseText ist die Antwort des Servers
-	var str=me.req.responseText;
-	// remove html tags
-	str = str.replace(/<[^<>]+>/g , "");
-	// remove leading space
-	str = str.replace(/^ /, "");
-	DebugLOG(' AnalogReader.PrintState received ' + str );
-	var inputs=str.split(" ");
-	// now loop over the result and fire the events
-	for (i=0;i<8;i++) {
-	  EventArgs = 'analog' + ' ' + me.EventMapping[i+1] + ' ' + inputs[i];
-	  // fire event
-	  OpenMSREvent.execute(EventArgs); 
-	}
-      }
-    }
-    
-    // this function read the timer value
-    this.TimerVal = function (xx) {
-	me.TimeIntervall = xx;
-    }
-    
-    // this function builds the list of event to input mapping
-    this.AssignEvent = function (xx,yy) {
-      this.EventMapping[xx] = yy;
-      DebugLOG(' AnalogReader EventMapping '+ this.EventMapping[xx]);
-    }
-
-    // the URL to read the DeviceServer
-    this.DeviceServerURL = function (xx) {
-      this.Adresse = xx;
-    }
-
-    // the IOGroup to read
-    this.IOGroup = function (xx) {
-      this.IOGroup = xx;
-      //alert(me + ' ' + me.IOGroup);
-      // establish our own timer to periodically read the signals
-      me.ReaderTimer = setInterval(me.SendRequest,me.TimeIntervall);
-    }
-
-}
