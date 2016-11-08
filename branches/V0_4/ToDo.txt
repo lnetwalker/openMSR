@@ -1,0 +1,126 @@
+BUILD:
+- fix build process
+- get working build environment for all Linux[ARM,X64,i386], Win, OSX
+ v X64
+ - ARM
+ v i386
+ v Win
+ - OSX
+ v Gnublin
+
+
+GENERAL:
+- make hardware overview
+v add project to ohloh 10.2012
+- introduce commandline parameters ( eg cfg file etc )
+- more error checking
+v add README, LICENSE, CHANGELOG files
+- add usage of PhysMach Config file in all other tools ( see PhysMach Callback function PhysMachRegCfg )
+- test all supported hardware
+  done for Joystick, IOWarrior 24/40, LPT, BMCM, EXEC ( digitemp ),
+- update Documentation!  
+- fix SVN errors/poblems with Documentation!
+- add project to freshmeat
+v fix error with SVN ( SPS/Test ) tree conflict - done 20.3.11
+v move repository to sourceforge - done 21.03.2011
+v fix error in SVN Repo with corrupted files - done 21.03.2011
+v add project to koders.com - done 21.03.2011
+ 
+WEBSITE:
+v add news about code on sf - done 21.03.2011
+
+* Existing Tools
+
+PHYSMACH:
+- write devicedriver for all new hardware
+- write devicedriver for 8255 based analog I/O Card ( Ferranti 426/427 )
+- write devicedriver for I2C based analog in
+- add drivers for the Kolter Cards
+  ( Opto Rel PCI,Opto 30 ISA, PCI Counter 1, PCI AD12LCN, Proto 3 PCI )
+- add driver for IOWarrior 56
+- implement Timecontrol driver
+  make it like the crontab entries
+- find solution for drivers on top of drivers ( like Funk_IO or counters... )
+- add serial number detection and config assignment to iow_io_access.pas
+- add comedi support first develop driver to access comedi supported hardware
+- commedi support add lib which exports the PhysMach as comedi device
+- implement a soft PWM driver ( see OpenLabDocs/Ideen/pwm.txt )
+v implement a callback to register procedures to the config read function - 20.3.11 done
+v implement digital Out - 19.3.11 done
+v implement PhysMachEnd to close the devices cleanly - 19.3.11 done
+
+WEBSERVER:
+- make location of debug and errorlogfiles configurable
+- implement CGI function ( execution of external programs )
+
+DATALOGGER:
+- spezieller Cursor, der frei beweglich ist
+- zur Anzeige der Ticks zwischen 2 Punkten
+- rewrite using Lazarus
+- add PhysMachEnd
+- add triggerfunction ( to start when certain condition is met )
+
+OSZI:
+- rewrite using Lazarus
+- rename to scope
+- add PhysMachEnd
+
+GUI:
+- analoge Anzeige
+- Digitale Anzeige
+- more Instruments like: Zeigerinstrument, Slider, Füllstand, Vertical Meter, Scope, Graph
+- add analog out support
+
+SPS:
+- implement basic operators like ADD, SUB, MUL, DIV
+- implement Random Number Support for K-Values: 25 K RND 256 ; erzeugt randon number between 0 and 255 
+- KOP: doesn't support all commands
+  currently supported are U,UN,A,AN,=,=N,O,ON,EN,PE,EP,$,ZR,TE,S,R,NOP
+  missing: U(,UN(,O(,ON(,JI,),J,K,EQ,LT,GT,JP,SP,SPB,JC,AN(,A(
+- KOP: NOP can be interpreted wrong leading to a faulty KOP
+- make the toggeling Markers configurable ( M62-M64)
+v allow analog inputs as K-Values - done 20.3.11 ( negative values for k are pointers to the
+  appropriate Analog input eg k -1 means take Analog In 1 as K value)
+v make comments field in AWL bigger (22 chars is too small) - allready done: comment may be 255 chars
+v add PhysMachEnd - 19.3.11 done
+v add analog out support - 20.3.11 done
+v implement callback to read config from PhysMach config file - done 20.3.11
+v implement Config file as cmdline param - done 20.3.11
+v KOP: bug when opening KOP multiple times! - done 20.3.11
+
+RUN_SPS:
+v implement callback to read config from PhysMach config file - done 20.3.11
+v implement Config file as cmdline param - done 20.3.11
+v add analog out support - done 20.3.11
+
+DEVICESERVER:
+- add PhysMachEnd
+- add analog out support
+- fix bug with segfaulting when using BMCM devices
+v fix bug with cmdline param d - done 20.3.11
+
+* New Tools / Ideas
+
+FUNCTIONSOLVER:
+- get it running
+
+FUNCTIONGENERATOR:
+- erzeugt Rechteck, Sinus, Dreieck und Sägezahn
+
+BOOLEAN INTERPRETER:
+- Simulates Boolean Equations ( perhaps fktplot based )
+
+PID REGLER:
+- implement 2 Pkt Regler
+
+EVENTMANAGER:
+- plays sounds on Events
+
+MYSQL LOGGER:
+- implement a mysql db logger feature
+
+Object Recognition:
+- rewrite GUI to enable other image sources
+- update to V4L2
+- make it available on other plattforms
+

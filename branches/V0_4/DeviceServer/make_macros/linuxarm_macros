@@ -1,0 +1,1 @@
+FPC_FLAGS=  -CpARMV5 -darm -dFPC_ARMEL  -Xd -Xr/usr/libgnublin -Fl/usr/libgnublin -XParm-linux- 

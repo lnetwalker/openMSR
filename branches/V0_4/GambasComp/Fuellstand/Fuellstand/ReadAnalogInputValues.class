@@ -1,0 +1,66 @@
+' Gambas class file
+PRIVATE _downloadAsync AS NEW HttpClient AS "_Download"
+PRIVATE HttpResult AS String
+PRIVATE PortValue AS String[]
+PRIVATE hDownloadTimer AS Timer
+PRIVATE URL AS String
+PRIVATE ThisIOGroup AS Integer
+EVENT NewAnalogInputValue(IOGroup AS Integer, ByteData AS String[]) AS Boolean
+
+
+
+PUBLIC SUB SetParam(pURL AS String, pThisIOGroup AS Integer)
+  
+  URL = pURL
+  ThisIOGroup = pThisIOGroup
+  hDownloadTimer = NEW Timer AS "MyTimer"
+  hDownloadTimer.Delay = 500
+  hDownloadTimer.Enabled = TRUE
+  PRINT "params set"  
+END
+
+PUBLIC SUB MyTimer_Timer()
+
+  ' timer elapsed, so request new values from deviceserver
+  DownloadAsync(URL)
+  'PRINT "Timer"
+END
+
+PRIVATE SUB DownloadAsync(URL AS String)
+  ' start a new download
+  HttpResult = ""
+  _downloadAsync.UserAgent = "Mozilla"        ' See Documentation Regarding UserAgent
+  _downloadAsync.URL = URL
+  _downloadAsync.TimeOut = 20
+  _downloadAsync.Get()
+  
+END
+
+PUBLIC SUB _Download_Connect()
+  'PRINT "Connection found " & _downloadAsync.URL
+END
+
+PUBLIC SUB _Download_Read()
+  ' read the reply
+  DIM buffer AS String
+  READ #LAST, buffer, Lof(LAST)
+  HttpResult &= buffer
+END
+
+PUBLIC SUB _Download_Error()
+  PRINT "Error " & _downloadAsync.Status & " downloading " & _downloadAsync.URL
+END
+
+PUBLIC SUB _Download_Finished()
+
+  ' remove HTML tags from result
+  HttpResult = Replace$(HttpResult, "<html><body> ", "")
+  HttpResult = Replace$(HttpResult, " </body></html>", "")
+  'PRINT HttpResult
+  ' split the remaining string in the array PortValue
+  PortValue = Split(HttpResult, " ")
+  ' notify others of new values
+  RAISE NewAnalogInputValue(ThisIOGroup, PortValue)
+  
+END
+

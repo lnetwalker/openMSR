@@ -1,0 +1,237 @@
+<html>
+<head>
+<title>IO Monitor Console</title>
+
+  <style type="text/css">
+  canvas {
+   background-color: black;
+  }
+  </style>
+
+
+</head>
+<body bgcolor=black onload="preload()" >
+	<table border=0>
+	  <tr>
+		<td align=center><img id="led1" src="images/led-green-off.jpg"></td>
+		<td align=center><img id="led2" src="images/led-green-off.jpg"></td>
+		<td align=center><img id="led3" src="images/led-green-off.jpg"></td>
+		<td align=center><img id="led4" src="images/led-green-off.jpg"></td>
+		<td align=center><img id="led5" src="images/led-green-off.jpg"></td>
+		<td align=center><img id="led6" src="images/led-green-off.jpg"></td>
+		<td align=center><img id="led7" src="images/led-green-off.jpg"></td>
+		<td align=center><img id="led8" src="images/led-green-off.jpg"></td>
+	  </tr>
+	</table>
+	<canvas></canvas>
+	<form>
+	<font color=white>Server:Port=http://<input type=text value='localhost:10080' id="Hostname" size=25>
+	<font color=white>IO Group: <input type=text  value=0 id="iogroup" size=2 ><br>
+	<font color=white>URL to read LED: <input type=text  value='/digital/ReadInputValues.html' id="LEDURL" size=40><br>
+	</form>
+</body>
+
+<script type="text/javascript">
+
+var req=null;
+var Eingang=new Array();
+var Ausgang=new Array();
+var SwitchState=new Array();
+var ReloadEingangTimer;
+var LED_on=new Image();
+var LED_off=new Image();
+var power=new Array();
+// get handle for the canvas element
+var canv = document.getElementsByTagName("canvas")[0];
+var width = canv.width = 400;
+var height = canv.height = 100;
+var OldValue = new Array();
+Xcor = 0;
+Ycor = 0;
+// how much pixels space between the signals
+Padding = 6;
+// the width of a signalstep
+SignalBreite = 5;
+// the height of a signal
+SignalHoehe = 5;
+// the gap from top canvas to first signal
+Rand = 8;
+// Access to canvas
+var Scope = canv.getContext("2d");
+
+
+
+// Initialize Plattformindependent the asynchronous access
+function getXMLHttpRequest() {
+	var httpReq=null;
+	if (window.XMLHttpRequest) {
+		httpReq=new XMLHttpRequest();
+	} else if (typeof ActiveXObject != "undefined") {
+		httpReq=new ActiveXObject("Microsoft.XMLHTTP");
+	}
+	return httpReq;
+}
+
+
+// Start the asynchronous read request
+function SendRequest(url, handler, param) {	
+	req=getXMLHttpRequest();
+	if (req) {
+		//alert(url);
+		req.onreadystatechange = handler;
+		req.open("get", url + "?" + param, true);
+		req.send(null);
+	}
+}
+
+
+// this function reads the asynchronous response from the AJAX request
+// and shows  the corresponding graphics
+function PrintState() {
+	// readyState 4 gibt an dass der request beendet wurde
+	if (req.readyState ==4 ) {
+		// in resonseText ist die Antwort des Servers
+		var str=req.responseText;
+		// remove html tags
+		str = str.replace(/<[^<>]+>/g , "");
+		// remove leading space
+		str = str.replace(/^ /, "");
+		var inputs=str.split(" ");
+		// nu muss hier in einer Loop jeweils die grafik für die LED 1/0 eingeblendet werden
+		// show the LED graphics in a loop for all signals
+		for (i=0;i<8;i++) {
+			if (inputs[i]=="1") {
+				Eingang[i].src = LED_on.src;
+				PrintHi(i)  // print a high for this signal
+			} else {
+				Eingang[i].src = LED_off.src;
+				PrintLo(i); // print a low for this signal 
+			}
+		}
+	}
+}
+
+
+//Diese Funktion zeichnet das High eines Signals
+// als Linie auf dem Canvas
+function PrintHi(SignalNr) {
+	  if ( SignalNr == 0 ) {
+	    // start with row = 0 and next column 
+	    Xcor = Xcor+SignalBreite;
+	    if (Xcor > width) {
+	      // we reached the end of the canvas, so delete canvas and start from beginning
+	      canv.width = 400;
+	      Xcor = 0;
+	    }
+	  }  
+	  // just the next row in this column  
+	  Ycor = SignalNr*10+Padding + Rand;
+	  Scope.beginPath();
+	  Scope.strokeStyle = "lightgreen";
+	  Scope.lineWidth = 1;
+	  if ( OldValue[SignalNr] == false ) {
+	      // Last value was low so we need a vertical line 
+	      Scope.moveTo(Xcor, Ycor);
+	      Scope.lineTo(Xcor,Ycor-SignalHoehe);
+	  }
+	  Scope.moveTo(Xcor,Ycor-SignalHoehe);
+	  Scope.lineTo(Xcor+SignalBreite,Ycor-SignalHoehe);
+	  Scope.stroke();
+	  Scope.closePath();
+	  // STore last value for next run
+	  OldValue[SignalNr] = true;
+}
+
+
+//Diese Funktion zeichnet das Low eines Signals
+// als Linie auf dem Canvas
+function PrintLo(SignalNr) {
+	  if ( SignalNr == 0 ) {
+	    // start with row = 0 and next column 
+	    Xcor = Xcor+SignalBreite;
+	    if (Xcor > width) {
+	      // we reached the end of the canvas, so delete canvas and start from beginning
+	      canv.width = 400;
+	      Xcor = 0;
+	    }
+	  } 
+	  // just the next row in this column
+	  Ycor = SignalNr*10+Padding + Rand;
+	  Scope.beginPath();
+	  Scope.strokeStyle = "green";
+	  Scope.lineWidth = 1;
+	  if ( OldValue[SignalNr] == true ) {
+	    // Last value was low so we need a vertical line
+	      Scope.moveTo(Xcor, Ycor);
+	      Scope.lineTo(Xcor,Ycor-SignalHoehe);
+	  }
+	  Scope.moveTo(Xcor,Ycor);
+	  Scope.lineTo(Xcor+SignalBreite,Ycor);
+	  Scope.stroke();
+	  Scope.closePath();
+	  // STore last value for next run
+	  OldValue[SignalNr] = false;
+}
+
+
+// this function is frequently triggered and starts the AJAX access to the deviceserver
+// to read the inputs
+function ReadIOData()  {
+	var IOGroup=document.getElementById("iogroup");
+	// Welcher DeviceServer soll benutzt werden ?
+	var Host=document.getElementById("Hostname");
+	var ReadURL=document.getElementById("LEDURL");
+	var Adresse;
+	Adresse="http://" + Host.value + ReadURL.value;
+
+	if (IOGroup.value != 0 ) {
+		SendRequest(Adresse,PrintState,IOGroup.value);
+	}
+}
+
+
+// this funtion reads the  asynchronous response after write of the switch values
+// and ignores it
+function IgnoreAnswer() {
+	// readyState 4 gibt an dass der request beendet wurde
+	if (req.readyState ==4 ) {
+		// in resonseText ist die Antwort des Servers
+		var str=req.responseText;
+		// just do nothing with it
+	}
+}
+
+
+
+
+// this function is executed during load of the document
+// and initialies everything
+function preload() {
+	//images vorladen
+	LED_on.src="images/led-green-on.jpg";
+	LED_off.src="images/led-green-off.jpg";
+	//Bilder den Eingängen zuordnen
+	Eingang[0] = document.getElementById("led1");
+	Eingang[1] = document.getElementById("led2");
+	Eingang[2] = document.getElementById("led3");
+	Eingang[3] = document.getElementById("led4");
+	Eingang[4] = document.getElementById("led5");
+	Eingang[5] = document.getElementById("led6");
+	Eingang[6] = document.getElementById("led7");
+	Eingang[7] = document.getElementById("led8");
+	// io Group für Adressierung auf default 1
+	// var iogroup = document.getElementById("iogroup");
+	// iogroup.value=1;
+	// start the Timer for continous AJAX access
+	ReloadEingangTimer = setInterval("ReadIOData()",500);
+	// Power initialisieren
+	power = [1,2,4,8,16,32,64,128];
+}
+
+
+
+
+</script>
+
+
+<html>

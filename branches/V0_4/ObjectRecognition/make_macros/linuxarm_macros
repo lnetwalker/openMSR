@@ -1,0 +1,14 @@
+PLATFORM=arm
+SYSROOT:=/opt/arm-linux-gnueabihf/
+CROSS_COMPILE:=arm-linux-gnueabihf-
+
+#CFLAGS=--sysroot $(SYSROOT)
+#EXTRA_FLAGS='--extra-cflags="-mcpu=cortex-a7 -mfpu=neon-vfpv4"'
+# compile with debugging information
+CFLAGS=-g
+LDLIBS=-lrt
+CC=$(CROSS_COMPILE)g++
+LD=$(CROSS_COMPILE)ld
+AR=$(CROSS_COMPILE)ar
+AS=$(CROSS_COMPILE)as
+CXX=$(CROSS_COMPILE)cpp

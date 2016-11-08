@@ -1,0 +1,3 @@
+export SPSVERSION=1.7.3-RC10
+export LINES=25
+export COLUMNS=80
