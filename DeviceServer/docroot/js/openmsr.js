@@ -26,6 +26,9 @@
 		added LCDisplay
 		fixed Bug in AnalogReader
 		refactored code
+    
+        Nov 2016    
+                added datalogger
 */
 
 
@@ -1033,4 +1036,99 @@ var LCDisplay = function (CanvasName,Cat,CatNo) {
 
 }
 
+
+// Datalogger ( LogicAnalyzer ) Display
+var DataLogger = function ( CanvasName,Cat,CatNo) {
+    var req=null;
+var Eingang=new Array();
+var Ausgang=new Array();
+var SwitchState=new Array();
+var ReloadEingangTimer;
+var LED_on=new Image();
+var LED_off=new Image();
+var power=new Array();
+// get handle for the canvas element
+var canv = document.getElementsByTagName("canvas")[0];
+var width = canv.width = 400;
+var height = canv.height = 100;
+var OldValue = new Array();
+Xcor = 0;
+Ycor = 0;
+// how much pixels space between the signals
+Padding = 6;
+// the width of a signalstep
+SignalBreite = 5;
+// the height of a signal
+SignalHoehe = 5;
+// the gap from top canvas to first signal
+Rand = 8;
+// Access to canvas
+var Scope = canv.getContext("2d");
+
+
+//Diese Funktion zeichnet das High eines Signals
+// als Linie auf dem Canvas
+function PrintHi(SignalNr) {
+	  if ( SignalNr == 0 ) {
+	    // start with row = 0 and next column 
+	    Xcor = Xcor+SignalBreite;
+	    if (Xcor > width) {
+	      // we reached the end of the canvas, so delete canvas and start from beginning
+	      canv.width = 400;
+	      Xcor = 0;
+	    }
+	  }  
+	  // just the next row in this column  
+	  Ycor = SignalNr*10+Padding + Rand;
+	  Scope.beginPath();
+	  Scope.strokeStyle = "lightgreen";
+	  Scope.lineWidth = 1;
+	  if ( OldValue[SignalNr] == false ) {
+	      // Last value was low so we need a vertical line 
+	      Scope.moveTo(Xcor, Ycor);
+	      Scope.lineTo(Xcor,Ycor-SignalHoehe);
+	  }
+	  Scope.moveTo(Xcor,Ycor-SignalHoehe);
+	  Scope.lineTo(Xcor+SignalBreite,Ycor-SignalHoehe);
+	  Scope.stroke();
+	  Scope.closePath();
+	  // STore last value for next run
+	  OldValue[SignalNr] = true;
+}
+
+
+//Diese Funktion zeichnet das Low eines Signals
+// als Linie auf dem Canvas
+function PrintLo(SignalNr) {
+	  if ( SignalNr == 0 ) {
+	    // start with row = 0 and next column 
+	    Xcor = Xcor+SignalBreite;
+	    if (Xcor > width) {
+	      // we reached the end of the canvas, so delete canvas and start from beginning
+	      canv.width = 400;
+	      Xcor = 0;
+	    }
+	  } 
+	  // just the next row in this column
+	  Ycor = SignalNr*10+Padding + Rand;
+	  Scope.beginPath();
+	  Scope.strokeStyle = "green";
+	  Scope.lineWidth = 1;
+	  if ( OldValue[SignalNr] == true ) {
+	    // Last value was low so we need a vertical line
+	      Scope.moveTo(Xcor, Ycor);
+	      Scope.lineTo(Xcor,Ycor-SignalHoehe);
+	  }
+	  Scope.moveTo(Xcor,Ycor);
+	  Scope.lineTo(Xcor+SignalBreite,Ycor);
+	  Scope.stroke();
+	  Scope.closePath();
+	  // STore last value for next run
+	  OldValue[SignalNr] = false;
+}
+
+
+
+
+}
 
