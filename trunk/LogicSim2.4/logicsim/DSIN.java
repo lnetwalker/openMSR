@@ -74,7 +74,7 @@ public class DSIN extends Gate{
       a request like :
 	http://canis:10080/digital/ReadInputValues.html?2
       gives a  resonse like this:
-	<html><body> 1 0 0 1 1 1 1 0 </body></html>
+	<html><body>1 0 0 1 1 1 1 0</body></html>
       so we need to strip the html tags and all remaining spaces
     */
 

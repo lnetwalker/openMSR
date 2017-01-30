@@ -43,7 +43,7 @@ public abstract class Gate implements Serializable {
   transient boolean active;
 
 
-  Vector in;  // enth�lt f�r jeden Eingang ein Wire Objekt
+  Vector in;  // enthaelt fuer jeden Eingang ein Wire Objekt
   boolean[] out = { false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false };
   int[] inputTypes = { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
   int numInput;
@@ -116,7 +116,7 @@ public abstract class Gate implements Serializable {
 
 
   public final Wire getInput(int n) {
-    // Workaround, damit alte Module geladen werden können, die nur 8 Eingaenge haben.
+    // Workaround, damit alte Module geladen werden koennen, die nur 8 Eingaenge haben.
     // Eingaenge auf 16 auffuellen
     if (in.size()<16) {
       for (int i=in.size(); i<=16; i++) {
@@ -246,23 +246,23 @@ public abstract class Gate implements Serializable {
   }
 
 
-  /** wird aufgerufen, wenn auf das Gatter geklickt wird, z.B. f�r Switch */
+  /** wird aufgerufen, wenn auf das Gatter geklickt wird, z.B. fuer Switch */
   public void clicked(int mx, int my) {
   }
 
-  /** wird aufgerufen, wenn auf das Gatter die Maus �ber dem Gatter losgelassen wird, z.B. f�r Switch */
+  /** wird aufgerufen, wenn auf das Gatter die Maus ueber dem Gatter losgelassen wird, z.Buer Switch */
   public void mouseReleased() {
   }
   
   
   /**
-   * True zur�ckgeben, wenn Gatter Einstellungen hat.
-   * Wird benutzt, damit bei Gattern ohne Einstellungen der Punkt "Properties" im Context-Men� ausgblendet wird
+   * True zurueckgeben, wenn Gatter Einstellungen hat.
+   * Wird benutzt, damit bei Gattern ohne Einstellungen der Punkt "Properties" im Context-Menue ausgblendet wird
    */
   public boolean hasProperties() {
       return false;
   }
-  /** �ber Context-Men� aufgerufen */
+  /** ueber Context-Menue aufgerufen */
   public boolean showProperties(Component frame) {
     return false;
   }
@@ -273,13 +273,13 @@ public abstract class Gate implements Serializable {
   }
 
   /**
-   * gibt die y Pixelposition des Ausgangs n zur�ck
+   * gibt die y Pixelposition des Ausgangs n zurueck
    */
   public int getOutputPosition(int n) {
     return getConnectorPosition(n, getNumOutput());
   }
   /**
-   * gibt die y Pixelposition des Eingangs n zur�ck
+   * gibt die y Pixelposition des Eingangs n zurueck
    */
   public int getInputPosition(int n) {
     return getConnectorPosition(n, getNumInput());
@@ -329,7 +329,7 @@ public abstract class Gate implements Serializable {
 
 
   /**
-   * Gibt true zur�ck, wenn Ausgang n positiv ist.
+   * Gibt true zurueck, wenn Ausgang n positiv ist.
    * Ist der Ausgang n negativ (false), muss in der draw() Methode ein Kreis an
    * den Ausgang gemalt werden
    */
