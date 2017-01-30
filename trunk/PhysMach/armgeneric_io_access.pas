@@ -1,6 +1,6 @@
 Unit armgeneric_io_access;
 
-{ diese Unit stellt Funktionen zum I/O Access auf			} 
+{ diese Unit stellt Funktionen zum I/O Access auf			}
 { die in generischen ARM Boards eingebaute GPIO Ports			}
 { zur Verfügung								}
 
@@ -29,13 +29,13 @@ function armgeneric_gpio(adr:byte;bit:byte;gpiobit:byte):byte;
 function armgeneric_gpiodir(adr:byte;io_port:byte;dir:byte):byte;
 function armgeneric_exportGPIO(adr:byte;bit:byte;gpioline:byte):byte;
 IMPLEMENTATION
-uses 
+uses
   Classes, SysUtils, baseunix, StringCut;
 
-type	
+type
   GPIO_TYPE 		= array[0..255,0..255] of byte;
   GPIO_ADR_TYPE 	= array[0..255,0..255] of byte;
-  
+
 const
 	debug      	= false;
 	power   	: array[0..7] of byte =(1,2,4,8,16,32,64,128);
@@ -47,7 +47,7 @@ var
 	GPIO_ADR	: GPIO_ADR_TYPE;
 	GPIO_DIR	: array[0..255] of byte;
 	ListCnt 	: byte;
-	Liste		: StringArray;	
+	Liste		: StringArray;
 
 
 function armgeneric_close(initstring:string):boolean;
@@ -86,7 +86,7 @@ const
     IN_DIRECTION:  PChar = 'in';
 
 
-begin  
+begin
     writeln(' Found GPIO Line ',gpioline,' in config file ');
     { Set GPIO directions }
     gpiodevicenumber:=PChar(IntToStr(gpioline));
@@ -109,7 +109,7 @@ begin
       if ( GPIO_DIR[adr] = 0 ) then begin
 	writeln('Input');
 	gReturnCode := fpwrite(fileDesc, IN_DIRECTION[0], 2)
-	end       
+	end
       else begin
 	writeln('Output');
 	gReturnCode := fpwrite(fileDesc, OUT_DIRECTION[0], 3);
@@ -121,7 +121,7 @@ begin
 end;
 
 function armgeneric_read_ports(io_port:longint):byte;
-var	
+var
   i			: ShortInt;
   value			: String[1] = '1';
   returnvalue		: byte;
@@ -169,7 +169,7 @@ begin
     end
     else
       out:=PIN_OFF;
-   
+
     gpiodevicenumber:=IntToStr(GPIO[GPIO_ADR[1,io_port],i]);
 
     try
