@@ -14,19 +14,19 @@ program DeviceServer;
 	{$undef enhStats}
 {$endif}
 
-uses 
+uses
 {$IFDEF Linux} cthreads,BaseUnix,
 {$endif}
 {$ifdef Windows}
 Windows,
 {$endif}
-PhysMach,webserver,telnetserver,classes,crt,CommonHelper;
+PhysMach,webserver,telnetserver,classes,crt,CommonHelper,StringCut;
 
 
 {$ifdef MacOSX}
 	{$linklib libad4.dylib}
 {$endif}
-	
+
 
 { $Id$ }
 
@@ -53,7 +53,7 @@ var
 	shutdown	: Boolean;
 	Counter		: LongInt;
 	IOGroup		: LongInt;
-	ByteValue	: Byte;
+	ByteValue, BitVal	: Byte;
 	ProtectParams	: TRTLCriticalSection;
 	Power		: array [1..8] of byte =(1,2,4,8,16,32,64,128);
 	DeviceList	: DeviceTypeArray;
@@ -63,6 +63,7 @@ var
 	DebugOutput	: TRTLCriticalSection;
 	SendAsync	: TRTLCriticalSection;
 	debug		: boolean;
+	Webparams	:	StringArray;
 
 
 procedure DSdebugLOG(msg:string);
@@ -131,7 +132,7 @@ begin
 								TelnetWriteAnswer(StrVal+chr(10)+'>');
 							end;
 				end;
-			
+
 			end;
 		{ write command, next param is digital or analog output }
 		'W' :	begin
@@ -209,7 +210,7 @@ function TelnetThread(p: pointer):LongInt;
 { this is the telnet thread, setup the interpreter function }
 { and check for incomming requests }
 
-var 
+var
 	MySelf		: LongInt;
 
 begin
@@ -220,7 +221,7 @@ begin
 		connectionclose:=false;
 		TelnetSetupInterpreter(@TelnetInterpreter);
 		repeat
-			TelnetServeRequest('Welcome to Device Server Monitor, use "close" to quit'+chr(10)+'>');	
+			TelnetServeRequest('Welcome to Device Server Monitor, use "close" to quit'+chr(10)+'>');
 			delay(100);
 			inc(ThreadCnt[MySelf]);
 		until connectionclose;
@@ -237,7 +238,7 @@ function DeviceHandler(p: pointer):Int64;
 {$else}
 function DeviceHandler(p: pointer):LongInt;
 {$endif}
-var 
+var
 	MySelf		: LongInt;
 
 begin
@@ -255,9 +256,10 @@ end;
 
 procedure embeddedWebReadParams;
 { handles any parameters in this case the prameter is always the io_group and maybe a byte_value }
-var 
+var
 	Url,Params 	: String;
 	Trenner		: Byte;
+	NumberOfWebparams : Byte;
 
 begin
 //	EnterCriticalSection(SendAsync);
@@ -265,28 +267,38 @@ begin
 
 	{ Fragezeichen Abschneiden, daher ab position 2 params lesen }
 	Params:=copy(GetParams,2,Length(GetParams));;
+	Webparams:=StringSplit(Params,',');
+	NumberOfWebparams:=GetNumberOfElements(Params,',');
 
-	if (pos(',',Params) = 0 ) then begin
-		val(params,IOGroup);
-		ByteValue:=0;
-	end
-	else begin
-		Trenner:=pos(',',Params);
-		val(copy(Params,1,Trenner-1),IOGroup);
-		val(copy(Params,Trenner+1,Length(Params)),ByteValue);
+	case NumberOfWebparams of
+			1: begin
+					val(Webparams[1],IOGroup);
+					ByteValue:=0;
+					BitVal:=0;
+				end;
+
+			2: begin
+					val(Webparams[1],IOGroup);
+					val(Webparams[2],ByteValue);
+					BitVal:=0;
+				end;
+
+			3: begin
+						val(Webparams[1],IOGroup);
+						val(Webparams[2],ByteValue);
+						val(Webparams[3],BitVal);
+				end;
 	end;
-
-
 
 	if debug then begin
 		DSdebugLOG('embeddedWeb:> Got Parameters');
-		DSdebugLOG('URL=' + Url + ' Parameters=' + Params + ' ' + IntToStr(IOGroup) + ' ' + IntToStr(ByteValue));
+		DSdebugLOG('URL=' + Url + ' Parameters=' + Params + ' ' + IntToStr(IOGroup) + ' ' + IntToStr(ByteValue)+ ' ' + IntToStr(BitVal));
 	end;
 //	LeaveCriticalSection(SendAsync);
 end;
 
 
-// the callbacks for the special URLs 
+// the callbacks for the special URLs
 
 procedure DeliverAnalogValues;
 { called whenever the analog read page is called }
@@ -324,7 +336,7 @@ var
 	Params					: string;
 	AddressBase				: word;
 	Trenner,i,ValStart			: integer;
-	
+
 begin
 //	EnterCriticalSection(SendAsync);
 	if debug then DSdebugLOG('WriteAnalogValues called....');
@@ -332,7 +344,7 @@ begin
 	SeitenStart:='<html><body>';
 	SeitenEnde:=' </body></html>';
 	Values:='';
-	
+
 	{ Parameter auswerten, Fragezeichen ist das erste Zeichen, daher ab pos 2 }
 	Params:=copy(GetParams,2,Length(GetParams));
 	if debug then DSdebugLOG('WriteAnalogValues->reading params....' + Params);
@@ -358,7 +370,7 @@ begin
 	    inc(i);
 	until ( Trenner=0 );
 
-	{ return something usefull }	
+	{ return something usefull }
 	Seite:=SeitenStart+Values+SeitenEnde;
 	if debug then DSdebugLOG('embeddedWeb:>Sending Page');
 	SendPage(101,Seite);
@@ -383,7 +395,7 @@ begin
 	SeitenEnde:=' </body></html>';
 	Values:='';
 	Loops:=1;
-	
+
 	{ more than one parameter means, that more IO Groups are read }
 	//if ( ByteValue <> 0 ) then begin
 		{ first we need to reread the parameter List }
@@ -394,7 +406,7 @@ begin
 
 			Trenner:=pos(',',Params);
 			if (Trenner = 0 ) then Trenner:=1		// read the last param correctly
-			else Trenner:=Trenner-1; 
+			else Trenner:=Trenner-1;
 			val(copy(Params,1,Trenner),IOGroupList[Loops]);
 			inc(Loops);
 			Params:=copy(Params,Trenner+2,Length(Params));
@@ -402,10 +414,10 @@ begin
 	//endprocedure
 	//else
 	//	IOGroupList[1]:=IOGroup;
-	
+
 	for i:=1 to Loops-1 do begin
 		IOGroup:=IOGroupList[i];
-	      
+
 		AddressBase:=IOGroup*8-8;
 
 		if debug then DSdebugLOG('DeliverDigitalValues AddressBAse=' + IntToStr(AddressBase));
@@ -442,7 +454,7 @@ begin
 	SeitenEnde:=' </body></html>';
 	Values:='';
 	Loops:=1;
-	
+
 	{ more than one parameter means, that more IO Groups are read }
 	//if ( ByteValue <> 0 ) then begin
 		{ first we need to reread the parameter List }
@@ -453,7 +465,7 @@ begin
 
 			Trenner:=pos(',',Params);
 			if (Trenner = 0 ) then Trenner:=1		// read the last param correctly
-			else Trenner:=Trenner-1; 
+			else Trenner:=Trenner-1;
 			val(copy(Params,1,Trenner),IOGroupList[Loops]);
 			inc(Loops);
 			Params:=copy(Params,Trenner+2,Length(Params));
@@ -461,10 +473,10 @@ begin
 	//end
 	//else
 	//	IOGroupList[1]:=IOGroup;
-	
+
 	for i:=1 to Loops-1 do begin
 		IOGroup:=IOGroupList[i];
-	      
+
 		AddressBase:=IOGroup*8-8;
 
 		if debug then DSdebugLOG('DeliverDigitalOutputValues AddressBAse=' + IntToStr(AddressBase));
@@ -500,7 +512,7 @@ begin
 	SeitenEnde:=' </body></html>';
 	Values:='';
 
-	{ set the bits in the ausgang[n] array in respect of io_group}
+	{ set the bits in the eingang[n] array in respect of io_group}
 	AddressBase:=IOGroup*8-8;
 
 	for Bits:=8 downto 1 do begin
@@ -515,7 +527,7 @@ begin
 		end;
 	end;
 
-	{ return something usefull }	
+	{ return something usefull }
 	Seite:=SeitenStart+Values+SeitenEnde;
 	if debug then DSdebugLOG('embeddedWeb:>Sending Page');
 	SendPage(104,Seite);
@@ -556,13 +568,78 @@ begin
 		end;
 	end;
 
-	{ return something usefull }	
+	{ return something usefull }
 	Seite:=SeitenStart+Values+SeitenEnde;
 	if debug then DSdebugLOG('embeddedWeb:>Sending Page');
 	SendPage(105,Seite);
 //	LeaveCriticalSection(SendAsync);
 	if debug then DSdebugLOG('embeddedWeb:>Page Send, finished');
 end;
+
+
+
+
+procedure WriteInputBit;
+// this procedure writes the value to the corresponding input bit
+var
+	SeitenStart,SeitenEnde,Seite,Values	: string;
+	AddressBase				: word;
+	Bits							: byte;
+
+begin
+//	EnterCriticalSection(SendAsync);
+	inc(Counter);
+	SeitenStart:='<html><body>';
+	SeitenEnde:=' </body></html>';
+	Values:='';
+
+	{ set the bit in the eingang[n] array in respect of io_group and Bit number}
+	AddressBase:=IOGroup*8-8;
+
+	if BitVal=0 then
+		Eingang[AddressBase+ByteValue]:=false
+	else
+		Eingang[AddressBase+ByteValue]:=true;
+
+	{ return something usefull }
+	Seite:=SeitenStart+Values+SeitenEnde;
+	if debug then DSdebugLOG('embeddedWeb:>Sending Page');
+	SendPage(106,Seite);
+//	LeaveCriticalSection(SendAsync);
+	if debug then DSdebugLOG('embeddedWeb:>Page Send, finished');
+end;
+
+
+procedure WriteOutputBit;
+// This procedure writes the value to the corresponding output Bit
+var
+	SeitenStart,SeitenEnde,Seite,Values	: string;
+	AddressBase				: word;
+	Bits							: byte;
+
+begin
+//	EnterCriticalSection(SendAsync);
+	inc(Counter);
+	SeitenStart:='<html><body>';
+	SeitenEnde:=' </body></html>';
+	Values:='';
+	DSdebugLOG(' DS:WriteOutputValues, got ' + IntToStr(ByteValue) + ' for Address ' + IntToStr(IOGroup) );
+	{ set the bits in the ausgang[n] array in respect of io_group}
+	AddressBase:=IOGroup*8-8;
+
+	if BitVal=0 then
+		Ausgang[AddressBase+ByteValue]:=false
+	else
+		Ausgang[AddressBase+ByteValue]:=true;
+
+	{ return something usefull }
+	Seite:=SeitenStart+Values+SeitenEnde;
+	if debug then DSdebugLOG('embeddedWeb:>Sending Page');
+	SendPage(107,Seite);
+//	LeaveCriticalSection(SendAsync);
+	if debug then DSdebugLOG('embeddedWeb:>Page Send, finished');
+end;
+
 
 
 procedure serveStats;
@@ -603,7 +680,7 @@ begin
 	  str(j,ThreadNumber);
 	  values:=values + '<tr><td>' + ThreadNumber + '</td><td>' + ThreadName[j] + '</td><td>' + StrVal + '</td><td>' + RPMs + ' </td><td>loops/second</td></tr>';
 	end;
-	{ return something usefull }	
+	{ return something usefull }
 	Seite:=SeitenStart+Values+SeitenEnde;
 	if debug then DSdebugLOG('embeddedWeb:>Sending Statistics Page');
 	SendPage(106,Seite);
@@ -612,16 +689,16 @@ begin
 end;
 
 
-{$ifdef linux64} 
+{$ifdef linux64}
 function WebserverThread(p: Pointer):Int64;
 {$else}
 function WebserverThread(p: Pointer):LongInt;
 {$endif}
 
 { the real serving thread }
-var 
+var
 	MySelf		: LongInt;
-	
+
 
 begin
 	MySelf:=longint(p);
@@ -633,7 +710,7 @@ begin
 
 	{ register the variable handler }
 	SetupVariableHandler(@embeddedWebReadParams);
-	
+
 	{ register special URL for content generated by this program }
 	SetupSpecialURL('/analog/read.html',@DeliverAnalogValues );
 	SetupSpecialURL('/analog/write.html',@WriteAnalogValues );
@@ -641,6 +718,8 @@ begin
 	SetupSpecialURL('/digital/ReadInputValues.html',@DeliverDigitalInputValues );
 	SetupSpecialURL('/digital/WriteOutputValues.html',@WriteOutputValues);
 	SetupSpecialURL('/digital/WriteInputValues.html',@WriteInputValues);
+	SetupSpecialURL('/digital/SetInputBit.html',@WriteInputBit);
+	SetupSpecialURL('/digital/SetOutputBit.html',@WriteOutputBit);
 	SetupSpecialURL('/stats.html',@serveStats);
 
 	repeat
@@ -658,7 +737,7 @@ begin
 end;					{ Webserver Thread end }
 
 
-{$ifdef linux64} 
+{$ifdef linux64}
 function StatisticsThread(p: pointer):Int64;
 {$else}
 function StatisticsThread(p: pointer):LongInt;
@@ -709,13 +788,13 @@ begin
 end;
 
 
-{$ifdef linux64} 
+{$ifdef linux64}
 function TimeControlThread(p: pointer):Int64;
 {$else}
 function TimeControlThread(p: pointer):LongInt;
 {$endif}
 // thread to change Input and Output variables time dependend
-var 
+var
 	MySelf		: LongInt;
 
 begin
@@ -744,7 +823,7 @@ begin					{ Main program }
 
 	debug:=false;
 	// commandline parameters
-	if ( paramcount > 0 ) then 
+	if ( paramcount > 0 ) then
 	    if (paramstr(1)='d') then debug:=true;
 
 
@@ -755,7 +834,7 @@ begin					{ Main program }
 
 	// start threads, for every configured device one thread
 	// the device servers need to be started as first threads,
-	// because they use the threadpointer as pointer to the 
+	// because they use the threadpointer as pointer to the
 	// device list index
 	NumOfThreads:=1;
 	for DeviceCnt:=1 to DeviceTypeMax do begin
@@ -773,7 +852,7 @@ begin					{ Main program }
 	ThreadName[NumOfThreads]:='Webserver';
 	ThreadHandle[NumOfThreads]:=BeginThread(@WebserverThread,pointer(NumOfThreads));
 
-	// start the telnet thread 
+	// start the telnet thread
 	inc(NumOfThreads);
 	DSdebugLOG('Starting Telnet Thread...');
 	ThreadName[NumOfThreads]:='Telnet Thread';
@@ -803,7 +882,7 @@ begin					{ Main program }
 	shutdown:=true;
 	// disable hardware
 	PhysMachEnd;
-	
+
 	// wait for threads to finish
 	DSdebugLOG('waiting for threads to finish...');
 	for i:=1 to NumOfThreads do begin
