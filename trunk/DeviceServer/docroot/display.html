@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<meta name="author" content="Iacopo Giangrandi" />
+<title>A JavaScript clock with vintage displays</title>
+<style type="text/css">
+body { background-color:#c0c0c0; color:#000000; }
+img { border:none; vertical-align:middle; }
+table { border:none; }
+table td { border:none; vertical-align:top; text-align:left; }
+.table_with_border { border-style:outset; border-width:1px; border-spacing:2px; }
+.table_with_border td { border-style:inset; border-width:1px; vertical-align:top; text-align:left; }
+.table_footer { border:none; width:100%; text-align:center; }
+.table_footer td { border:none; text-align:center; }
+</style>
+</head>
+
+
+
+<body>
+
+<script type="text/javascript" src="js/openmsr-new.js"></script>
+<script>
+<!--
+        function init() {
+
+            OpenMSRInit();
+            
+	    function DataConversion(value) {
+		value = value / 100;
+		return value;
+	    }
+
+            var MyLCD_Raum = new LCDisplay('Raum','analog',31);
+            MyLCD_Raum.Display_Type('HC1331C');
+            MyLCD_Raum.No_of_Digits(6);
+	    MyLCD_Raum.ConvertData = "DataConversion";
+
+	    var MyLCD_Aussen = new LCDisplay('Aussen','analog',32);
+            MyLCD_Aussen.Display_Type('HC1331C');
+            MyLCD_Aussen.No_of_Digits(6);
+	    MyLCD_Aussen.ConvertData = "DataConversion";
+            
+            // the analog reader to read the first 8 analog values
+            var MyAnalogReader = new AnalogDataReader();
+            MyAnalogReader.TimerVal(460);
+            MyAnalogReader.AssignEvent(1,31);
+            MyAnalogReader.AssignEvent(2,32);
+            MyAnalogReader.DeviceServerURL('https://dorffer.eilers.net/homecontrol/analog/read.html');
+            MyAnalogReader.IOGroup(1);
+
+        }
+-->        
+</script>
+
+    <span style="white-space:nowrap;"><img src="/homecontrol/images/ITT5870S.0.jpg" id="Raum0" alt="0" style=" visibility : hidden" /><img src="/homecontrol/images/ITT5870S.0.jpg" id="Raum1" alt="1" style=" visibility : hidden" /><img src="/homecontrol/images/ITT5870S.0.jpg" id="Raum2" alt="2" style=" visibility : hidden" /><img src="/homecontrol/images/ITT5870S.0.jpg" id="Raum3" alt="3" style=" visibility : hidden" /><img src="/homecontrol/images/ITT5870S.0.jpg" id="Raum4" alt="4" style=" visibility : hidden" /><img src="/homecontrol/images/ITT5870S.0.jpg" id="Raum5" alt="5"  style=" visibility : hidden"/><img src="/homecontrol/images/ITT5870S.0.jpg" id="Raum6" alt="6" style=" visibility : hidden" /><img src="/homecontrol/images/ITT5870S.0.jpg" id="Raum7" alt="7" style=" visibility : hidden" /><img src="/homecontrol/images/ITT5870S.0.jpg" id="Raum8" alt="8" style=" visibility : hidden" /><img src="/homecontrol/images/ITT5870S.0.jpg" id="Raum9" alt="9" style=" visibility : hidden" /><img src="/homecontrol/images/ITT5870S.0.jpg" id="Raum10" alt="10" style=" visibility : hidden"/></span>
+
+    
+    <span style="white-space:nowrap;"><img src="/homecontrol/images/ITT5870S.0.jpg" id="Aussen0" alt="0" style=" visibility : hidden" /><img src="/homecontrol/images/ITT5870S.0.jpg" id="Aussen1" alt="1" style=" visibility : hidden" /><img src="/homecontrol/images/ITT5870S.0.jpg" id="Aussen2" alt="2" style=" visibility : hidden" /><img src="/homecontrol/images/ITT5870S.0.jpg" id="Aussen3" alt="3" style=" visibility : hidden" /><img src="/homecontrol/images/ITT5870S.0.jpg" id="Aussen4" alt="4" style=" visibility : hidden" /><img src="/homecontrol/images/ITT5870S.0.jpg" id="Aussen5" alt="5"  style=" visibility : hidden"/><img src="/homecontrol/images/ITT5870S.0.jpg" id="Aussen6" alt="6" style=" visibility : hidden" /><img src="/homecontrol/images/ITT5870S.0.jpg" id="Aussen7" alt="7" style=" visibility : hidden" /><img src="/homecontrol/images/ITT5870S.0.jpg" id="Aussen8" alt="8" style=" visibility : hidden" /><img src="/homecontrol/images/ITT5870S.0.jpg" id="Aussen9" alt="9" style=" visibility : hidden" /><img src="/homecontrol/images/ITT5870S.0.jpg" id="Aussen10" alt="10" style=" visibility : hidden"/></span>
+ 
+ 
+    <!--<textarea id=debug cols=120 rows=50 style="visibility=hidden"></textarea>-->
+ 
+
+<script type="text/javascript">
+  init();
+</script>
+
+</body>
+
+</html>
+
