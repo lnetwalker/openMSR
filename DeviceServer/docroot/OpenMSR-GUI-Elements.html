@@ -159,12 +159,28 @@
 
     </style>
 
+    <form>
+ 	  <font color=white>Url=<input type=text value='http://localhost:10080' id="Hostname" size=25 onChange="HostHasChanged(Hostname.value)">
+    </form>
+    
+    <script>
+	function HostHasChanged(Host) {
+		MyIOReader.DeviceServerURL(Host + '/digital/ReadInputValues.html');
+		MyIOReader4.DeviceServerURL(Host + '/digital/ReadOutputValues.html');
+		MyAnalogReader.DeviceServerURL(Host + '/analog/read.html');
+		SwitchIOSender.DeviceServerURL(Host + '/digital/WriteOutputValues.html');
+		MyAnalogReader.DeviceServerURL(Host + '/analog/read.html');
+	}
+
+    </script>
     <script type="text/javascript" src="js/openmsr.js"></script>
 
     <script>
       function init() {
 
 	OpenMSRInit();
+
+	var Host=document.getElementById("Hostname");
 
 	// show a customized horizontal meter as temp meter
 	var MyTempMeter = new HorMeter('TempMeterCanvas','analog',1);
@@ -267,7 +283,7 @@
 	MyIOReader.AssignEvent(6,16);
 	MyIOReader.AssignEvent(7,17);
 	MyIOReader.AssignEvent(8,18);
-	MyIOReader.DeviceServerURL('http://localhost:10080/digital/ReadInputValues.html');
+	MyIOReader.DeviceServerURL(Host + '/digital/ReadInputValues.html');
 	MyIOReader.IOGroup(1);
 
 	// second reader for iogroup 4
@@ -281,7 +297,7 @@
 	MyIOReader4.AssignEvent(6,26);
 	MyIOReader4.AssignEvent(7,27);
 	MyIOReader4.AssignEvent(8,28);
-	MyIOReader4.DeviceServerURL('http://localhost:10080/digital/ReadOutputValues.html');
+	MyIOReader4.DeviceServerURL(Host + '/digital/ReadOutputValues.html');
 	MyIOReader4.IOGroup(4);
 
 	// the digital data feeder to send the switches to app iogroup
@@ -289,12 +305,12 @@
 	SwitchIOSender.TimerVal(430);
 	SwitchIOSender.AssignEvent(1,1);
 	SwitchIOSender.AssignEvent(2,2);
-	SwitchIOSender.DeviceServerURL('http://localhost:10080/digital/WriteOutputValues.html');
+	SwitchIOSender.DeviceServerURL(Host + '/digital/WriteOutputValues.html');
 	SwitchIOSender.IOGroup(4);
 
 	// the analog reader to read the first 8 analog values
 	var MyAnalogReader = new AnalogDataReader();
-	MyAnalogReader.TimeVal(460);
+	MyAnalogReader.TimerVal(460);
 	MyAnalogReader.AssignEvent(1,31);
 	MyAnalogReader.AssignEvent(2,32);
 	MyAnalogReader.AssignEvent(3,33);
@@ -303,7 +319,7 @@
 	MyAnalogReader.AssignEvent(6,36);
 	MyAnalogReader.AssignEvent(7,37);
 	MyAnalogReader.AssignEvent(8,38);
-	MyAnalogReader.DeviceServerURL('http://localhost:10080/analog/read.html');
+	MyAnalogReader.DeviceServerURL(Host + '/analog/read.html');
 	MyAnalogReader.IOGroup(1);
 
       }
@@ -338,7 +354,8 @@
 	<canvas id="knob1"></canvas>
 	<canvas id="knob2"></canvas>
 	<!--
-	<textarea id=debug cols=120 rows=10></textarea>-->
+	<textarea id=debug cols=120 rows=10></textarea>
+	-->
 	<script type="text/javascript">
 	  init();
 	</script>

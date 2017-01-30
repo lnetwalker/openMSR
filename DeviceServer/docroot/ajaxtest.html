@@ -72,7 +72,7 @@ function ReadIOData()  {
 	// Welcher DeviceServer soll benutzt werden ?
 	var Host=document.getElementById("Hostname");
 	var Adresse;
-	Adresse="http://" + Host.value + "/digital/ReadInputValues.html";
+	Adresse=Host.value + "/digital/ReadInputValues.html";
 
 	if (IOGroup.value != 0 ) {
 		SendRequest(Adresse,PrintState,IOGroup.value);
@@ -100,7 +100,7 @@ function WriteIOData() {
 	// Welcher DeviceServer soll benutzt werden ?
 	var Host=document.getElementById("Hostname");
 	var Adresse;
-	Adresse="http://" + Host.value + "/digital/WriteInputValues.html";
+	Adresse=Host.value + "/digital/WriteInputValues.html";
 	// Parameters are <iogroup>,<value>
 	// compute the digital Value from array Ausgang
 	var digitalValue = 0;
@@ -221,7 +221,7 @@ function ToggleSwitch(SwitchNr) {
     </tr>
     </table>
     <form>
-      <font color=white>Url=http://<input type=text value='localhost:10080' id="Hostname" size=25>
+      <font color=white>Url=<input type=text value='http://localhost:10080' id="Hostname" size=25>
       <font color=white>IO Group: <input type=text  value=0 id="iogroup" size=2 >
     </form>
 </body>
