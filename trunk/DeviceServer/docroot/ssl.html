@@ -1,0 +1,146 @@
+<HTML>
+
+<Head>
+<Title>Read Values over the Internet</Title>
+</Head>
+
+<Body Background="" BGColor=#F0F0FF Text=#000000 Link=#0000FF VLink=#800080 ALink=#80FFFF" onload="init()">
+<script type="text/javascript" src="js/openmsr-new.js"></script>
+<script>
+<!--
+        function init() {
+
+            OpenMSRInit();
+            
+            Raum = new LCDisplay('Raum','analog',31);
+            Raum.setImagePath('/homecontrol/images/');
+            Raum.Display_Type('HC1331C');
+            Raum.No_of_Digits(6,2);
+			Raum.Convert(0.01);
+
+			Aussen = new LCDisplay('Aussen','analog',32);
+			Aussen.setImagePath('/homecontrol/images/');
+            Aussen.Display_Type('HC1331C');
+            Aussen.No_of_Digits(6,2);
+			Aussen.Convert(0.01);
+            
+            Wasser = new LCDisplay('Wasser','analog',33);
+            Wasser.setImagePath('/homecontrol/images/');
+            Wasser.Display_Type('HC1331C');
+            Wasser.No_of_Digits(6,2);
+			Wasser.Convert(-0.01);
+
+			Lampe = new LCDisplay('Lampe','analog',34);
+			Lampe.setImagePath('/homecontrol/images/');
+            Lampe.Display_Type('HC1331C');
+            Lampe.No_of_Digits(6,2);
+			Lampe.Convert(0.01);
+
+			Vorlauf = new LCDisplay('Vorlauf','analog',35);
+			Vorlauf.setImagePath('/homecontrol/images/');
+            Vorlauf.Display_Type('HC1331C');
+            Vorlauf.No_of_Digits(6,2);
+			Vorlauf.Convert(0.01);
+
+			Ruecklauf = new LCDisplay('Ruecklauf','analog',36);
+			Ruecklauf.setImagePath('/homecontrol/images/');
+            Ruecklauf.Display_Type('HC1331C');
+            Ruecklauf.No_of_Digits(6,2);
+			Ruecklauf.Convert(0.01);
+
+            // the analog reader to read the first 8 analog values
+            var MyAnalogReader = new AnalogDataReader();
+            MyAnalogReader.TimerVal(1500);
+            MyAnalogReader.AssignEvent(1,31);
+            MyAnalogReader.AssignEvent(2,32);
+            MyAnalogReader.AssignEvent(3,33);
+            MyAnalogReader.AssignEvent(4,34);
+            MyAnalogReader.AssignEvent(5,35);
+            MyAnalogReader.AssignEvent(6,36);
+            MyAnalogReader.DeviceServerURL('https://dorffer.eilers.net/homecontrol/analog/read.html');
+            MyAnalogReader.IOGroup(1);
+
+        }
+-->        
+</script>
+<center>
+<table>
+<tr>
+<td>
+Raum
+</td>
+<td><span style="white-space:nowrap;"><img src="/homecontrol/images/HC1331C.0.jpg" id="Raum0" alt="0" style=" visibility : hidden" /><img src="/homecontrol/images/HC1331C.0.jpg" id="Raum1" alt="1" style=" visibility : hidden" /><img src="/homecontrol/images/HC1331C.0.jpg" id="Raum2" alt="2" style=" visibility : hidden" /><img src="/homecontrol/images/HC1331C.0.jpg" id="Raum3" alt="3" style=" visibility : hidden" /><img src="/homecontrol/images/HC1331C.0.jpg" id="Raum4" alt="4" style=" visibility : hidden" /><img src="/homecontrol/images/HC1331C.0.jpg" id="Raum5" alt="5"  style=" visibility : hidden"/><img src="/homecontrol/images/HC1331C.0.jpg" id="Raum6" alt="6" style=" visibility : hidden" /><img src="/homecontrol/images/HC1331C.0.jpg" id="Raum7" alt="7" style=" visibility : hidden" /><img src="/homecontrol/images/HC1331C.0.jpg" id="Raum8" alt="8" style=" visibility : hidden" /><img src="/homecontrol/images/HC1331C.0.jpg" id="Raum9" alt="9" style=" visibility : hidden" /><img src="/homecontrol/images/HC1331C.0.jpg" id="Raum10" alt="10" style=" visibility : hidden"/></span>
+</td>
+</tr>
+<tr>
+<td>
+Aussen
+</td>
+<td>
+<span style="white-space:nowrap;"><img src="/homecontrol/images/HC1331C.0.jpg" id="Aussen0" alt="0" style=" visibility : hidden" /><img src="/homecontrol/images/HC1331C.0.jpg" id="Aussen1" alt="1" style=" visibility : hidden" /><img src="/homecontrol/images/HC1331C.0.jpg" id="Aussen2" alt="2" style=" visibility : hidden" /><img src="/homecontrol/images/HC1331C.0.jpg" id="Aussen3" alt="3" style=" visibility : hidden" /><img src="/homecontrol/images/HC1331C.0.jpg" id="Aussen4" alt="4" style=" visibility : hidden" /><img src="/homecontrol/images/HC1331C.0.jpg" id="Aussen5" alt="5"  style=" visibility : hidden"/><img src="/homecontrol/images/HC1331C.0.jpg" id="Aussen6" alt="6" style=" visibility : hidden" /><img src="/homecontrol/images/HC1331C.0.jpg" id="Aussen7" alt="7" style=" visibility : hidden" /><img src="/homecontrol/images/HC1331C.0.jpg" id="Aussen8" alt="8" style=" visibility : hidden" /><img src="/homecontrol/images/HC1331C.0.jpg" id="Aussen9" alt="9" style=" visibility : hidden" /><img src="/homecontrol/images/HC1331C.0.jpg" id="Aussen10" alt="10" style=" visibility : hidden"/></span>
+</td>
+</tr>
+<tr>
+<td>
+Wasser
+</td>
+<td>
+<span style="white-space:nowrap;"><img src="/homecontrol/images/HC1331C.0.jpg" id="Wasser0" alt="0" style=" visibility : hidden" /><img src="/homecontrol/images/HC1331C.0.jpg" id="Wasser1" alt="1" style=" visibility : hidden" /><img src="/homecontrol/images/HC1331C.0.jpg" id="Wasser2" alt="2" style=" visibility : hidden" /><img src="/homecontrol/images/HC1331C.0.jpg" id="Wasser3" alt="3" style=" visibility : hidden" /><img src="/homecontrol/images/HC1331C.0.jpg" id="Wasser4" alt="4" style=" visibility : hidden" /><img src="/homecontrol/images/HC1331C.0.jpg" id="Wasser5" alt="5"  style=" visibility : hidden"/><img src="/homecontrol/images/HC1331C.0.jpg" id="Wasser6" alt="6" style=" visibility : hidden" /><img src="/homecontrol/images/HC1331C.0.jpg" id="Wasser7" alt="7" style=" visibility : hidden" /><img src="/homecontrol/images/HC1331C.0.jpg" id="Wasser8" alt="8" style=" visibility : hidden" /><img src="/homecontrol/images/HC1331C.0.jpg" id="Wasser9" alt="9" style=" visibility : hidden" /><img src="/homecontrol/images/HC1331C.0.jpg" id="Wasser10" alt="10" style=" visibility : hidden"/></span>
+</td>
+</tr>
+<tr>
+<td>
+Lampe
+</td>
+<td>
+<span style="white-space:nowrap;"><img src="/homecontrol/images/HC1331C.0.jpg" id="Lampe0" alt="0" style=" visibility : hidden" /><img src="/homecontrol/images/HC1331C.0.jpg" id="Lampe1" alt="1" style=" visibility : hidden" /><img src="/homecontrol/images/HC1331C.0.jpg" id="Lampe2" alt="2" style=" visibility : hidden" /><img src="/homecontrol/images/HC1331C.0.jpg" id="Lampe3" alt="3" style=" visibility : hidden" /><img src="/homecontrol/images/HC1331C.0.jpg" id="Lampe4" alt="4" style=" visibility : hidden" /><img src="/homecontrol/images/HC1331C.0.jpg" id="Lampe5" alt="5"  style=" visibility : hidden"/><img src="/homecontrol/images/HC1331C.0.jpg" id="Lampe6" alt="6" style=" visibility : hidden" /><img src="/homecontrol/images/HC1331C.0.jpg" id="Lampe7" alt="7" style=" visibility : hidden" /><img src="/homecontrol/images/HC1331C.0.jpg" id="Lampe8" alt="8" style=" visibility : hidden" /><img src="/homecontrol/images/HC1331C.0.jpg" id="Lampe9" alt="9" style=" visibility : hidden" /><img src="/homecontrol/images/HC1331C.0.jpg" id="Lampe10" alt="10" style=" visibility : hidden"/></span>
+</td>
+</tr>
+<tr>
+<td>
+Vorlauf
+</td>
+<td>
+<span style="white-space:nowrap;"><img src="/homecontrol/images/HC1331C.0.jpg" id="Vorlauf0" alt="0" style=" visibility : hidden" /><img src="/homecontrol/images/HC1331C.0.jpg" id="Vorlauf1" alt="1" style=" visibility : hidden" /><img src="/homecontrol/images/HC1331C.0.jpg" id="Vorlauf2" alt="2" style=" visibility : hidden" /><img src="/homecontrol/images/HC1331C.0.jpg" id="Vorlauf3" alt="3" style=" visibility : hidden" /><img src="/homecontrol/images/HC1331C.0.jpg" id="Vorlauf4" alt="4" style=" visibility : hidden" /><img src="/homecontrol/images/HC1331C.0.jpg" id="Vorlauf5" alt="5"  style=" visibility : hidden"/><img src="/homecontrol/images/HC1331C.0.jpg" id="Vorlauf6" alt="6" style=" visibility : hidden" /><img src="/homecontrol/images/HC1331C.0.jpg" id="Vorlauf7" alt="7" style=" visibility : hidden" /><img src="/homecontrol/images/HC1331C.0.jpg" id="Vorlauf8" alt="8" style=" visibility : hidden" /><img src="/homecontrol/images/HC1331C.0.jpg" id="Vorlauf9" alt="9" style=" visibility : hidden" /><img src="/homecontrol/images/HC1331C.0.jpg" id="Vorlauf10" alt="10" style=" visibility : hidden"/></span>
+</td>
+</tr>
+<tr>
+<td>
+R&uuml;cklauf
+</td>
+<td>
+<span style="white-space:nowrap;"><img src="/homecontrol/images/HC1331C.0.jpg" id="Ruecklauf0" alt="0" style=" visibility : hidden" /><img src="/homecontrol/images/HC1331C.0.jpg" id="Ruecklauf1" alt="1" style=" visibility : hidden" /><img src="/homecontrol/images/HC1331C.0.jpg" id="Ruecklauf2" alt="2" style=" visibility : hidden" /><img src="/homecontrol/images/HC1331C.0.jpg" id="Ruecklauf3" alt="3" style=" visibility : hidden" /><img src="/homecontrol/images/HC1331C.0.jpg" id="Ruecklauf4" alt="4" style=" visibility : hidden" /><img src="/homecontrol/images/HC1331C.0.jpg" id="Ruecklauf5" alt="5"  style=" visibility : hidden"/><img src="/homecontrol/images/HC1331C.0.jpg" id="Ruecklauf6" alt="6" style=" visibility : hidden" /><img src="/homecontrol/images/HC1331C.0.jpg" id="Ruecklauf7" alt="7" style=" visibility : hidden" /><img src="/homecontrol/images/HC1331C.0.jpg" id="Ruecklauf8" alt="8" style=" visibility : hidden" /><img src="/homecontrol/images/HC1331C.0.jpg" id="Ruecklauf9" alt="9" style=" visibility : hidden" /><img src="/homecontrol/images/HC1331C.0.jpg" id="Ruecklauf10" alt="10" style=" visibility : hidden"/></span>
+</td>
+</tr>
+</table>
+
+ <FORM name="GETWERT" ACTION="" METHOD="GET">
+ <TABLE border = 0> 
+ <TR>
+  <TD> 	<input type=hidden value='https://dorffer.eilers.net' id="Hostname" size=25 >
+	<input type=hidden value=1 id="iogroup" size=2 >
+	<input type=hidden value='/homecontrol/analog/read.html' id="ANALOGURL" size=40 >
+	<!-- Some Options to help debugging -->
+	<!--
+	Last 4 Hours View:<br>
+	<img src=https://ncc.eilers.net:8080/cacti/graph_image.php?action=view&local_graph_id=442&rra_id=5><br>
+	-->
+	<!--
+	<font color=black size=small>Values read from Device:<input type=text value='' id=temperatures size=50><br>
+-->
+	<!--
+	<textarea id=Print cols=120 rows=10></textarea>
+	-->
+	<!--
+	<textarea id=debug cols=80 rows=25 stype="overflow-y: scroll;"></textarea>
+	-->
+ </TD>
+ </TR>
+ </TABLE> 
+ </FORM> 
+</center>
+<BR><BR>
+
+</Body>
+
+</HTML>
