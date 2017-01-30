@@ -35,10 +35,10 @@
 	</table>
 	<canvas></canvas>
 	<form>
-	<font color=white>Server:Port=http://<input type=text value='localhost:10080' id="Hostname" size=25>
+	<font color=white>Server:Port=<input type=text value='http://localhost:10080' id="Hostname" size=25>
 	<font color=white>IO Group: <input type=text  value=0 id="iogroup" size=2 ><br>
 	<font color=white>URL to read LED: <input type=text  value='/digital/ReadInputValues.html' id="LEDURL" size=40><br>
-	<font color=white>URL to write SWITCHES: <input type=text  value='/digital/WriteInputValues.html' id='SWITCHURL' size=40>
+	<font color=white>URL to write LED: <input type=text  value='/digital/WriteInputValues.html' id='SWITCHURL' size=40>
 	</form>
 </body>
 
@@ -195,7 +195,7 @@ function ReadIOData()  {
 	var Host=document.getElementById("Hostname");
 	var ReadURL=document.getElementById("LEDURL");
 	var Adresse;
-	Adresse="http://" + Host.value + ReadURL.value;
+	Adresse=Host.value + ReadURL.value;
 
 	if (IOGroup.value != 0 ) {
 		SendRequest(Adresse,PrintState,IOGroup.value);
@@ -224,7 +224,7 @@ function WriteIOData() {
 	var Host=document.getElementById("Hostname");
 	var WriteURL=document.getElementById("SWITCHURL");
 	var Adresse;
-	Adresse="http://" + Host.value + WriteURL.value;
+	Adresse=Host.value + WriteURL.value;
 	// Parameters are <iogroup>,<value>
 	// compute the digital Value from array Ausgang
 	var digitalValue = 0;
