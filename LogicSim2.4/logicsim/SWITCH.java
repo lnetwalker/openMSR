@@ -18,13 +18,13 @@ public class SWITCH extends Gate {
   static final long serialVersionUID = 2459367526586913840L;
 
   boolean click = false; // True=Click, False=Toggle
-  /* Ein Klick-Button bleibt nur so lange an, wie der Nutzer den Mausknopf gedr�ckt h�lt,
+  /* Ein Klick-Button bleibt nur so lange an, wie der Nutzer den Mausknopf gedrueckt haelt,
    * aber mindestens 2 Simulations-Zyklen. 
-   * Daf�r wird beim Klick der Countdown auf 2 gesetzt und in jedem Zyklus heruntergez�hlt.
+   * Dafuer wird beim Klick der Countdown auf 2 gesetzt und in jedem Zyklus heruntergaehlt.
    * Der Button geht aus, wenn der Countdown auf 0 ist und die Maustaste losgelassen wurde.
    */
   transient long clickCountDown=0; 
-  transient boolean mouseDown=false; // true solange der User die Maus �ber dem Gatter gedr�ckt h�lt
+  transient boolean mouseDown=false; // true solange der User die Maus ueber dem Gatter gedrueckt haelt
   
   public SWITCH() {
     super();

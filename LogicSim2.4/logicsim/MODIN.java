@@ -14,15 +14,15 @@ import java.util.*;
  * @version 1.0
  */
 
-/*  Eingangsgatter f�r Modul.
+/*  Eingangsgatter fuer Modul.
     Wird beim Erstellen eines Moduls angelegt.
-    Eing�nge des Moduls werden daran angeschlossen.
+    Eingaenge des Moduls werden daran angeschlossen.
 */
 
 public class MODIN extends Gate {
   static final long serialVersionUID = -2338870902247206767L;
 
-  /*  ACHTUNG! das MODIN enth�lt die Informationen zu einem Modul, weil das
+  /*  ACHTUNG! das MODIN enthaelt die Informationen zu einem Modul, weil das
       Module Objekt selber nicht gespeichert wird */
   public String ModuleName;
   public String ModuleDescription;

@@ -35,9 +35,9 @@ public class Module extends Gate{
     }
     
     /**
-     * L�dt Modul aus Datei und initialisiert es.
+     * Laedt Modul aus Datei und initialisiert es.
      * Diese Funktion wird beim Laden einer GateList in der reconnect() Funktion
-     * f�r alle Module Objekte aufgerufen, weil erst dann die Eing�nge richtig gesetzt sind.
+     * fuer alle Module Objekte aufgerufen, weil erst dann die Eingaenge richtig gesetzt sind.
      */
     public void loadModule() {
         try {
@@ -84,7 +84,7 @@ public class Module extends Gate{
             return;  // kein Modul
         }
         
-        // Eing�nge des ModIn auf Eing�nge des Moduls setzen
+        // Eingaenge des ModIn auf Eingaenge des Moduls setzen
         for (int i=0; i<16; i++)
             ModIn.setInput(i, getInput(i));
         
@@ -157,7 +157,7 @@ public class Module extends Gate{
         if (img!=null) {
             int width=img.getWidth(null);
             int numinput=getNumInput();
-            if (getNumOutput()>numinput) numinput=getNumOutput(); // Falls es mehr Aus- als Eingänge gibt
+            if (getNumOutput()>numinput) numinput=getNumOutput(); // Falls es mehr Aus- als Eingaenge gibt
             if (numinput<4) numinput=4; // Mindeshoehe 4 Eingaenge, damit das Label passt
             int height=10+(numinput-1)*10;
             

@@ -14,9 +14,9 @@ import java.util.*;
  * @version 1.0
  */
 
-/*  Ausgangsgatter f�r Modul.
+/*  Ausgangsgatter fuer Modul.
     Wird beim Erstellen eines Moduls angelegt.
-    Ausg�nge des Moduls werden daran angeschlossen.
+    Ausgaenge des Moduls werden daran angeschlossen.
 
 */
 

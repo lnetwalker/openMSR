@@ -286,7 +286,7 @@ public class LSPanel extends JPanel implements Printable {
         currentAction=0;
       } else*/
       if (currentAction==ACTION_ADDPOINT && drawingWire==null) {
-          // Auf Wire geklickt -> neuen Punkt einf�gen
+          // Auf Wire geklickt -> neuen Punkt einfuegen
         for (int i=0; i<gates.size(); i++) {
           Gate g=gates.get(i);
           for (int j=0; j<g.getNumInput(); j++) {
@@ -297,7 +297,7 @@ public class LSPanel extends JPanel implements Printable {
                 drawingWire=w;
                 w.activate();
                 repaint();
-                movingPoint=p;    // eingef�gten Punkt verschieben
+                movingPoint=p;    // eingefuegten Punkt verschieben
                 changed=true;
                 break;
               }
@@ -307,7 +307,7 @@ public class LSPanel extends JPanel implements Printable {
         statusBar.setText(" ");
         currentAction=0;
       } else if (currentAction==ACTION_DELPOINT && drawingWire==null) {
-          // Auf Wirepunkt geklickt -> l�schen
+          // Auf Wirepunkt geklickt -> loeschen
         for (int i=0; i<gates.size(); i++) {
           Gate g=gates.get(i);
           for (int j=0; j<g.getNumInput(); j++) {
@@ -437,7 +437,7 @@ public class LSPanel extends JPanel implements Printable {
         int tx=x/10*10;
         int ty=y/10*10;
 
-           // mit SHIFT auf Wire geklickt ? -> punkt als node einf�gen und neues wire anschliessen
+           // mit SHIFT auf Wire geklickt ? -> punkt als node einfuegen und neues wire anschliessen
         if ((mod & 1) == 1)
         for (int i=0; i<gates.size(); i++) {
           Gate g=gates.get(i);
@@ -447,7 +447,7 @@ public class LSPanel extends JPanel implements Printable {
               int p=w.tryInsertPoint(tx,ty);
               if (p>0) {
                 // bei allen anderen wires, die an dieser Stelle verlaufen,
-                // wird an diese Stelle eine Punkt als Node einf�gen
+                // wird an diese Stelle eine Punkt als Node einfuegen
                 for (int k=0; k<gates.size(); k++) {
                   Gate g2=gates.get(k);
                   for (int l=0; l<g2.getNumInput(); l++) {
@@ -477,7 +477,7 @@ public class LSPanel extends JPanel implements Printable {
           }
         }
 
-           // mit STRG auf Wire geklickt ? -> Punkt einf�gen
+           // mit STRG auf Wire geklickt ? -> Punkt einfuegen
         if ((mod & 2) == 2)
         for (int i=0; i<gates.size(); i++) {
           Gate g=gates.get(i);
@@ -489,7 +489,7 @@ public class LSPanel extends JPanel implements Printable {
                 drawingWire=w;
                 w.activate();
                 repaint();
-                movingPoint=p;    // eingef�gten Punkt verschieben
+                movingPoint=p;    // eingefuegten Punkt verschieben
                 statusBar.setText(" ");
                 changed=true;
                 return;
@@ -558,7 +558,7 @@ public class LSPanel extends JPanel implements Printable {
       statusBar.setText(I18N.getString("STATUS_ABORTED"));
       repaint();
     } else if (keyCode==127) { // DEL
-      //aktives Objekt suchen und l�schen
+      //aktives Objekt suchen und loeschen
       for (int i=0; i<gates.size(); i++) {
         Gate g=gates.get(i);
         if (g.active) {

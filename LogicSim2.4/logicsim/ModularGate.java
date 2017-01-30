@@ -23,7 +23,7 @@ public abstract class ModularGate extends Gate{
 
   Vector inputGates;  // die Gatter, die an den Eingang dieses Moduls angeschlossen sind
   Vector inputNums;  // die jeweilige Nummer des Eingangs der inputGates
-  Vector outputGates;  // die Gatter, die die Ausgangswerte f�r dieses Modul bilden
+  Vector outputGates;  // die Gatter, die die Ausgangswerte fuer dieses Modul bilden
   Vector outputNums; // die jeweilige Nummer des Ausgangs der outputGates
 
   public ModularGate() {
@@ -67,7 +67,7 @@ public abstract class ModularGate extends Gate{
   }
 
   /**
-   * getOutput Methode der Gate Klasse �berschreiben, weil beim Modul die Ausgangswerte von den outputGates abgefragt werden,
+   * getOutput Methode der Gate Klasse ueberschreiben, weil beim Modul die Ausgangswerte von den outputGates abgefragt werden,
    * statt aus dem out Array
    */
   public boolean getOutput(int n) {

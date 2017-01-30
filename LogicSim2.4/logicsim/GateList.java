@@ -36,7 +36,7 @@ public class GateList implements Serializable {
   public void remove(int n) {
     gates.remove(n);
 
-    /* Wire Objekte suchen und l�schen, die an ein Gate angeschlossen sind, dass
+    /* Wire Objekte suchen und loeschen, die an ein Gate angeschlossen sind, dass
        nicht in der Liste ist. */
     for (int i=0; i<size(); i++) {
       Gate g = get(i);
@@ -67,9 +67,9 @@ public class GateList implements Serializable {
   }
 
   /**
-   * Nach dem Laden m�ssen in allen Wire Objekten die Gatter, an die sie
+   * Nach dem Laden muessen in allen Wire Objekten die Gatter, an die sie
    * angeschlossen sind, neu gesetzt werden, weil diese nicht mit abgespeichert
-   * werden (Rekursion, weil alle Gatter ja schon �ber die Liste gespeichert wurden).
+   * werden (Rekursion, weil alle Gatter ja schon ueber die Liste gespeichert wurden).
    * Dazu wird versucht, den jeweils ersten Punkt des Wire-Polygons mittels
    * tryConnectOutput() an ein Gatter anzuschliessen, weil dieser erste Punkt
    * genau auf dem Ausgang ein Gatters liegen muss.
@@ -78,7 +78,7 @@ public class GateList implements Serializable {
     for (int i=0; i<size(); i++) {
       Gate g=(Gate)gates.get(i);
       
-      //for (int j=0; j<g.getNumInput(); j++) {  // Geändert, damit Module mit 16 Eingängen funktionieren
+      //for (int j=0; j<g.getNumInput(); j++) {  // Geaendert, damit Module mit 16 Eingaengen funktionieren
       for (int j=0; j<16; j++) {
         Wire w=g.getInput(j);
         if (w!=null) {
@@ -94,7 +94,7 @@ public class GateList implements Serializable {
       }
     }
 
-    // f�r alle Module Objekte loadModule() Funktion aufrufen
+    // fuer alle Module Objekte loadModule() Funktion aufrufen
     for (int i=0; i<size(); i++) {
       Gate g=get(i);
       if (g instanceof Module) {
@@ -104,7 +104,7 @@ public class GateList implements Serializable {
     }
   }
 
-  // Alle Gatter und zugeh�rige Wires deaktivieren
+  // Alle Gatter und zugehoerige Wires deaktivieren
   public void deactivateAll() {
     for (int i=0; i<gates.size(); i++) {
       Gate g=(Gate)gates.get(i);

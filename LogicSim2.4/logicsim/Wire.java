@@ -21,7 +21,7 @@ public class Wire implements Serializable, Cloneable{
   public transient int outNum;    // die Nummer des Ausgangs des Gatters, an das dieses Wire angeschlossen ist
   transient boolean active;
   Polygon poly;
-  Vector nodes;  /* enth�lt f�r jeden Punkt des Polygons einen Boolean Objekt, welches angibt, ob der
+  Vector nodes;  /* enthaelt fuer jeden Punkt des Polygons einen Boolean Objekt, welches angibt, ob der
                     Punkt als Node gezeichnet werden soll.  nodes.size == poly.npoints  */
 
   public Wire(Gate g, int n) {
@@ -128,7 +128,7 @@ public class Wire implements Serializable, Cloneable{
       return false;
   }
 
-  // pr�ft, ob �bergebener Punkt in der N�he von einem Polygonpunkt ist (ausser erster und letzter)
+  // prueft, ob uebergebener Punkt in der Naehe von einem Polygonpunkt ist (ausser erster und letzter)
   public int hasPointAt(int mx, int my) {
     for (int i=1; i<poly.npoints-1; i++) {
       if (mx>poly.xpoints[i]-3 && mx<poly.xpoints[i]+3 && my>poly.ypoints[i]-3 && my<poly.ypoints[i]+3)

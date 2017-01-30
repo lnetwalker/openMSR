@@ -57,8 +57,8 @@ public class LSFrame extends JInternalFrame implements java.awt.event.ActionList
     JScrollPane jScrollPane_lspanel = new JScrollPane(lspanel);
     JSplitPane jSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true);
     
-    int popupGateIdx;  // das Gatter �ber dem das Kontext-Menu ge�ffnet wurde
-    int popupModule;      // die Nummer des Listeneintrags, �ber dem das KM ge�ffnet wurde
+    int popupGateIdx;  // das Gatter ueber dem das Kontext-Menu oeffnet wurde
+    int popupModule;      // die Nummer des Listeneintrags, ueber dem das KM geoeffnet wurde
     JScrollPane jScrollPane_gates = new JScrollPane();
     
     
@@ -307,7 +307,7 @@ public class LSFrame extends JInternalFrame implements java.awt.event.ActionList
         });
         
         
-        // Properties laden und Men�punkte entsprechend setzen
+        // Properties laden und Menuepunkte entsprechend setzen
         boolean paintgrid=true;
         jMenuItem_gatedesign_din.setSelected(true);
         use_language="en";
@@ -776,7 +776,7 @@ public class LSFrame extends JInternalFrame implements java.awt.event.ActionList
     }
     
     void jMenuItem_gatedesign_actionPerformed(ActionEvent e) {
-        // Gate Design ausgew�hlt
+        // Gate Design ausgewaehlt
         String gatedesign=null;
         if (this.jMenuItem_gatedesign_din.isSelected())
             gatedesign="din";
@@ -795,7 +795,7 @@ public class LSFrame extends JInternalFrame implements java.awt.event.ActionList
     }
     
     void jMenuItem_language_actionPerformed(ActionEvent e, String name) {
-        // Sprache ausgew�hlt
+        // Sprache ausgewaehlt
         this.userProperties.setProperty( "language", name );
         try {
             userProperties.store(new FileOutputStream("logicsim.cfg"), "LogicSim Configuration");

@@ -33,7 +33,7 @@ public class JKCFlipFlop extends Gate {
 
 
   /**
-   * Wenn der Konstruktor Wire-Parameter enth�lt, wird kein image geladen, weil
+   * Wenn der Konstruktor Wire-Parameter enthaelt, wird kein image geladen, weil
    * dieses Gatter dann innerhalb eines Moduls verwendet wird.
    */
   public JKCFlipFlop(Wire w1, Wire w2, Wire w3) {
