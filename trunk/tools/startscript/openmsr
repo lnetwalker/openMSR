@@ -1,0 +1,60 @@
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides:          DeviceServer
+# Required-Start:    $local_fs $remote_fs $network $syslog $named
+# Required-Stop:     $local_fs $remote_fs $network $syslog $named
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# X-Interactive:     true
+# Short-Description: Start/stop OpenMSR Tools DeviceServer
+### END INIT INFO
+
+set -e
+
+. /lib/lsb/init-functions
+
+test -f /etc/default/rcS && . /etc/default/rcS
+
+
+start_deviceserver() {
+	cd /home/pi/openmsr-current/DeviceServer/
+	nohup ./DeviceServer >nohup.out &
+}
+
+stop_deviceserver() {
+	kill $(pidof DeviceServer)
+}
+
+
+case $1 in
+	start)
+		log_daemon_msg "Starting OpenMSR DeviceServer"
+		start_deviceserver || log_end_msg 1
+	;;
+	stop)
+		log_daemon_msg "Stopping OpenMSR DeviceServer"
+		stop_deviceserver
+		log_progress_msg "DeviceServer"
+	;;
+	restart)
+		log_daemon_msg "Restarting DeviceServer"
+		log_daemon_msg "....stoping DeviceServer"
+		stop_deviceserver
+		log_daemon_msg "....starting DeviceServer"	
+		start_deviceserver
+	;;
+	status)
+		PID=$(pidof DeviceServer) || true
+		if [ -n "$PID" ]; then
+			echo "DeviceServer is running (pid $PID)."
+			exit 0
+		else
+			echo "DeviceServer is NOT running."
+		fi
+	;;
+	*)
+		log_success_msg "Usage: /etc/init.d/openmsr {start|stop|restart|status}"
+		exit 1
+	;;
+esac
+

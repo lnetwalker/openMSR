@@ -1,0 +1,16 @@
+/home/pi/openmsr-current/DeviceServer/*.log {
+	daily
+	missingok
+	rotate 5
+	compress
+	delaycompress
+	notifempty
+	create 644 pi pi
+	sharedscripts
+	postrotate
+		/etc/init.d/openmsr start > /dev/null
+	endscript
+	prerotate
+		/etc/init.d/openmsr stop >/dev/null
+	endscript
+}
