@@ -78,7 +78,7 @@ def main(argv):
 
 					try:
 						# get image
-						status = subprocess.call("/usr/bin/wget" + " -q --user=admin --password=security4hucky http://ipcam.hucky.net:8001/snapshot.cgi -O " + epoch_time + '.jpg', shell=True)
+						status = subprocess.call("/usr/bin/wget" + " -q --user=admin --password=secretpassword http://ipcam.hucky.net:8001/snapshot.cgi -O " + epoch_time + '.jpg', shell=True)
 						# annotate the grabbed image with date and time
 						status = subprocess.call("/usr/bin/convert " + "-font helvetica -fill blue -pointsize 36 -draw 'text 15,50 " + DateTimeStr + "' " + epoch_time + ".jpg"
 					except:
