@@ -79,8 +79,8 @@ def main(argv):
 					try:
 						# get image
 						status = subprocess.call("/usr/bin/wget" + " -q --user=admin --password=security4hucky http://ipcam.hucky.net:8001/snapshot.cgi -O " + epoch_time + '.jpg', shell=True)
-						# annotate image with date/time
-						# status = subprocess.call("/usr/bin/convert " + epoch_time + ".jpg -fill white -gravity South -pointsize 20 -annotate +0+5 \\'" + DateTimeStr + "\\' " + epoch_time + '-1.jpg', shell=True)
+						# annotate the grabbed image with date and time
+						status = subprocess.call("/usr/bin/convert " + "-font helvetica -fill blue -pointsize 36 -draw 'text 15,50 " + DateTimeStr + "' " + epoch_time + ".jpg"
 					except:
 						print "Error fetching Cam Picture"
 
