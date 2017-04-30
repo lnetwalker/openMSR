@@ -27,21 +27,28 @@ def main(argv):
 	def ping(host):
 		# Returns True if host responds to a ping request
 		# Ping parameters as function of OS
-		ping_str = "-n 1" if  platform.system().lower()=="windows" else "-c 1"
+		if  platform.system().lower()=="windows":
+			ping_str = "-n 1"
+			IOredir = ""
+		else:
+			ping_str = "-c 1"
+			IOredir = " >/dev/null"
 		# Ping
-		return os.system("ping " + ping_str + " " + host) == 0
+		return os.system("ping " + ping_str + " " + host + IOredir) == 0
 
 	URL = ''
+	conf_file = ''
 	iogroup = ''
 	Found_url = False
 	Found_group = False
+	Debug = False
 	host = {}
 	pin = {}
 	PingState = {}
 
   	# get the commandline parameters
 	try:
-		opts, args = getopt.getopt(argv, "hu:g:f:",["url=","group=", "file="])
+		opts, args = getopt.getopt(argv, "dhugf:",["url=","group=", "file="])
 	except getopt.GetoptError:
 		print ('PingHosts.py -u <URL> -g <iogroup>  -f <configfile>')
 		sys.exit(2)
@@ -58,8 +65,15 @@ def main(argv):
 		elif opt in ("-f", "--file"):
 			conf_file = arg
 			Found_file = True
+		elif opt in ("-d", ""):
+			Debug = True
 
   	# read the config file
+	if conf_file == '':
+		print ('Error: Config filename needed!')
+		print ('PlaySound.py -u <URL> -g <iogroup> -f <configfile>')
+		sys.exit(2)
+
 	Config = ConfigParser.ConfigParser()
 	Config.read(conf_file)
 
@@ -88,7 +102,8 @@ def main(argv):
 		if ConfigSection != 'DeviceServer':
 			host[confCounter] = Config.get ( ConfigSection, 'Host' )
 			pin[confCounter] = Config.get ( ConfigSection, 'Pin' )
-			print ("Conf Counter : " , confCounter , " Found Host: " + host[confCounter] + " Pin: " + pin[confCounter]  + " in Section: " + ConfigSection)
+			if Debug:
+				print ("Conf Counter : " , confCounter , " Found Host: " + host[confCounter] + " Pin: " + pin[confCounter]  + " in Section: " + ConfigSection)
 			confCounter += 1
 
   	# run the loop
@@ -103,7 +118,7 @@ def main(argv):
 				PingState[current-1] = "1" # PingState[current-1] minus one because PingState Array starts with 0 !
 			else:
 				 PingState[current-1] = "0"
-			print URL + '?' + iogroup + ',' + pin[current] + ',' + PingState[current-1]
+			if Debug: print URL + '?' + iogroup + ',' + pin[current] + ',' + PingState[current-1]
 			try:
 				Response = requests.get(URL + '?' + iogroup + ',' + pin[current] + ',' + PingState[current-1])
 			except:
