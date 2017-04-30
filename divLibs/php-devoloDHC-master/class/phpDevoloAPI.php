@@ -1135,6 +1135,15 @@ class DevoloDHC{
                                         'MultiLevelSwitch'      => array('switchType', 'value', 'targetValue', 'min', 'max')
                                         );
 
+    protected function selectStage($stagename)
+    {
+        if ( $stagename=='beta')
+        {
+            $this->_authUrl = 'https://dc-beta.devolo.net';
+            $this->_dhcUrl =  'https://hc-beta.devolo.net';
+        }
+    }
+
     protected function getCSRF($htmlString)
     {
         $dom = new DOMDocument();
@@ -1241,8 +1250,9 @@ class DevoloDHC{
         return true;
     }
 
-    function __construct($login, $password, $connect=true, $gateIdx=0)
+    function __construct($login, $password, $connect=true, $gateIdx=0, $stagename='prod')
     {
+        $this->selectStage($stagename);
         $this->_login = urlencode($login);
         $this->_password = urlencode($password);
         $this->_gateIdx = $gateIdx;
