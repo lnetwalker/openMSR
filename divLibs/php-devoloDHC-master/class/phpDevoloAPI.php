@@ -1,11 +1,23 @@
 <?php
 
-//https://github.com/KiboOst/php-devoloDHC
+/**
+* PHP API for Devolo HomeControl
 
+* see: https://github.com/KiboOst/php-devoloDHC
+* enanced by Hartmut Eilers
+*/
 class DevoloDHC{
 
-    public $_version = '2.62';
+
+  /**
+  * Version of the API
+  */
+    public $_version = '2.63';
     //user functions======================================================
+
+    /**
+    * query Homecontrol Gateway and User Information
+    */
     public function getInfos() //return infos from this api, Devolo user, and Devolo central
     {
 
@@ -57,6 +69,11 @@ class DevoloDHC{
     }
 
     //IS:
+    /**
+    * check wether a rule is active or not.
+    * @param $rule - name of the Rule to check
+    * @return string [active|inactive]
+    */
     public function isRuleActive($rule)
     {
         if ( is_string($rule) ) $rule = $this->getRuleByName($rule);
@@ -69,6 +86,11 @@ class DevoloDHC{
         return array('result'=>$state);
     }
 
+    /**
+    * check wether a timer is active or not.
+    * @param $timer - name of the timer to check
+    * @return string [active|inactive]
+    */
     public function isTimerActive($timer)
     {
         if ( is_string($timer) ) $timer = $this->getTimerByName($timer);
@@ -77,6 +99,12 @@ class DevoloDHC{
         return $this->isRuleActive($timer);
     }
 
+    /**
+    * check wether a device is switched or not.
+    * @param $device - name of the Device to check
+    * @return string [on|off|null]
+    * null is returned if device has no On/Off capability
+    */
     public function isDeviceOn($device) //return true of false if find a sensor state in device
     {
         if ( is_string($device) ) $device = $this->getDeviceByName($device);
@@ -131,7 +159,12 @@ class DevoloDHC{
                 {
                     $value = $answer['result']['items'][0]['properties'][$key];
                     //Seems Devolo doesn't know all about its own motion sensor...
-                    if ($key=='sensorType' and $value=='unknown') continue;
+                    if ($key=='sensorType' and $value=='unknown')
+                    {
+                      //echo "*unknownDevice*\n";
+                      //print_r($answer);
+                      continue;
+                    }
                     //echo 'sensorType:'.$sensorType.', key:'.$key.', value:'.$value.'<br>';
                     $value = $this->formatStates($sensorType, $key, $value);
                     $jsonSensor[$key] = $value;
@@ -141,7 +174,7 @@ class DevoloDHC{
             elseif( !in_array($sensorType, $this->_SensorsNoValues) ) //Unknown, unsupported sensor!
             {
                 $answer = $this->fetchItems(array($sensor));
-                echo "DEBUG - UNKNOWN PARAM - Please help and report this message on https://github.com/KiboOst/php-devoloDHC or email it to".base64_decode('a2lib29zdEBmcmVlLmZy')." <br>";
+                echo "DEBUG - UNKNOWN PARAM - Please help and report this message on https://github.com/KiboOst/php-devoloDHC or email it to ".base64_decode('a2lib29zdEBmcmVlLmZy')." <br>";
                 echo '<pre>infos:'.json_encode($answer, JSON_PRETTY_PRINT).'</pre><br>';
             }
         }
@@ -723,6 +756,7 @@ class DevoloDHC{
         $devices = array();
         foreach ($jsonArray['result']["items"] as $thisDevice)
         {
+            //print_r($thisDevice);
             $name = (isset($thisDevice['properties']['itemName']) ? $thisDevice['properties']['itemName'] : 'None');
             $uid = (isset($thisDevice['UID']) ? $thisDevice['UID'] : 'None');
             $elementUIDs = (isset($thisDevice['properties']['elementUIDs']) ? $thisDevice['properties']['elementUIDs'] : 'None');
@@ -733,7 +767,8 @@ class DevoloDHC{
                             'zoneId' => (isset($thisDevice['properties']['zoneId']) ? $thisDevice['properties']['zoneId'] : 'None'),
                             'statUID' => (isset($thisDevice['properties']['statisticsUID']) ? $thisDevice['properties']['statisticsUID'] : 'None'),
                             'batteryLevel' => (isset($thisDevice['properties']['batteryLevel']) ? $thisDevice['properties']['batteryLevel'] : 'None'),
-                            'model' => (isset($thisDevice['properties']['deviceModelUID']) ? $thisDevice['properties']['deviceModelUID'] : 'None')
+                            'model' => (isset($thisDevice['properties']['deviceModelUID']) ? $thisDevice['properties']['deviceModelUID'] : 'None'),
+                            'icon' => (isset($thisDevice['properties']['icon']) ? $thisDevice['properties']['icon'] : 'None')
                             );
             $devices[] = $device;
         }
@@ -923,6 +958,7 @@ class DevoloDHC{
     {
         if ($sensorType=='Meter' and $key=='totalValue') return $value.'kWh';
         if ($sensorType=='Meter' and $key=='currentValue') return $value.'W';
+        if ($sensorType=='Meter' and $key=='voltage') return $value.'V';
         if ($key=='sinceTime')
         {
             $ts = $value;
@@ -1132,7 +1168,9 @@ class DevoloDHC{
                                         'SirenMultiLevelSensor' => array('sensorType', 'value'),
                                         'LastActivity'          => array('lastActivityTime'),
                                         'RemoteControl'         => array('keyCount', 'keyPressed'),
-                                        'MultiLevelSwitch'      => array('switchType', 'value', 'targetValue', 'min', 'max')
+                                        'MultiLevelSwitch'      => array('switchType', 'value', 'targetValue', 'min', 'max'),
+                                        'VoltageMultiLevelSensor' => array('sensorType', 'value' ),
+                                        'WarningBinaryFI'       => array('sensorType', 'subType', 'state')
                                         );
 
     protected function selectStage($stagename)
@@ -1225,7 +1263,7 @@ class DevoloDHC{
         //___________post login/password____________________________________________
         $postinfo = '_csrf='.$csrf.'&username='.$this->_login.'&password='.$this->_password;
         $response = $this->_request('POST', $this->_authUrl, $this->_lang, null, $postinfo);
-
+        //echo "Response Auth: ".$response.".";
 
         //___________get gateway____________________________________________________
         $path = $this->_lang.'/hc/gateways/status';
@@ -1252,6 +1290,7 @@ class DevoloDHC{
 
     function __construct($login, $password, $connect=true, $gateIdx=0, $stagename='prod')
     {
+      echo "ParentConstructor ".$stagename."\n";
         $this->selectStage($stagename);
         $this->_login = urlencode($login);
         $this->_password = urlencode($password);

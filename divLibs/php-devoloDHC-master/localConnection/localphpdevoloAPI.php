@@ -3,7 +3,8 @@
 class localDevoloDHC extends DevoloDHC{
 
 	//direct2central login:
-	protected $_Host = 'www.mydevolo.com';
+	protected $_Host = 'hc-beta.devolo.net';
+	//protected $_Host = 'www.mydevolo.com';
 	protected $_apiVersion = '/v1';
 	public $_uuid = null;
 	public $_gateway = null;
@@ -21,6 +22,7 @@ class localDevoloDHC extends DevoloDHC{
 
 	function __construct($login, $password, $localHost, $uuid=null, $gateway=null, $passkey=null, $connect=true)
 	{
+		echo "Constructor\n";
 		$this->_login = $login;
 		$this->_password = $password;
 		$this->_localHost = $localHost;
@@ -29,14 +31,15 @@ class localDevoloDHC extends DevoloDHC{
 		if (isset($gateway)) $this->_gateway = $gateway;
 		if (isset($passkey)) $this->_passkey = $passkey;
 
-		parent::__construct($login, $password, $connect); //construct main devoloAPI
-
+		parent::__construct($login, $password,true,0,'beta'); //construct main devoloAPI
+		echo $connect."\n";
 		if ( isset($this->error) or ($connect==false) )
 		{
 			if ( isset($this->error) ) echo 'DevoloDHC class error:'.$this->error.'<br>';
 
 			//use alternative login
 			$this->_dhcUrl = $this->_localHost;
+			echo $this->_dhcUrl."\n";
 			if ( !isset($this->_uuid) or !isset($this->_gateway) or !isset($this->_passkey) )
 			{
 				//get uuid, gateway and passkey from Devolo server:
@@ -109,7 +112,7 @@ class localDevoloDHC extends DevoloDHC{
 			}
 
 		$response = curl_exec($this->_curlHdl);
-
+		echo "Response ".$response."\n";
 		//$info   = curl_getinfo($this->_curlHdl);
 		//echo "<pre>cURL info".json_encode($info, JSON_PRETTY_PRINT)."</pre><br>";
 
@@ -125,12 +128,15 @@ class localDevoloDHC extends DevoloDHC{
 
 	public function initAuth() //get uuid, gateway and passkey from www.devolo.com for authorization
 	{
+		echo "initAuth ".$this->_Host."\n";
 		//get uuid:
 		$data = $this->_MyRequest('https', 'GET', $this->_Host, $this->_apiVersion.'/users/uuid', null, $this->_login, $this->_password, null);
+		echo $data."\n";
 		$data = json_decode($data, true);
 		if (isset($data["uuid"]))
 		{
 			$this->_uuid = $data["uuid"];
+			echo $data["uuid"];
 		}
 		else
 		{
@@ -140,6 +146,7 @@ class localDevoloDHC extends DevoloDHC{
 
 		//get gateway:
 		$path = $this->_apiVersion.'/users/'.$this->_uuid.'/hc/gateways';
+		echo ($this->_Host." ".$path." ". $this->_login." ". $this->_password."\n");
 		$data = $this->_MyRequest('https', 'GET', $this->_Host, $path, null, $this->_login, $this->_password, null);
 		$data = json_decode($data, true);
 		if (isset($data["items"][0]["href"]))

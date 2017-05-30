@@ -2,7 +2,7 @@
 
 // Devolo Homecontrol Bridge for OpenMSR
 // (c) 2017 by Hartmut Eilers <hartmut@eilers.net>
-// special thanks to github user KiboOST for the PHP API
+// special thanks to github-user KiboOST for the PHP API
 
 // configure here
 
@@ -17,6 +17,10 @@ $password = $argv[2];
 $DevoloStage = $argv[3];     // prod|beta
 //beta: $_authUrl = 'https://dc-beta.devolo.net';
 //      $_dhcUrl =  'https://hc-beta.devolo.net';
+
+// read INI File
+$Config = parse_ini_file("test.ini",TRUE);
+print_r($Config);
 
 // end of configure
 
