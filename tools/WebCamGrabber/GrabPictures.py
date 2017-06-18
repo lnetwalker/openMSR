@@ -28,6 +28,7 @@ def main(argv):
 	iogroup = ''
 	Found_url = False
 	Found_group = False
+	Found_file = False
 	NumOfPics = 0
 	OldCommand = "00000000"
 
@@ -48,6 +49,9 @@ def main(argv):
  		elif opt in ("-g", "--group"):
  			iogroup = arg
 			Found_group = True
+		elif opt in ("-f", "--file"):
+			conf_file = arg
+			Found_file = True
 
 	# the url and the iogroup are mandatory so if one or both are missing stop
 	if ( not Found_url or not Found_group ):
