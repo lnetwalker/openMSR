@@ -20,7 +20,7 @@ uses
 {$ifdef Windows}
 Windows,
 {$endif}
-PhysMach,webserver,telnetserver,classes,crt,CommonHelper,StringCut;
+PhysMach,webserver,telnetserver,classes,crt,CommonHelper,MQTT,StringCut;
 
 
 {$ifdef MacOSX}
@@ -38,11 +38,35 @@ PhysMach,webserver,telnetserver,classes,crt,CommonHelper,StringCut;
 { 18.07.2008		added comments,code clearing				}
 { 23.07.2009		DeliverDigitalInputValues accepts more than one IOGroup }
 { 27.05.2010		Port to Mac OS X PowerPC }
+{ 18.06.2017		MQTT Client Support }
 
 const
 	Forever=false;
 	MaxThreads=25;
 	TimeOut=500;
+
+type MQTTStates = (
+	                           CONNECT,
+	                           WAIT_CONNECT,
+	                           RUNNING,
+	                           FAILING
+	                          );
+
+type
+	  // Define class for the embedded application
+	  TMQTTThread = object
+	    strict
+	    private
+	      MQTTClient		: TMQTTClient;
+	      pingCounter 	: integer;
+		      pingTimer 	: integer;
+		      state 			: MQTTStates;
+		      message 		: ansistring;
+	      pubTimer 			: integer;
+	      connectTimer 	: integer;
+	    public
+	      procedure run ();
+	    end;
 
 var
 	i		: LongInt;
