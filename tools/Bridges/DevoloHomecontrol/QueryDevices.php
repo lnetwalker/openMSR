@@ -29,7 +29,7 @@ if ( count($argv) > 4 ) {
 require($ROOT_DIR."/php-devoloDHC-master/class/phpDevoloAPI.php");
 require($ROOT_DIR."/php-devoloDHC-master/localConnection/localphpdevoloAPI.php");
 
-// apend blanks to string to get defined length
+// append blanks to string to get defined length
 function FixStr($short,$numchars)
 {
   while ( strlen($short) < $numchars ) {

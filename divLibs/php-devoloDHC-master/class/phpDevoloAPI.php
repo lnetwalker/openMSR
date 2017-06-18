@@ -1290,7 +1290,7 @@ class DevoloDHC{
 
     function __construct($login, $password, $connect=true, $gateIdx=0, $stagename='prod')
     {
-      echo "ParentConstructor ".$stagename."\n";
+      //echo "ParentConstructor ".$stagename."\n";
         $this->selectStage($stagename);
         $this->_login = urlencode($login);
         $this->_password = urlencode($password);
