@@ -100,34 +100,34 @@ type
 	DeviceTypeArray		= array[1..DeviceTypeMax] of char;
 
 var
-	marker 			: array[1..marker_max]   of boolean;
-	eingang,ausgang		: array[1..io_max]	 of boolean;
-	zust			: array[1..io_max]	 of boolean;
-	lastakku		: array[1..akku_max]     of boolean;
-	zahler			: array[1..cnt_max]	 of boolean;
-	timer			: array[1..tim_max]	 of boolean;
-	t			: array[1..tim_max]	 of word;	 
-	z			: array[1..cnt_max]	 of word;
-	analog_in		: array[1..analog_max]   of integer;
+	marker 							: array[1..marker_max]   of boolean;
+	eingang,ausgang			: array[1..io_max]	 of boolean;
+	zust								: array[1..io_max]	 of boolean;
+	lastakku						: array[1..akku_max]     of boolean;
+	zahler							: array[1..cnt_max]	 of boolean;
+	timer								: array[1..tim_max]	 of boolean;
+	t										: array[1..tim_max]	 of word;
+	z										: array[1..cnt_max]	 of word;
+	analog_in						: array[1..analog_max]   of integer;
 
-	HWPlatform		: string;
+	HWPlatform					: string;
 
 	durchlaufeProSec,
 	durchlauf,
-	durchlauf100		: word;
+	durchlauf100				: word;
 
 	i_address,
 	o_address,
 	c_address,
-	a_address		: array [1..group_max] of LongInt; 
+	a_address						: array [1..group_max] of LongInt;
 	i_devicetype,
 	o_devicetype,
 	c_devicetype,
 	a_devicetype,
-	u_devicetype		: array [1..analog_max] of char;
-	DeviceList		: DeviceTypeArray;
-	CfgLine			: String;
-	initstring		: string;
+	u_devicetype				: array [1..analog_max] of char;
+	DeviceList					: DeviceTypeArray;
+	CfgLine							: String;
+	initstring					: string;
 
 
 procedure PhysMachInit;
@@ -201,7 +201,7 @@ const
 var
 	x			: word;
 	CfgCallbackFunc		: TProcedure;
-	
+
 
 
 //Private functions
@@ -248,7 +248,7 @@ begin
 {$endif}
 {$ifdef IOW}
 		'I'	: wert:=iow_read_ports(Address);
-{$endif}		
+{$endif}
 {$ifdef EXEC}
 		'E'	: wert:=exec_read_ports(Address);
 {$endif}
@@ -260,15 +260,15 @@ begin
 {$endif}
 {$ifdef ARMGENERIC}
 		'A'	: wert:=armgeneric_read_ports(Address);
-{$endif}	
+{$endif}
 {$ifdef AVR}
 		'N'	: wert:=avrnet_read_ports(Address);
-{$endif}	
+{$endif}
 	end;
 
-	if (debugFlag) then 
-		writeln	('PhysMach:PhysMachReadDigital   group ',IOGroup,' -> ',wert); 
-	for i:=7 downto 0 do begin	
+	if (debugFlag) then
+		writeln	('PhysMach:PhysMachReadDigital   group ',IOGroup,' -> ',wert);
+	for i:=7 downto 0 do begin
 		if wert>=power[i] then begin
 			{ the adressing needs some explanation }
 			{ if IOGroup is 2 we calculate the base address (3-1)*8+1=17 the base of IOGroup 2 }
@@ -276,7 +276,7 @@ begin
 	   		eingang[(IOGroup-1)*8+1+i]:=true;
 			wert:=wert-power[i]
 		end
-		else 
+		else
 			eingang[(IOGroup-1)*8+1+i]:=false;
 		if (debugFlag ) then begin
 			if ( i=7 ) then write('E group ',IOGroup,'   ');
@@ -284,7 +284,7 @@ begin
 		   	if (i=0 ) then writeln;
 		end
 	end;
-	
+
 end;
 
 
@@ -306,7 +306,7 @@ begin
 		 		if ( k=7 ) then write('A group ',IOGroup,'    ');
 		 		write (ausgang[k+(IOGroup-1)*8+1],' ');
 		 		if (k=0 ) then writeln;
-			end;		
+			end;
 		end;
 
 
@@ -413,7 +413,7 @@ begin
 {$ifdef EXEC}
 			'E'	: exec_write_analog(a_address[IOGroup],analog_in[IOGroup]);
 {$endif}
-			'D' 	: dummy:=1; 
+			'D' 	: dummy:=1;
 		end;
 	if (debugFlag) then writeln('Analog_in[',IOGroup,']=',analog_in[IOGroup]);
 end;
@@ -426,7 +426,7 @@ var
 	c,wert		: Byte;
 
 begin
-		if (c_devicetype[IOGroup] <> '-') then begin 
+		if (c_devicetype[IOGroup] <> '-') then begin
 
 			if debug then writeln('reading Counter type ',c_devicetype[IOGroup],' Adresse ',c_address[IOGroup]);
 
@@ -478,7 +478,7 @@ begin
 		end
 		else
 			wert:=0;
-		
+
 		if debug then begin
 			writeln('Countervalue=',wert);
 			for c:=1 to 8 do write(' ',zust[c]);
@@ -491,7 +491,7 @@ begin
 			else	{ zust[] ist high }
 				if not(zust[c+IOGroup-1]) then begin 				{ wenn pos. Flanke am Eingang }
 					zust[c+IOGroup-1]:=true;		  		{ dann 1 speichern }
-					if z[c+IOGroup-1]>0 then dec(z[c+IOGroup-1]);	{ und ISTwert herunterz�en } 
+					if z[c+IOGroup-1]>0 then dec(z[c+IOGroup-1]);	{ und ISTwert herunterz�en }
 					if z[c+IOGroup-1]=0 then zahler[c+IOGroup-1]:=true;   	{ wenn ISTwert 0 dann ZAHLER 1}
 				end;
 			wert := wert div 2;
@@ -520,7 +520,7 @@ var
 	DeviceNumber			: Byte;
 	ConfigTags			: StringArray;
 	Trenner				: char;
-	
+
 begin
 	Trenner:=' ';
 	assign (f,cfgFilename);
@@ -535,18 +535,18 @@ begin
 	while not(eof(f)) do begin
 		readln (f,zeile);
 		ConfigTags:=StringSplit(zeile,Trenner);
-		if debug then 
+		if debug then
 			if ((ConfigTags[1]='DEVICE') or (ConfigTags[1]='PORT')) then
 				for i:=1 to 5 do
 					writeln(ConfigTags[i]);
 		if ( ConfigTags[1] = 'DEVICE' ) then begin
-		
+
 			if ( GetNumberOfElements(zeile,Trenner) > 6 ) then begin
 				writeln (' Error in config file in the following line ');
 				writeln ( zeile );
 				halt (1);
 			end;
-			
+
 			if ( debugFlag ) then writeln ('device detected');
 			{ device line looks like }
 			{ DEVICE!P!$307:$99 }
@@ -560,19 +560,19 @@ begin
 				'D'	: begin
 						dil_hwinit(initstring,DeviceNumber);
 						HWPlatform:=HWPlatform+',DIL/NetPC ';
-					  end;	
+					  end;
 {$endif}
 {$ifdef LPT}
 				'L'	: begin
 						lp_hwinit(initstring,DeviceNumber);
 						HWPlatform:=HWPlatform+',LP Port ';
-					  end;	
+					  end;
 {$endif}
 {$ifdef PIO}
 				'P'	: begin
 						pio_hwinit(initstring,DeviceNumber);
 						HWPlatform:=HWPlatform+',PIO 8255 ';
-					  end;	
+					  end;
 {$endif}
 {$ifdef JOY}
 				'J'	: begin
@@ -617,13 +617,13 @@ begin
 				'R'	: begin
 						rnd_hwinit(initstring,DeviceNumber);
 						HWPlatform:=HWPlatform+',Random ';
-					  end;	
+					  end;
 {$endif}
 {$ifdef IOW}
 				'I'	: begin
 						iow_hwinit(initstring,DeviceNumber);
 						HWPlatform:=HWPlatform+',IO-Warrior ';
-					  end;	
+					  end;
 {$endif}
 {$ifdef EXEC}
 				'E'	: begin
@@ -660,9 +660,9 @@ begin
 				    writeln('unknown device in config file: ',zeile);
 				    halt(1);
 				end;
-				
+
 			end;
-	
+
 			inc(DeviceNumber);
 			AlreadyInList:=false;
 			for i:=1 to NumOfDevices do
@@ -688,13 +688,13 @@ begin
 				writeln (' Error in config file too much arguments line ');
 				writeln ( zeile );
 				halt (1);
-			end 
+			end
 			else
 			    if ( GetNumberOfElements(zeile,Trenner) < 5 ) then begin
 			    end;
-			    
+
 			if debugFlag then writeln('PhysMachLoadCfg: dir=',dir,' iogroup=',iogroup,' addr=',ConfigTags[4]);
-			
+
 			if     ( dir = 'I' ) then begin
 				val(ConfigTags[4],i_address[iogroup]);
 				i_devicetype[iogroup]:=ConfigTags[5,1];
@@ -703,7 +703,7 @@ begin
 				  armgeneric_gpiodir(i_address[iogroup],iogroup,0); //Dir=0 -> In dir
 {$ENDIF}
 				if (debugFlag) then writeln('Input Group ',iogroup,'devicetype=',i_devicetype[iogroup]);
-			end	
+			end
 			else if( dir = 'O' ) then begin
 				val(ConfigTags[4],o_address[iogroup]);
 				o_devicetype[iogroup]:=ConfigTags[5,1];
@@ -737,11 +737,11 @@ begin
 			  'A' : begin
 				armgeneric_gpio(StrToInt(ConfigTags[3]),StrToInt(ConfigTags[4]),StrToInt(ConfigTags[5]));
 				armgeneric_exportGPIO(StrToInt(ConfigTags[3]),StrToInt(ConfigTags[4]),StrToInt(ConfigTags[5]));
-			      end; 
+			      end;
 {$ENDIF}
 			  'W' : begin
 				//GHoma WLAN Power Plug
-			      end 
+			      end
 
 			  else begin
 				writeln (' Error in config file, wrong Device in ASSIGN Statement ');
@@ -749,7 +749,7 @@ begin
 				halt (1);
 			  end
 			end
-		end  
+		end
 		{ if a callback function is registered  call this function }
 		else begin
 		    if CfgCallbackFunc <> nil then begin
@@ -770,7 +770,7 @@ begin
 	if ( io_max / 8 > group_max ) then begin
 		writeln ('IO_MAX too big compared to group_max');
 		halt(1);
-	end;		
+	end;
 	for x:=1 to marker_max do Marker[x]:=false;
 	for x:=1 to akku_max do lastakku[x]:=false;
 	for x:=1 to  io_max do begin
@@ -781,13 +781,13 @@ begin
 	for x:=1 to cnt_max do begin
 		zahler[x]:=false;
 		z[x]:=0;
-	end;	 	 
+	end;
 	for x:=1 to tim_max do begin
 		timer[x]:=false;
 		t[x]:=0;
 	end;
 	{ the devicetype - means unconfigured }
-	for x:=1 to group_max do begin 
+	for x:=1 to group_max do begin
 		i_devicetype[x]:='-';
 		o_devicetype[x]:='-';
 		c_devicetype[x]:='-';
@@ -800,7 +800,7 @@ begin
 		if debugFlag then writeln ('PhysMachInit: x=',y,' a_devicetype[',y,']=',a_devicetype[y],' analog_in[',y,']=',analog_in[y]);
 	end;
 
-	for x:=1 to DeviceTypeMax do 
+	for x:=1 to DeviceTypeMax do
 		DeviceList[x]:='-';
 
 	hwPlatform:='';
@@ -818,17 +818,17 @@ begin
 {$ifdef DILPC}
 		'D'	: begin
 				dil_close();
-			  end;	
+			  end;
 {$endif}
 {$ifdef LPT}
 		'L'	: begin
 				lp_close();
-			  end;	
+			  end;
 {$endif}
 {$ifdef PIO}
 		'P'	: begin
 				pio_close();
-			  end;	
+			  end;
 {$endif}
 {$ifdef JOY}
 		'J'	: begin
@@ -864,12 +864,12 @@ begin
 {$ifdef RND}
 		'R'	: begin
 				rnd_close();
-			  end;	
+			  end;
 {$endif}
 {$ifdef IOW}
 		'I'	: begin
 				iow_close();
-			  end;	
+			  end;
 {$endif}
 {$ifdef EXEC}
 		'E'	: begin
@@ -905,7 +905,7 @@ end;
 
 procedure PhysMachReadDigital;               { liesst eingangswerte ein }
 
-var  
+var
 	io_group		: integer;
 
 begin
@@ -919,9 +919,9 @@ end;
 
 
 procedure PhysMachWriteDigital;              { gibt Ausg.werte an I/O Hardware aus}
-var 
+var
 	io_group			: integer;
-	
+
 begin
 	io_group:=1;
 	repeat
@@ -933,7 +933,7 @@ end;					{ **** ENDE SET_OUTPUT **** }
 
 procedure PhysMachCounter;		{ zaehlt timer und counter herunter liesst counter hardware }
 
-var 
+var
 	c,wert				: byte;
 	x,io_group			: integer;
 
@@ -984,14 +984,14 @@ var	c	:byte;
 begin
 	inc(durchlauf);				{ timerbasis = 1s }
 	inc(durchlauf100);			{ timerbasis = 100 ms }
-	
+
 	if (durchlauf>=durchlaufeProSec) then begin { Diese Timer laufen mit Sekundenbasis }
 		for c:=1 to 4 do begin
 			if t[c] >= 0 then t[c]:=t[c]-1;
         	 	if t[c]=0 then timer[c]:=true
      		end;
 		durchlauf:=0;
-	end;	
+	end;
 	if (durchlauf100>=round(durchlaufeProSec/10)) then begin { timer auf basis 100 ms }
 		for c:=5 to 12 do begin
     	     		if t[c] >= 0 then t[c]:=t[c]-1;
