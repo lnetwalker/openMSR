@@ -23,9 +23,11 @@ type
 function StringSplit(Line : String255; Trenner : Char):StringArray;
 function GetNumberOfElements( Line : String255; Trenner : Char):Integer;
 function RemoveDoubleChars(Line : String255; DoubleChar : Char):String255;
+function IntegerInString(s: string) : integer;
 
 implementation
 
+uses sysutils;
 
 function RemoveDoubleChars(Line : String255; DoubleChar : Char):String255;
 var
@@ -33,7 +35,7 @@ var
 begin
 	x:=1;
 	repeat
-		if (Line[x]=DoubleChar) then begin 
+		if (Line[x]=DoubleChar) then begin
 			if ( x+1 <= length(Line) ) then
 				if (Line[x+1]=DoubleChar) then
 				// remove the actual char from Line
@@ -49,11 +51,11 @@ end;
 
 
 function StringSplit(Line : String255; Trenner : Char):StringArray;
-var 
+var
   i,y		: integer;
   TrennPos	: array [1..255] of integer;
   Result	: StringArray;
-  
+
 begin
   // remove double Trenner chars from Line
   Line:=RemoveDoubleChars(Line,Trenner);
@@ -84,17 +86,46 @@ end;
 function GetNumberOfElements( Line : String255; Trenner : Char):Integer;
 var
   Anzahl,i	: Integer;
-  
+
 begin
   // remove double Trenner chars from Line
   Line:=RemoveDoubleChars(Line,Trenner);
-  Anzahl := 0;
+
+  // check if at least one elemnt
+  if ( length(Line) = 0 ) then Anzahl := 0
+  else Anzahl := 1;
+
   for i:=1 to length(Line) do
     if line[i] = Trenner then inc(Anzahl);
-  // add one because of the element after the last delimiter  
-  GetNumberOfElements:=Anzahl+1;
+
+  // return the number of elements
+  GetNumberOfElements:=Anzahl;
 end;
 
+
+function IntegerInString(s: string) : integer;
+var i, state, startPos, endPos : integer;
+begin
+  state := 0;
+  startPos := -1;
+  endPos := Length(s);
+  for i := 1 to Length(s) do begin
+    if ((s[i] >= '0') and (s[i] <= '9')) then begin
+      if state = 0 then startPos := i;
+      state := 1;
+    end
+    else
+      if state = 1 then begin
+        endPos := i-1;
+        break;
+      end;
+
+  end;
+  if startPos > -1 then
+    IntegerInString := StrToInt(Copy(s, startPos, endPos))
+  else
+    IntegerInString := -2147483648;
+end;
 
 begin
 end.
