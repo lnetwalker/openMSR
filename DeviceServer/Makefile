@@ -16,7 +16,7 @@ include ../build/make_includes/unit-searchpath
 all: $(OBJECTS)
 
 # the physical Machine access layer
-DeviceServer: 	DeviceServer.pas
+DeviceServer: 	DeviceServer.pas FieldDevice.pas
 	$(FPC) $(FPC_FLAGS) -gl  $(UNITSEARCH) DeviceServer.pas 
 
 clear:
