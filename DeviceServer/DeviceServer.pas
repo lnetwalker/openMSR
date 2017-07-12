@@ -15,12 +15,12 @@ program DeviceServer;
 {$endif}
 
 uses
-{$IFDEF Linux} cthreads,BaseUnix,
+{$IFDEF Linux} cthreads,BaseUnix,MQTT, FieldDevice,
 {$endif}
-{$ifdef Windows}
+{$ifdef Win32}
 Windows,
 {$endif}
-PhysMach,webserver,telnetserver,classes,crt,CommonHelper,MQTT,StringCut,INIFiles,sysutils, FieldDevice;
+PhysMach,webserver,telnetserver,classes,crt,CommonHelper,StringCut,INIFiles,sysutils;
 
 
 {$ifdef MacOSX}
@@ -52,6 +52,7 @@ type MQTTStates = (
 	                           FAILING
 	                          );
 
+{$IFDEF Linux}
 type
 	  // Define class for the embedded application
 	  TMQTTThread = object
@@ -68,6 +69,7 @@ type
 				procedure setup (iniFile:string);
 	      procedure run ();
 	    end;
+{$endif}
 
 var
 	i		: LongInt;
@@ -89,9 +91,10 @@ var
 	SendAsync	: TRTLCriticalSection;
 	debug		: boolean;
 	Webparams	:	StringArray;
+	{$IFDEF Linux}
 	MQTTThread : TMQTTThread;
 	FieldDeviceStorage : TFieldDeviceObject;
-
+	{$endif}
 
 procedure DSdebugLOG(msg:string);
 // This is a wrapper around debugLOG to ensure
@@ -103,7 +106,7 @@ begin
 	LeaveCriticalSection(DebugOutput);
 end;
 
-
+{$IFDEF Linux}
 // MQTT client stuff
 procedure TMQTTThread.setup(iniFile:string);
 // setup the needed stuff eg server settings
@@ -299,6 +302,7 @@ begin
 					analog	: begin
 									writeln('DS-MQTT: received topic payload: ' ,IntegerInString(msg.payload));
 									analog_in[DeviceNumber]:=IntegerInString(msg.payload);
+									writeln('Saved as analog_in[',DeviceNumber,']');
 									end;
 
 				end;
@@ -374,6 +378,7 @@ begin
 	MQTTHandler:=0;
 end;
 
+{$endif}
 
 // telnet stuff
 
@@ -1169,12 +1174,14 @@ begin					{ Main program }
 	ThreadName[NumOfThreads]:='Stats Thread';
 	ThreadHandle[NumOfThreads]:=BeginThread(@StatisticsThread,pointer(NumOfThreads));
 
+{$IFDEF Linux}
 	// start the MQTT thread
 	inc(NumOfThreads);
 	MQTTThread.setup('MQTT.ini');
 	DSdebugLOG('Starting MQTT Thread...');
 	ThreadName[NumOfThreads]:='MQTT Thread';
 	ThreadHandle[NumOfThreads]:=BeginThread(@MQTTHandler,pointer(NumOfThreads));
+{$endif}
 
 	// fool around and wait for the end
 	repeat
