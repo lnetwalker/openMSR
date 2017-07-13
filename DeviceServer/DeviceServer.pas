@@ -1176,11 +1176,13 @@ begin					{ Main program }
 
 {$IFDEF Linux}
 	// start the MQTT thread
-	inc(NumOfThreads);
-	MQTTThread.setup('MQTT.ini');
-	DSdebugLOG('Starting MQTT Thread...');
-	ThreadName[NumOfThreads]:='MQTT Thread';
-	ThreadHandle[NumOfThreads]:=BeginThread(@MQTTHandler,pointer(NumOfThreads));
+	if ( FileExists('MQTT.ini') ) then begin
+		inc(NumOfThreads);
+		MQTTThread.setup('MQTT.ini');
+		DSdebugLOG('Starting MQTT Thread...');
+		ThreadName[NumOfThreads]:='MQTT Thread';
+		ThreadHandle[NumOfThreads]:=BeginThread(@MQTTHandler,pointer(NumOfThreads));
+	end;
 {$endif}
 
 	// fool around and wait for the end
