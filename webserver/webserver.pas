@@ -50,10 +50,10 @@ const
 	NONBLOCKED=false;
 	Debug_ON=true;
 	Debug_OFF=false;
-	
+
 implementation
 
-uses 
+uses
 	CommonHelper,crt, blcksock, synautil, synaip, synacode, synsock,
 {$ifdef LINUX}
 	BaseUnix,Unix, dos;
@@ -62,11 +62,11 @@ uses
 	windows;
 {$endif}
 
-const 
+const
 	LocalAddress = '127.0.0.1';
 	MaxUrl = 25;
 	MaxThreads = 25;
-	
+
 var
 
 	// Listening socket
@@ -118,12 +118,12 @@ var
 	blubber			: string;
 
 	saveaccess		: Boolean;
-	
+
 	// Flag to show wether threads should be used or not
 	WithThreads		: Boolean;
-	
+
 	ThreadHandle		: array[1..MaxThreads] of TThreadId;
-{$ifndef LINUX64}	
+{$ifndef LINUX64}
 	NumOfThreads		: LongInt;
 {$endif}
 {$ifdef LINUX64}
@@ -137,7 +137,7 @@ var
 	ServeSpecialURL	: TRTLCriticalSection;
 
 	debug			: boolean;
-	
+
 procedure writeLOG(MSG: string);
 begin
 	EnterCriticalSection(DebugOutput);
@@ -157,12 +157,12 @@ var
     TimeString		: string;
 {$ifdef Windows}
     st 			: systemtime;
-{$endif} 
+{$endif}
 
 
 begin
  {$ifdef linux} // LINUX
-	gettime(std,min,sec,ms); 
+	gettime(std,min,sec,ms);
 	getdate(jahr,mon,tag,wota);
  {$else}        // WINDOWS
 	getlocaltime( st );
@@ -174,7 +174,7 @@ begin
 	mon:= st.wmonth;
 	tag:= st.wday;
 
- {$endif} 
+ {$endif}
 	TimeString:='['+IntToStr(tag)+'/'+IntToStr(mon)+'/'+IntToStr(jahr)+':'+IntToStr(std)+':'+IntToStr(min)+':'+IntToStr(sec)+':'+IntToStr(ms)+']';
 
 	writeln(ERR,TimeString+' '+MSG);
@@ -203,7 +203,7 @@ begin
 	inc(UrlPointer);
 	if debug then writeLOG('registered special URL'+URL);
 end;
-	
+
 
 procedure SetupVariableHandler(proc : tprocedure);
 begin
@@ -219,7 +219,7 @@ begin
 	// set flags for threadusage
 	If ( ThreadMode ) then WithThreads:=true
 	else WithThreads:= False;
-	
+
 	// check Debug Flag
 	if (DebugMode) then debug:=true
 	else debug:=false;
@@ -230,7 +230,7 @@ begin
 	    rewrite(ACC);
 	    saveaccess:=true;
 	end;
-	
+
 	{ Initialization}
 	if debug then writeLOG('PWS Pascal Web Server - starting server...');
 	if (port=0) then port:=10080;
@@ -286,7 +286,7 @@ begin
 	header:='HTTP/1.1 '+status+CRLF;
 	header:=header+'MIME-Version: 1.0'+CRLF;
 	header:=header+'Server: bonita'+CRLF;
-	if (WithThreads) then 
+	if (WithThreads) then
 		header:=header+'Connection: keep-alive'+CRLF
 	else
 		header:=header+'Connection: close'+CRLF;
@@ -294,7 +294,7 @@ begin
 	header:=header+CType;
 	header:=header+'Content-length: ';
 	{ the Content-length is the size of the served object }
-	{ without the size of the header } 
+	{ without the size of the header }
 	str(PageSize,TRespSize);
 	header:=header+TRespSize;
 	header:=header+CRLF+CRLF;
@@ -312,9 +312,9 @@ begin
 	i:=0;
 	repeat
 		inc(i);
-	until (UpperCase(copy(post[i],1,10))='USER-AGENT') or ( i = Length(post) );
+	until (UpperCase(copy(post[i],1,10))='USER-AGENT') or ( i >= Length(post[i]) );
 	if (UpperCase(copy(post[i],1,10))='USER-AGENT') then
-	  useragent:=copy(post[i],13,7)
+	  useragent:=copy(post[i],13,length(post[i])-13)
 	else
 	  useragent:='bonita-client';
 	//EnterCriticalSection(ProtectDataSend);
@@ -359,7 +359,7 @@ begin
 		if reply_sock.LastError<>0 then begin
 		    writeLOG('process_request: Error reading request');
 		    IOError:=true;
-		end;    
+		end;
 		str(BufCnt,blubber);
 		if debug then writeLOG('process_request '+IntToStr(WhoAmI)+' : Req['+blubber+']='+buff);
 		post[BufCnt] := buff;
@@ -382,7 +382,7 @@ begin
 	{ e.g. "GET /path/to/a/non/existing/file.htm HTTP/1.1" }
 	{ request type is ignored it's always GET assumed }
 	URL:=copy(post[1],pos('/',post[1]),length(post[1]));
-	URL:=copy(URL,1,pos(' ',URL)-1);	
+	URL:=copy(URL,1,pos(' ',URL)-1);
 	Paramstart:=pos('?',URL);
 	RequestURL:=URL;
 
@@ -459,20 +459,20 @@ begin
 
 	end;
 	{ write access log in common logfile format, that looks like:
-		78.34.183.237 - - [16/Jun/2009:15:11:09 +0200] "GET /templates/eilers.net/images/mw_menu_cap_r.png HTTP/1.1" 404 8219 "http://www.eilers.net/templates/eilers.net/css/template.css" "Mozilla/5.0 (X11; U; Linux i686; de; rv:1.9.0.10) Gecko/2009042523 Ubuntu/9.04 (jaunty) Firefox/3.0.10"                                                                            
-		78.34.183.237 - - [16/Jun/2009:15:11:09 +0200] "GET /templates/eilers.net/images/mw_menu_normal_bg.png HTTP/1.1" 404 8219 "http://www.eilers.net/templates/eilers.net/css/template.css" "Mozilla/5.0 (X11; U; Linux i686; de; rv:1.9.0.10) Gecko/2009042523 Ubuntu/9.04 (jaunty) Firefox/3.0.10"                                                                        
-		74.6.22.178 - - [16/Jun/2009:15:14:37 +0200] "GET /robots.txt HTTP/1.0" 200 304 "-" "Mozilla/5.0 (compatible; Yahoo! Slurp; http://help.yahoo.com/help/us/ysearch/slurp)"           
-		74.6.22.178 - - [16/Jun/2009:15:14:37 +0200] "GET /vrml/ HTTP/1.0" 404 8219 "-" "Mozilla/5.0 (compatible; Yahoo! Slurp/3.0; http://help.yahoo.com/help/us/ysearch/slurp)"           
+		78.34.183.237 - - [16/Jun/2009:15:11:09 +0200] "GET /templates/eilers.net/images/mw_menu_cap_r.png HTTP/1.1" 404 8219 "http://www.eilers.net/templates/eilers.net/css/template.css" "Mozilla/5.0 (X11; U; Linux i686; de; rv:1.9.0.10) Gecko/2009042523 Ubuntu/9.04 (jaunty) Firefox/3.0.10"
+		78.34.183.237 - - [16/Jun/2009:15:11:09 +0200] "GET /templates/eilers.net/images/mw_menu_normal_bg.png HTTP/1.1" 404 8219 "http://www.eilers.net/templates/eilers.net/css/template.css" "Mozilla/5.0 (X11; U; Linux i686; de; rv:1.9.0.10) Gecko/2009042523 Ubuntu/9.04 (jaunty) Firefox/3.0.10"
+		74.6.22.178 - - [16/Jun/2009:15:14:37 +0200] "GET /robots.txt HTTP/1.0" 200 304 "-" "Mozilla/5.0 (compatible; Yahoo! Slurp; http://help.yahoo.com/help/us/ysearch/slurp)"
+		74.6.22.178 - - [16/Jun/2009:15:14:37 +0200] "GET /vrml/ HTTP/1.0" 404 8219 "-" "Mozilla/5.0 (compatible; Yahoo! Slurp/3.0; http://help.yahoo.com/help/us/ysearch/slurp)"
 		77.180.99.188 - - [16/Jun/2009:15:15:34 +0200] "GET / HTTP/1.0" 200 10503 "-" "check_http/v1944 (nagios-plugins 1.4.11)"
 		65.55.106.161 - - [16/Jun/2009:16:01:24 +0200] "GET /vrml/ HTTP/1.1" 404 8219 "-" "msnbot/2.0b (+http://search.msn.com/msnbot.htm)"
 		77.180.99.188 - - [16/Jun/2009:16:04:05 +0200] "GET / HTTP/1.0" 200 10503 "-" "check_http/v1944 (nagios-plugins 1.4.11)"
 		65.55.51.115 - - [16/Jun/2009:16:07:23 +0200] "GET /robots.txt HTTP/1.1" 200 304 "-" "msnbot/2.0b (+http://search.msn.com/msnbot.htm)"
-		
+
 		field description
 		host rfc931 username date:time request statuscode bytes referrer applinformation
 	}
  {$ifdef linux} // LINUX
-	gettime(std,min,sec,ms); 
+	gettime(std,min,sec,ms);
 	getdate(jahr,mon,tag,wota);
  {$else}        // WINDOWS
 	getlocaltime( st );
@@ -484,7 +484,7 @@ begin
 	mon:= st.wmonth;
 	tag:= st.wday;
 
- {$endif} 
+ {$endif}
 	TimeString:='['+IntToStr(tag)+'/'+IntToStr(mon)+'/'+IntToStr(jahr)+':'+IntToStr(std)+':'+IntToStr(min)+':'+IntToStr(sec)+':'+IntToStr(ms)+']';
 	ClientIP:=reply_sock.GetRemoteSinIP;
 	accessLog(ClientIP+' - - '+TimeString+' GET "'+RequestURL+'" '+copy(status,1,3)+' '+IntToStr(length(page))+' '+UserAgent);
@@ -494,7 +494,7 @@ end;
 
 
 { this thread serves a connection until any ioerrors }
-{$ifdef linux64} 
+{$ifdef linux64}
 function KeepAliveThread(p: pointer):Int64;
 {$else}
 function KeepAliveThread(p: pointer):LongInt;
@@ -502,7 +502,7 @@ function KeepAliveThread(p: pointer):LongInt;
 
 var
 	endThread		: Boolean;
-	
+
 begin
 	if debug then writeLOG('KeepAliveThread:started');
 	endThread:=false;
@@ -548,7 +548,7 @@ begin
 		if debug then WriteLOG('serve_request: Reading requests...');
 
 		if ( WithThreads ) then begin
-			// start a new thread which processes the initial and all 
+			// start a new thread which processes the initial and all
 			// following requests and closes sockets on IO Error reading requests,
 			// then end thread
 			inc(NumOfThreads);
