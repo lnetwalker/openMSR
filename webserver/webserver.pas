@@ -287,7 +287,7 @@ begin
 	header:=header+'MIME-Version: 1.0'+CRLF;
 	header:=header+'Server: bonita'+CRLF;
 	{ add CORS option to allow cross connections from everywhere }
-	header:=header+'Origin: *'+CRLF;
+	header:=header+'Access-Control-Allow-Origin: *'+CRLF;
 	if (WithThreads) then
 		header:=header+'Connection: keep-alive'+CRLF
 	else
