@@ -312,6 +312,9 @@ begin
 	str(BufCnt,blubber);
 	if debug then writeLOG('SendPage '+IntToStr(WhoAmI)+': BufCnt='+blubber);
 	i:=0;
+	// get the User-Agent
+	// don't know why????
+ 	{
 	repeat
 		inc(i);
 	until (UpperCase(copy(post[i],1,10))='USER-AGENT') or ( i >= Length(post[i]) );
@@ -319,6 +322,7 @@ begin
 	  useragent:=copy(post[i],13,length(post[i])-13)
 	else
 	  useragent:='bonita-client';
+	}
 	//EnterCriticalSection(ProtectDataSend);
 	if debug then writeLOG('SendPage '+IntToStr(WhoAmI)+': ' +useragent + ' -> sending header');
 	reply_sock.SendString(header);
@@ -568,7 +572,7 @@ begin
 			if debug then WriteLOG('serve_request: free reply socket');
 			reply_sock.free;
 			if reply_sock.LastError<>0 then
-			    writeLOG('server_request: Error freeing socket');
+			    writeLOG('serve_request: Error freeing socket');
 
 		end
 	end;
