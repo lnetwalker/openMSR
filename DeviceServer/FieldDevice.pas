@@ -1,5 +1,12 @@
 unit FieldDevice;
 
+{ Access Layer for datastructures of configured MQTT Devices 	}
+{ Every MQTT Device stores his relevant data in this structure	}
+{ (c) 2017 by Hartmut Eilers									}
+{ released as part of openMSR tools under the Terms 			}
+{ GNU GPL V 2 or later											}
+
+
 interface
   type
     TDevTyp = ( Input, Output, Analog );
@@ -15,10 +22,18 @@ interface
 
     TFieldDeviceObject = object
       public
-        function AddDevice(DeviceTyp : TDevTyp; Action : TMQTTAction; workingTopic : String; DeviceNumber: word) : boolean;
+        function AddDevice(DeviceTyp : TDevTyp; Action : TMQTTAction;
+                           workingTopic : String; DeviceNumber: word) : boolean;
+
         function GetDeviceCount():word;
-        procedure GetDeviceInfo(IndexNumber: word; var DeviceTyp : TDevTyp; var Action : TMQTTAction; var workingTopic : String; var DeviceNumber: word);
-        procedure GetTopicInfo(topic: String; var DeviceTyp : TDevTyp; var Action : TMQTTAction; var DeviceNumber: word);
+
+        procedure GetDeviceInfo(IndexNumber: word; var DeviceTyp : TDevTyp; 
+                                var Action : TMQTTAction; 
+                                var workingTopic : String; 
+                                var DeviceNumber: word);
+                                
+        procedure GetTopicInfo(topic: String; var DeviceTyp : TDevTyp; 
+                               var Action : TMQTTAction; var DeviceNumber: word);
     end;
 
 implementation
@@ -30,7 +45,10 @@ implementation
     FieldDeviceArray  : array [1..MaxIndex] of TFieldDevice;
     ElementCounter    : word;
 
-  function TFieldDeviceObject.AddDevice(DeviceTyp : TDevTyp; Action : TMQTTAction; workingTopic : String; DeviceNumber: word) : boolean;
+  function TFieldDeviceObject.AddDevice(DeviceTyp : TDevTyp; Action : 
+                                        TMQTTAction; workingTopic : String; 
+                                        DeviceNumber: word) : boolean;
+
   var
     ThisIndex   : word;
 
@@ -55,7 +73,12 @@ implementation
     GetDeviceCount:=ElementCounter;
   end;
 
-  procedure TFieldDeviceObject.GetDeviceInfo(IndexNumber: word; var DeviceTyp : TDevTyp; var Action : TMQTTAction; var workingTopic : String; var DeviceNumber: word);
+  procedure TFieldDeviceObject.GetDeviceInfo(IndexNumber: word; 
+                                             var DeviceTyp : TDevTyp; 
+                                             var Action : TMQTTAction; 
+                                             var workingTopic : String; 
+                                             var DeviceNumber: word);
+                                             
   begin
     // check weather index is in range
     if ( IndexNumber > ElementCounter ) then begin
@@ -71,7 +94,10 @@ implementation
 
   end;
 
-  procedure TFieldDeviceObject.GetTopicInfo(topic: String; var DeviceTyp : TDevTyp; var Action : TMQTTAction; var DeviceNumber: word);
+  procedure TFieldDeviceObject.GetTopicInfo(topic: String; var DeviceTyp : TDevTyp; 
+                                            var Action : TMQTTAction; 
+                                            var DeviceNumber: word);
+                                            
   var
     TopicCounter: word;
     found       : boolean;
