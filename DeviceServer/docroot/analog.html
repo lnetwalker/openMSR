@@ -1,20 +1,13 @@
 <HTML>
 
+<!-- Lesen der analogen Signale vom openMSR DeviceServer-->
+ 
 <Head>
-<Title>Test Meter-Applet</Title>
-<script language="Javascript">
-<!--
-// ============================================ //
-// TEST: Meter-Applet                           //
-// Ralf Moros                                   //
-// moros@sonne.tachemie.uni-leipzig.de          //
-// 21.10.1996                                   //
-// ===========================================  //
-// http://techni.tachemie.uni-leipzig.de/jjar/jappl/meter/ //
-// http://techni.tachemie.uni-leipzig.de/       //
-// ===========================================  //
+<Title>Test Analog Signals</Title>
 
-// ajax code by 2009 by Hartmut Eilers
+<script language="Javascript">
+
+// (c)2009 by Hartmut Eilers
 // hartmut@eilers.net
 
 var ReloadAnalogTimer;
@@ -28,11 +21,11 @@ var curDate = null;
 
 do { curDate = new Date(); }
 while(curDate-date < millis);
-} 
+}
 
 
 function Init()
-{ 
+{
   // Timer für kontinuierlichen AJAX Zugriff starten
   ReloadAnalogTimer = setInterval("ReadAnalogData()",500);
 }
@@ -51,7 +44,7 @@ function getXMLHttpRequest() {
 
 
 // Startet den asynchronen read request
-function SendRequest(url, handler, param) {	
+function SendRequest(url, handler, param) {
 	req=getXMLHttpRequest();
 	if (req) {
 		//alert(url);
@@ -62,8 +55,7 @@ function SendRequest(url, handler, param) {
 }
 
 
-// Diese Funktion liest den asynchronen response und aktualiesiert die LEDs auf die
-// gelesenen Werte
+// Diese Funktion liest den asynchronen response und aktualisiert gelesenen Werte
 function PrintAnalogState() {
 	// readyState 4 gibt an dass der request beendet wurde
 	if (req.readyState ==4 ) {
@@ -83,49 +75,40 @@ function PrintAnalogState() {
 // Diese Funktion wird zyklisch getriggert und stösst den asynchronen request zum
 // lesen der Eingänge an
 function ReadAnalogData()  {
+	// get the values from the form fields
 	var IOGroup=document.getElementById("iogroup");
-	// Welcher DeviceServer soll benutzt werden ?
 	var Host=document.getElementById("Hostname");
 	var ReadURL=document.getElementById("ANALOGURL");
-	Host.value='dorffer.eilers.net';
-	ReadURL.value='/homecontrol/analog/read.html';
-	IOGroup.value='1';
 	var Adresse;
-	Adresse="https://" + Host.value + ReadURL.value;
+	Adresse=Host.value + ReadURL.value;
 
 	if (IOGroup.value != 0 ) {
 		SendRequest(Adresse,PrintAnalogState,IOGroup.value);
 	}
 }
-
-
-
-
 //-->
 </script>
-
-
 
 </Head>
 
 <Body Background="" BGColor=#F0F0FF Text=#000000 Link=#0000FF VLink=#800080 ALink=#80FFFF onload="Init()">
 
-<center>
- <FORM name="GETWERT" ACTION="" METHOD="GET">
- <TABLE border = 0> 
- <TR>
-  <TD> 	<input type=hidden value='localhost:10080' id="Hostname" size=25 >
-	<input type=hidden  value=0 id="iogroup" size=2 >
-	<input type=hidden  value='/analog/read.html' id="ANALOGURL" size=40 >
-	<font color=black>Values read from Device:<input type=text value='' id=debug size=30><br>
- </TD>
- </TR>
- </TABLE> 
- </FORM> 
-</center>
-<BR><BR>
-
-
+ <center>
+  <FORM name="GETWERT" ACTION="" METHOD="GET">
+   <TABLE border = 0>
+    <TR>
+     <TD> 	
+	  Host:<input type=text value='http://localhost:10080' id="Hostname" size=25 ><br>
+	  IO Group:<input type=text  value=0 id="iogroup" size=2 ><br>
+	  URL:<input type=text  value='/analog/read.html' id="ANALOGURL" size=40 ><br>
+	  <font color=black>Values read from Device:<input type=text value='' id=debug size=30><br>
+     </TD>
+    </TR>
+   </TABLE>
+  </FORM>
+ </center>
+ <BR><BR>
+ 
 </Body>
 
 </HTML>
