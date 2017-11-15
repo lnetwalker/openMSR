@@ -54,19 +54,19 @@ type MQTTStates = (
 
 {$IFDEF Linux}
 type
-	  // Define class for the embedded application
+	  // Define class for the MQTT connection
 	  TMQTTThread = object
 	    strict
 	    private
-	      MQTTClient		: TMQTTClient;
-	      pingCounter 	: integer;
-		    pingTimer		 	: integer;
-				state 				: MQTTStates;
-		    message 			: ansistring;
-	      pubTimer 			: integer;
+	      MQTTClient    : TMQTTClient;
+	      pingCounter   : integer;
+		  pingTimer     : integer;
+          state         : MQTTStates;
+		  message       : ansistring;
+	      pubTimer 	    : integer;
 	      connectTimer 	: integer;
 	    public
-				procedure setup (iniFile:string);
+          procedure setup (iniFile:string);
 	      procedure run ();
 	    end;
 {$endif}
@@ -74,8 +74,8 @@ type
 var
 	i		: LongInt;
 	ThreadHandle	: array[1..MaxThreads] of TThreadId;
-	ThreadName	: array[1..MaxThreads] of string;
-	ThreadCnt	: array[1..MaxThreads] of LongInt;
+	ThreadName	    : array[1..MaxThreads] of string;
+	ThreadCnt	    : array[1..MaxThreads] of LongInt;
 	ThreadRPMs	: array[1..MaxThreads] of LongInt;
 	shutdown	: Boolean;
 	Counter		: LongInt;
@@ -176,16 +176,16 @@ procedure TMQTTThread.run();
 var
 	msg : TMQTTMessage;
 	ack : TMQTTMessageAck;
-	DeviceTyp			: TDevTyp;
-	Action				: TMQTTAction;
-	workingTopic	:	String;
+	DeviceTyp		: TDevTyp;
+	Action			: TMQTTAction;
+	workingTopic	: String;
 	DeviceNumber	: Word;
 	TopicCounter	: Word;
 	TopicValue		: Integer;
-	LastRunIN			: array[1..io_max] of boolean;
+	LastRunIN		: array[1..io_max] of boolean;
 	LastRunOUT		: array[1..io_max] of boolean;
 	LastRunAnalog	: array[1..analog_max] of smallint;
-	publish				: boolean;
+	publish			: boolean;
 	ConvertedNumber : integer;
 
 

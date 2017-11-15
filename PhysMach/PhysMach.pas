@@ -21,7 +21,8 @@ unit PhysMach;
 	{$define SOFTIO}
 	{$define USB8}
 	{$define ARMGENERIC}
-	{$undefine IOW}
+	{$undef IOW}
+	{$define  Gnublin}
 {$endif}
 
 {$ifdef MaxOSX}
@@ -66,7 +67,7 @@ unit PhysMach;
 {$ifdef Gnublin}
 	{$define LINUX}
 	{$define SOFTIO}
-	{$undefine IOW}
+	{$undef IOW}
 	{$define USB8}
 {$endif}
 
