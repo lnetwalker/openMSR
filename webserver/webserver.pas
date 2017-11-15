@@ -33,6 +33,12 @@ unit webserver;
 { 29.09.2010 started to add thread support					}
 { 07.02.2011 worked on thread support, added better IO Error checking		}
 
+{$ifdef LINUX}
+  {$ifdef CPU64}
+	{$define Linux64}
+  {$endif}
+{$endif}
+
 interface
 uses classes, sysutils;
 
@@ -137,6 +143,7 @@ var
 	ServeSpecialURL	: TRTLCriticalSection;
 
 	debug			: boolean;
+
 
 procedure writeLOG(MSG: string);
 begin
