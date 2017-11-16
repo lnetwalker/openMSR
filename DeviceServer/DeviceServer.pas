@@ -14,6 +14,10 @@ program DeviceServer;
 	{$undef enhStats}
 {$endif}
 
+{$ifdef CPU64}
+	{$define Linux64}
+{$endif}
+
 uses
 {$IFDEF Linux} cthreads,BaseUnix,MQTT, FieldDevice,
 {$endif}

@@ -4,11 +4,11 @@ uses qgtk2,FunctionSolver;
 
 { $Id$ }
 
-{ Funktion Plotter					}
-{ plots a given function				}
+{ Funktion Plotter					                }
+{ plots a given function				            }
 { not fully related to OpenMSR, but a useful tool	}
-{ for testing OpenLabCalc				}
-{ released under the terms of the GPL			}
+{ for testing OpenLabCalc				            }
+{ released under the terms of the GPL			    }
 { (c) 2012 by Hartmut Eilers <hartmut@eilers.net>	}
 
 
@@ -19,7 +19,7 @@ const
 	debug = false;
 	GetScreenMaxX=800;
 	GetSCreenMaxY=480;
-	XFontCorr=15;		{ verschiebe Beschriftung um n pixxel nach links }
+	XFontCorr=15;		{ verschiebe Beschriftung um n pixel nach links }
 
 var 
 	formel       	: string80;
@@ -37,8 +37,8 @@ var
 	x_wert,y_wert	: string[6];
 	ende         	: boolean;
 	CalcButton,
-	ExitButton	: qWidget;
-	calc		: Boolean;
+	ExitButton	    : qWidget;
+	calc		    : Boolean;
 
 
 procedure onClose;
@@ -110,7 +110,7 @@ procedure onDraw;
 			qline(x_rand-4,k,x_rand+4,k); { Wertelinie }
 			if i<>0 then str(i*maxy/6:6:3,y_wert) { Y Wert in String wandeln }
 			else Y_wert:=' 0.00';
-			qdrawtext(0,k,y_wert);		{ Y Wert ausgeben }
+			qdrawtext(0,k,y_wert);		  { Y Wert ausgeben }
 		end;
 		(* X-Achse *)
 		i:=0;
@@ -191,4 +191,5 @@ begin
 	qdrawstart(800,480, @onCalc,nil, nil);
 
 	qgo;
-end.
+end.
+

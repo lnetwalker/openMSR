@@ -1,15 +1,13 @@
 Unit PopMenu;
 
 {Diese Unit stellt Prozeduren zur Fenstertechnik sowie Popup Verwaltung }
-{ zur Verf�gung                                                         }
-{ (c) 02/11/90 by Hartmut Eilers 	               	                }
+{ zur Verfuegung                                                        }
+{ (c) 02/11/90 by Hartmut Eilers 	               	                    }
 
 { copyright (c) 2006 by Hartmut Eilers <hartmut@eilers.net>				}
-{ distributed under the GNU General Public License V2 or any later	}
+{ distributed under the GNU General Public License V2 or any later	    }
 
 INTERFACE
-
-{$undef ZAURUS}
 
 {$ifdef MacOSX}
 {$define LINUX}
@@ -17,7 +15,7 @@ INTERFACE
 
 
 {$ifdef LINUX}
-uses crt,unix,dos,baseunix,termio;
+uses crt,unix,dos,baseunix,termio,porting;
 {$endif}
 
 {$ifdef WIN32}
@@ -46,48 +44,71 @@ const
       	
 var BackGround,ForeGround,Highlighted : byte;
     screen_buffer                     : array[0..3999] of byte;
+    screenx,screeny                   : word;
 
+procedure checkScreenSize;
 procedure save_screen;
 procedure restore_screen(x1,y1,x2,y2:word);
 procedure cursor_off;
 procedure cursor_on;
 procedure my_wwindow(x1,y1,x2,y2:byte;uber,unter:string12;shadow:boolean);
-function  GetScreenMaxX:word;
-function  GetScreenMaxY:word;
 
 procedure dropdown(x,y:byte;uber:string12;Items:Popup_Choice;
-                NrOfItems:byte;var Choice:char);
+                  NrOfItems:byte;var Choice:char);
+
 procedure Balken(Items:balken_choice;NrOfItems:byte;info:string15;
                  var choice:char);
-function filebrowser( startpath:string80;titel:string;dialogtype:char):string80;
+
 procedure popmenuInit(x,y:word);
 procedure popmsg(lang,hoch:word;uber:string12;msg:string);
+
+function  filebrowser( startpath:string80;titel:string;dialogtype:char):string80;
+function  GetScreenMaxX:word;
+function  GetScreenMaxY:word;
 
 IMPLEMENTATION
 
 type	
 	doc_pointer = ^doc_record;	{ in this double linked list	}
-	doc_record = record		{ the text entries are stored }
-		entry : string[255];
-		nach,			{ zeiger auf den nachfolgenden Eintrag in Liste }
-		vor  : doc_pointer;	{ zeiger auf den vorherigen Eintrag }
-		selected : boolean;	{ true -> Eintrag ist angew�hlt }
-		isDir	: boolean;
+	doc_record = record		    { the text entries are stored }
+		entry    : string[255];
+		nach,			        { zeiger auf den nachfolgenden Eintrag in Liste }
+		vor      : doc_pointer;	{ zeiger auf den vorherigen Eintrag }
+		selected : boolean;	    { true -> Eintrag ist angewaehlt }
+		isDir	 : boolean;
 	end;
 
 
 const 	
-	debug = false;
+	debug = true;
 
 var 
-	dummy,position		: byte;    { dummy fuer mausposition }
-	return,escape		: boolean; { linke / rechte maustaste }
-	minScreenX 		: word; { minimum window size x }
-	minScreenY		: word; {  minimum screen size y }
-	{$ifdef LINUX}
-	WinInfo			: TWinSize;
-	{$endif}
-	MyConsoleBuf		: Pointer;
+	minScreenX 		    : word; { minimum window size x }
+	minScreenY		    : word; {  minimum screen size y }
+    DBG                 : text;
+    
+procedure writeLOG(MSG: string);
+begin
+	{$I-}
+	writeln(DBG,MSG);
+	flush(DBG);
+	{$I+}
+	if IOResult <>0 then writeln ('error writing debug file');
+end;
+
+
+procedure checkScreenSize;
+
+begin
+     screenx:=GetScreenMaxX;
+     screeny:=GetScreenMaxY;
+     if ((screenx<minScreenX) or (screeny<minScreenY)) then
+     begin
+	    write(#7);
+     	writeln('Screen is too small - minimum Screensize is',minScreenX,' x ',minScreenY);
+     	halt(2);
+     end;
+end;
 
 
 procedure popmenuInit(x,y:word);
@@ -114,6 +135,7 @@ begin
 		if ( zeiger^.nach <> nil ) then zeiger:=zeiger^.nach;
 		if (line_cnt < zeilen ) then writeln;
 	until (line_cnt = zeilen ) or ( zeiger^.nach=nil);
+	ShowTextList:=zeiger^.nach;
 end;
 
 
@@ -151,12 +173,11 @@ procedure cursor_off;              {cursor ausschalten}
 
 begin
 	{$ifdef WIN32}
-	CursorOff
+	CursorOff;
 	{$endif}
 
 	{$ifdef LINUX}
-	write(#27'[?25l');
-	//write(#27'[?1c');
+	fpsystem('/usr/bin/tput civis');
 	{$endif}
 end;                               { **** ENDE CURSOR_OFF **** }
 
@@ -169,8 +190,7 @@ begin
 	{$endif}
 
 	{$ifdef LINUX}
-	write(#27'[?25h');
-	//write(#27'[?16;0;16c');
+	fpsystem('/usr/bin/tput cnorm');	
 	{$endif}
 end;                               { **** ENDE CURSOR_ON **** }
 
@@ -184,7 +204,7 @@ begin
        gotoxy(x2+1,i);
        write('#');
    end;
-   for i:=x1+1 to x2 do begin       { unteren schatten  }
+   for i:=x1+1 to x2 do begin     { unteren schatten  }
        gotoxy(i,y2+1);
        write('#');
    end;
@@ -208,7 +228,7 @@ begin
          gotoxy(x2,i);
          write('|');                         { rechts }
      end;
-     gotoxy(x1,y1);                            { ecken zeichnen }
+     gotoxy(x1,y1);                        { ecken zeichnen }
      write('+');
      gotoxy(x1,y2);
      write('+');
@@ -216,9 +236,9 @@ begin
      write('+');
      gotoxy(x2,y2);
      write('+');
-     gotoxy(x1+2,y1);                            { �berschrift }
+     gotoxy(x1+2,y1);                      { Ueberschrift }
      write(uber);
-     gotoxy(x2-length(unter)-1,y2);    { unterschrift }
+     gotoxy(x2-length(unter)-1,y2);        { unterschrift }
      write(unter);
 end;
 
@@ -269,14 +289,14 @@ end;
 
 procedure my_wwindow (x1,y1,x2,y2:byte;uber,unter:string12;shadow:boolean);
 
-{ erzeugen eines windows mit rahmen, �berschrift, unterschrift und schatten }
+{ erzeugen eines windows mit rahmen, Ueberschrift, unterschrift und schatten }
 
 begin
 	window(x1,y1,x2,y2);
 	frame (1,1,x2-x1,y2-y1,uber,unter);
 	if shadow then schatten(1,2,x2-x1,y2-y1);   { schatten }
-	window(x1+1,y1+1,x2-2,y2-2);            { schreibfl�che erzeugen und }
-	clrscr;                                 { l�schen }
+	window(x1+1,y1+1,x2-2,y2-2);            { schreibflaeche erzeugen und }
+	clrscr;                                 { loeschen }
 end;                               { **** ENDE WWINDOW **** }
 
 
@@ -288,8 +308,8 @@ begin
      { start linux specific, because of garbled screen }
      textcolor(black);textbackground(white);
      { end linux spec }
-     gotoxy(x+1,y);
-     write(copy (textzeile,2,length(textzeile)-1));
+     gotoxy(x,y);
+     write(textzeile);
      for j:= length(textzeile) to i-1 do begin
          gotoxy(x+j,y);
          write(' ');
@@ -306,133 +326,177 @@ procedure dropdown (x,y:byte;uber:string12;Items:Popup_Choice;
                 NrOfItems:byte;var Choice:char);
 
 var MaxLen,i,x2,y2,
-    Zeile,AlteZeile      : byte;
-    Taste,Pfeil          : char;
+    zeile,altezeile      : byte;
+    KeyPress             : char;
     Help                 : string1;
 
 begin
      MaxLen := 0;
      textbackground(backGround);textcolor(foreground);
 	 Highlighted:=red;
+	 { check for longest item }
      for i:= 1 to NrOfItems do
-         if length(Items[i])>MaxLen then MaxLen:=length(items[i]);
+         if length(Items[i])>MaxLen then MaxLen:=length(Items[i]);
      y2:=y+NrOfItems+2;
      x2:=x+MaxLen+3;
+     { draw a window big enough for the longest item }
      my_wwindow (x,y,x2,y2,uber,'<ESC>',true);
-     //cursor_off;
+     cursor_off;
+     { print all menu items }
      for i:= 1 to NrOfItems do PrintLine(1,i,Items[i],MaxLen);
      textbackground(ForeGround);textcolor(BackGround);
+     { mark the first item as active }
 	 Highlighted:=green;
      PrintLine(1,1,Items[1],MaxLen);
-     Help:=copy(Items[1],1,1);
-     Choice:=help[1];
+     Choice:=' ';
      zeile:=1;
+     altezeile:=1;
      repeat
-		   Taste := ReadKey;
-           altezeile:=zeile;
-           if ord(taste) = 0 then begin;
-              Pfeil:=readkey;
-              case pfeil of
-                 p_up : if zeile <> 1 then dec(zeile)
-                      else Zeile:=NrOfItems;
-                 p_dw : if zeile <> NrOfItems then inc(zeile)
+{$IFNDEF keyfix}
+           if (keypressed) then begin
+             KeyPress := ReadKey;
+             if ord(KeyPress) = 0 then KeyPress:=ReadKey;
+{$ENDIF}
+{$IFDEF keyfix}
+           if my_keypressed() then begin
+             KeyPress:=my_readkey();
+{$ENDIF}             
+             case KeyPress of
+               p_dw : if zeile <> NrOfItems then zeile:=zeile+1
                       else zeile:=1;
-              end;
-           end;
+               p_up : if zeile <> 1 then zeile:=zeile-1
+                      else zeile:=NrOfItems;
+               enter: begin
+                        Help:=copy(Items[zeile],1,1);
+                        choice:=Help[1];
+                      end;
+               esc  : choice:=esc;
+                      
+               else begin      
+                 for i:= 1 to NrOfItems do
+                 if copy(Items[i],1,1) = upcase(KeyPress) then 
+                   choice:=upcase(KeyPress);
+               end;
+             end;
+          end;
+           
            if zeile <> altezeile then begin
               textbackground(backGround);textcolor(foreground);
 			  Highlighted:=red;
-              printLine(1,AlteZeile,Items[altezeile],maxlen);
+              printLine(1,altezeile,Items[altezeile],MaxLen);
               textbackground(foreground);textcolor(backGround);
 			  Highlighted:=green;
               PrintLine(1,zeile,Items[zeile],MaxLen);
            end;
-           if taste=enter then begin
-              help:=copy(Items[zeile],1,1);
-              choice:=help[1];
-           end;
-           for i:= 1 to NrOfItems do
-               if copy(Items[i],1,1) = upcase(taste) then begin
-                  choice:=upcase(taste);
-                  taste:=chr(13);
-               end;
-           if taste=esc then begin
-              taste:=enter;
-              choice:=esc;
-           end;
-     until taste =enter;
+           //gotoxy(5,zeile);write(ord(KeyPress));
+           altezeile:=zeile;
+     until choice<>' ';
 end;
 
 procedure balken(Items:balken_choice;NrOfItems:byte;info:string15;var choice:char);
 
 var i,
-    spalte,Altespalte    : byte;
-    Taste,Pfeil          : char;
+    spalte,altespalte    : byte;
+    KeyPress             : char;
     Help                 : string1;
-	ItemWidth		: byte;
-	currX,currY		:word;
+	ItemWidth		     : byte;
+	currX   		     : word;
+	dummy,dummy1:string;
 
 
 begin
-{$ifdef ZAURUS}
-	Itemwidth:=6;
-{$else}
 	ItemWidth:=9;
-{$endif}
+    spalte:=1;
+    altespalte:=1;
 	currX:=0;
-     repeat
-	if (currX<>GetScreenMaxX) or (currY<>GetScreenMaxY) then begin
-		window(1,1,1024,1024);
-		textbackground(backGround);textcolor(foreground);
-		Highlighted:=red;
-		currX:=GetScreenMaxX;
-		currY:=GetScreenMaxY;
-		window (1,1,currX,1);
-		clrscr;
-		//cursor_off;
-		for i:= 0 to NrOfItems-1 do PrintLine(i*ItemWidth+1,1,Items[i+1],ItemWidth);
-		gotoxy(GetScreenMaxX-length(info)-1,1);write(info);
-		textbackground(ForeGround);textcolor(BackGround);
-		Highlighted:=green;
-		PrintLine(1,1,Items[1],ItemWidth);
-		help:=copy(Items[1],1,1);
-		choice:=help[1];
-		spalte:=1;
-	end;
-           Taste := ReadKey;
-           altespalte:=spalte;
-           if ord(taste) = 0 then begin;
-              Pfeil:=readkey;
-              case pfeil of
-                 p_le : if spalte <> 1 then dec(spalte)
-                      else spalte:=NrOfItems;
-                 p_re : if spalte <> NrOfItems then inc(spalte)
-                      else spalte:=1;
-              end;
-           end;
-           if spalte <> altespalte then begin
-             textbackground(backGround);textcolor(foreground);
-			 Highlighted:=red;
-              printLine((altespalte-1)*ItemWidth+1,1,Items[altespalte],ItemWidth);
-              textbackground(foreground);textcolor(background);
-			  Highlighted:=green;
-              PrintLine((spalte-1)*ItemWidth+1,1,Items[spalte],ItemWidth);
-           end;
-           if taste=enter then begin
-              help:=copy(Items[spalte],1,1);
-              choice:=help[1];
-           end;
-           for i:= 1 to NrOfItems do
-               if copy(Items[i],1,1) = upcase(taste) then begin
-                  choice:=upcase(taste);
-                  taste:=chr(13);
-               end;
-           if taste=esc then begin
-              taste:=enter;
-              choice:=esc;
-           end;
-     until taste =enter;
+	window(1,1,255,255);
+	textbackground(foreground);textcolor(background);
+	clrscr;
+	KeyPress:=#255;
+	if debug then writeLOG('balken prepared, starting event loop');
+    repeat
+	       { terminal window was resized, or first call, so repaint menu }
+		   if (currX<>GetScreenMaxX) then begin
+		        if debug then writeLOG('window resize/repaint');
+				currX:=GetScreenMaxX;
+				window (1,1,currX,1);
+				clrscr;
+				PrintLine(1,1,' ',currX);
+				cursor_off;
+				Highlighted:=red;
+				for i:= 0 to NrOfItems-1 do PrintLine(i*ItemWidth+1,1,Items[i+1],ItemWidth);
+				gotoxy(GetScreenMaxX-length(info)-1,1);write(info);
+				textbackground(ForeGround);textcolor(BackGround);
+				Highlighted:=green;
+				PrintLine(1,1,Items[1],ItemWidth);
+             str(currX,dummy);
+             str(GetScreenMaxX,dummy1);
+		   end;
+           { handle keypress }
+{$IFNDEF keyfix}
+           if (keypressed) then begin
+             KeyPress := ReadKey;
+             if ord(KeyPress) = 0 then KeyPress:=ReadKey;
+{$ENDIF}
+{$IFDEF keyfix}
+           if my_keypressed() then begin
+             KeyPress:=my_readkey();
+{$ENDIF}
+            if debug then writeLOG('key pressed, evaluating');
+            case KeyPress of
+               { left and right arrow keys                             }
+               p_le : begin
+                        if spalte > 1 then 
+                          spalte:=spalte-1
+                        else spalte:=NrOfItems;
+                      end;
+               p_re : begin
+                        if spalte < NrOfItems then inc(spalte)
+                        else begin
+                          spalte:=1;
+                        end;
+                      end;  
+               { selection by pressing enter over one item             }
+               enter : begin
+                         help:=copy(Items[spalte],1,1);
+                         choice:=help[1];
+                       end;
+               { cancelled by escape key ?                             }   
+               esc  :  begin
+                         KeyPress:=enter;
+                         choice:=esc;
+                       end;
+
+               else begin        
+                 { check wether one of the Items was selected with the first }
+                 { char of the Item                                          }
+                 for i:= 1 to NrOfItems do
+                   if copy(Items[i],1,1) = upcase(KeyPress) then begin
+                     { yes, this one was selected                          }
+                     choice:=upcase(KeyPress);
+                      KeyPress:=enter; { enter to signal end of selection   }
+                   end;
+                 end;  
+ 
+            end;
+          end;
+
+          { change the highlight from one item to the next            }
+          if spalte <> altespalte then begin
+            if debug then writeLOG('mark change...');
+            textbackground(backGround);textcolor(foreground);
+		    Highlighted:=red;
+            printLine((altespalte-1)*ItemWidth+1,1,Items[altespalte],ItemWidth);
+            textbackground(foreground);textcolor(background);
+		    Highlighted:=green;
+            PrintLine((spalte-1)*ItemWidth+1,1,Items[spalte],ItemWidth);
+          end;
+
+          altespalte:=spalte;
+         
+     until KeyPress=enter;  { loop until one selection is made            }
      cursor_on;
+     if debug then writeLOG('balkenfinished');
 end;
 
 
@@ -441,17 +505,15 @@ function filebrowser( startpath:string80;titel:string;dialogtype:char):string80;
 
 { this function provides a filebrowser to browse through the	}
 { directory hirarchy, if enter is pressed on a directory its 	}
-{ opened and browsed, if enter is pressed on a file, the	}
-{ window is closed and the fqfn is returned. if you press	}
+{ opened and browsed, if enter is pressed on a file, the	    }
+{ window is closed and the fqfn is returned. if you press	    }
 { ESC the window is closed and the returned filename is "esc" 	}
 
-var 	taste 	: char;
+var KeyPress 	    : char;
 	sr    	: searchrec;		{ structure needed for the directory access }
 	fz    	: datetime;
 	z1,z2,
-	d_start,
-	z_akt	: doc_pointer;		{ pointer to the start of the dir list }
-	zeilen_counter	: word;		{ counter for the number of dir entries }
+	d_start : doc_pointer;		{ pointer to the start of the dir list  }
 	screen_length,
 	spalte,c		: byte;
 	selected		: boolean;
@@ -475,6 +537,7 @@ begin
 	end;	
 	repeat
 		searchpath:=path+'/*';
+	    if debug then writeLOG('reading directory: '+searchpath);		
 		new(z1);
 		z1^.vor:=nil;				{ start setzten - nil zeigt Anfang }
 		d_start:=z1;
@@ -504,12 +567,19 @@ begin
 		{ open a window and print the dir list in it }
 		z1:=d_start;
 		z1^.selected:=true;
-		zeilen_counter:=1;
 		ShowTextList(z1,screen_length);
+		if debug then writeLOG('showing listing...');
 		repeat
-			taste:=readkey;
-			if (taste=#0) then taste:=readkey;
-			case taste of
+{$IFNDEF keyfix}
+			if (keypressed)then begin
+			  KeyPress:=readkey;
+			  if (KeyPress=#0) then KeyPress:=readkey;
+{$ENDIF}
+{$IFDEF keyfix}
+			if (my_keypressed)then begin
+			  KeyPress:=my_readkey;
+{$ENDIF}
+			  case KeyPress of
 				p_up : begin
 					z1^.selected:=false;
 					if ( z1^.vor <> nil) then z1:=z1^.vor;
@@ -522,26 +592,35 @@ begin
 		    	   end;
 				enter: ;
 				esc	 :   
-				else if (DialogType='S') then begin
-					 filename:=filename+taste;
+				else if (DialogType='S') then begin   // save Dialog
+					 filename:=filename+KeyPress;
 					 inc(spalte);
 					 gotoxy(1,screen_length+2);
 					 clreol;
 					 write (filename,'#');
 				end
-			end;
-			ShowTextList(z1,screen_length);
-		until (taste=enter) or (taste=esc);
-		if (z1^.isDir) and (filename='') then path:=path+'/'+z1^.entry
-		else begin
+			  end;
+			  ShowTextList(z1,screen_length);
+			end;  
+		until (KeyPress=enter) or (KeyPress=esc);
+		if (KeyPress=enter) then
+		  if (z1^.isDir)  then begin
+		    if debug then writeLOG('Directory '+z1^.entry+' selected');
+		    path:=path+'/'+z1^.entry;
+		    selected:=false;
+		    filename:='';
+		  end  
+		  else begin
 			selected:=true;
+		    if debug then writeLOG('File '+z1^.entry+' selected');			
 			if (DialogType='S') and (filename<>'') then filebrowser:=path+'/'+filename
 			else filebrowser:=path+'/'+z1^.entry;
-		end;
-		if ( taste=esc ) then begin
+		  end;
+		if ( KeyPress=esc ) then begin
 			selected:=true;
 			filebrowser:='esc';
 		end;	
+		KeyPress:=p_up;
 	until selected;
 	window(trunc(GetScreenMaxX/2)-25,trunc(GetScreenMaxY/2)-10,trunc(GetScreenMaxX/2)+25,trunc(GetScreenMaxY/2)+10);
 	textbackground(black);textcolor(black);clrscr;
@@ -549,5 +628,10 @@ end;
 
 
 begin
-	Highlighted:=red;
+  Highlighted:=red;
+  if debug then begin
+    // debug Log
+	assign(DBG,'/tmp/popmenu_dbg.log');
+	rewrite(DBG);
+  end;
 end.

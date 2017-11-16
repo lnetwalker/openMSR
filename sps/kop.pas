@@ -17,7 +17,7 @@ var i				: integer;
 	MaxLineLength	: word;
 
 function add2string(Zeichenkette:string;Zeichen:char;laenge:byte):string;
-{ f�gt Zeichen an Zeichenkette bis die L�nge = laenge ist }
+{ fuegt Zeichen an Zeichenkette bis die Laenge = laenge ist }
 begin
 	if (length(Zeichenkette)<laenge) then
 		repeat
@@ -29,11 +29,7 @@ end;
 
 begin
 	if not(programm) then exit;
-	{$ifndef ZAURUS}
-		MaxLineLength:=60;
-	{$else}
-		MaxLineLength:=50;
-	{$endif}
+	MaxLineLength:=50;
 	i:=1;
 	Zeile:='|-';
 	Beschriftung:='  ';

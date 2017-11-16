@@ -5,10 +5,16 @@
 
 procedure edit;                    {editieren von awl}
 
-const      CR           =#13;
-           ESC          =#27;
-           BCKSPCE      =#8;
+const      CR           = #13;
+           ESC          = #27;
+           BCKSPCE      = #8;
            loesch       = '                                                                                ';
+           auf          = #72;
+           ab           = #80;
+           pgup         = #73;
+           pgdwn        = #81;
+           f1           = #82;      { bei linux auf einfg }
+           f2           = #83;      { bei linux aud entf  }
 
 
 var zeile,spalte,zeilnum    : byte;
@@ -31,7 +37,7 @@ end;                               {****ENDE AUFLIST ****}
 
 
 procedure korrekt_jump(rufer:string12;nr:byte); { korrigiert die Sprung- }
-                                                { ziele bei einf. od. l�sch.}
+                                                { ziele bei einf. od. loesch.}
 var z                       : byte;
 
 begin
@@ -39,7 +45,7 @@ begin
          if (operation[z]=anweisung[14]) or
             (operation[z]=anweisung[15]) then begin  { 'J' oder 'JI' }
             if par[z] >= nr then
-               if rufer = 'EINF�GEN ' then inc(par[z])
+               if rufer = 'EINFUEGEN ' then inc(par[z])
                else dec(par[z]);
          end;
      end;
@@ -62,8 +68,8 @@ begin
      z:=0;
 end;                               { ****ENDE LIES_ZEILNUMMER **** }
 
-procedure einfug;                  { einf�gen einer zeile in die awl }
-const ident='EINF�GEN ';
+procedure einfug;                  { einfuegen einer zeile in die awl }
+const ident='EINFUEGEN ';
 var x,y                     : byte;
 
 begin
@@ -92,8 +98,8 @@ begin
    end;
 end;                               { **** ENDE EINFUG **** }
 
-procedure loeschen;                { l�schen einer zeile der awl }
-const ident='L�SCHEN ';
+procedure loeschen;                { loeschen einer zeile der awl }
+const ident='LOESCHEN ';
 var x,y                     : byte;
 
 begin
@@ -118,10 +124,8 @@ end;                               { **** ENDE LOESCHEN **** }
 
 procedure formatiere;              {formatieren einer awl-zeile}
 
-var j,znum,p,c			: byte;
-    error			: integer;
+var j,znum,c			: byte;
     text_dummy			: string;
-    byte_dummy			: byte;
     longInt_dummy		: LongInt;
     NoOpOrPar			: byte;
 
@@ -130,7 +134,7 @@ begin
 	{ I try to document this procedsure now ( after some years ) }
 	{ I slip over the input line character for character ( with the j var ) }
 	{ and look what I read. if I find something that I know about I stop, }
-	{ take the readed part of the line, form whatever it was ( operation, operand, rtc }
+	{ take the readed part of the line, form whatever it was ( operation, operand, etc }
 	{ delete that from the input line and start over from beginning }
 	
      NoOpOrPar:=0;
@@ -275,73 +279,7 @@ begin
      write(zeilnum:3,' ');
 end;                               { **** ENDE CARRET **** }
 
-procedure steuer;                  { auswertung der Steuertasten}
 
-const   auf             = #72;
-        ab              = #80;
-        pgup            = #73;
-        pgdwn           = #81;
-        f1              = #82;      { bei linux auf einfg }
-        f2              = #83;      { bei linux aud entf  }
-
-begin
-	eingabe:= readkey;
-     case eingabe of
-          f1      : einfug;
-          f2      : loeschen;
-          auf     : if zeile>1 then begin
-                       clrscr;
-                       dec(zeile);
-                       if zeilnum-1 >= zeile+screeny-6 then auflist(zeile,zeile+screeny-6)
-                       else auflist(zeile,zeilnum-1);
-                       gotoxy(1,wherey);
-                       write(zeilnum:3,' ');
-                    end;
-          ab      : if zeile<zeilnum-1 then begin
-                       clrscr;
-                       inc(zeile);
-                       if zeile+screeny-6 <= zeilnum-1 then auflist(zeile,zeile+screeny-6)
-                       else auflist (zeile,zeilnum-1);
-                       gotoxy(1,wherey);
-                       write(zeilnum:3,' ');
-                    end;
-          pgup    : if zeile > 1 then begin
-                       clrscr;
-                       if zeile-screeny-6 < 1 then begin
-                          zeile:=1;
-                          if zeile+screeny-6 < zeilnum-1 then auflist(zeile,zeile+screeny-6)
-                          else auflist(zeile,zeilnum-1);
-                       end
-                       else begin
-                          zeile:=zeile-screeny-6;
-                          if zeile+screeny-6 < zeilnum-1 then auflist(zeile,zeile+screeny-6)
-                          else auflist(zeile,zeilnum-1);
-                       end;
-                       gotoxy(1,wherey);
-                       write(zeilnum:3,' ');
-                    end;
-          pgdwn   : if zeile < zeilnum-1 then begin
-                       clrscr;
-                       if zeile+38 < zeilnum-1 then begin
-                          zeile:=zeile+screeny-6;
-                          auflist(zeile,zeile+screeny-6);
-                       end
-                       else begin
-                          if zeilnum-screeny-6>1 then begin
-                             zeile:=zeilnum-screeny-6;
-                             auflist(zeile,zeilnum-1);
-                          end
-                          else begin
-                             zeile:=1;
-                             auflist(zeile,zeilnum-1);
-                          end;
-                       end;
-                       gotoxy(1,wherey);
-                       write(zeilnum:3,' ');
-                    end;
-          end;
-
-end;                               { **** ENDE STEUER ****}
                                    { beginn von edit }
 begin
      checkeof :=false;
@@ -383,10 +321,70 @@ begin
      gotoxy(1,wherey);
      write(zeilnum:3,' ');
 	repeat
-		eingabe:=readkey;
+{$IFNDEF keyfix}
+      if keypressed then begin
+        eingabe:=readkey;
+        if ord(eingabe)=0 then eingabe:=readkey;
+{$ENDIF}
+{$IFDEF keyfix}
+      if my_keypressed then begin
+        eingabe:=my_readkey;
+{$ENDIF}
 		case eingabe of
 			cr  	: carret;
-			#0  	: steuer;
+            f1      : einfug;
+            f2      : loeschen;
+            auf     : if zeile>1 then begin
+                        clrscr;
+                        dec(zeile);
+                        if zeilnum-1 >= zeile+screeny-6 then auflist(zeile,zeile+screeny-6)
+                        else auflist(zeile,zeilnum-1);
+                        gotoxy(1,wherey);
+                        write(zeilnum:3,' ');
+                      end;
+            ab      : if zeile<zeilnum-1 then begin
+                        clrscr;
+                        inc(zeile);
+                        if zeile+screeny-6 <= zeilnum-1 then auflist(zeile,zeile+screeny-6)
+                        else auflist (zeile,zeilnum-1);
+                        gotoxy(1,wherey);
+                        write(zeilnum:3,' ');
+                      end;
+            pgup    : if zeile > 1 then begin
+                        clrscr;
+                        if zeile-screeny-6 < 1 then begin
+                          zeile:=1;
+                          if zeile+screeny-6 < zeilnum-1 then auflist(zeile,zeile+screeny-6)
+                          else auflist(zeile,zeilnum-1);
+                        end
+                        else begin
+                          zeile:=zeile-screeny-6;
+                          if zeile+screeny-6 < zeilnum-1 then auflist(zeile,zeile+screeny-6)
+                          else auflist(zeile,zeilnum-1);
+                        end;
+                        gotoxy(1,wherey);
+                        write(zeilnum:3,' ');
+                      end;
+            pgdwn   : if zeile < zeilnum-1 then begin
+                        clrscr;
+                        if zeile+38 < zeilnum-1 then begin
+                          zeile:=zeile+screeny-6;
+                          auflist(zeile,zeile+screeny-6);
+                        end
+                        else begin
+                          if zeilnum-screeny-6>1 then begin
+                            zeile:=zeilnum-screeny-6;
+                            auflist(zeile,zeilnum-1);
+                          end
+                          else begin
+                            zeile:=1;
+                            auflist(zeile,zeilnum-1);
+                          end;
+                        end;
+                        gotoxy(1,wherey);
+                        write(zeilnum:3,' ');
+                     end;
+          
 			bckspce : begin
 						dec(spalte);
 						if spalte <= 5 then spalte:=5;
@@ -394,7 +392,8 @@ begin
 						textzeile:=copy(textzeile,1,spalte-5);
 						saved_text:=copy(saved_text,1,spalte-5);
 						gotoxy(spalte,wherey);
-			    	  end
+			    	  end;
+			    	  
 			else begin
 				textzeile:=textzeile+upcase(eingabe);
 				saved_text:=saved_text+eingabe;
@@ -403,6 +402,7 @@ begin
 				if spalte > 80 then spalte:=80;
 			end;
 		end;
+	  end;  
 	until (eingabe=esc) or (zeilnum=awl_max);
 	
 	{ add an end of programm just to ensure that nothing is lost if user forgot it }
@@ -418,9 +418,10 @@ begin
         writeln('press any key');
         repeat
         until keypressed;
+        readkey;
      end;
      window (1,1,GetScreenMaxX,GetScreenMaxY);textbackground(black);textcolor(black);
      clrscr;
-     //cursor_off;
+     cursor_off;
 end;                               { ***** ENDE EDIT ****}
 

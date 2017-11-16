@@ -1,7 +1,7 @@
 { this is the interpreter for sps files }
 { interpreter version 1.2}
 
-{ copyright (C) 2007 by Hartmut Eilers <hartmut@eilers.net>			}
+{ copyright (C) 2017 by Hartmut Eilers <hartmut@eilers.net>			}
 { distributed under the GNU General Public License V2 or any later	}
 
 function timeNow:Real;
@@ -117,7 +117,7 @@ begin
 				help:=not(zahler[par[k]])
 			else
 			  help:=zahler[par[k]];
-		'J':	if debug then writeln('analoh input');
+		'J':	if debug then writeln('analog input');
 	else
 	    begin
 		{ errorabfrage }
@@ -160,6 +160,7 @@ begin
 		'O':	ausgang[par[k]]:=akku;
 		'A':	ausgang[par[k]]:=akku;
 		'M':	marker[par[k]]:=akku;
+		'J':    analog_in[par[k]]:=analog_akku;
 	{else}
 		{f�r sp�tere errorabfrage }
 	end;
@@ -288,9 +289,7 @@ begin
 	{ you have to ensure, that output of the program is redirected	}
 	if ( akku ) then begin
 		{$ifdef LINUX}
-			{$ifndef ZAURUS}
 			analog_akku := fpsystem(comment[k]);
-			{$endif}
 		{$else}
 		exec(GetEnv('COMSPEC'),comment[k]);
 		analog_akku:=DosExitCode;
@@ -306,6 +305,21 @@ begin
 	end
 	else 
 		akku:=true;
+end;
+
+	
+procedure decrement;
+begin
+end;
+
+
+procedure increment;
+begin
+end;
+
+
+procedure loadconst;
+begin
 end;
 
 	
@@ -329,31 +343,34 @@ begin
 		//if ( debug ) then writeln ('Nr ',k,' aktuell ',aktuell,'  Token: ',token);
 		case token of
 			1..6:	verkn;					{ UN( .. O(	}
-			7:	zuweisen;				{ =      	}
-			8:	cond_jump;				{ JI 		}
-			9:	set_timer;				{ TE 		}
+			7:	zuweisen;				    { =      	}
+			8:	cond_jump;				    { JI 		}
+			9:	set_timer;				    { TE 		}
 			10:	set_counter;				{ ZR 		}
-			11:	;					{ EN   		}
+			11:	;					        { EN   		}
 			12,13:	verkn;					{ U O		}
-			14:	klammer_zu;				{ ) 		}
-			15:	zuweisen;				{ =N 		}
-			16:	setzen;					{ S 		}
-			17:	rucksetzen;				{ R 		}
-			18:	jump;					{ J 		}
-			19:	;					{ K 		}
-			20:	;					{ NOP 		}
-			21:	analog_equal;		     		{ EQ 		}
-			22:	analog_less;    	    		{ LT 		}
-			23:	analog_great;        			{ GT 		}
-			24:	execute;                		{ $		}
-			25:	;					{ PE		}
+			14:	klammer_zu;				    { ) 		}
+			15:	zuweisen;				    { =N 		}
+			16:	setzen;					    { S 		}
+			17:	rucksetzen;				    { R 		}
+			18:	jump;					    { J 		}
+			19:	;					        { K 		}
+			20:	;					        { NOP 		}
+			21:	analog_equal;		     	{ EQ 		}
+			22:	analog_less;    	    	{ LT 		}
+			23:	analog_great;        		{ GT 		}
+			24:	execute;                	{ $		    }
+			25:	;					        { PE		}
 			26,27:	jump;					{ JP,SP		}
 			28,29:	cond_jump;				{ JC,SPB	}
-			30:	;					{ EP		}
-			31:	verkn;					{ AN(		}
-			32:	verkn;					{ AN		}
-			33:	verkn;					{ A(		}
-			34:	verkn;					{ A		}
+			30:	;					        { EP		}
+			31:	verkn;					    { AN(		}
+			32:	verkn;					    { AN		}
+			33:	verkn;					    { A(		}
+			34:	verkn;					    { A		    }
+			35: decrement;                  { DEC       }
+			36: increment;                  { INC       }
+			37; loadconst;                  { LDD       }
 		{else}
 			{ f�r sp�tere Fehlerabfrage }
 		end;

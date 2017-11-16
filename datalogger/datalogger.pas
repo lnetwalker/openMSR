@@ -180,7 +180,7 @@ begin
 	Pause:=true;
 	if qdialog('Quit?','Yes', 'No','') =1 then begin
 		qdestroy;
-		close(f);
+		if SaveData then close(f);
 	end
 	else Pause:=false;
 end;

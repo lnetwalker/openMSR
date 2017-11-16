@@ -16,6 +16,10 @@ unit PhysMach;
 
 { the following defines are used in the code:				}
 
+{$ifdef CPU64}
+	{$define SOFTIO}
+{$endif}
+
 {$ifdef arm}
 	{$define LINUX}
 	{$define SOFTIO}
