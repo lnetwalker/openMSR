@@ -70,6 +70,7 @@ end;
 
 function my_readkey:char;
 begin
+{$IFDEF keyfix}
   K:=PollKeyEvent;
   if K<>0 then begin
     K:=GetKeyEvent;
@@ -85,20 +86,27 @@ begin
       end
     else my_readkey:=GetKeyEventChar(K);
   end
+{$ENDIF}
 end;
 
 function my_keypressed:boolean;
 begin
+{$IFDEF keyfix}
   K:=PollKeyEvent;
   If K<>0 then my_keypressed:=true
   else my_keypressed:=false;
+{$ENDIF}  
 end;
 
 procedure reset_keyboard();
 begin
+{$IFDEF keyfix}
   DoneKeyboard;
+{$ENDIF}  
 end; 
 
 begin
+{$IFDEF keyfix}
   InitKeyboard;
+{$ENDIF}  
 end.
