@@ -262,8 +262,8 @@ begin                              { SPS_SIMULATION           }
 	repeat
 		run_awl;
 		delay(15);
-	until keypressed or esc;	
-	if esc then writeln('Error: Watchdog error...!');	
+	until keypressed or escape;	
+	if escape then writeln('Error: Watchdog error...!');	
 {$endif}
 
 	PhysMachEnd;
