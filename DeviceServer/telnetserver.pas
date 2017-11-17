@@ -20,6 +20,11 @@ unit telnetserver;
 	{$define Linux}
 {$endif}
 
+
+{$ifdef CPU64}
+	{$define Linux64}
+{$endif}
+
 interface
 
 Procedure TelnetSetupInterpreter(proc : tprocedure);
@@ -47,14 +52,14 @@ const
 	debug			= true;
 
 var
-	lSock, uSock 		: LongInt;
+	lSock, uSock 	: LongInt;
 	sAddr 			: TInetSockAddr;
 	Line 			: String;
 	sin, sout 		: Text;
-	LOG			: Text;
-	InterpreterProc		: tprocedure;
+	LOG				: Text;
+	InterpreterProc	: tprocedure;
 	ListenPort 		: Word ;
-	ShutDownProc		: Boolean;
+	ShutDownProc	: Boolean;
 	// LOG-Files
 	DBG,ERR,ACC		: text;
 	saveaccess		: Boolean;
@@ -137,11 +142,14 @@ begin
 	
 	if LPort=0 then LPort:=ListenPort;
 
+
+{$ifndef CPU64}
 	with sAddr do begin
 		Family := af_inet;
 		Port := htons(LPort);
 		Addr := 0;
 	end;
+{$endif}
 
 	if fpBind(lSock, @sAddr, sizeof(sAddr))<>0 then Error(1,'Bind error: ',socketerror);
 	if fpListen(lSock, MaxConn)<>0 then Error(1,'Listen error: ',socketerror);
@@ -163,8 +171,11 @@ begin
 		FpFcntl(usock,F_SetFd,MSG_DONTWAIT);
 	{$endif}
 
+{$ifndef CPU64}
 	if debug then
 		writeLOG('Accepted connection from ' + AddrToStr(sAddr.Addr));
+{$endif}
+
 	Sock2Text(uSock, sin, sout);
 	
 	Reset(sin);

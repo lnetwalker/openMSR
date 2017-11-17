@@ -56,7 +56,7 @@ const
 {$endif}
 {$endif}	
 	ProgNamVer  =' RUN_SPS  for'+Platform+version+' '+datum+' ';
-	Copyright   =' (c)  1989 - 2009 by Hartmut Eilers ';
+	Copyright   =' (c)  1989 - 2017 by Hartmut Eilers ';
 
 var
 	i					: integer;
@@ -155,7 +155,7 @@ begin                             		{ hp run_awl                      }
 	PhysMachWriteDigital;			{ OUTPUTS ausgeben                }
 	PhysMachWriteAnalog;
 	toggle_internal_clock(marker[62],marker[63],marker[64]);{ interne TAKTE M62-M64 toggeln   }
-	if watchdog > awl_max then esc:=true;
+	if watchdog > awl_max then escape:=true;
 	RPMs;
 	if (debug) then begin
 		delay (1000);

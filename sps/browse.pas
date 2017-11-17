@@ -20,7 +20,7 @@ procedure ReadListFromFile(fqfn:string;var start:doc_pointer);
 procedure AppendStringToList(line:string;var start:doc_pointer);
 
 implementation
-uses crt,popmenu;
+uses crt,popmenu,porting;
 
 procedure AppendStringToList(line:string;var start:doc_pointer);
 var
@@ -73,9 +73,9 @@ end;
 procedure browsetext (header: string; start :doc_pointer;x1,y1,x2,y2:word);
 
 
-const p_up = #73;
-      p_dw = #81;
-      esc  = #27;
+const page_up = #73;
+      page_dw = #81;
+      esc     = #27;
 
 var   akt_zeig,list_end : doc_pointer;
       tasten            : char;
@@ -158,9 +158,17 @@ begin
            gotoxy(1,y2-9);
            write(SuchWort,'  found, to continue search press any key');
            write(', STOP <ESC>');
-	//popmsg(45,1,'Suche','  found, to continue search press any key');
+	       //popmsg(45,1,'Suche','  found, to continue search press any key');
            textcolor(white);
+           repeat
+{$IFNDEF keyfix}
+           until keypressed; 
            tasten:=readkey;
+{$ENDIF}
+{$IFDEF keyfix}           
+           until my_keypressed;
+           tasten:=my_readkey;
+{$ENDIF}
         end;
      until (found=nil) or (tasten=esc);
      if found=nil then begin
@@ -171,7 +179,14 @@ begin
         write   (SuchWort,'  not found, press any key to continue ');
         write   ('               ');
         repeat
+{$IFNDEF keyfix}
         until keypressed;
+        readkey;
+{$ENDIF}
+{$IFDEF keyfix}
+        until my_keypressed;
+        my_readkey;
+{$ENDIF}
      end;
      textcolor(lightgray);
      gotoxy(1,y2-9);
@@ -191,9 +206,18 @@ begin
      my_wwindow(x1,y1,x2-1,y2-5,header,'<ESC>',true);
      list_doc(start,list_end);
      repeat
-	tasten:=readkey;
-        case tasten of
-        p_up : begin
+{$IFNDEF keyfix}
+	   if keypressed then begin
+	     tasten:=readkey;
+	     if ord(tasten)=0 then tasten:=readkey;
+{$ENDIF}
+{$IFDEF keyfix}
+	   if my_keypressed then begin
+	     tasten:=my_readkey;
+{$ENDIF}
+	 
+         case tasten of
+           page_up : begin
                  akt_zeig:=list_end;
                  cnt:=1;
                  repeat
@@ -203,7 +227,7 @@ begin
                  list_doc(akt_zeig,list_end);
                end;
 
-        p_dw : begin
+           page_dw : begin
                  akt_zeig:=list_end;
                  cnt:=1;
                  repeat
@@ -213,11 +237,12 @@ begin
                  list_doc(akt_zeig,list_end);
                end;
 
-        's','S' : suchen(start,list_end);
+           's','S' : suchen(start,list_end);
 
-        end;
+          end;
+        end;  
      until tasten=esc;
- {    restore_screen;}
+     restore_screen(x1,y1,x2-1,y2-5);
      textbackground(black);textcolor(black);
      window(x1,y1,x2,y2);
      clrscr;

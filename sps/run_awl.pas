@@ -20,21 +20,7 @@ begin
      writeln(' 1-8 -> E1-E8, Shift 1-8 -> E9-E16, ALT 1-8 -> E17-E24 ');
      write  (' q-i -> Z1-Z8, Shift q-i -> Z9-Z16, a-f-> Analog 1-4 IN');
      textbackground(lightgray);
-     my_wwindow (2,2,screenx,screeny-4,'[RUN]','<ESC>',false);
-{$ifdef ZAURUS}
-     writeln('NUMBER   0000000001111111111222222222233333333334444444444');
-     writeln('         1234567890123456789012345678901234567890123456789');
-     gotoxy(1,4);writeln('MARKER ');
-     gotoxy(1,5);writeln('TIMER  ');
-     gotoxy(20,4);writeln('COUNTER');
-     gotoxy(20,5);writeln('EINGANG');
-     gotoxy(1,6);writeln('AUSGANG');
-     gotoxy(1,7);write('NUMBER    :   1     2     3     4   ');
-     writeln('  5     6     7     8');
-     gotoxy(1,8);writeln('TIMERWERT :');
-     gotoxy(1,9);writeln('ZÄHLERWERT:');
-     gotoxy(1,10);writeln('ANALOG IN :');
-{$else}
+     my_wwindow (2,2,screenx,screeny-4,'[RUN]','<ESCAPE>',false);
      write('NUMBER   0000000001111111111222222222233333333334444444444');
      writeln('555555555566666');
      write('         1234567890123456789012345678901234567890123456789');
@@ -49,33 +35,14 @@ begin
      gotoxy(1,13);writeln('TIMERWERT :');
      gotoxy(1,14);writeln('ZÄHLERWERT:');
      gotoxy(1,15);writeln('ANALOG IN :');
-{$endif}
  end;
 
-procedure print_in_out;            { gibt die zust�nde der ein-/ausg�nge  }
+procedure print_in_out;            { gibt die zustaende der ein-/ausgaenge  }
                                    { auf bildschirm aus }
 var i                : byte;
 
 begin
   gotoxy (10,4);
-{$ifdef ZAURUS}
-  for i:=1 to 49 do write(ord(marker[i]));
-  gotoxy (10,5);
-  for i:=1 to 16 do write(ord(timer[i]));
-  gotoxy (30,4);
-  for i:=1 to 16 do write(ord(zahler[i]));
-  gotoxy (30,5);
-  for i:= 1 to 49 do write(ord(eingang[i]));
-  gotoxy (10,6);
-  for i:= 1 to 49 do write(ord(ausgang[i]));
-  gotoxy (13,8);
-  write (t[1]:5,' ',t[2]:5,' ',t[3]:5,' ',t[4]:5,' ');
-  writeln(t[5]:5,' ',t[6]:5,' ',t[7]:5,' ',t[8]:5,' ');
-  gotoxy (13,9);
-  write (z[1]:5,' ',z[2]:5,' ',z[3]:5,' ',z[4]:5,' ');
-  writeln(z[5]:5,' ',z[6]:5,' ',z[7]:5,' ',z[8]:5,' ');
-  gotoxy (13,10);
-{$else}
   for i:=1 to 64 do write(ord(marker[i]));
   gotoxy (10,5);
   for i:=1 to 16 do write(ord(timer[i]));
@@ -92,7 +59,6 @@ begin
   write (z[1]:5,' ',z[2]:5,' ',z[3]:5,' ',z[4]:5,' ');
   writeln(z[5]:5,' ',z[6]:5,' ',z[7]:5,' ',z[8]:5,' ');
   gotoxy (13,15);
-{$endif}
   write(analog_in[1]:10,' ',analog_in[2]:10,' ',analog_in[3]:10,' ',analog_in[4]:10);
 
   writeln('');
@@ -115,11 +81,12 @@ begin
 end;
 
 
-procedure chk_inputs(key:byte);               { lie�t eingangswerte ein }
+procedure chk_inputs(key:byte);               { liest eingangswerte ein }
 
 
 begin
      case key of
+         27 : ;
          33 : eingang[9]:=not(eingang[9]);  { shift und 1-8 fuer E9-E16 }
          34 : eingang[10]:=not(eingang[10]);
 
@@ -140,16 +107,16 @@ begin
          55 : eingang[7]:=not(eingang[7]);
          56 : eingang[8]:=not(eingang[8]);
 
-        167 : eingang[11]:=not(eingang[11]); { shift 3 f�r E11 }
+        167 : eingang[11]:=not(eingang[11]); { shift 3 fuer E11 }
 
-	177 : eingang[17]:=not(eingang[17]); { alt 1-8 f�r E17-E24 }
-	178 : eingang[18]:=not(eingang[18]);
-	179 : eingang[19]:=not(eingang[19]);
-	180 : eingang[20]:=not(eingang[20]);
-	181 : eingang[21]:=not(eingang[21]);
-	182 : eingang[22]:=not(eingang[22]);
-	183 : eingang[23]:=not(eingang[23]);
-	184 : eingang[24]:=not(eingang[24]);
+	    177 : eingang[17]:=not(eingang[17]); { alt 1-8 fuer E17-E24 }
+	    178 : eingang[18]:=not(eingang[18]);
+	    179 : eingang[19]:=not(eingang[19]);
+	    180 : eingang[20]:=not(eingang[20]);
+	    181 : eingang[21]:=not(eingang[21]);
+	    182 : eingang[22]:=not(eingang[22]);
+	    183 : eingang[23]:=not(eingang[23]);
+	    184 : eingang[24]:=not(eingang[24]);
 		
      end;
 end;
@@ -182,7 +149,7 @@ end;                               {****  ENDE GET_INPUT ****}
 
 
 
-procedure chk_counters(key:byte);              { z�hlt timer und counter herunter }
+procedure chk_counters(key:byte);              { zaehlt timer und counter herunter }
 
 begin	
      case key of
@@ -211,7 +178,7 @@ end;                               { **** ENDE COUNT_DOWN **** }
 procedure chk_control(key:byte);
 begin
      case key of
-	 	 27 : esc:=true;
+	 	 27 : escape:=true;
 	 end;	 
 end;
 
@@ -247,7 +214,7 @@ procedure run_awl;                 { abarbeiten einer AWL }
 
 begin                              {hp run_awl}
 	if not(programm) then exit;
-	esc:=false;
+	escape:=false;
 	TimeRuns:=150;
 	run_awl_menu;
 	repeat
@@ -267,11 +234,11 @@ begin                              {hp run_awl}
 	   	end;
 		print_in_out;
 		toggle_internal_clock(marker[62],marker[63],marker[64]);
-		if watchdog > awl_max then esc:=true;
+		if watchdog > awl_max then escape:=true;
 		RPMs;
-	until esc;
+	until escape;
 
-	//if esc then write(#7);
+	//if escape then write(#7);
 
 	window (2,2,screenx,screeny);textcolor(black);textbackground(black);clrscr;
 	

@@ -154,7 +154,7 @@ begin
         end;
 
      until tasten=esc;
- {    restore_screen;}
+     restore_screen(1,2,screenx,screeny-1);
      textbackground(black);textcolor(black);
      window(1,2,screenx,screeny-1);
      clrscr;
