@@ -73,7 +73,7 @@ def main(argv):
 		if ( ( Response <> "<Response [200]>" ) or ( Error == False ) ):
 			command = strip_html(Response.text)
 			#print "Data read from server: " + command
-			if command[0] == "1":
+			if command[0] == "1":     # loop needed here for all 8 bits
 				if NumOfPics < 10:
 					print "Door open, grabbing pictures"
 					epoch_time = "{:.9f}".format(time.time())
