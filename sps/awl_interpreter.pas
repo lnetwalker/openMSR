@@ -370,7 +370,7 @@ begin
 			34:	verkn;					    { A		    }
 			35: decrement;                  { DEC       }
 			36: increment;                  { INC       }
-			37; loadconst;                  { LDD       }
+			37: loadconst;                  { LDD       }
 		{else}
 			{ f�r sp�tere Fehlerabfrage }
 		end;
