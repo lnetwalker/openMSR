@@ -73,7 +73,7 @@ def main(argv):
 		if ( ( Response <> "<Response [200]>" ) or ( Error == False ) ):
 			command = strip_html(Response.text)
 			#print "Data read from server: " + command
-			if command[0] == "1":
+			if command[0] == "1":     # loop needed here for all 8 bits
 				if NumOfPics < 10:
 					print "Door open, grabbing pictures"
 					epoch_time = "{:.9f}".format(time.time())
@@ -82,9 +82,9 @@ def main(argv):
 
 					try:
 						# get image
-						status = subprocess.call("/usr/bin/wget" + " -q --user=admin --password=security4hucky http://ipcam.hucky.net:8001/snapshot.cgi -O " + epoch_time + '.jpg', shell=True)
-						# annotate image with date/time
-						# status = subprocess.call("/usr/bin/convert " + epoch_time + ".jpg -fill white -gravity South -pointsize 20 -annotate +0+5 \\'" + DateTimeStr + "\\' " + epoch_time + '-1.jpg', shell=True)
+						status = subprocess.call("/usr/bin/wget" + " -q --user=admin --password=secretpassword http://ipcam.hucky.net:8001/snapshot.cgi -O " + epoch_time + '.jpg', shell=True)
+						# annotate the grabbed image with date and time
+						status = subprocess.call("/usr/bin/convert " + "-font helvetica -fill blue -pointsize 36 -draw 'text 15,50 " + DateTimeStr + "' " + epoch_time + ".jpg"
 					except:
 						print "Error fetching Cam Picture"
 
