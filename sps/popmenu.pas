@@ -39,6 +39,7 @@ const
 	esc  = #27;
 	enter= #13;
 	tab  = #9;
+    bckspc =#8;
 	ErrorMaxX=109;
 	ErrorMaxY=29;
       	
@@ -65,6 +66,8 @@ procedure popmsg(lang,hoch:word;uber:string12;msg:string);
 function  filebrowser( startpath:string80;titel:string;dialogtype:char):string80;
 function  GetScreenMaxX:word;
 function  GetScreenMaxY:word;
+function  ReadString:string80;
+
 
 IMPLEMENTATION
 
@@ -86,6 +89,18 @@ var
 	minScreenX 		    : word; { minimum window size x }
 	minScreenY		    : word; {  minimum screen size y }
     DBG                 : text;
+
+
+Function IntToStr (I : Longint) : String;
+
+Var S : String;
+
+begin
+ Str (I,S);
+ IntToStr:=S;
+end;
+
+
     
 procedure writeLOG(MSG: string);
 begin
@@ -168,6 +183,62 @@ begin
 	//RestoreScreenRegion(x1,y1,x2,y2,myConsoleBuf);
 end;
 
+function ReadString:string80;
+var 
+  Input     : string[80];
+  KeyPress  : char;
+  counter   : byte;
+  baseX,
+  baseY     : byte;
+  
+begin
+  baseX:=wherex;
+  baseY:=wherey;
+  counter:=1;
+  KeyPress:=' ';
+  Input:='';
+  repeat
+{$IFNDEF keyfix}
+           if (keypressed) then begin
+             KeyPress := ReadKey;
+             if ord(KeyPress) = 0 then KeyPress:=ReadKey;
+{$ENDIF}
+{$IFDEF keyfix}
+           if my_keypressed() then begin
+             KeyPress:=my_readkey();
+{$ENDIF}
+            case KeyPress of
+               { enter key }
+               enter : begin
+                       end;
+               { cancelled by escape key ?                             }   
+               esc  :  begin
+                         KeyPress:=enter;
+                         Input:='';
+                         counter:=0;
+                       end;
+               bckspc: if counter>1 then begin
+                         dec(counter);
+                         gotoxy(baseX+counter,baseY);
+                         write(' ');
+                         Input:=copy(Input,1,counter-1);
+                      end;                         
+               else begin        
+                 gotoxy(baseX+counter,baseY);
+                 write(KeyPress);
+                 Input:=Input+KeyPress;
+                 inc(counter);
+               end;  
+ 
+            end;
+            if debug then writeLOG('Readstring key pressed, evaluated position '+IntToStr(counter-1));
+            if debug then writeLOG(Input);
+
+          end;
+  until KeyPress=enter;
+  if debug then writeLOG('Readstring pressed enter, String='+copy(Input,1,counter-1));
+  ReadString:=copy(Input,1,counter-1);
+end;
 
 procedure cursor_off;              {cursor ausschalten}
 

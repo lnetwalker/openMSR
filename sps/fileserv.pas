@@ -233,10 +233,9 @@ begin
      textbackground (lightgray); textcolor(Black); clrscr;
      cursor_on;
      if debug then writeLOG('inhalt 1');
-     { FIXME }
-     write ('Pfad :'); if debug then writeLOG('inhalt 2');//readln (pfad);
-     pfad:='./';
-     if debug then writeLOG('inhalt 3');
+     write ('Pfad :'); if debug then writeLOG('inhalt 2');
+     pfad:=ReadString;
+     if debug then writeLOG('inhalt 3  '+pfad);
      cursor_off;
      window (20,15,80,15);
      textbackground (black); textcolor(black); clrscr;
@@ -314,14 +313,14 @@ begin                              { Pfad wechseln }
      getdir (0,aktpfad);
      write('New path : ');
      cursor_on;
-     readln(neupfad);
+     neupfad:=ReadString;
      cursor_off;
      {$I-}
      chdir(neupfad);
      {$I+}
      if ioresult<>0 then begin
         chdir(aktpfad);
-	clrscr;textcolor(red);
+	    clrscr;textcolor(red);
         write(#7,'  Directory not found ! press any key... ');
 	repeat
 {$IFNDEF keyfix}
