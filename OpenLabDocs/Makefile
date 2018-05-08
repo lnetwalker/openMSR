@@ -14,8 +14,9 @@ OBJECTS=Documentation
 all: $(OBJECTS)
 
 # the physical Machine access layer
-Documentation:   LabTools-UserGuide-full.odt
+Documentation:   LabTools-UserGuide-full.odt DeviceServerAPI-english.odt
 	soffice --convert-to pdf LabTools-UserGuide-full.odt  --headless
+	soffice --convert-to pdf DeviceServerAPI-english.odt  --headless
 
 clear:
 
