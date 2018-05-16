@@ -438,9 +438,7 @@ begin
 
 		// it's a php file so spawn php interpreter
 		// capture the output in page var and deliver it
-		if (pos('php',URL)<>0) then begin
-			page:=RunCommand('php'+' '+URL);
-		end
+		if (pos('php',URL)<>0) then page:=RunCommand('php'+' '+URL)
 		// it's a file do open and read it
 		else begin
 			page:='';
@@ -477,7 +475,7 @@ begin
 			//if debug then writeLOG(page);
 			SendPage(WhoAmI,page);
 			//LeaveCriticalSection(ProtectDataSend);
-
+		end;
 	end;
 	{ write access log in common logfile format, that looks like:
 		78.34.183.237 - - [16/Jun/2009:15:11:09 +0200] "GET /templates/eilers.net/images/mw_menu_cap_r.png HTTP/1.1" 404 8219 "http://www.eilers.net/templates/eilers.net/css/template.css" "Mozilla/5.0 (X11; U; Linux i686; de; rv:1.9.0.10) Gecko/2009042523 Ubuntu/9.04 (jaunty) Firefox/3.0.10"
