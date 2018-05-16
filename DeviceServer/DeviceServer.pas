@@ -5,6 +5,10 @@ program DeviceServer;
 
 {$define enhStats}
 
+{$ifdef MIPS}
+  {$define Linux}
+{$endif}
+
 {$ifdef MacOSX}
 	{$define Linux}
 	{$undef enhStats}
@@ -24,7 +28,10 @@ uses
 {$ifdef Win32}
 Windows,
 {$endif}
-PhysMach,webserver,telnetserver,classes,crt,CommonHelper,StringCut,INIFiles,sysutils;
+{$ifndef MIPS}
+telnetserver,
+{$endif}
+PhysMach,webserver,classes,crt,CommonHelper,StringCut,INIFiles,sysutils;
 
 
 {$ifdef MacOSX}
@@ -385,7 +392,7 @@ end;
 {$endif}
 
 // telnet stuff
-
+{$ifndef MIPS}
 Procedure TelnetInterpreter;
 
 { callback procedure for the telnet interpreter }
@@ -510,11 +517,11 @@ begin
 
 end;
 
-{$ifdef linux64}
+ {$ifdef linux64}
 function TelnetThread(p: pointer):Int64;
-{$else}
+ {$else}
 function TelnetThread(p: pointer):LongInt;
-{$endif}
+ {$endif}
 { this is the telnet thread, setup the interpreter function }
 { and check for incomming requests }
 
@@ -538,7 +545,7 @@ begin
 	DSdebugLOG('Telnet Handler going down..' + IntToStr(MySelf));
 	TelnetThread:=0;
 end;
-
+{$endif} // MIPS
 
 // the devicehandler - for each configured device one thread to serve it is started
 {$ifdef linux64}
@@ -1041,7 +1048,9 @@ begin
 
 	DSdebugLOG('Webserver going down..');
 	WebserverThread:=0;
+	{$ifndef MIPS}
 	TelnetShutDown;
+	{$endif}
 end;					{ Webserver Thread end }
 
 
@@ -1160,11 +1169,13 @@ begin					{ Main program }
 	ThreadName[NumOfThreads]:='Webserver';
 	ThreadHandle[NumOfThreads]:=BeginThread(@WebserverThread,pointer(NumOfThreads));
 
+{$ifndef MIPS}
 	// start the telnet thread
 	inc(NumOfThreads);
 	DSdebugLOG('Starting Telnet Thread...');
 	ThreadName[NumOfThreads]:='Telnet Thread';
 	ThreadHandle[NumOfThreads]:=BeginThread(@TelnetThread,pointer(NumOfThreads));
+{$endif}
 
 	// start the TimeControl thread
 	inc(NumOfThreads);

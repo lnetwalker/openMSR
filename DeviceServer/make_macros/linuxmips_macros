@@ -1,0 +1,1 @@
+FPC_FLAGS=  -Tlinux -Pmips -dMIPS -Xm -Xd -Fu/usr/lib/fpc/3.0.3/units/mips-linux/ -XR/home/hartmut/massdata/Privat/openMSR/DeviceServer/mipslibs/ -Xr/home/hartmut/massdata/Privat/openMSR/DeviceServer/mipslibs/ -Fl/home/hartmut/massdata/Privat/openMSR/DeviceServer/mipslibs/
