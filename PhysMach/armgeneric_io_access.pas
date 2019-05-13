@@ -112,7 +112,9 @@ begin
     end;
     { Set GPIO directions }
     try
-      fileDesc := fpopen('/sys/class/gpio/gpio' + IntToStr(gpioline) + '/direction', O_WrOnly);
+      basefilename:='/sys/class/gpio/gpio' + IntToStr(gpioline) + '/direction';
+      writeln('try to configure port direction for '+basefilename);
+      fileDesc := fpopen(basefilename, O_WrOnly);
       write('GPIO ', gpioline ,' is ');
       if ( GPIO_DIR[adr] = 0 ) then begin
 	       writeln('Input');
@@ -132,11 +134,11 @@ begin
       basefilename:='/sys/class/gpio/gpio' + IntToStr(gpioline);
       if ( GPIO_DIR[adr] = 0 ) then begin
 	       writeln('Input');
-         gReturnCode := fpsystem('echo "in" > ' + basefilename +'/direction');
+         gReturnCode := fpsystem('echo "in">' + basefilename +'/direction');
 	    end
       else begin
 	       writeln('Output');
-	       gReturnCode := fpsystem('echo "out" > ' + basefilename +'/direction');
+	       gReturnCode := fpsystem('echo "out">' + basefilename +'/direction');
       end;
       if gReturnCode < 0 then begin
         writeln ('Error alternate setting GPIO ',gpioline,' to ',GPIO_DIR[adr],' with code ',gReturnCode,' failed also');
