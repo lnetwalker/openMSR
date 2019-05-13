@@ -17,7 +17,7 @@ function IntToStr(value:LongInt):String;
 
 implementation
 
-uses 
+uses
 {$ifdef Linux}
 	baseunix,unix,
 {$endif}
@@ -28,7 +28,7 @@ crt;
 
 const
 	debug=false;
-	
+
 var
 	LOG	: text;
 
@@ -54,7 +54,7 @@ function RunCommand(Command: Ansistring):String;
 var
 {$ifdef Linux}
 	fin,fout 	: text;
-{$endif}	
+{$endif}
 	S		: AnsiString;
 	Params		: Array[1..10] of AnsiString;
 {$ifdef Windows}
@@ -68,22 +68,21 @@ begin
 {$ifdef Windows}
 	AProcess := TProcess.Create(nil);
 	// Gibt an, welcher Befehl vom Prozess ausgeführt werden soll
-	// Lassen sie uns den FreePascal Compiler verwenden
 	AProcess.CommandLine := Command;
- 
+
 	// Wir definieren eine Option, wie das Programm
 	// ausgeführt werden soll. Dies stellt sicher, dass
 	// unser Programm nicht vor Beendigung des aufgerufenen
 	// Programmes fortgesetzt wird. Außerdem geben wir an,
 	// dass wir die Ausgabe lesen wollen
 	AProcess.Options := AProcess.Options + [poWaitOnExit, poUsePipes];
- 
+
 	// Startet den Prozess nachdem die Parameter entsprechend
 	// gesetzt sind
 	AProcess.Execute;
- 
+
 	// Folgendes wird erst nach Beendigung von AProcess ausgeführt
- 
+
 	// Die Ausgabe wird nun  gelesen
 	BytesAvailable := AProcess.Output.NumBytesAvailable;
 	BytesRead := 0;
@@ -93,9 +92,9 @@ begin
 		S := S + copy(Buffer,1, BytesRead);
 		BytesAvailable := AProcess.Output.NumBytesAvailable;
 	end;
- 
+
 	// TProcess freigeben.
-	AProcess.Free;   
+	AProcess.Free;
 {$endif}
 
 {$ifdef Linux}
@@ -108,7 +107,7 @@ begin
 	if fpgeterrno<0 then
 		writeln ('error from POpen : errno : ', fpgeterrno);
 
-	
+
 	while not eof (fin) do 			// only read the last line
 		readln (fin,S);
 
@@ -137,7 +136,7 @@ begin
 	while i <= length(binval) do begin				{ wert errechnen }
 
 		if debug then writeln('exec_io_access exec_read_ports Loop: char_pointer=',i,' BinCalcPointer=',k,' Value=',wert);
- 
+
 		case binval[i] of
 			'1' : 	begin			{ 1 speichern }
 					wert:=wert+power[k];

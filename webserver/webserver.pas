@@ -435,41 +435,47 @@ begin
 		{$ifdef Windows}
 		for n:=1 to length(URL) do if (URL[n]='/') then URL[n]:='\';
 		{$endif}
-		page:='';
-		{$i-}
-		assign(G,URL);
-		reset (G);
-		{$i+}
-		if (IoResult=0) then begin { the file exists }
-			status:='200 OK';
-			while not eof(G) do begin  { read the file }
-				{$i-}
-				read(G,BinData);
-				{$i+}
-				if ( IOResult <> 0 ) then begin
-					page:='<html><body>Error: There was an Error reading the required data</body></html>';
-					status:='500 Internal Server Error';
-					errorLOG('Error 500:  Error reading '+URL);
-					IOError:=true;
-					exit;
+
+		// it's a php file so spawn php interpreter
+		// capture the output in page var and deliver it
+		if (pos('php',URL)<>0) then page:=RunCommand('php'+' '+URL)
+		// it's a file do open and read it
+		else begin
+			page:='';
+			{$i-}
+			assign(G,URL);
+			reset (G);
+			{$i+}
+			if (IoResult=0) then begin { the file exists }
+				status:='200 OK';
+				while not eof(G) do begin  { read the file }
+					{$i-}
+					read(G,BinData);
+					{$i+}
+					if ( IOResult <> 0 ) then begin
+						page:='<html><body>Error: There was an Error reading the required data</body></html>';
+						status:='500 Internal Server Error';
+						errorLOG('Error 500:  Error reading '+URL);
+						IOError:=true;
+						exit;
+					end;
+					page:=page+chr(BinData);
 				end;
-				page:=page+chr(BinData);
+				close (G);
+			end
+		  else begin  { file not found }
+			  page:='<html><body>Error: 404 Document not found</body></html>';
+				status:='404 Not Found';
+				errorLOG('Error 404 doc '+URL+' not found');
+				IOError:=true
 			end;
-			close (G);
-		end
-		else begin  { file not found }
-			page:='<html><body>Error: 404 Document not found</body></html>';
-			status:='404 Not Found';
-			errorLOG('Error 404 doc '+URL+' not found');
-			IOError:=true
+
+			//EnterCriticalSection(ProtectDataSend);
+			if debug then writeLOG('process_request : send page data ->');
+			//if debug then writeLOG(page);
+			SendPage(WhoAmI,page);
+			//LeaveCriticalSection(ProtectDataSend);
 		end;
-
-		//EnterCriticalSection(ProtectDataSend);
-		if debug then writeLOG('process_request : send page data ->');
-		//if debug then writeLOG(page);
-		SendPage(WhoAmI,page);
-		//LeaveCriticalSection(ProtectDataSend);
-
 	end;
 	{ write access log in common logfile format, that looks like:
 		78.34.183.237 - - [16/Jun/2009:15:11:09 +0200] "GET /templates/eilers.net/images/mw_menu_cap_r.png HTTP/1.1" 404 8219 "http://www.eilers.net/templates/eilers.net/css/template.css" "Mozilla/5.0 (X11; U; Linux i686; de; rv:1.9.0.10) Gecko/2009042523 Ubuntu/9.04 (jaunty) Firefox/3.0.10"
