@@ -153,7 +153,7 @@ implementation
 
 uses
 {$ifdef LINUX }
-		linux,
+		linux, Unix, 
 {$endif}
 {$ifdef USB8}
 		usb8_io_access,

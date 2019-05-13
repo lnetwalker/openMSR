@@ -116,7 +116,7 @@ begin
       write('GPIO ', gpioline ,' is ');
       if ( GPIO_DIR[adr] = 0 ) then begin
 	       writeln('Input');
-         gReturnCode := fpwrite(fileDesc, IN_DIRECTION[0], 2)
+         gReturnCode := fpwrite(fileDesc, IN_DIRECTION[0], 2);
 	    end
       else begin
 	       writeln('Output');
@@ -127,7 +127,7 @@ begin
     end;
     if gReturnCode = -1 then begin
       writeln ('Error setting GPIO ',gpioline,' to ',GPIO_DIR[adr],' with code ',gReturnCode);
-      writeln(SysErrorMessage(fpGetErrNo))
+      writeln(SysErrorMessage(fpGetErrNo));
       { TRY ALTERNATE ACCESS OPTION }
       basefilename:='/sys/class/gpio/gpio' + IntToStr(ptruint(gpiodevicenumber));
       if ( GPIO_DIR[adr] = 0 ) then begin
