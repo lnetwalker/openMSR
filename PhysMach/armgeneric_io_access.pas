@@ -30,7 +30,7 @@ function armgeneric_gpiodir(adr:byte;io_port:byte;dir:byte):byte;
 function armgeneric_exportGPIO(adr:byte;bit:byte;gpioline:byte):byte;
 IMPLEMENTATION
 uses
-  Classes, SysUtils, baseunix, StringCut;
+  Classes, SysUtils, baseunix, StringCut, Unix;
 
 type
   GPIO_TYPE 		= array[0..255,0..255] of byte;

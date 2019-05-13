@@ -194,7 +194,7 @@ uses
 		AVRnet_io_access,
 {$endif}
 {$ifdef ARMGENERIC}
-		armgeneric_io_access, Unix,
+		armgeneric_io_access,
 {$endif}
 		StringCut, sysutils;
 
