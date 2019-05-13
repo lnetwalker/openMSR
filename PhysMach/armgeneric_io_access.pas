@@ -60,10 +60,10 @@ begin
   for l:=1 to ListCnt do begin
     try
       try
-	fileDesc := fpopen('/sys/class/gpio/unexport', O_WrOnly);
-	gReturnCode := fpwrite(fileDesc, Liste[l][0], 2);
+	       fileDesc := fpopen('/sys/class/gpio/unexport', O_WrOnly);
+	       gReturnCode := fpwrite(fileDesc, Liste[l][0], 2);
       finally
-	gReturnCode := fpclose(fileDesc);
+	       gReturnCode := fpclose(fileDesc);
       end;
     except
       writeln('Error unexporting GPIO ',Liste[l][0]);
@@ -164,6 +164,7 @@ begin
 	try
 	  fileDesc := fpopen('/sys/class/gpio/gpio' + gpiodevicenumber + '/value', O_RdOnly);
 	  gReturnCode := fpread(fileDesc, value[1], 1);
+    if ( gReturnCode = -1 ) then writeln('reading gpio'+gpiodevicenumber+' failed.')
 	finally
 	  gReturnCode := fpclose(fileDesc);
 	end;
@@ -200,10 +201,11 @@ begin
     gpiodevicenumber:=IntToStr(GPIO[GPIO_ADR[1,io_port],i]);
 
     try
-	fileDesc := fpopen('/sys/class/gpio/gpio' + gpiodevicenumber + '/value', O_WrOnly);
-	gReturnCode := fpwrite(fileDesc, out[0], 1);
+	     fileDesc := fpopen('/sys/class/gpio/gpio' + gpiodevicenumber + '/value', O_WrOnly);
+	     gReturnCode := fpwrite(fileDesc, out[0], 1);
+       if ( gReturnCode = -1 ) then writeln('writing gpio'+gpiodevicenumber+' failed.')
     finally
-	gReturnCode := fpclose(fileDesc);
+	     gReturnCode := fpclose(fileDesc);
     end;
   end;
   armgeneric_write_ports:=0;
