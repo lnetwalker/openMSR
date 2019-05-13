@@ -153,7 +153,7 @@ implementation
 
 uses
 {$ifdef LINUX }
-		linux, Unix, 
+		linux,
 {$endif}
 {$ifdef USB8}
 		usb8_io_access,
@@ -194,7 +194,7 @@ uses
 		AVRnet_io_access,
 {$endif}
 {$ifdef ARMGENERIC}
-		armgeneric_io_access,
+		armgeneric_io_access, Unix,
 {$endif}
 		StringCut, sysutils;
 

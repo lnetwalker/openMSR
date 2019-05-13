@@ -139,7 +139,7 @@ begin
 	       gReturnCode := fpsystem('echo "out" > ' + basefilename +'/direction');
       end;
       if gReturnCode = -1 then begin
-        writeln ('Error alternate setting GPIO ',gpioline,' to ',GPIO_DIR[adr],' with code ',gReturnCode),' failed also';
+        writeln ('Error alternate setting GPIO ',gpioline,' to ',GPIO_DIR[adr],' with code ',gReturnCode,' failed also');
         writeln(SysErrorMessage(fpGetErrNo));
       end;
     end;
