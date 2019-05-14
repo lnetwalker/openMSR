@@ -165,7 +165,7 @@ begin
 	try
 	  fileDesc := fpopen('/sys/class/gpio/gpio' + gpiodevicenumber + '/value', O_RdOnly);
 	  gReturnCode := fpread(fileDesc, value[1], 1);
-    if ( gReturnCode = -1 ) then writeln('reading gpio'+gpiodevicenumber+' failed.')
+    //if ( gReturnCode = -1 ) then writeln('reading gpio'+gpiodevicenumber+' failed.')
 	finally
 	  gReturnCode := fpclose(fileDesc);
 	end;
