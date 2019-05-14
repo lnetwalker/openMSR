@@ -51,8 +51,8 @@ var
 
 
 function armgeneric_close(initstring:string):boolean;
-var l			: byte;
-    fileDesc		: integer;
+var l			        : byte;
+    fileDesc		  : integer;
     gReturnCode		: Integer;
     gpioline      : PChar;
     gpiotemp      : String;
@@ -62,13 +62,14 @@ begin
   for l:=1 to ListCnt do begin
       try
         fileDesc := fpopen('/sys/class/gpio/unexport', O_WrOnly);
-        gpiotemp:=Liste[l];
-        gpioline:=PChar(gpiotemp);
+        gpioline := StrAlloc(length(Liste[l]));
+        StrPCopy(gpioline,Liste[l]);
         gReturnCode := fpwrite(fileDesc, gpioline[0], 2);
         if ( gReturnCode = -1 ) then writeln('error unexporting ',gpioline);
       finally
 	      gReturnCode := fpclose(fileDesc);
       end;
+      StrDispose(gpioline);
   end;
   armgeneric_close:=true;
 end;
@@ -76,11 +77,11 @@ end;
 
 function armgeneric_exportGPIO(adr:byte;bit:byte;gpioline:byte):byte;
 var
-    fileDesc		: integer;
-    gReturnCode		: Integer;
-    gCloseCode		: Byte;
+    fileDesc		      : integer;
+    gReturnCode		    : Integer;
+    gCloseCode		    : Byte;
     gpiodevicenumber 	: PChar;
-    cmd, basefilename			: String;
+    cmd, basefilename	: String;
 
 const
     OUT_DIRECTION: PChar = 'out';
@@ -183,7 +184,7 @@ var i			: byte;
     out 		: PChar;
     fileDesc		: integer;
     gpiodevicenumber	: String;
-    gReturnCode	: Byte;
+    gReturnCode	: Integer;
 
 const
     PIN_ON: PChar = '1';
