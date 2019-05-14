@@ -53,7 +53,7 @@ var
 function armgeneric_close(initstring:string):boolean;
 var l			: byte;
     fileDesc		: integer;
-    gReturnCode		: Byte;
+    gReturnCode		: Integer;
 
 begin
   // loop over the configured GPIOs and unexport them!
@@ -155,7 +155,7 @@ var
   returnvalue		: byte;
   fileDesc		: INTEGER;
   gpiodevicenumber	: String;
-  gReturnCode		: Byte;
+  gReturnCode		: Integer;
 
 begin
   returnvalue:=0;
@@ -214,7 +214,7 @@ end;
 
 
 function armgeneric_hwinit(initstring:string;DeviceNumber:byte):boolean;
-
+var i: byte;
 begin
   { initstring is a list of used GPIO Lines by this device }
   { Prepare GPIO for access: }
