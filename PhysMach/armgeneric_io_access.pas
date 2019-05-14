@@ -60,13 +60,14 @@ begin
   for l:=1 to ListCnt do begin
     try
       try
-	       fileDesc := fpopen('/sys/class/gpio/unexport', O_WrOnly);
-	       gReturnCode := fpwrite(fileDesc, Liste[l][0], 2);
+        fileDesc := fpopen('/sys/class/gpio/unexport', O_WrOnly);
+        gReturnCode := fpwrite(fileDesc, Liste[l][0], 2);
+        if ( gReturnCode = -1 ) then writeln('error unexporting ',Liste[l]);
       finally
-	       gReturnCode := fpclose(fileDesc);
+	      gReturnCode := fpclose(fileDesc);
       end;
     except
-      writeln('Error unexporting GPIO ',Liste[l][0]);
+      writeln('Error unexporting GPIO ',Liste[l]);
     end;
   end;
   armgeneric_close:=true;
@@ -220,6 +221,7 @@ begin
   Liste:=StringSplit(initstring,',');
   ListCnt:=GetNumberOfElements(initstring,',');
   Writeln('DEVICE has ',ListCnt,' GPIO lines');
+  for i:=1 to ListCnt do writeln ('Liste[',i,']=',Liste[i]);
 end;
 
 
