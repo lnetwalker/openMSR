@@ -61,7 +61,7 @@ begin
   for l:=1 to ListCnt do begin
       try
         fileDesc := fpopen('/sys/class/gpio/unexport', O_WrOnly);
-        gpioline:=(Liste[l]);
+        gpioline:=PChar(Liste[l]);
         gReturnCode := fpwrite(fileDesc, gpioline[0], 2);
         if ( gReturnCode = -1 ) then writeln('error unexporting ',gpioline);
       finally
