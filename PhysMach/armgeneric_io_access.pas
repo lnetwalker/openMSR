@@ -55,13 +55,15 @@ var l			: byte;
     fileDesc		: integer;
     gReturnCode		: Integer;
     gpioline      : PChar;
+    gpiotemp      : String;
 
 begin
   // loop over the configured GPIOs and unexport them!
   for l:=1 to ListCnt do begin
       try
         fileDesc := fpopen('/sys/class/gpio/unexport', O_WrOnly);
-        gpioline:=PChar(Liste[l]);
+        gpiotemp:=Liste[l];
+        gpioline:=PChar(gpiotemp);
         gReturnCode := fpwrite(fileDesc, gpioline[0], 2);
         if ( gReturnCode = -1 ) then writeln('error unexporting ',gpioline);
       finally
