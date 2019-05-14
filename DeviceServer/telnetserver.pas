@@ -70,7 +70,7 @@ var
 	Result			: integer;
 	TimeVal 		: TTimeVal;
 	addr_len	 	: u_int;
-	cli_addr		: TSockAddr;	
+	cli_addr		: TSockAddr;
 	ConnSock		: TSocket;
 	RecBufSize		: integer;
 	FCharBuf		: array [1..32768] of char;
@@ -139,7 +139,7 @@ begin
 
 	lSock := fpSocket(af_inet, sock_stream, 0);
 	if lSock = -1 then Error(1,'Socket error: ',socketerror);
-	
+
 	if LPort=0 then LPort:=ListenPort;
 
 
@@ -177,7 +177,7 @@ begin
 {$endif}
 
 	Sock2Text(uSock, sin, sout);
-	
+
 	Reset(sin);
 	Rewrite(sout);
 	Write(sout, WelcomeMSG);
@@ -185,7 +185,7 @@ begin
 	{$ifdef Linux}
 		if SelectText(sin,10000)>0 then begin
 			Readln(sin, Line);
-			if debug then 
+			if debug then
 				writeLOG('Heard: '+line);
 			if Line = 'close' then break;
 			if InterpreterProc <> nil then InterpreterProc;
@@ -217,7 +217,7 @@ begin
 	Close(sin);
 	Close(sout);
 	fpShutdown(uSock, 2);
-	if debug then 
+	if debug then
 		writeLOG('Connection closed.');
 end;
 
