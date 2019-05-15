@@ -166,23 +166,23 @@ begin
 	writeln('GPIO[adr,',i,']=',GPIO[1,i]);
 	writeln(' gpiodevicenumber=',GPIO[GPIO_ADR[0,io_port],i]);
 }
-	if ( GPIO[io_port,i] > 0 ) then begin
+    if ( GPIO[io_port,i] > 0 ) then begin
 	  	gpiodevicenumber:=IntToStr(GPIO[io_port,i]);
-		write('read gpio',gpiodevicenumber);
-		try
-		  fileDesc := fpopen('/sys/class/gpio/gpio' + gpiodevicenumber + '/value', O_RdOnly);
-		  gReturnCode := fpread(fileDesc, value[1], 1);
-	          //if ( gReturnCode = -1 ) then write('r gpio'+gpiodevicenumber+' fail. ')
-		finally
-		  gReturnCode := fpclose(fileDesc);
-		end;
-	end
-	else value:='0';
-	if ( value = '1' ) then begin
-	writeln('1');
-	  returnvalue:=returnvalue+power[i];
-	end
-	else writeln('0');
+		  // write('read gpio',gpiodevicenumber);
+		  try
+		    fileDesc := fpopen('/sys/class/gpio/gpio' + gpiodevicenumber + '/value', O_RdOnly);
+		    gReturnCode := fpread(fileDesc, value[1], 1);
+	      //if ( gReturnCode = -1 ) then write('r gpio'+gpiodevicenumber+' fail. ')
+		  finally
+		    gReturnCode := fpclose(fileDesc);
+		  end;
+	  end
+	  else value:='0';
+	  if ( value = '1' ) then begin
+      //writeln('1');
+	    returnvalue:=returnvalue+power[i];
+	  end
+	  //else writeln('0');
   end;
   armgeneric_read_ports:=returnvalue;
 end;
@@ -191,11 +191,11 @@ end;
 
 
 function armgeneric_write_ports(io_port:longint;byte_value:byte):byte;
-var i			: byte;
-    out 		: PChar;
-    fileDesc		: integer;
-    gpiodevicenumber	: String;
-    gReturnCode	: Integer;
+var i         			: byte;
+    out 		        : PChar;
+    fileDesc		    : integer;
+    gpiodevicenumber: String;
+    gReturnCode	    : Integer;
 
 const
     PIN_ON: PChar = '1';
