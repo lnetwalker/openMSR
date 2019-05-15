@@ -130,7 +130,7 @@ begin
       gCloseCode := fpclose(fileDesc);
     end;
     if gReturnCode = -1 then begin
-      writeln ('Error setting GPIO ',gpioline,' to ',GPIO_DIR[adr],' with code ',gReturnCode);
+      writeln ('Error setting GPIO ',gpioline,' to ',GPIO_DIR[adr],' with code ',gReturnCode,', trying alternate method');
       writeln(SysErrorMessage(fpGetErrNo));
       { TRY ALTERNATE ACCESS OPTION }
       basefilename:='/sys/class/gpio/gpio' + IntToStr(gpioline);
@@ -161,17 +161,28 @@ var
 begin
   returnvalue:=0;
   for i:= 0 to 7 do begin
-  	gpiodevicenumber:=IntToStr(GPIO[GPIO_ADR[0,io_port],i]);
-
-	try
-	  fileDesc := fpopen('/sys/class/gpio/gpio' + gpiodevicenumber + '/value', O_RdOnly);
-	  gReturnCode := fpread(fileDesc, value[1], 1);
-    //if ( gReturnCode = -1 ) then writeln('reading gpio'+gpiodevicenumber+' failed.')
-	finally
-	  gReturnCode := fpclose(fileDesc);
-	end;
-	if ( value = '1' ) then
-	  returnvalue:=returnvalue+power[i-1];
+{
+	writeln('GPIO_ADR[0,',io_port,']=',GPIO_ADR[0,io_port]);
+	writeln('GPIO[adr,',i,']=',GPIO[1,i]);
+	writeln(' gpiodevicenumber=',GPIO[GPIO_ADR[0,io_port],i]);
+}
+	if ( GPIO[io_port,i] > 0 ) then begin
+	  	gpiodevicenumber:=IntToStr(GPIO[io_port,i]);
+		write('read gpio',gpiodevicenumber);
+		try
+		  fileDesc := fpopen('/sys/class/gpio/gpio' + gpiodevicenumber + '/value', O_RdOnly);
+		  gReturnCode := fpread(fileDesc, value[1], 1);
+	          //if ( gReturnCode = -1 ) then write('r gpio'+gpiodevicenumber+' fail. ')
+		finally
+		  gReturnCode := fpclose(fileDesc);
+		end;
+	end
+	else value:='0';
+	if ( value = '1' ) then begin
+	writeln('1');
+	  returnvalue:=returnvalue+power[i];
+	end
+	else writeln('0');
   end;
   armgeneric_read_ports:=returnvalue;
 end;
@@ -200,12 +211,12 @@ begin
     else
       out:=PIN_OFF;
 
-    gpiodevicenumber:=IntToStr(GPIO[GPIO_ADR[1,io_port],i]);
+    gpiodevicenumber:=IntToStr(GPIO[io_port,i]);
 
     try
 	     fileDesc := fpopen('/sys/class/gpio/gpio' + gpiodevicenumber + '/value', O_WrOnly);
 	     gReturnCode := fpwrite(fileDesc, out[0], 1);
-       if ( gReturnCode = -1 ) then writeln('writing gpio'+gpiodevicenumber+' failed.')
+       //if ( gReturnCode = -1 ) then writeln('writing gpio'+gpiodevicenumber+' failed.')
     finally
 	     gReturnCode := fpclose(fileDesc);
     end;
@@ -229,6 +240,7 @@ end;
 function armgeneric_gpio(adr:byte;bit:byte;gpiobit:byte):byte;
 
 begin
+	write('GPIO adr=',adr);write(' bit=',bit);writeln(' gpio=',gpiobit);
   GPIO[adr,bit]:=gpiobit;
 end;
 
@@ -236,6 +248,7 @@ end;
 function armgeneric_gpiodir(adr:byte;io_port:byte;dir:byte):byte;
 
 begin
+	write('GPIO adr=',adr);write(' io_port=',io_port);writeln(' gpio=',dir);
   GPIO_ADR[dir,io_port]:=adr;
   GPIO_DIR[adr]:=dir;
 end;

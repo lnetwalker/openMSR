@@ -320,8 +320,8 @@ begin
 	if debug then writeLOG('SendPage '+IntToStr(WhoAmI)+': BufCnt='+blubber);
 	i:=0;
 	// get the User-Agent
-	// don't know why????
- 	{
+	// dont know why????
+ 	
 	repeat
 		inc(i);
 	until (UpperCase(copy(post[i],1,10))='USER-AGENT') or ( i >= Length(post[i]) );
@@ -329,7 +329,7 @@ begin
 	  useragent:=copy(post[i],13,length(post[i])-13)
 	else
 	  useragent:='bonita-client';
-	}
+	
 	//EnterCriticalSection(ProtectDataSend);
 	if debug then writeLOG('SendPage '+IntToStr(WhoAmI)+': ' +useragent + ' -> sending header');
 	reply_sock.SendString(header);
@@ -616,11 +616,11 @@ begin
 end;
 
 begin
-	// don't write access log
+	// dont write access log
 	saveaccess:=false;
 
 	// switch off debug by default
-	debug:=true;
+	debug:=false;
 	if (debug) then writeln('Debugging On!');
 
 	// switch off threads

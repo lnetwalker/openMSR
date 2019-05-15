@@ -735,12 +735,14 @@ begin
 			end;
 		end
 		else if (ConfigTags[1] = 'ASSIGN') then begin
+			writeln(' ASSIGN Tag found: ',ConfigTags[2]);
 			{ for ARMgeneric and GHoma WLAN Power Plug this is needed to get additional config data }
-			{ Syntax: ASSIGN DEVICE ADDRESS BIT DATA 						}
+			{ Syntax: ASSIGN DEVICE ADDRESS BIT GPIO/DATA						}
 			case char(ConfigTags[2,1]) of
 {$IFDEF ARMGENERIC}
 			  'A' : begin
 				armgeneric_gpio(StrToInt(ConfigTags[3]),StrToInt(ConfigTags[4]),StrToInt(ConfigTags[5]));
+				writeln('Address=',StrToInt(ConfigTags[3]),' Bit=',StrToInt(ConfigTags[4]),' GPIO=',StrToInt(ConfigTags[5]));
 				armgeneric_exportGPIO(StrToInt(ConfigTags[3]),StrToInt(ConfigTags[4]),StrToInt(ConfigTags[5]));
 			      end;
 {$ENDIF}

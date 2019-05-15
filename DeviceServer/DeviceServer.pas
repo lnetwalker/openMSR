@@ -867,7 +867,7 @@ begin
 	SeitenStart:='<html><body>';
 	SeitenEnde:=' </body></html>';
 	Values:='';
-	DSdebugLOG(' DS:WriteOutputValues, got ' + IntToStr(ByteValue) + ' for Address ' + IntToStr(IOGroup) );
+	//DSdebugLOG(' DS:WriteOutputValues, got ' + IntToStr(ByteValue) + ' for Address ' + IntToStr(IOGroup) );
 	{ set the bits in the ausgang[n] array in respect of io_group}
 	AddressBase:=IOGroup*8-8;
 
