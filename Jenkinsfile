@@ -20,7 +20,7 @@ pipeline {
     IMAGE = readMavenPom().getArtifactId()
     VERSION = readMavenPom().getVersion()
     platforms = ['linux64', 'linux386', 'win32', 'linuxarm']
-    targets = ['datalogger', 'DeviceServer', 'oszi', 'sps', 'fktplot', 'FunkIO', 'OpenLabDocs']
+    //targets = ["datalogger", "DeviceServer", "oszi", "sps', 'fktplot', 'FunkIO', 'OpenLabDocs']
 
   }
 
@@ -40,7 +40,7 @@ pipeline {
       }
       steps {
         // compile for each platform
-        compile_all(targets)
+        compile_all(platforms)
       }
       post {
         success {
