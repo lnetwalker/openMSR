@@ -31,7 +31,9 @@ pipeline {
       }
       steps {
         // compile for each platform
-        compile_all(platforms)
+        platforms.split(',').each { item ->
+          echo "building platform ${item}"
+        }
       }
       post {
         success {
@@ -41,11 +43,4 @@ pipeline {
       }
     }
   }
-
-  def compile_all(list) {
-      list.split(',').each { item ->
-          echo "building target ${item}"
-      }
-  }
-
 }
