@@ -22,12 +22,6 @@ pipeline {
     def platforms = "linux64,linux386,win32,linuxarm"
   }
 
-  def compile_all(list) {
-      list.split(',').each { item ->
-          echo "building target ${item}"
-      }
-  }
-
   stages {
     stage('Build') {
       agent {
@@ -47,4 +41,11 @@ pipeline {
       }
     }
   }
+
+  def compile_all(list) {
+      list.split(',').each { item ->
+          echo "building target ${item}"
+      }
+  }
+
 }
