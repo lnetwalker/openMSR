@@ -22,7 +22,6 @@ pipeline {
     def platforms = "linux64,linux386,win32,linuxarm"
   }
 
-  @NonCPS // has to be NonCPS or the build breaks on the call to .each
   def compile_all(list) {
       list.split(',').each { item ->
           echo "building target ${item}"
