@@ -17,20 +17,20 @@ pipeline {
 
   environment {
     //Use Pipeline Utility Steps plugin to read information from pom.xml into env variables
-    IMAGE = readMavenPom().getArtifactId()
-    VERSION = readMavenPom().getVersion()
-    def platforms = "linux64,linux386,win32,linuxarm"
+    //IMAGE = readMavenPom().getArtifactId()
+    //VERSION = readMavenPom().getVersion()
   }
 
   stages {
     stage('Build') {
-      agent {
+      label {
         FPC244 {
           reuseNode true
         }
       }
       steps {
         // compile for each platform
+        def platforms = "linux64,linux386,win32,linuxarm"
         platforms.split(',').each { item ->
           echo "building platform ${item}"
         }
@@ -38,7 +38,7 @@ pipeline {
       post {
         success {
           // we only worry about archiving the jar file if the build steps are successful
-          archiveArtifacts(artifacts: '**/target/*.jar', allowEmptyArchive: true)
+          //archiveArtifacts(artifacts: '**/target/*.jar', allowEmptyArchive: true)
         }
       }
     }
