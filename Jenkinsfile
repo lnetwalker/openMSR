@@ -19,8 +19,8 @@ pipeline {
     //Use Pipeline Utility Steps plugin to read information from pom.xml into env variables
     IMAGE = readMavenPom().getArtifactId()
     VERSION = readMavenPom().getVersion()
-    platforms = [‘linux64‘, ’linux386‘, ’win32‘, ’linuxarm‘]
-    targets = [‘datalogger‘, ’DeviceServer', 'oszi', 'sps', 'fktplot', 'FunkIO', 'OpenLabDocs']
+    platforms = ['linux64', 'linux386', 'win32', 'linuxarm']
+    targets = ['datalogger', 'DeviceServer', 'oszi', 'sps', 'fktplot', 'FunkIO', 'OpenLabDocs']
 
   }
 
@@ -35,11 +35,6 @@ pipeline {
     stage('Build') {
       agent {
         FPC244 {
-          /*
-           * Reuse the workspace on the agent defined at top-level of Pipeline but run inside a container.
-           * In this case we are running a container with maven so we don't have to install specific versions
-           * of maven directly on the agent
-           */
           reuseNode true
         }
       }
