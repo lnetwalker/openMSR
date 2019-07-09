@@ -19,12 +19,12 @@ pipeline {
     //Use Pipeline Utility Steps plugin to read information from pom.xml into env variables
     IMAGE = readMavenPom().getArtifactId()
     VERSION = readMavenPom().getVersion()
-    platforms = ['linux64', 'linux386', 'win32', 'linuxarm']
+    def platforms = "linux64,linux386,win32,linuxarm"
   }
 
   @NonCPS // has to be NonCPS or the build breaks on the call to .each
   def compile_all(list) {
-      list.each { item ->
+      list.split(',').each { item ->
           echo "building target ${item}"
       }
   }
