@@ -24,10 +24,12 @@ pipeline {
   stages {
     stage('Build') {
       steps {
-        // compile for each platform
-        String[]  platforms =[ "linux64","linux386","win32","linuxarm"]
-        for ( item in platforms)  {
-          echo "building platform ${item}"
+        script {
+          // compile for each platform
+          String[]  platforms =[ "linux64","linux386","win32","linuxarm"]
+          for ( item in platforms)  {
+            echo "building platform ${item}"
+          }
         }
       }
       post {
