@@ -15,11 +15,12 @@ pipeline {
     timestamps()
   }
 
-  //environment {
+  environment {
     //Use Pipeline Utility Steps plugin to read information from pom.xml into env variables
     //IMAGE = readMavenPom().getArtifactId()
     //VERSION = readMavenPom().getVersion()
-  //}
+    artefactlist = "none"
+  }
 
   stages {
     stage('Build') {
@@ -37,9 +38,11 @@ pipeline {
               BRANCH_NAME=`echo $GIT_BRANCH | sed -e "s|/|-|g"`
 
               bash -x ./build/build.sh ${BUILD_ID} \$VERSION\$BRANCH_NAME ${item};
-              echo "\$VERSION-\$BRANCH_NAME-${BUILD_ID}" > artefactfile
+              echo "\$VERSION\$BRANCH_NAME-${BUILD_ID}" > artefactfile
+              \$env.artefactlist = \$VERSION\$BRANCH_NAME-${BUILD_ID}
             """
             stash 'artefactfile'
+            echo "$env.artefactlist"
           }
         }
       }
