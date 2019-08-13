@@ -29,7 +29,7 @@ pipeline {
           String[]  platforms =[ "linux64","linux386","win32","linuxarm"]
           for ( item in platforms)  {
             echo "building platform ${item}"
-            bash '''#!/bin/bash
+            sh '''#!/bin/bash
               // .version includes the currently planned release version number
               // Must be set in repository
               . ./version;
