@@ -36,7 +36,7 @@ pipeline {
 
               BRANCH_NAME=`echo $GIT_BRANCH | sed -e "s|/|-|g"`
 
-              bash -x ./build/build.sh $BUILD_ID ${VERSION}${BRANCH_NAME} ${item};
+              bash -x ./build/build.sh ${BUILD_ID} \$VERSION\$BRANCH_NAME ${item};
             """
           }
         }
