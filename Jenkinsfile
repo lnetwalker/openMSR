@@ -15,12 +15,12 @@ pipeline {
     timestamps()
   }
 
-  environment {
+  //environment {
     //Use Pipeline Utility Steps plugin to read information from pom.xml into env variables
     //IMAGE = readMavenPom().getArtifactId()
     //VERSION = readMavenPom().getVersion()
-    artefactlist = "none"
-  }
+    //artefactlist = "none"
+  //}
 
   stages {
     stage('Build') {
@@ -41,8 +41,8 @@ pipeline {
               echo "\$VERSION\$BRANCH_NAME-${BUILD_ID}" > artefactfile
               """
             //stash 'artefactfile'
-            env.artefactlist = readFile('artefactfile').trim()
-            echo env.artefactlist
+            def artefactlist = readFile('artefactfile').trim()
+            echo artefactlist
           }
         }
       }
