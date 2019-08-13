@@ -29,6 +29,14 @@ pipeline {
           String[]  platforms =[ "linux64","linux386","win32","linuxarm"]
           for ( item in platforms)  {
             echo "building platform ${item}"
+            # .version includes the currently planned release version number
+            # Must be set in repository
+            . ./version;
+
+            BRANCH_NAME=`echo $GIT_BRANCH | sed -e "s|/|-|g"`
+
+            bash -x ./build/build.sh $BUILD_ID $VERSION${BRANCH_NAME} $platform;
+
           }
         }
       }
