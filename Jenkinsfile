@@ -37,7 +37,9 @@ pipeline {
               BRANCH_NAME=`echo $GIT_BRANCH | sed -e "s|/|-|g"`
 
               bash -x ./build/build.sh ${BUILD_ID} \$VERSION\$BRANCH_NAME ${item};
+              echo "\SVERSION-\$BRANCH_NAME-${BUILD_ID}" > artefactfile
             """
+            stash 'artefactfile'
           }
         }
       }
@@ -49,9 +51,13 @@ pipeline {
           // we only worry about archiving the jar file if the build steps are successful
           //archiveArtifacts(artifacts: '**/target/*.jar', allowEmptyArchive: true)
           echo 'yeah, that was a success ;)'
+          unstash 'artefactfile'
+          sh "$artefact=`cat artefactfile`"
+          echo "$artefact"
+          archiveArtifacts artifacts: "$artefact*"
         }
         failure {
-          echo 'Sorry Dave, I cant do that. just failed :('
+          echo 'Sorry Dave, I can\'t do that. just failed :('
         }
       }
     }
