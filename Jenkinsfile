@@ -29,7 +29,7 @@ pipeline {
           String[]  platforms =[ "linux64","linux386","win32","linuxarm"]
           for ( item in platforms)  {
             echo "building platform ${item}"
-            sh '''#!/bin/bash
+            sh """#!/bin/bash
               // .version includes the currently planned release version number
               // Must be set in repository
               . ./version;
@@ -37,13 +37,13 @@ pipeline {
               BRANCH_NAME=`echo $GIT_BRANCH | sed -e "s|/|-|g"`
 
               bash -x ./build/build.sh $BUILD_ID $VERSION${BRANCH_NAME} ${item};
-            '''
+            """
           }
         }
       }
       post {
         always {
-          echo ' the solution is 42!'
+          echo ' I want to remind you that the solution is 42!'
         }
         success {
           // we only worry about archiving the jar file if the build steps are successful
