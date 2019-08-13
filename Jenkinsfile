@@ -23,13 +23,12 @@ pipeline {
 
   stages {
     stage('Build') {
-      steps {
         // compile for each platform
         def platforms = "linux64,linux386,win32,linuxarm"
         platforms.split(',').each { item ->
           echo "building platform ${item}"
         }
-      }
+
       post {
         success {
           // we only worry about archiving the jar file if the build steps are successful
