@@ -39,9 +39,9 @@ pipeline {
 
               bash -x ./build/build.sh ${BUILD_ID} \$VERSION\$BRANCH_NAME ${item};
               echo "\$VERSION\$BRANCH_NAME-${BUILD_ID}" > artefactfile
-              export artefactlist = "\$VERSION\$BRANCH_NAME-${BUILD_ID}"
-            """
-            stash 'artefactfile'
+              """
+            //stash 'artefactfile'
+            env.artefactlist = readFile('artefactfile').trim()
             echo env.artefactlist
           }
         }
