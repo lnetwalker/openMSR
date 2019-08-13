@@ -37,7 +37,7 @@ pipeline {
               BRANCH_NAME=`echo $GIT_BRANCH | sed -e "s|/|-|g"`
 
               bash -x ./build/build.sh ${BUILD_ID} \$VERSION\$BRANCH_NAME ${item};
-              echo "\SVERSION-\$BRANCH_NAME-${BUILD_ID}" > artefactfile
+              echo "\$VERSION-\$BRANCH_NAME-${BUILD_ID}" > artefactfile
             """
             stash 'artefactfile'
           }
