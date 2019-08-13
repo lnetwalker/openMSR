@@ -23,11 +23,6 @@ pipeline {
 
   stages {
     stage('Build') {
-      label {
-        FPC244 {
-          reuseNode true
-        }
-      }
       steps {
         // compile for each platform
         def platforms = "linux64,linux386,win32,linuxarm"
