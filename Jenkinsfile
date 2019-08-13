@@ -33,9 +33,16 @@ pipeline {
         }
       }
       post {
+        always {
+          echo ' the solution is 42!'
+        }
         success {
           // we only worry about archiving the jar file if the build steps are successful
           //archiveArtifacts(artifacts: '**/target/*.jar', allowEmptyArchive: true)
+          echo 'yeah, that was a success ;)'
+        }
+        failure {
+          echo 'Sorry Dave, I cant do that. just failed :('
         }
       }
     }
