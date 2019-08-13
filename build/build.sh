@@ -56,7 +56,7 @@ targets="datalogger DeviceServer oszi sps fktplot FunkIO OpenLabDocs"
 #targets="datalogger DeviceServer oszi sps fktplot"
 for i in $targets; do
   echo "************** building target $i *******************"
-  mkdir -p "$BUILD_DIR/$i"
+  mkdir -p "$BUILD_DIR"/$i
   cd $i;
   if [ -e ./environment ]; then
     . ./environment
