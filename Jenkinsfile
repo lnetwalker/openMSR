@@ -23,7 +23,7 @@ pipeline {
 
   stages {
     stage('Build') {
-      script {
+      steps {
         // compile for each platform
         String[]  platforms =[ "linux64","linux386","win32","linuxarm"]
         for ( item in platforms)  {
