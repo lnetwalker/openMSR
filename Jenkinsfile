@@ -39,10 +39,10 @@ pipeline {
 
               bash -x ./build/build.sh ${BUILD_ID} \$VERSION\$BRANCH_NAME ${item};
               echo "\$VERSION\$BRANCH_NAME-${BUILD_ID}" > artefactfile
-              \$env.artefactlist = \$VERSION\$BRANCH_NAME-${BUILD_ID}
+              \$artefactlist = \$VERSION\$BRANCH_NAME-${BUILD_ID}
             """
             stash 'artefactfile'
-            echo "$env.artefactlist"
+            echo env.artefactlist
           }
         }
       }
