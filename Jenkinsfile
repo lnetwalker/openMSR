@@ -25,8 +25,8 @@ pipeline {
     stage('Build') {
       script {
         // compile for each platform
-        def platforms = "linux64,linux386,win32,linuxarm"
-        platforms.split(',').each { item ->
+        String[]  platforms =[ "linux64","linux386","win32","linuxarm"]
+        for ( item in platforms)  {
           echo "building platform ${item}"
         }
       }
