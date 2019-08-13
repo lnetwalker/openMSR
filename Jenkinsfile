@@ -55,7 +55,7 @@ pipeline {
               // we only worry about archiving the jar file if the build steps are successful
               //archiveArtifacts(artifacts: '**/target/*.jar', allowEmptyArchive: true)
               echo 'yeah, that was a success ;)'
-              def artefactlist = readFile('artefactfile').trim()
+              def artefactlist = readFile('artefactfile').trim() + "*"
               archiveArtifacts artifacts: artefactlist
             }
         }
