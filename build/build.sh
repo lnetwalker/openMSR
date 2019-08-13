@@ -14,7 +14,7 @@ if [ "$1" = "" ]; then
 else
   BUILDID=$1
 fi
- 
+
 if [ "$2" = "" ]; then
   echo " please supply a release name e.g. openlab-1.0.1"
   exit 2
@@ -28,7 +28,7 @@ if [ "$3" = "" ]; then
 else
   ARCH=$3
 fi
- 
+
 RELEASE=$REL-$BUILDID-$ARCH
 
 BUILD_DIR=/tmp/$USER/build
@@ -54,9 +54,9 @@ find . -name "*.s" -exec rm -f {} \;
 targets="datalogger DeviceServer oszi sps fktplot FunkIO OpenLabDocs"
 # ObjectRecognition"
 #targets="datalogger DeviceServer oszi sps fktplot"
-for i in $targets; do 
+for i in $targets; do
   echo "************** building target $i *******************"
-  mkdir -p $BUILD_DIR/$i
+  mkdir -p "$BUILD_DIR/$i"
   cd $i;
   if [ -e ./environment ]; then
     . ./environment
@@ -92,4 +92,3 @@ tar --exclude=.svn -czvf /data/src/Releases/$RELEASE.tar.gz $RELEASE
 rm -rf $BUILD_DIR
 
 echo "Please check directory $RELEASE and remove it when everything is done"
-
