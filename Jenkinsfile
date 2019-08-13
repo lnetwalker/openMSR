@@ -51,7 +51,6 @@ pipeline {
           echo ' I want to remind you that the solution is 42!'
         }
         success {
-          steps {
             script {
               // we only worry about archiving the jar file if the build steps are successful
               //archiveArtifacts(artifacts: '**/target/*.jar', allowEmptyArchive: true)
@@ -59,7 +58,6 @@ pipeline {
               def artefactlist = readFile('artefactfile').trim()
               archiveArtifacts artifacts: artefactlist
             }
-          }
         }
         failure {
           echo 'Sorry Dave, I can\'t do that. just failed :('
