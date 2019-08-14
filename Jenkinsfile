@@ -88,13 +88,14 @@ pipeline {
         node {
           label 'JavaBuild'
         }
-      }
-      steps {
-        build job: 'LogicSim' , propagate:true, wait: true
-      }
-      post {
-        success {
-          archiveArtifacts artifacts: 'LogicSim2.4/*.jar', fingerprint: true
+
+        steps {
+          build job: 'LogicSim' , propagate:true, wait: true
+        }
+        post {
+          success {
+            archiveArtifacts artifacts: 'LogicSim2.4/*.jar', fingerprint: true
+          }
         }
       }
     }
