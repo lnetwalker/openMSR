@@ -2,8 +2,13 @@ pipeline {
 
   /*
    * Run everything on on the standard pascal compile host
-   * should be changes to docker container with fpc 3.0
+   * should be changed to docker container with fpc 3.0
    */
+   agent {
+     node {
+       label 'FPC244'
+     }
+   }
 
   // using the Timestamper plugin we can add timestamps to the console log
   options {
