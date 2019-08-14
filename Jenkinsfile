@@ -94,7 +94,7 @@ pipeline {
       }
       post {
         success {
-          archiveArtifacts artifacts: "LogicSim*/*.jar"
+          archiveArtifacts artifacts: "*.jar"
         }
       }
     }
