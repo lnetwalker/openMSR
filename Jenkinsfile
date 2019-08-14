@@ -6,7 +6,7 @@ pipeline {
    */
    agent {
      node {
-       label 'local'           run on jenkins master instance
+       label 'local'           // run on jenkins master instance
      }
    }
 
