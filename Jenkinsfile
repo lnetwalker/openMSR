@@ -6,7 +6,7 @@ pipeline {
    */
    agent {
      node {
-       label 'local'
+       label 'local'           run on jenkins master instance
      }
    }
 
@@ -83,7 +83,12 @@ pipeline {
         }
       }
     }
-/*    stage('Build LogicSim') {
+    stage('Build LogicSim') {
+      agent {
+        node {
+          label 'JavaBuild'
+        }
+      }
       steps {
         build job: 'LogicSim' , propagate:true, wait: true
       }
@@ -93,7 +98,7 @@ pipeline {
         }
       }
     }
-*/    stage('Build ObjectRecognition') {
+    stage('Build ObjectRecognition') {
       agent {
         node {
           label 'ccCross'
