@@ -23,7 +23,7 @@ pipeline {
   //}
 
   stages {
-    stage('Build') {
+    stage('Build Core Tools') {
       steps {
         script {
           // compile for each platform
@@ -61,6 +61,11 @@ pipeline {
         failure {
           echo 'Sorry Dave, I can\'t do that. just failed :('
         }
+      }
+    }
+    stage('Build Docu') {
+      steps {
+        build job: 'openMSR-Docu-Builder' , propagate:true, wait: true
       }
     }
   }
