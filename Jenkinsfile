@@ -37,7 +37,7 @@ pipeline {
 
               BRANCH_NAME=`echo $GIT_BRANCH | sed -e "s|/|-|g"`
 
-              bash -x ./build/build.sh ${BUILD_ID} \$VERSION\$BRANCH_NAME ${item};
+              bash ./build/build.sh ${BUILD_ID} \$VERSION\$BRANCH_NAME ${item};
               echo "\$VERSION\$BRANCH_NAME-${BUILD_ID}" > artefactfile
               """
             //stash 'artefactfile'
@@ -56,7 +56,7 @@ pipeline {
               //archiveArtifacts(artifacts: '**/target/*.jar', allowEmptyArchive: true)
               echo 'yeah, that was a success ;)'
               def artefactlist = readFile('artefactfile').trim()
-              artefactlist = artefactlist + '*'
+              //artefactlist = artefactlist + '*'
               archiveArtifacts artifacts: artefactlist
             }
         }
