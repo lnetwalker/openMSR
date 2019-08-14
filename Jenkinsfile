@@ -94,7 +94,8 @@ pipeline {
       }
       post {
         success {
-          copyArtifacts filter: 'LogicSim2.4/*.jar', fingerprintArtifacts: true, projectName: '${JOB_NAME}', selector: specific('${BUILD_NUMBER}')
+          copyArtifacts fingerprintArtifacts: true, projectName: 'LogicSim', selector: upstream()
+          //copyArtifacts filter: 'LogicSim2.4/*.jar', fingerprintArtifacts: true, projectName: '${JOB_NAME}', selector: specific('${BUILD_NUMBER}')
 
         }
       }
