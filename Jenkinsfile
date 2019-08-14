@@ -94,12 +94,8 @@ pipeline {
       }
       post {
         success {
-          step ([$class: 'CopyArtifact',
-            projectName: 'LogicSim',
-            filter: "LogicSim2.4/*.jar",
-            selector: downstream,
-            upstreamProjectName: "OpenMSR_Pipeline",
-          ]);
+          copyArtifacts filter: 'LogicSim2.4/*.jar', fingerprintArtifacts: true, projectName: '${JOB_NAME}', selector: specific('${BUILD_NUMBER}')
+
         }
       }
     }
@@ -114,7 +110,7 @@ pipeline {
       }
       post {
         success {
-          archiveArtifacts artifacts: 'ObjectRecognition/ObjectRecognition.iA64, ObjectRecognition/ObjectRecognition.i386, ObjectRecognition/ObjectRecognition.arm'
+          copyArtifacts artifacts: 'ObjectRecognition/ObjectRecognition.iA64, ObjectRecognition/ObjectRecognition.i386, ObjectRecognition/ObjectRecognition.arm'
         }
       }
     }
