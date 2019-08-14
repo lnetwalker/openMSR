@@ -73,5 +73,25 @@ pipeline {
         }
       }
     }
+    stage('Build LogicSim') {
+      steps {
+        build job: 'LogicSim' , propagate:true, wait: true
+      }
+      post {
+        success {
+          archiveArtifacts artifacts: 'LogicSim2.4/*.jar'
+        }
+      }
+    }
+    stage('Build ObjectRecognition') {
+      steps {
+        build job: 'OpenMSR-ObjectRecognition(CROSS)' , propagate:true, wait: true
+      }
+      post {
+        success {
+          archiveArtifacts artifacts: 'ObjectRecognition/ObjectRecognition.iA64, ObjectRecognition/ObjectRecognition.i386, ObjectRecognition/ObjectRecognition.arm'
+        }
+      }
+    }
   }
 }
