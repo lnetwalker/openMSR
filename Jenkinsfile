@@ -88,14 +88,18 @@ pipeline {
         node {
           label 'JavaBuild'
         }
-
-        steps {
-          build job: 'LogicSim' , propagate:true, wait: true
-        }
-        post {
-          success {
-            archiveArtifacts artifacts: 'LogicSim2.4/*.jar', fingerprint: true
-          }
+      }
+      steps {
+        build job: 'LogicSim' , propagate:true, wait: true
+      }
+      post {
+        success {
+          step ([$class: 'CopyArtifact',
+            projectName: 'LogicSim',
+            filter: "LogicSim2.4/*.jar",
+            selector: downstream,
+            upstreamProjectName: "OpenMSR_Pipeline",
+          ]);
         }
       }
     }
