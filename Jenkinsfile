@@ -6,7 +6,7 @@ pipeline {
    */
    agent {
      node {
-       label 'FPC244'
+       label 'local'
      }
    }
 
