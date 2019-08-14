@@ -73,7 +73,7 @@ pipeline {
         }
       }
     }
-    stage('Build LogicSim') {
+/*    stage('Build LogicSim') {
       steps {
         build job: 'LogicSim' , propagate:true, wait: true
       }
@@ -83,7 +83,7 @@ pipeline {
         }
       }
     }
-    stage('Build ObjectRecognition') {
+*/    stage('Build ObjectRecognition') {
       steps {
         build job: 'OpenMSR-ObjectRecognition(CROSS)' , propagate:true, wait: true
       }
