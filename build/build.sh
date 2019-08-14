@@ -83,12 +83,12 @@ find $BUILD_DIR -name ".svn" -exec rm -rf {} \;
 
 mkdir $RELEASE
 cp -a $BUILD_DIR/* $RELEASE/
-tar --exclude=.svn -czvf /data/src/Releases/$RELEASE.tar.gz $RELEASE
+tar --exclude=.svn -czvf $RELEASE.tar.gz $RELEASE
   if [ $? != 0 ]; then
     echo "error: in building package $RELEASE.tar.gz"
     exit 1
   fi
-
+cp $RELEASE.tar.gz /data/src/Releases/
 rm -rf $BUILD_DIR
 
 echo "Please check directory $RELEASE and remove it when everything is done"

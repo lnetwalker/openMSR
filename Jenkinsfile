@@ -54,7 +54,7 @@ pipeline {
             script {
               echo 'yeah, that was a success ;)'
               def artefactlist = readFile('artefactfile').trim()
-              artefactlist = '/data/src/Releases/' + artefactlist + '*.tar.gz'
+              artefactlist = artefactlist + '*.tar.gz'
               archiveArtifacts artifacts: artefactlist
             }
         }
