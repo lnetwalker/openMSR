@@ -56,8 +56,8 @@ pipeline {
               //archiveArtifacts(artifacts: '**/target/*.jar', allowEmptyArchive: true)
               echo 'yeah, that was a success ;)'
               def artefactlist = readFile('artefactfile').trim()
-              //artefactlist = artefactlist + '*'
-              archiveArtifacts artifacts: artefactlist
+              artefactlist = '/data/src/Releases' + artefactlist + '*'
+              archiveArtifacts artifacts: "artefactlist"
             }
         }
         failure {
