@@ -67,6 +67,11 @@ pipeline {
       steps {
         build job: 'openMSR-Docu-Builder' , propagate:true, wait: true
       }
+      post {
+        success {
+          archiveArtifacts artifacts: 'OpenLabDocs/*.pdf'
+        }
+      }
     }
   }
 }
