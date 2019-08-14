@@ -4,11 +4,6 @@ pipeline {
    * Run everything on on the standard pascal compile host
    * should be changes to docker container with fpc 3.0
    */
-  agent {
-    node {
-      label 'FPC244'
-    }
-  }
 
   // using the Timestamper plugin we can add timestamps to the console log
   options {
@@ -24,6 +19,11 @@ pipeline {
 
   stages {
     stage('Build Core Tools') {
+      agent {
+        node {
+          label 'FPC244'
+        }
+      }
       steps {
         script {
           // compile for each platform
@@ -64,6 +64,11 @@ pipeline {
       }
     }
     stage('Build Docu') {
+      agent {
+        node {
+          label 'Docker'
+        }
+      }
       steps {
         build job: 'openMSR-Docu-Builder' , propagate:true, wait: true
       }
@@ -84,6 +89,11 @@ pipeline {
       }
     }
 */    stage('Build ObjectRecognition') {
+      agent {
+        node {
+          label 'ccCross'
+        }
+      }
       steps {
         build job: 'OpenMSR-ObjectRecognition(CROSS)' , propagate:true, wait: true
       }
