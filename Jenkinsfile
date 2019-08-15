@@ -101,20 +101,22 @@ pipeline {
       }
     }
 
-    post {
-      always {
-        echo ' I want to remind you that the solution is 42!'
-      }
-      success {
+    stage('collect Artifacts') {
+      post {
+        always {
+          echo ' I want to remind you that the solution is 42!'
+        }
+        success {
           script {
             echo 'yeah, that was a success ;)'
             def artefactlist = readFile('artefactfile').trim()
             artefactlist = artefactlist + '*.tar.gz'
             archiveArtifacts artifacts: artefactlist
           }
-      }
-      failure {
-        echo 'Sorry Dave, I can\'t do that. just failed :('
+        }
+        failure {
+          echo 'Sorry Dave, I can\'t do that. just failed :('
+        }
       }
     }
   }
