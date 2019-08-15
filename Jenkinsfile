@@ -116,9 +116,10 @@ pipeline {
         unstash "artifactlist"
         sh """#!/bin/bash
           ls -la
-          cp LICENSE artifactstore/LICENSE.mqtt-exec
-          cp README.md artifactstore/README.mqtt-exec
-          cp mqtt-exec-*.* artifactstore
+          echo 'Todo: improve this dirty stuff'
+          cp ../MQTT-exec/LICENSE artifactstore/LICENSE.mqtt-exec
+          cp ../MQTT-exec/README.md artifactstore/README.mqtt-exec
+          cp ../MQTT-exec/mqtt-exec-*.* artifactstore
           """
         stash name: "artifactlist", includes: "artifactstore/*"
       }
