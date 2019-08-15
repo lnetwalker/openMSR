@@ -48,6 +48,7 @@ pipeline {
             //stash 'artefactfile'
             def artefactlist = readFile('artefactfile').trim()
             echo artefactlist
+            stash name: "artifactlist", includes: "artefactfile"
           }
         }
       }
@@ -65,6 +66,9 @@ pipeline {
         success {
           //archiveArtifacts artifacts: 'OpenLabDocs/*.pdf'
           copyArtifacts (filter:'OpenLabDocs/*.pdf',fingerprintArtifacts: true, projectName: 'openMSR-Docu-Builder', selector: lastSuccessful())
+          unstash "artifactlist"
+          sh "echo ',OpenLabDocs/*.pdf'>>artefactfile"
+          stash name: "artifactlist", includes: "artefactfile"
         }
       }
     }
@@ -102,6 +106,9 @@ pipeline {
     }
 
     stage('collect Artifacts') {
+      steps {
+        sh "echo 'colletcting artefacts...'"
+      }
       post {
         always {
           echo ' I want to remind you that the solution is 42!'
