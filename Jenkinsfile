@@ -51,22 +51,6 @@ pipeline {
           }
         }
       }
-      post {
-        always {
-          echo ' I want to remind you that the solution is 42!'
-        }
-        success {
-            script {
-              echo 'yeah, that was a success ;)'
-              def artefactlist = readFile('artefactfile').trim()
-              artefactlist = artefactlist + '*.tar.gz'
-              archiveArtifacts artifacts: artefactlist
-            }
-        }
-        failure {
-          echo 'Sorry Dave, I can\'t do that. just failed :('
-        }
-      }
     }
     stage('Build Docu') {
       agent {
@@ -114,6 +98,23 @@ pipeline {
         success {
           copyArtifacts (filter: 'ObjectRecognition/ObjectRecognition.iA64, ObjectRecognition/ObjectRecognition.i386, ObjectRecognition/ObjectRecognition.arm',fingerprintArtifacts: true, projectName: 'OpenMSR-ObjectRecognition(CROSS)', selector: lastSuccessful())
         }
+      }
+    }
+
+    post {
+      always {
+        echo ' I want to remind you that the solution is 42!'
+      }
+      success {
+          script {
+            echo 'yeah, that was a success ;)'
+            def artefactlist = readFile('artefactfile').trim()
+            artefactlist = artefactlist + '*.tar.gz'
+            archiveArtifacts artifacts: artefactlist
+          }
+      }
+      failure {
+        echo 'Sorry Dave, I can\'t do that. just failed :('
       }
     }
   }
