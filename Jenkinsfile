@@ -115,7 +115,7 @@ pipeline {
         build job: 'MQTT-exec' , propagate:true, wait: true
         unstash "artifactlist"
         sh """#!/bin/bash
-          ls -la"
+          ls -la
           cp LICENSE artifactstore/LICENSE.mqtt-exec
           cp README.md artifactstore/README.mqtt-exec
           cp mqtt-exec-*.* artifactstore
