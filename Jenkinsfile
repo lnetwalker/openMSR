@@ -43,6 +43,7 @@ pipeline {
           def artefactlist = readFile('artefactfile').trim()
           echo artefactlist
           sh "mkdir -p artifactstore"
+          sh "rm -f artifactstore/*"
           sh "cp ${artefactlist} artifactstore"
           stash name: "artifactlist", includes: "artifactstore/*"
 
