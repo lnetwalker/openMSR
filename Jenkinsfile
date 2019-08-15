@@ -104,6 +104,24 @@ pipeline {
         }
       }
     }
+    stage('Build MQTT-exec') {
+      agent {
+        node {
+          label 'ccCross'
+        }
+      }
+      steps {
+        build job: 'MQTT-exec' , propagate:true, wait: true
+        unstash "artifactlist"
+        sh "cp mqtt-exec.i64 mqtt-exec.386 artifactstore"
+        stash name: "artifactlist", includes: "artifactstore/*"
+      }
+      post {
+        success {
+          copyArtifacts (filter: 'mqtt-exec.i64,mqtt-exec.386',fingerprintArtifacts: true, projectName: 'MQTT-exec', selector: lastSuccessful())
+        }
+      }
+    }
 
     stage('collect Artifacts') {
       steps {
