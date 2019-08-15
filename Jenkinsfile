@@ -43,13 +43,14 @@ pipeline {
               BRANCH_NAME=`echo $GIT_BRANCH | sed -e "s|/|-|g"`
 
               bash ./build/build.sh ${BUILD_ID} \$VERSION\$BRANCH_NAME ${item};
-              echo "\$VERSION\$BRANCH_NAME-${BUILD_ID}" > artefactfile
+              echo "\$VERSION\$BRANCH_NAME-${BUILD_ID}*.tar.gz" > artefactfile
               """
-            //stash 'artefactfile'
-            def artefactlist = readFile('artefactfile').trim()
-            echo artefactlist
-            stash name: "artifactlist", includes: "artefactfile"
           }
+          //stash 'artefactfile'
+          def artefactlist = readFile('artefactfile').trim()
+          echo artefactlist
+          stash name: "artifactlist", includes: "artefactfile"
+
         }
       }
     }
@@ -84,8 +85,9 @@ pipeline {
       post {
         success {
           copyArtifacts (filter:'LogicSim2.4/*.jar',fingerprintArtifacts: true, projectName: 'LogicSim', selector: lastSuccessful())
-          //copyArtifacts filter: 'LogicSim2.4/*.jar', fingerprintArtifacts: true, projectName: '${JOB_NAME}', selector: specific('${BUILD_NUMBER}')
-
+          unstash "artifactlist"
+          sh "echo ',LogicSim2.4/*.jar'>>artefactfile"
+          stash name: "artifactlist", includes: "artefactfile"
         }
       }
     }
@@ -101,6 +103,9 @@ pipeline {
       post {
         success {
           copyArtifacts (filter: 'ObjectRecognition/ObjectRecognition.iA64, ObjectRecognition/ObjectRecognition.i386, ObjectRecognition/ObjectRecognition.arm',fingerprintArtifacts: true, projectName: 'OpenMSR-ObjectRecognition(CROSS)', selector: lastSuccessful())
+          unstash "artifactlist"
+          sh "echo ',ObjectRecognition/ObjectRecognition.iA64, ObjectRecognition/ObjectRecognition.i386, ObjectRecognition/ObjectRecognition.arm'>>artefactfile"
+          stash name: "artifactlist", includes: "artefactfile"
         }
       }
     }
@@ -116,8 +121,8 @@ pipeline {
         success {
           script {
             echo 'yeah, that was a success ;)'
+            unstash "artifactlist"
             def artefactlist = readFile('artefactfile').trim()
-            artefactlist = artefactlist + '*.tar.gz'
             archiveArtifacts artifacts: artefactlist
           }
         }
