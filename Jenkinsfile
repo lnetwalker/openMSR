@@ -15,13 +15,6 @@ pipeline {
     timestamps()
   }
 
-  //environment {
-    //Use Pipeline Utility Steps plugin to read information from pom.xml into env variables
-    //IMAGE = readMavenPom().getArtifactId()
-    //VERSION = readMavenPom().getVersion()
-    //artefactlist = "none"
-  //}
-
   stages {
     stage('Build Core Tools') {
       agent {
@@ -46,10 +39,12 @@ pipeline {
               echo "\$VERSION\$BRANCH_NAME-${BUILD_ID}*.tar.gz" > artefactfile
               """
           }
-          //stash 'artefactfile'
+          //stash 'artefacts'
           def artefactlist = readFile('artefactfile').trim()
           echo artefactlist
-          stash name: "artifactlist", includes: "artefactfile"
+          sh "mkdir -p artifactstore"
+          sh "cp ${artefactlist} artifactstore"
+          stash name: "artifactlist", includes: "artifactstore/*"
 
         }
       }
@@ -62,14 +57,14 @@ pipeline {
       }
       steps {
         build job: 'openMSR-Docu-Builder' , propagate:true, wait: true
+        unstash "artifactlist"
+        sh "cp OpenLabDocs/*.pdf artifactstore"
+        stash name: "artifactlist", includes: "artifactstore/*"
       }
       post {
         success {
           //archiveArtifacts artifacts: 'OpenLabDocs/*.pdf'
           copyArtifacts (filter:'OpenLabDocs/*.pdf',fingerprintArtifacts: true, projectName: 'openMSR-Docu-Builder', selector: lastSuccessful())
-          unstash "artifactlist"
-          sh "echo ',OpenLabDocs/*.pdf'>>artefactfile"
-          stash name: "artifactlist", includes: "artefactfile"
         }
       }
     }
@@ -81,13 +76,13 @@ pipeline {
       }
       steps {
         build job: 'LogicSim' , propagate:true, wait: true
+        unstash "artifactlist"
+        sh "cp LogicSim2.4/*.jar artifactstore"
+        stash name: "artifactlist", includes: "artifactstore/*"
       }
       post {
         success {
           copyArtifacts (filter:'LogicSim2.4/*.jar',fingerprintArtifacts: true, projectName: 'LogicSim', selector: lastSuccessful())
-          unstash "artifactlist"
-          sh "echo ',LogicSim2.4/*.jar'>>artefactfile"
-          stash name: "artifactlist", includes: "artefactfile"
         }
       }
     }
@@ -99,20 +94,20 @@ pipeline {
       }
       steps {
         build job: 'OpenMSR-ObjectRecognition(CROSS)' , propagate:true, wait: true
+        unstash "artifactlist"
+        sh "cp ObjectRecognition/ObjectRecognition.iA64 ObjectRecognition/ObjectRecognition.i386 ObjectRecognition/ObjectRecognition.arm artifactstore"
+        stash name: "artifactlist", includes: "artifactstore/*"
       }
       post {
         success {
           copyArtifacts (filter: 'ObjectRecognition/ObjectRecognition.iA64, ObjectRecognition/ObjectRecognition.i386, ObjectRecognition/ObjectRecognition.arm',fingerprintArtifacts: true, projectName: 'OpenMSR-ObjectRecognition(CROSS)', selector: lastSuccessful())
-          unstash "artifactlist"
-          sh "echo ',ObjectRecognition/ObjectRecognition.iA64, ObjectRecognition/ObjectRecognition.i386, ObjectRecognition/ObjectRecognition.arm'>>artefactfile"
-          stash name: "artifactlist", includes: "artefactfile"
         }
       }
     }
 
     stage('collect Artifacts') {
       steps {
-        sh "echo 'colletcting artefacts...'"
+        sh "echo 'colletcting artifacts...'"
       }
       post {
         always {
@@ -122,8 +117,7 @@ pipeline {
           script {
             echo 'yeah, that was a success ;)'
             unstash "artifactlist"
-            def artefactlist = readFile('artefactfile').trim()
-            archiveArtifacts artifacts: artefactlist
+            archiveArtifacts artifacts: 'artifactstore/*'
           }
         }
         failure {
