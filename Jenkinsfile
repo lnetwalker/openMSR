@@ -79,7 +79,8 @@ pipeline {
       }
       post {
         success {
-          archiveArtifacts artifacts: 'OpenLabDocs/*.pdf'
+          //archiveArtifacts artifacts: 'OpenLabDocs/*.pdf'
+          copyArtifacts (filter:'OpenLabDocs/*.pdf',fingerprintArtifacts: true, projectName: 'openMSR-Docu-Builder', selector: lastSuccessful())
         }
       }
     }
@@ -111,7 +112,7 @@ pipeline {
       }
       post {
         success {
-          copyArtifacts artifacts: 'ObjectRecognition/ObjectRecognition.iA64, ObjectRecognition/ObjectRecognition.i386, ObjectRecognition/ObjectRecognition.arm'
+          copyArtifacts (filter: 'ObjectRecognition/ObjectRecognition.iA64, ObjectRecognition/ObjectRecognition.i386, ObjectRecognition/ObjectRecognition.arm',fingerprintArtifacts: true, projectName: 'OpenMSR-ObjectRecognition(CROSS)', selector: lastSuccessful())
         }
       }
     }
