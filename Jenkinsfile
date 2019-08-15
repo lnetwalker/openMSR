@@ -28,6 +28,8 @@ pipeline {
             script {
               // compile for each platform
               String[]  platforms =[ "linux64","linux386","win32","linuxarm"]
+              sh "mkdir -p artifactstore"
+              sh "rm -f artifactstore/*"
               for ( item in platforms)  {
                 echo "building platform ${item}"
                 sh """#!/bin/bash
@@ -40,13 +42,11 @@ pipeline {
                   bash ./build/build.sh ${BUILD_ID} \$VERSION\$BRANCH_NAME ${item};
                   echo "\$VERSION\$BRANCH_NAME-${BUILD_ID}*.tar.gz" > artefactfile
                   """
+                  def artefactlist = readFile('artefactfile').trim()
+                  echo artefactlist
+                  sh "cp ${artefactlist} artifactstore"
               }
               //stash 'artefacts'
-              def artefactlist = readFile('artefactfile').trim()
-              echo artefactlist
-              sh "mkdir -p artifactstore"
-              sh "rm -f artifactstore/*"
-              sh "cp ${artefactlist} artifactstore"
               stash name: "artifactlist", includes: "artifactstore/*"
 
             }
