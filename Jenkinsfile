@@ -114,10 +114,12 @@ pipeline {
       steps {
         build job: 'MQTT-exec' , propagate:true, wait: true
         unstash "artifactlist"
-        sh "ls -la"
-        sh "cp LICENSE artifactstore/LICENSE.mqtt-exec"
-        sh "cp README.md artifactstore/README.mqtt-exec"
-        sh "cp mqtt-exec-*.* artifactstore"
+        sh """#!/bin/bash
+          ls -la"
+          cp LICENSE artifactstore/LICENSE.mqtt-exec
+          cp README.md artifactstore/README.mqtt-exec
+          cp mqtt-exec-*.* artifactstore
+          """
         stash name: "artifactlist", includes: "artifactstore/*"
       }
       post {
