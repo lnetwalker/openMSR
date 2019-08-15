@@ -114,7 +114,7 @@ pipeline {
       steps {
         build job: 'MQTT-exec' , propagate:true, wait: true
         unstash "artifactlist"
-        sh "cp mqtt-exec.i64 mqtt-exec.386 artifactstore"
+        sh "cp mqtt-exec-* artifactstore"
         stash name: "artifactlist", includes: "artifactstore/*"
       }
       post {
