@@ -16,8 +16,8 @@ pipeline {
   }
 
   stages {
-    stage('Build') {
-      parallel {
+//    stage('Build') {
+//      parallel {
         stage('Build Core Tools') {
           agent {
             node {
@@ -130,8 +130,8 @@ pipeline {
               copyArtifacts (filter: 'mqtt-exec-*',fingerprintArtifacts: true, projectName: 'MQTT-exec', selector: lastSuccessful())
             }
           }
-        }
-      }
+//        }
+//      }
     }
 
     stage('collect Artifacts') {
