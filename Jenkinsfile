@@ -60,6 +60,7 @@ pipeline {
           }
           steps {
             build job: 'openMSR-Docu-Builder' , propagate:true, wait: true
+            sh "rm -f artifactstore/*"
             unstash "artifactlist"
             sh "cp OpenLabDocs/*.pdf artifactstore"
             stash name: "artifactlist", includes: "artifactstore/*"
@@ -79,6 +80,7 @@ pipeline {
           }
           steps {
             build job: 'LogicSim' , propagate:true, wait: true
+            sh "rm -f artifactstore/*"
             unstash "artifactlist"
             sh "cp LogicSim2.4/*.jar artifactstore"
             stash name: "artifactlist", includes: "artifactstore/*"
@@ -97,6 +99,7 @@ pipeline {
           }
           steps {
             build job: 'OpenMSR-ObjectRecognition(CROSS)' , propagate:true, wait: true
+            sh "rm -f artifactstore/*"
             unstash "artifactlist"
             sh "cp ObjectRecognition/ObjectRecognition.iA64 ObjectRecognition/ObjectRecognition.i386 ObjectRecognition/ObjectRecognition.arm artifactstore"
             stash name: "artifactlist", includes: "artifactstore/*"
@@ -115,6 +118,7 @@ pipeline {
           }
           steps {
             build job: 'MQTT-exec' , propagate:true, wait: true
+            sh "rm -f artifactstore/*"
             unstash "artifactlist"
             sh """#!/bin/bash
               ls -la
