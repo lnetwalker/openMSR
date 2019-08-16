@@ -101,7 +101,9 @@ pipeline {
             build job: 'OpenMSR-ObjectRecognition(CROSS)' , propagate:true, wait: true
             sh "rm -f artifactstore/*"
             unstash "artifactlist"
-            sh "cp ObjectRecognition/ObjectRecognition-* artifactstore"
+            sh """#!/bin/bash
+               cp ObjectRecognition/ObjectRecognition-* artifactstore
+               """
             stash name: "artifactlist", includes: "artifactstore/*"
           }
           post {
