@@ -103,7 +103,7 @@ pipeline {
             unstash "artifactlist"
             sh """#!/bin/bash
                 echo 'Todo: improve this dirty stuff'
-                cp ../../OpenMSR-ObjectRecognition-CROSS/ObjectRecognition/ObjectRecognition-* artifactstore
+                cp ../OpenMSR-ObjectRecognition-CROSS/ObjectRecognition/ObjectRecognition-* artifactstore
                 """
             stash name: "artifactlist", includes: "artifactstore/*"
           }
