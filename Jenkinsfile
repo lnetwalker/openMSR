@@ -149,6 +149,7 @@ pipeline {
         success {
           script {
             echo 'yeah, that was a success ;)'
+            sh "rm -f artifactstore/*"
             unstash "artifactlist"
             archiveArtifacts artifacts: 'artifactstore/*'
           }
