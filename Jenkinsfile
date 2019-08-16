@@ -109,7 +109,7 @@ pipeline {
           }
           post {
             success {
-              copyArtifacts (filter: 'ObjectRecognition/ObjectRecognition.iA64, ObjectRecognition/ObjectRecognition.i386, ObjectRecognition/ObjectRecognition.arm',fingerprintArtifacts: true, projectName: 'OpenMSR-ObjectRecognition(CROSS)', selector: lastSuccessful())
+              copyArtifacts (filter: 'ObjectRecognition/ObjectRecognition-*',fingerprintArtifacts: true, projectName: 'OpenMSR-ObjectRecognition-CROSS', selector: lastSuccessful())
             }
           }
         }
