@@ -104,6 +104,8 @@ pipeline {
             sh """#!/bin/bash
                 echo 'Todo: improve this dirty stuff'
                 cp ../OpenMSR-ObjectRecognition-CROSS/ObjectRecognition/ObjectRecognition-* artifactstore
+                cp ../OpenMSR-ObjectRecognition-CROSS/ObjectRecognition/ObjectRecognition*.pdf artifactstore
+                cp ../OpenMSR-ObjectRecognition-CROSS/ObjectRecognition/README artifactstore/README.ObjRec
                 """
             stash name: "artifactlist", includes: "artifactstore/*"
           }
