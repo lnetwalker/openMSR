@@ -16,7 +16,7 @@ pipeline {
   }
 
   triggers {
-    githubPush(triggerOnPush: true, triggerOnMergeRequest: true, branchFilterType: 'All')
+    pollSCM('H/5 * * 1-5')
   }
 
   stages {
