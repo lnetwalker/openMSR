@@ -16,7 +16,7 @@ pipeline {
   }
 
   triggers {
-    pollSCM('H /5 * * 1-5')
+    pollSCM('H */5 * * 1-5')
   }
 
   stages {
