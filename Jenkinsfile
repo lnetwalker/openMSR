@@ -16,9 +16,9 @@ pipeline {
   }
 
   triggers {
-    github(triggerOnPush: true, triggerOnMergeRequest: true, branchFilterType: 'All')
+    githubPush(triggerOnPush: true, triggerOnMergeRequest: true, branchFilterType: 'All')
   }
-  
+
   stages {
 //    stage('Build') {
 //      parallel {
