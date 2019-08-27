@@ -16,3 +16,5 @@ DeviceServer/DeviceServer
 PhysMach/test/gnublintest
 
 PhysMach/PhysMachTest
+
+*.odt#
