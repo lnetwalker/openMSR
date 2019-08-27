@@ -51,7 +51,7 @@ find . -name "*.s" -exec rm -f {} \;
 
 
 # build the targets
-targets="datalogger DeviceServer oszi sps fktplot FunkIO"
+targets="datalogger DeviceServer oszi sps fktplot tools"
 # ObjectRecognition"
 #targets="datalogger DeviceServer oszi sps fktplot"
 for i in $targets; do
