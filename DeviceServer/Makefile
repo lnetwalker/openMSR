@@ -35,6 +35,8 @@ build:
 	-mkdir /tmp/$(USER)/build/DeviceServer/docroot
 	-mkdir /tmp/$(USER)/build/DeviceServer/docroot/images
 	-mkdir /tmp/$(USER)/build/DeviceServer/docroot/js
+	-mkdir /tmp/$(USER)/build/DeviceServer/Agents
+	-mkdir /tmp/$(USER)/build/DeviceServer/config-examples 
 	-cp docroot/images/*.jpg /tmp/$(USER)/build/DeviceServer/docroot/images/
 	-cp docroot/images/*.png /tmp/$(USER)/build/DeviceServer/docroot/images/
 	-cp docroot/js/* /tmp/$(USER)/build/DeviceServer/docroot/js/
@@ -46,4 +48,5 @@ else
 	-cp DeviceServer /tmp/$(USER)/build/DeviceServer/
 endif
 	-cp DeviceServer.cfg /tmp/$(USER)/build/DeviceServer/
-	-cp digi*.sh /tmp/$(USER)/build/DeviceServer/
+	-cp Agents/*.sh /tmp/$(USER)/build/DeviceServer/Agents
+	-cp config-examples/* /tmp/$(USER)/build/DeviceServer/config-examples 
