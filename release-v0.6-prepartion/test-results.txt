@@ -1,0 +1,19 @@
+Platform: iA64
+
+src: webserver.pas 
+feature: run PHP scripts on webserver
+        php test fails (http://localhost:10080/phpinfo.php)
+	see https://www.freepascal.org/docs-html/fcl/process/runcommand.html
+	and also CommonHelper.pas.
+
+src: tools/*
+feature: bridges
+        all bridges are missing in the distribution package
+
+src: DeviceServer
+feature: examples for different hardware configs are missing in distibution Package
+
+src: OpenLabCalc
+     crashes after entering the formula
+
+
