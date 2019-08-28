@@ -66,15 +66,16 @@ pipeline {
             build job: 'openMSR-Docu-Builder' , propagate:true, wait: true
             sh "rm -f artifactstore/*"
             unstash "artifactlist"
+            copyArtifacts (filter:'OpenLabDocs/*.pdf',fingerprintArtifacts: true, projectName: 'openMSR-Docu-Builder', selector: lastSuccessful())
             sh "cp OpenLabDocs/*.pdf artifactstore"
             stash name: "artifactlist", includes: "artifactstore/*"
           }
-          post {
-            success {
+//          post {
+//            success {
               //archiveArtifacts artifacts: 'OpenLabDocs/*.pdf'
-              copyArtifacts (filter:'OpenLabDocs/*.pdf',fingerprintArtifacts: true, projectName: 'openMSR-Docu-Builder', selector: lastSuccessful())
-            }
-          }
+//              copyArtifacts (filter:'OpenLabDocs/*.pdf',fingerprintArtifacts: true, projectName: 'openMSR-Docu-Builder', selector: lastSuccessful())
+//            }
+//          }
         }
         stage('Build LogicSim') {
           agent {
