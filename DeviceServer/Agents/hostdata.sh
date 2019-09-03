@@ -7,7 +7,7 @@
 # licensed under the GNU GPL V2
 
 # get the 1 minute load and multiply by 100
-load_1min=`top -n1|head -n1|cut -d " " -f15|sed 's/\.//'|sed 's/,//'`;
+load_1min=`top -b -n1|head -n1|cut -d " " -f15|sed 's/\.//'|sed 's/,//'`;
 
 # alternative you can use the following cmd to get the int(1 minute load)
 # top -n1|head -n1|cut -d " " -f15|cut -d "." -f1
