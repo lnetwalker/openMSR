@@ -107,7 +107,7 @@ pipeline {
             build job: 'OpenMSR-ObjectRecognition-CROSS' , propagate:true, wait: true
             sh "rm -f artifactstore/*"
             unstash "artifactlist"
-            copyArtifacts (filter: 'ObjectRecognition/ObjectRecognition-*',fingerprintArtifacts: true, projectName: 'OpenMSR-ObjectRecognition-CROSS', selector: lastSuccessful())
+            copyArtifacts (filter: '*',fingerprintArtifacts: true, projectName: 'OpenMSR-ObjectRecognition-CROSS', selector: lastSuccessful())
 //            sh """#!/bin/bash
 //                echo 'Todo: improve this dirty stuff'
 //                cp ../OpenMSR-ObjectRecognition-CROSS/ObjectRecognition/ObjectRecognition-* artifactstore
@@ -132,7 +132,7 @@ pipeline {
             build job: 'MQTT-exec' , propagate:true, wait: true
             sh "rm -f artifactstore/*"
             unstash "artifactlist"
-            copyArtifacts (filter: 'mqtt-exec-*',fingerprintArtifacts: true, projectName: 'MQTT-exec', selector: lastSuccessful())
+            copyArtifacts (filter: '*',fingerprintArtifacts: true, projectName: 'MQTT-exec', selector: lastSuccessful())
 //            sh """#!/bin/bash
 //              ls -la
 //              echo 'Todo: improve this dirty stuff'
