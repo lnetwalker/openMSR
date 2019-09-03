@@ -107,7 +107,7 @@ pipeline {
             build job: 'OpenMSR-ObjectRecognition-CROSS' , propagate:true, wait: true
             sh "rm -f artifactstore/*"
             unstash "artifactlist"
-            copyArtifacts (filter: '*',fingerprintArtifacts: true, projectName: 'OpenMSR-ObjectRecognition-CROSS', selector: lastSuccessful())
+            copyArtifacts (filter: 'ObjectRecognition/ObjectRecognition-*, ObjectRecognition/*.pdf',fingerprintArtifacts: true, projectName: 'OpenMSR-ObjectRecognition-CROSS', selector: lastSuccessful())
 //            sh """#!/bin/bash
 //                echo 'Todo: improve this dirty stuff'
 //                cp ../OpenMSR-ObjectRecognition-CROSS/ObjectRecognition/ObjectRecognition-* artifactstore
