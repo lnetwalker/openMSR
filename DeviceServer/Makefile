@@ -41,6 +41,8 @@ build:
 	-cp docroot/images/*.png /tmp/$(USER)/build/DeviceServer/docroot/images/
 	-cp docroot/js/* /tmp/$(USER)/build/DeviceServer/docroot/js/
 	-cp docroot/*.html  /tmp/$(USER)/build/DeviceServer/docroot/
+	-cp docroot/*.php /tmp/$(USER)/build/DeviceServer/docroot/
+	-cp docroot/*.ico /tmp/$(USER)/build/DeviceServer/docroot/
 	-cp docroot/Meter* /tmp/$(USER)/build/DeviceServer/docroot/
 ifeq ($(BLD_ARCH),win32)
 	-cp DeviceServer.exe /tmp/$(USER)/build/DeviceServer/
