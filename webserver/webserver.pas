@@ -438,7 +438,11 @@ begin
 
 		// it's a php file so spawn php interpreter
 		// capture the output in page var and deliver it
-		if (pos('php',URL)<>0) then page:=RunCommand('php'+' '+URL)
+		if (pos('php',URL)<>0) then begin 
+			page:=RunCommand('php'+' '+URL);
+			SendPage(WhoAmI,page);
+		end
+		
 		// it's a file do open and read it
 		else begin
 			page:='';
@@ -463,8 +467,8 @@ begin
 				end;
 				close (G);
 			end
-		  else begin  { file not found }
-			  page:='<html><body>Error: 404 Document not found</body></html>';
+			else begin  { file not found }
+				page:='<html><body>Error: 404 Document not found</body></html>';
 				status:='404 Not Found';
 				errorLOG('Error 404 doc '+URL+' not found');
 				IOError:=true
