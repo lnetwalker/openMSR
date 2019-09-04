@@ -2,6 +2,8 @@
 
 <Head>
 <Title>Read Values over the Internet</Title>
+<link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
+
 </Head>
 
 <Body Background="" BGColor=#F0F0FF Text=#000000 Link=#0000FF VLink=#800080 ALink=#80FFFF" onload="init()">
@@ -11,7 +13,7 @@
         function init() {
 
             OpenMSRInit();
-            
+
             Raum = new LCDisplay('Raum','analog',31);
             Raum.setImagePath('/homecontrol/images/');
             Raum.Display_Type('HC1331C');
@@ -23,7 +25,7 @@
             Aussen.Display_Type('HC1331C');
             Aussen.No_of_Digits(6,2);
 			Aussen.Convert(0.01);
-            
+
             Wasser = new LCDisplay('Wasser','analog',33);
             Wasser.setImagePath('/homecontrol/images/');
             Wasser.Display_Type('HC1331C');
@@ -61,7 +63,7 @@
             MyAnalogReader.IOGroup(1);
 
         }
--->        
+-->
 </script>
 <center>
 <table>
@@ -115,7 +117,7 @@ R&uuml;cklauf
 </table>
 
  <FORM name="GETWERT" ACTION="" METHOD="GET">
- <TABLE border = 0> 
+ <TABLE border = 0>
  <TR>
   <TD> 	<input type=hidden value='https://dorffer.eilers.net' id="Hostname" size=25 >
 	<input type=hidden value=1 id="iogroup" size=2 >
@@ -136,8 +138,8 @@ R&uuml;cklauf
 	-->
  </TD>
  </TR>
- </TABLE> 
- </FORM> 
+ </TABLE>
+ </FORM>
 </center>
 <BR><BR>
 

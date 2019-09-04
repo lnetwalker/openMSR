@@ -2,6 +2,8 @@
 
 <Head>
 <Title>Test Meter-Applet</Title>
+<link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
+
 <script language="Javascript">
 <!--
 // ============================================ //
@@ -15,7 +17,7 @@
 // ===========================================  //
 var head    = "X";
     unit    = "V";
-    digital = "true";  
+    digital = "true";
     analog  = "true";
     xmin    = 0.0;
     xmax    = 100;
@@ -26,8 +28,8 @@ var head    = "X";
     abg     = "Gray";
     afg     = "Black";
     dbg     = "Gray";
-    dfg     = "Black";    
-    err     = "Red";  
+    dfg     = "Black";
+    err     = "Red";
 
 function Init()
 { var WERT=50.0;
@@ -44,7 +46,7 @@ function Init()
 
   document.umeter.SetParameter(head,unit,digital,analog,
                                xmin,xmax,xinit);
-  
+
 }
 
 function SetWert(form)
@@ -63,7 +65,7 @@ function SetPar(form)
  xinit   = parseFloat(form._xinit.value);
  document.umeter.SetParameter(head,unit,digital,analog,
                               xmin,xmax,xinit);
- 
+
 }
 
 function SetCol(form)
@@ -81,8 +83,8 @@ function SetCol(form)
  afg = form._AFGColor.options[Idx].value;
  Idx = form._ERRColor.selectedIndex;
  err = form._ERRColor.options[Idx].value;
- document.umeter.SetColors(hbg,hfg,abg,afg,dbg,dfg,err); 
-} 
+ document.umeter.SetColors(hbg,hfg,abg,afg,dbg,dfg,err);
+}
 
 //-->
 </script>
@@ -100,14 +102,14 @@ function SetCol(form)
 
 <TR>
 <TD align=right>Header</TD>
-<TD align=left><input name="_head" value="X" size="8"></TD>  
+<TD align=left><input name="_head" value="X" size="8"></TD>
 <TD align=right>BGColor</TD>
 <TD align=left>
  <select name="_HBGColor" size="1">
   <option value="White">white
   <option value="Black">black
   <option selected value="LightGray">lightgray
-  <option value="Gray">gray  
+  <option value="Gray">gray
   <option value="DarkGray">darkgray
   <option value="Red">red
   <option value="Green">green
@@ -116,8 +118,8 @@ function SetCol(form)
   <option value="Magenta">magenta
   <option value="Cyan">cyan
   <option value="Pink">pink
-  <option value="Orange">orange  
- </select> 
+  <option value="Orange">orange
+ </select>
 </TD>
 <TD align=right>FGColor</TD>
 <TD align=left>
@@ -125,7 +127,7 @@ function SetCol(form)
   <option value="White">white
   <option selected value="Black">black
   <option value="LightGray">lightgray
-  <option value="Gray">gray  
+  <option value="Gray">gray
   <option value="DarkGray">darkgray
   <option value="Red">red
   <option value="Green">green
@@ -134,21 +136,21 @@ function SetCol(form)
   <option value="Magenta">magenta
   <option value="Cyan">cyan
   <option value="Pink">pink
-  <option value="Orange">orange  
- </select> 
+  <option value="Orange">orange
+ </select>
 </TD>
 </TR>
 
 <TR>
 <TD align=right>Digital</TD>
-<TD align=left><input name="_digital" value="true" size="5"></TD>  
+<TD align=left><input name="_digital" value="true" size="5"></TD>
 <TD align=right>BGColor</TD>
 <TD align=left>
  <select name="_DBGColor" size="1">
   <option value="White">white
   <option value="Black">black
   <option selected value="LightGray">lightgray
-  <option value="Gray">gray  
+  <option value="Gray">gray
   <option value="DarkGray">darkgray
   <option value="Red">red
   <option value="Green">green
@@ -157,8 +159,8 @@ function SetCol(form)
   <option value="Magenta">magenta
   <option value="Cyan">cyan
   <option value="Pink">pink
-  <option value="Orange">orange  
- </select> 
+  <option value="Orange">orange
+ </select>
 </TD>
 <TD align=right>FGColor</TD>
 <TD align=left>
@@ -166,7 +168,7 @@ function SetCol(form)
   <option value="White">white
   <option selected value="Black">black
   <option value="LightGray">lightgray
-  <option value="Gray">gray  
+  <option value="Gray">gray
   <option value="DarkGray">darkgray
   <option value="Red">red
   <option value="Green">green
@@ -175,8 +177,8 @@ function SetCol(form)
   <option value="Magenta">magenta
   <option value="Cyan">cyan
   <option value="Pink">pink
-  <option value="Orange">orange  
- </select> 
+  <option value="Orange">orange
+ </select>
 </TD>
 </TR>
 
@@ -189,7 +191,7 @@ function SetCol(form)
   <option value="White">white
   <option value="Black">black
   <option selected value="LightGray">lightgray
-  <option value="Gray">gray  
+  <option value="Gray">gray
   <option value="DarkGray">darkgray
   <option value="Red">red
   <option value="Green">green
@@ -198,8 +200,8 @@ function SetCol(form)
   <option value="Magenta">magenta
   <option value="Cyan">cyan
   <option value="Pink">pink
-  <option value="Orange">orange  
- </select> 
+  <option value="Orange">orange
+ </select>
 </TD>
 <TD align=right>FGColor</TD>
 <TD align=left>
@@ -207,7 +209,7 @@ function SetCol(form)
   <option value="White">white
   <option selected value="Black">black
   <option value="LightGray">lightgray
-  <option value="Gray">gray  
+  <option value="Gray">gray
   <option value="DarkGray">darkgray
   <option value="Red">red
   <option value="Green">green
@@ -216,8 +218,8 @@ function SetCol(form)
   <option value="Magenta">magenta
   <option value="Cyan">cyan
   <option value="Pink">pink
-  <option value="Orange">orange  
- </select> 
+  <option value="Orange">orange
+ </select>
 </TD>
 </TR>
 
@@ -229,7 +231,7 @@ function SetCol(form)
   <option value="White">white
   <option value="Black">black
   <option value="LightGray">lightgray
-  <option value="Gray">gray  
+  <option value="Gray">gray
   <option value="DarkGray">darkgray
   <option selected value="Red">red
   <option value="Green">green
@@ -238,8 +240,8 @@ function SetCol(form)
   <option value="Magenta">magenta
   <option value="Cyan">cyan
   <option value="Pink">pink
-  <option value="Orange">orange  
- </select> 
+  <option value="Orange">orange
+ </select>
 </TD>
 
 <TD align=right>Unit</TD>
@@ -252,11 +254,11 @@ function SetCol(form)
 
 <TR>
 <TD align=right>Xmin</TD>
-<TD align=left><input name="_xmin" value="0" size="5"></TD>  
+<TD align=left><input name="_xmin" value="0" size="5"></TD>
 <TD align=right>Xmax</TD>
 <TD align=left><input name="_xmax" value="100" size="5"></TD>
 <TD align=right>Xinit</TD>
-<TD align=left><input name="_xinit" value="10" size="8"></TD>  
+<TD align=left><input name="_xinit" value="10" size="8"></TD>
 </TR>
 
 
@@ -267,10 +269,10 @@ function SetCol(form)
 
 <FORM name="GETWERT" ACTION="" METHOD="GET">
 <TD align=right valign=top>X:</TD>
-<TD align=left valign=top><input name="_WERT" value="50.0" size="5"></TD> 
-<TD align=right valign=top><input type="button" name="SX" value="SET X" onclick="SetWert(this.form)"> 
+<TD align=left valign=top><input name="_WERT" value="50.0" size="5"></TD>
+<TD align=right valign=top><input type="button" name="SX" value="SET X" onclick="SetWert(this.form)">
 </TD>
-</FORM> 
+</FORM>
 <TD align=middle>
 <APPLET CODE="Meter.class" NAME="umeter" WIDTH=100 HEIGHT=80>
 </APPLET>

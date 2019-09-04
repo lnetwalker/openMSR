@@ -1,6 +1,7 @@
 <html>
   <head>
     <title>Ampel Simulation</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
 
     <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
     <META HTTP-EQUIV="Expires" CONTENT="-1">
@@ -103,8 +104,8 @@
 	left: 340px;
 	top: 360px;
       }
-      #Ampel { 
-	background:url(images/ampel.png); 
+      #Ampel {
+	background:url(images/ampel.png);
 	position: absolute;
 	left: 50px;
 	top: 50px;
@@ -204,11 +205,11 @@
 	//MySwitch1.onimg('images/button_on.jpg');
 	MySwitch1.width(40);
 	MySwitch1.height(40);
-	
+
 	var MySwitch2 = new Switch('Switch2','digital',2);
 	MySwitch2.width(40);
 	MySwitch2.height(40);
-	
+
 	// second reader for iogroup 4
 	var MyIOReader = new DigitalDataReader();
 	MyIOReader.TimerVal(720);
@@ -230,7 +231,7 @@
 	SwitchIOSender.AssignEvent(2,2);
 	SwitchIOSender.DeviceServerURL('http://localhost:10080/digital/WriteInputValues.html');
 	SwitchIOSender.IOGroup(4);
-}    
+}
 </script>
 
   </head>

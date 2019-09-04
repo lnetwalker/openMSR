@@ -1,6 +1,7 @@
 <html>
 <head>
 <title>IO Monitor Console</title>
+<link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
 
   <style type="text/css">
   canvas {
@@ -87,7 +88,7 @@ function getXMLHttpRequest() {
 
 
 // Start the asynchronous read request
-function SendRequest(url, handler, param) {	
+function SendRequest(url, handler, param) {
 	req=getXMLHttpRequest();
 	if (req) {
 		//alert(url);
@@ -110,7 +111,7 @@ function PrintState() {
 		// remove leading space
 		str = str.replace(/^ /, "");
 		var inputs=str.split(" ");
-		// nu muss hier in einer Loop jeweils die grafik 
+		// nu muss hier in einer Loop jeweils die grafik
 		// für die LED 1/0 eingeblendet werden
 		// show the LED graphics in a loop for all signals
 		for (i=0;i<8;i++) {
@@ -119,7 +120,7 @@ function PrintState() {
 				PrintHi(i)  // print a high for this signal
 			} else {
 				Eingang[i].src = LED_off.src;
-				PrintLo(i); // print a low for this signal 
+				PrintLo(i); // print a low for this signal
 			}
 		}
 	}
@@ -130,21 +131,21 @@ function PrintState() {
 // als Linie auf dem Canvas
 function PrintHi(SignalNr) {
 	  if ( SignalNr == 0 ) {
-	    // start with row = 0 and next column 
+	    // start with row = 0 and next column
 	    Xcor = Xcor+SignalBreite;
 	    if (Xcor > width) {
 	      // we reached the end of the canvas, so delete canvas and start from beginning
 	      canv.width = 400;
 	      Xcor = 0;
 	    }
-	  }  
-	  // just the next row in this column  
+	  }
+	  // just the next row in this column
 	  Ycor = SignalNr*10+Padding + Rand;
 	  Scope.beginPath();
 	  Scope.strokeStyle = "lightgreen";
 	  Scope.lineWidth = 1;
 	  if ( OldValue[SignalNr] == false ) {
-	      // Last value was low so we need a vertical line 
+	      // Last value was low so we need a vertical line
 	      Scope.moveTo(Xcor, Ycor);
 	      Scope.lineTo(Xcor,Ycor-SignalHoehe);
 	  }
@@ -161,14 +162,14 @@ function PrintHi(SignalNr) {
 // als Linie auf dem Canvas
 function PrintLo(SignalNr) {
 	  if ( SignalNr == 0 ) {
-	    // start with row = 0 and next column 
+	    // start with row = 0 and next column
 	    Xcor = Xcor+SignalBreite;
 	    if (Xcor > width) {
 	      // we reached the end of the canvas, so delete canvas and start from beginning
 	      canv.width = 400;
 	      Xcor = 0;
 	    }
-	  } 
+	  }
 	  // just the next row in this column
 	  Ycor = SignalNr*10+Padding + Rand;
 	  Scope.beginPath();
@@ -217,7 +218,7 @@ function IgnoreAnswer() {
 
 
 
-// every changes of the switches triggers this function and starts 
+// every changes of the switches triggers this function and starts
 // the asynchronous request to write the outputs
 function WriteIOData() {
 	var IOGroup=document.getElementById("iogroup");
@@ -233,7 +234,7 @@ function WriteIOData() {
 		if (SwitchState[i]==1) {
 			digitalValue=digitalValue+power[i-1];
 		}
-		
+
 	}
 	//Compose the Params value
 	var Params=IOGroup.value+','+digitalValue;
@@ -279,7 +280,7 @@ function preload() {
 	for (i=0;i<8;i++) {
 		OldValue[i]=false;
 	}
-	
+
 	// io Group für Adressierung auf default 1
 	// var iogroup = document.getElementById("iogroup");
 	// iogroup.value=1;

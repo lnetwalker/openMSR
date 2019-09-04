@@ -2,6 +2,8 @@
 
 <Head>
 <Title>Test Meter-Applet</Title>
+<link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
+
 <script language="Javascript">
 <!--
 // ============================================ //
@@ -20,16 +22,16 @@ function Init()
   document.forms[0]._WERT.value = WERT;
   document.M1.SetMeter(WERT);
   document.M2.SetMeter(WERT);
-  document.M3.SetMeter(WERT); 
+  document.M3.SetMeter(WERT);
   document.M4.SetMeter(WERT);
-  document.M5.SetMeter(WERT); 
+  document.M5.SetMeter(WERT);
   document.M6.SetMeter(WERT);
-  document.M7.SetMeter(WERT); 
+  document.M7.SetMeter(WERT);
 }
 
 function SetWert(form)
 {var DF= parseFloat(form._WERT.value);
- document.M1.SetMeter(DF); 
+ document.M1.SetMeter(DF);
  document.M2.SetMeter(DF);
  document.M3.SetMeter(DF);
  document.M4.SetMeter(DF);
@@ -52,21 +54,21 @@ function SetWert(form)
 
 <center>
  <FORM name="GETWERT" ACTION="" METHOD="GET">
- <TABLE border = 0> 
+ <TABLE border = 0>
  <TR>
   <TD align=right>X</TD>
   <TD align=left><input name="_WERT" value="50.0" size="5"></TD>
-  <TD align=right>Set X</TD> 
-  <TD align=left><input type="button" name="S" value="SET" onclick="SetWert(this.form)"> 
+  <TD align=right>Set X</TD>
+  <TD align=left><input type="button" name="S" value="SET" onclick="SetWert(this.form)">
   </TD>
  </TR>
- </TABLE> 
- </FORM> 
+ </TABLE>
+ </FORM>
 </center>
 <BR><BR>
 
 
-<center>  
+<center>
 <table border=0>
 <TR>
  <TD align=middle>
@@ -77,7 +79,7 @@ function SetWert(form)
  <PARAM NAME=analog   VALUE="true">
  <PARAM NAME=xfrom    VALUE="0">
  <PARAM NAME=xto      VALUE="100">
- <PARAM NAME=x        VALUE="50.0">  
+ <PARAM NAME=x        VALUE="50.0">
  </APPLET>
  </TD>
 
@@ -89,7 +91,7 @@ function SetWert(form)
  <PARAM NAME=analog   VALUE="true">
  <PARAM NAME=xfrom    VALUE="0">
  <PARAM NAME=xto      VALUE="100">
- <PARAM NAME=x        VALUE="50.0">  
+ <PARAM NAME=x        VALUE="50.0">
  </APPLET>
  </TD>
 
@@ -101,28 +103,28 @@ function SetWert(form)
  <PARAM NAME=analog   VALUE="false">
  <PARAM NAME=xfrom    VALUE="0">
  <PARAM NAME=xto      VALUE="100">
- <PARAM NAME=x        VALUE="50.0">  
+ <PARAM NAME=x        VALUE="50.0">
  </APPLET>
  </TD>
 
  <TD align=middle rowspan=2>
  <APPLET CODE="Meter.class" NAME="M7" WIDTH=200 HEIGHT=150>
- <PARAM NAME=header   VALUE="X">  
+ <PARAM NAME=header   VALUE="X">
  <PARAM NAME=unit     VALUE="V">
  <PARAM NAME=digital  VALUE="true">
  <PARAM NAME=analog   VALUE="true">
  <PARAM NAME=xfrom    VALUE="0">
  <PARAM NAME=xto      VALUE="100">
- <PARAM NAME=x        VALUE="50.0">  
+ <PARAM NAME=x        VALUE="50.0">
  <PARAM NAME=hbgcol   VALUE="yellow">
  <PARAM NAME=hfgcol   VALUE="cyan">
  <PARAM NAME=abgcol   VALUE="black">
  <PARAM NAME=afgcol   VALUE="red">
  <PARAM NAME=dbgcol   VALUE="blue">
  <PARAM NAME=dfgcol   VALUE="white">
- <PARAM NAME=errcol   VALUE="magenta">      
+ <PARAM NAME=errcol   VALUE="magenta">
  </APPLET>
- </TD> 
+ </TD>
 
 </TR>
 <TR>
@@ -133,17 +135,17 @@ function SetWert(form)
  <PARAM NAME=analog   VALUE="true">
  <PARAM NAME=xfrom    VALUE="0">
  <PARAM NAME=xto      VALUE="100">
- <PARAM NAME=x        VALUE="50.0">  
+ <PARAM NAME=x        VALUE="50.0">
  </APPLET>
  </TD>
 
 
  <TD align=middle>
  <APPLET CODE="Meter.class" NAME="M5" WIDTH=100 HEIGHT=80>
- <PARAM NAME=header   VALUE="U-Meter"> 
+ <PARAM NAME=header   VALUE="U-Meter">
  <PARAM NAME=xfrom    VALUE="10">
  <PARAM NAME=xto      VALUE="90">
- <PARAM NAME=x        VALUE="50.0">  
+ <PARAM NAME=x        VALUE="50.0">
  </APPLET>
  </TD>
 
@@ -154,7 +156,7 @@ function SetWert(form)
  <PARAM NAME=analog   VALUE="false">
  <PARAM NAME=xfrom    VALUE="0">
  <PARAM NAME=xto      VALUE="100">
- <PARAM NAME=x        VALUE="50.0">  
+ <PARAM NAME=x        VALUE="50.0">
  </APPLET>
  </TD>
 
