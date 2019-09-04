@@ -944,6 +944,7 @@ var LCDisplay = function (CanvasName,Cat,CatNo) {
 			if ( EventArray[1] == CatNo ) {
 				// the event is for me, so display data
 				currentVal = EventArray[2];
+				console.log(currentVal);
 				//me.showLCD(currentVal);
 				DebugLOG('running Display function! currentVal=' + currentVal);
 				var digit_string = '';
@@ -951,9 +952,11 @@ var LCDisplay = function (CanvasName,Cat,CatNo) {
 				var WertString = '';
 				// get the number to display
 				// and convert if needed
-				if ( me.ConvertFactor != 1 ) { 
+				//if ( me.ConvertFactor != 1 ) { 
 					Wert = currentVal * me.ConvertFactor;
-				}
+					//Wert = currentVal * 0.01;
+					//console.log(Wert);
+				//}
 		
 				DebugLOG('Display -> ' + me + ' Wert=' + Wert + ' Factor=' + me.ConvertFactor );
 				WertString = Wert.toString();
