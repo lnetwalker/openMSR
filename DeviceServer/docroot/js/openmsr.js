@@ -1,15 +1,15 @@
-/* 
+/*
     this JavaScript library provides different GUI
     elements to use with OpenMSR
     Copyright (c) 2010 by Hartmut Eilers
     <hartmut@eilers.net>
     released under the GNU GPL V 2.0 or later
-    
+
     Project start 17.08.2010
-    
+
     { $Id: openmsr.js,v 1.7 2010-09-09 07:38:17 hartmut Exp $ }
-    
-*/    
+
+*/
 
 /* History:
 	Sep 2010
@@ -21,13 +21,13 @@
 		Switch
 		HorMeter
 		Knob
-		
+
 	Oct 2016
 		added LCDisplay
 		fixed Bug in AnalogReader
 		refactored code
-    
-        Nov 2016    
+
+        Nov 2016
                 added datalogger
 */
 
@@ -46,10 +46,10 @@ function OpenMSRInit() {
     DebugLOG(' Page loaded OpenMSRInit done' );
 }
 
-/*  
+/*
     custom events for communication between
     the different elements of this lib
-*/    
+*/
 function Event(){
     this.eventHandlers = new Array();
 }
@@ -105,7 +105,7 @@ function getXMLHttpRequest() {
 // the communication layer between the browser and the DeviceServer
 // functions to query/set the DeviceServer and to use the events
 var DigitalDataReader = function () {
-    /* 
+    /*
       this function reads the digital data from the DeviceServer
       and distributes it over Events
     */
@@ -116,11 +116,11 @@ var DigitalDataReader = function () {
     //var this.ReaderTimer=null;
     this.req = null;
     OldVal = 0;
-    
+
     var me = this;
 
     me.TimeIntervall = 400;
-    
+
     // Start the asynchronous read request
     this.SendRequest = function () {
       //alert('SendRequest ' + me.IOGroup );
@@ -132,7 +132,7 @@ var DigitalDataReader = function () {
 	me.req.send(null);
       }
     }
-    
+
     // this function reads the asynchronous response from the AJAX request
     // and sends the values as events
     this.PrintState = function () {
@@ -156,14 +156,14 @@ var DigitalDataReader = function () {
 	    EventArgs = 'digital' + ' ' + me.EventMapping[i+1] + ' ' + inputs[i];
 	    //DebugLOG('DigitalDataReader: send Event = ' + EventArgs );
 	    // fire event
-	    OpenMSREvent.execute(EventArgs);   
+	    OpenMSREvent.execute(EventArgs);
 	  }
 	}
 	// save values for next run
 	OldVal=inputs;
       }
     }
-    
+
     // this function read the timer value
     this.TimerVal = function (xx) {
       me.TimeIntervall = xx;
@@ -184,10 +184,10 @@ var DigitalDataReader = function () {
     this.IOGroup = function (xx) {
       me.IOGroup = xx;
       //alert(me + ' ' + me.IOGroup);
- 
+
       // establish our own timer to periodically read the signals
       me.ReaderTimer = setInterval(me.SendRequest,me.TimeIntervall);
-      
+
     }
 
 }
@@ -205,9 +205,9 @@ var DigitalDataSender=function () {
     this.req = null;
     this.value = 0;
     var me = this;
-    
+
     me.TimeIntervall=400;
-    
+
     // Start the asynchronous write request
     this.SendRequest = function () {
 	//alert('SendRequest ' + me.IOGroup );
@@ -226,7 +226,7 @@ var DigitalDataSender=function () {
 	    me.req.send(null);
 	}
     }
-    
+
     // this function reads the asynchronous response from the AJAX request
     // and sends the values as events
     this.PrintState = function () {
@@ -239,23 +239,23 @@ var DigitalDataSender=function () {
 	    // currently we just read the response, and ignore it
 	}
     }
-    
+
     // this function read the timer value
     this.TimerVal = function (xx) {
 	me.TimeIntervall = xx;
     }
-    
+
     // this function builds the list of event to input mapping
     this.AssignEvent = function (xx,yy) {
 	this.EventMapping[xx] = yy;
 	//alert(xx + ' ' + this.EventMapping[xx]);
     }
-    
+
     // the URL to use with the DeviceServer
     this.DeviceServerURL = function (xx) {
 	this.Adresse = xx;
     }
-    
+
     // the IOGroup to use
     this.IOGroup = function (xx) {
 	this.IOGroup = xx;
@@ -263,7 +263,7 @@ var DigitalDataSender=function () {
 	// establish our own timer to periodically read the signals
 	me.SenderTimer = setInterval(me.SendRequest,me.TimeIntervall);
     }
-    
+
     this.ReceiveEvent = function(EventArgs) {
 	// split the event data in its elements
 	var EventArray = EventArgs.split(' ');
@@ -278,14 +278,14 @@ var DigitalDataSender=function () {
 	    }
 	}
     }
-    
+
     // install Event Handler
     OpenMSREvent.addHandler(me.ReceiveEvent);
 }
 
 
 var AnalogDataReader = function () {
-    /* 
+    /*
       this function reads the analog data from the DeviceServer
       and distributes it over Events
     */
@@ -298,7 +298,7 @@ var AnalogDataReader = function () {
     var me = this;
 
     me.TimeIntervall=480;
-    
+
     // Start the asynchronous read request
     this.SendRequest = function () {
       //alert('SendRequest ' + me.IOGroup );
@@ -310,17 +310,17 @@ var AnalogDataReader = function () {
 	me.req.send(null);
       }
     }
-    
-    
+
+
     // fires one Event
     this.FireEvent = function (Item,Index) {
         EventData = 'analog' + ' ' + Item + ' ' + me.inputs[Index];
         // fire event
         DebugLOG(' AnalogReader.PrintState fired event ->' + EventData );
-	OpenMSREvent.execute(EventData); 
-    }    
-    
-    
+	OpenMSREvent.execute(EventData);
+    }
+
+
     // this function reads the asynchronous response from the AJAX request
     // and sends the values as events
     this.PrintState = function () {
@@ -344,12 +344,12 @@ var AnalogDataReader = function () {
         me.EventMapping.forEach(me.FireEvent);
       }
     }
-    
+
     // this function read the timer value
     this.TimerVal = function (xx) {
 	me.TimeIntervall = xx;
     }
-    
+
     // this function builds the list of event to input mapping
     this.AssignEvent = function (xx,yy) {
       me.EventMapping[xx-1] = yy;
@@ -371,21 +371,21 @@ var AnalogDataReader = function () {
     }
 
 }
- 
-// The different devices that are available 
+
+// The different devices that are available
 
 // the meter is an instrument to show analog values
 var HorMeter = function(CanvasName,Cat,CatNo) {
     // get access to the given canvas
     this.canv = document.getElementById(CanvasName);
     // set width and height of the canvas
-    
+
     // default background image
     ImgSrc = 'images/lampe.gif';
-    
+
     // note who i am
     var me = this;
-    
+
     // setup the background image
     this.HorMeterCanv = this.canv.getContext("2d");
     this.BackgroundImg = new Image();
@@ -404,14 +404,14 @@ var HorMeter = function(CanvasName,Cat,CatNo) {
     this.height = function(height) {
 	this.canv.height = height;
     }
-    
+
     // print a custom background image
     this.canvbgimg = function(imagename) {
 	this.BackgroundImg.src = imagename;
 	// redraw the canvas
 	me.height = this.canv.height;
     }
-        
+
     // get the maximum Value for the meter
     this.maxVal = function(xx) {
 	this.MaxHorMeterVal = xx;
@@ -495,14 +495,14 @@ var Switch = function(CanvasName,Cat,CatNo) {
     this.height = function(height) {
 	this.canv.height = height;
     }
-   
+
     // default background image
     this.ImgSrcOff = 'images/switch-off.jpg';
     this.ImgSrcOn  = 'images/switch-on.jpg';
 
     // note who i am
     var me = this;
-    
+
     // setup the background image
     this.SwitchCanv = this.canv.getContext("2d");
     this.BackgroundImg = new Image();
@@ -510,7 +510,7 @@ var Switch = function(CanvasName,Cat,CatNo) {
     this.BackgroundImg.onload = function() {
 	me.SwitchCanv.beginPath();
 	me.SwitchCanv.drawImage(me.BackgroundImg, 0, 0);
-	me.SwitchCanv.closePath();   
+	me.SwitchCanv.closePath();
     }
 
     this.state=0;
@@ -531,11 +531,11 @@ var Switch = function(CanvasName,Cat,CatNo) {
 	me.state = 1;
 	this.changeState();
     }
-    
+
 
     // This is called when you release the mouse button.
     this. changeState = function() {
-      //alert("State: "+ state ); 
+      //alert("State: "+ state );
       if ( me.state == 1 ) {
 	me.state = 0
 	me.BackgroundImg.src = me.ImgSrcOff;
@@ -578,7 +578,7 @@ function Lamp(CanvasName,Cat,CatNo) {
     // default background image
     this.ImgSrcOff = 'images/led-green-off.jpg';
     this.ImgSrcOn  = 'images/led-green-on.jpg';
-    
+
     var me = this;
     // setup the background image
     this.LampCanv = this.canv.getContext("2d");
@@ -588,9 +588,9 @@ function Lamp(CanvasName,Cat,CatNo) {
 	//me.canv.width = me.canv.width;
 	me.LampCanv.beginPath();
 	me.LampCanv.drawImage(me.BackgroundImg, 0, 0);
-	me.LampCanv.closePath();   
+	me.LampCanv.closePath();
     }
-    
+
     // print a custom background image
     this.offimg = function(imagename) {
 	this.ImgSrcOff = imagename;
@@ -604,15 +604,15 @@ function Lamp(CanvasName,Cat,CatNo) {
 	DebugLOG('Cust Img Lamp on =' + me.ImgSrcOn );
 	InitialLampState();
     }
-   
+
     function InitialLampState() {
 	me.BackgroundImg.src = me.ImgSrcOff;
 	//me.canv.width = me.canv.width;
 	me.LampCanv.beginPath();
 	me.LampCanv.drawImage(me.BackgroundImg, 0, 0);
-	me.LampCanv.closePath();      
-    }    
-    
+	me.LampCanv.closePath();
+    }
+
     function HandleLampState (EventArgs) {
 	// split the event data in its elements
 	EventArray = EventArgs.split(' ');
@@ -642,7 +642,7 @@ function Lamp(CanvasName,Cat,CatNo) {
 
 // analog knob
 function Knob(CanvasName,Cat,CatNo) {
-/* 
+/*
   default-knob data
     default-knob.png
     75,87 center of knob
@@ -661,7 +661,7 @@ function Knob(CanvasName,Cat,CatNo) {
     this.height = function(height) {
 	canv.height = height;
     }
-   
+
     // default background image
     var ImgSrc = 'images/default-knob.png';
     // setup the background image
@@ -672,7 +672,7 @@ function Knob(CanvasName,Cat,CatNo) {
 	canv.width = canv.width;
 	KnobCanv.beginPath();
 	KnobCanv.drawImage(BackgroundImg, 0, 0);
-	KnobCanv.closePath();   
+	KnobCanv.closePath();
     }
 
 
@@ -716,23 +716,23 @@ function Knob(CanvasName,Cat,CatNo) {
     this.Radius = function(xx) {
 	r = xx;
     }
-    
+
     // get center of dial
     this.Center = function (xx,yy) {
 	xc = xx;
 	yc = yy;
     }
-    
+
     // get the Minimum Value
     this.MinVal = function (xx) {
 	KnobMin = xx;
     }
-    
+
     // get the Maximum Value
     this.MaxVal = function (xx) {
 	KnobMax = xx;
     }
-    
+
     // Floating Update ?
     this.floatingUpdate = function (xx) {
 	floatingUpdate = xx;
@@ -743,7 +743,7 @@ function Knob(CanvasName,Cat,CatNo) {
 	pointerlength = xx;
 	//alert ( pointerlength );
     }
-    
+
     // This is called when you move the mouse over the button
     function changeState(e) {
 
@@ -756,8 +756,8 @@ function Knob(CanvasName,Cat,CatNo) {
 	*/
 	// cross browser mouse event detection
 	if (!e) var e = window.event;
-   
-	// cross browser y koordinate 
+
+	// cross browser y koordinate
 	if ( e.pageY ) 	{
 		posy = e.pageY;
 	}
@@ -777,10 +777,10 @@ function Knob(CanvasName,Cat,CatNo) {
 	    KnobVal = KnobVal - Resolution;
 	  }
 	}
-	
+
 	// record position to decide what to do
 	OldY = posy;
-      
+
 	// [GRAD] -> [RAD]
 	VAlphaRad = (VAlpha * 2.0*Math.PI/360.0);
 
@@ -788,17 +788,17 @@ function Knob(CanvasName,Cat,CatNo) {
 	if ( pointerlength > 0 ) {
 	  r1 = r - pointerlength;
 	}
-	
+
 	// Calculate the positions xr,r the marker koordinates at
 	// the inner knob position if not centered
 	if ( r1 > 0 ) {
-	  xr = xc + (Math.round((r1-2)*Math.cos(VAlphaRad))); 
+	  xr = xc + (Math.round((r1-2)*Math.cos(VAlphaRad)));
 	  yr = yc - (Math.round((r1-2)*Math.sin(VAlphaRad)));
 	  //alert ( xr + ' ' + yr );
 	}
 	// Calculate the positions xm,ym the marker koordinates at
 	// the outer knob positions
-	xm = xc + (Math.round((r-2)*Math.cos(VAlphaRad))); 
+	xm = xc + (Math.round((r-2)*Math.cos(VAlphaRad)));
 	ym = yc - (Math.round((r-2)*Math.sin(VAlphaRad)));
 	//alert( xm + '/' + ym );
 	// draw the line
@@ -815,7 +815,7 @@ function Knob(CanvasName,Cat,CatNo) {
 	KnobCanv.lineTo(xm,ym);
 	KnobCanv.stroke();
 	KnobCanv.closePath();
-	/* 
+	/*
 	   floating update means, every change of the meter knob
 	   is instantly propagated. therefore a lot of events are generated
 	   and may lead to slow updates in sophisticated  szenarios
@@ -823,7 +823,7 @@ function Knob(CanvasName,Cat,CatNo) {
 	if ( floatingUpdate == 1 ) {
 	    EventArgs = Cat + ' ' + CatNo + ' ' + ( KnobMin + (( KnobMax - KnobMin ) / 256 * KnobVal));
 	    // fire event
-	    OpenMSREvent.execute(EventArgs); 
+	    OpenMSREvent.execute(EventArgs);
 	}
       }
     }
@@ -835,15 +835,15 @@ function Knob(CanvasName,Cat,CatNo) {
 	// pack the event arguments in one string
 	EventArgs = Cat + ' ' + CatNo + ' ' + ( KnobMin + (( KnobMax - KnobMin ) / 256 * KnobVal));
 	// fire event
-	OpenMSREvent.execute(EventArgs); 
+	OpenMSREvent.execute(EventArgs);
 	KnobButton = false;
     }
-    
+
     function KnobMouseDown () {
 	// this function is executed whenever the mousebutton is pressed
 	KnobButton = true;
     }
-    
+
     // add eventhandler for mouse move and mouse up/down
     canv.onmousemove = changeState;
     canv.onmouseup = sendKnobValue;
@@ -851,7 +851,7 @@ function Knob(CanvasName,Cat,CatNo) {
 }
 
 
-// an LCD Display 
+// an LCD Display
 var LCDisplay = function (CanvasName,Cat,CatNo) {
 
     // variables and constants.default values
@@ -870,25 +870,25 @@ var LCDisplay = function (CanvasName,Cat,CatNo) {
         //alert(Name);
 	this.display_name = Name;
     }
-    
+
     // How much Digits the Display should have
     this.No_of_Digits = function (xx,yy) {
         this.DigitsNumber = xx;
         this.Decimals = yy;
     }
-    
+
     // which function should be called to Convert the raw data to the display datat
     this.Convert = function(xx) {
         this.ConvertFactor = xx;
     }
-    
+
     // set the Image Path
     this.setImagePath = function(xx) {
         this.ImagePath = xx;
     }
 
 
-    // The main program starts here. 
+    // The main program starts here.
     var me = this;
     me.CanvasName = CanvasName;
 
@@ -897,12 +897,12 @@ var LCDisplay = function (CanvasName,Cat,CatNo) {
 
     // Function to convert digits into file names and extensions.
     this.digit_name = function(number) {
-        // Each display set is composed by 12 jpg files with digits between 0 and 9 
-        // plus a "dot" or "colon" on and off. File names example for the default 
+        // Each display set is composed by 12 jpg files with digits between 0 and 9
+        // plus a "dot" or "colon" on and off. File names example for the default
         // ITT5870S nixie tube:
-        // "ITT5870S.0.jpg", "ITT5870S.1.jpg", "ITT5870S.2.jpg", "ITT5870S.3.jpg", 
-        // "ITT5870S.4.jpg", "ITT5870S.5.jpg", "ITT5870S.6.jpg", "ITT5870S.7.jpg", 
-        // "ITT5870S.8.jpg", "ITT5870S.9.jpg", "ITT5870S.doton.jpg", 
+        // "ITT5870S.0.jpg", "ITT5870S.1.jpg", "ITT5870S.2.jpg", "ITT5870S.3.jpg",
+        // "ITT5870S.4.jpg", "ITT5870S.5.jpg", "ITT5870S.6.jpg", "ITT5870S.7.jpg",
+        // "ITT5870S.8.jpg", "ITT5870S.9.jpg", "ITT5870S.doton.jpg",
         // "ITT5870S.dotoff.jpg"
         var num = Math.floor(number);
 
@@ -944,6 +944,7 @@ var LCDisplay = function (CanvasName,Cat,CatNo) {
 			if ( EventArray[1] == CatNo ) {
 				// the event is for me, so display data
 				currentVal = EventArray[2];
+				//console.log(currentVal);
 				//me.showLCD(currentVal);
 				DebugLOG('running Display function! currentVal=' + currentVal);
 				var digit_string = '';
@@ -951,15 +952,17 @@ var LCDisplay = function (CanvasName,Cat,CatNo) {
 				var WertString = '';
 				// get the number to display
 				// and convert if needed
-				if ( me.ConvertFactor != 1 ) { 
+				//if ( me.ConvertFactor != 1 ) {
 					Wert = currentVal * me.ConvertFactor;
-				}
-		
+					//Wert = currentVal * 0.01;
+					//console.log(Wert);
+				//}
+
 				DebugLOG('Display -> ' + me + ' Wert=' + Wert + ' Factor=' + me.ConvertFactor );
 				WertString = Wert.toString();
 				DebugLOG('running Display function! num_as_str=' + WertString);
 				// format the string to wanted standard
-		
+
 				// no comma in string
 				if ( WertString.indexOf('.') == -1 ) {
 					// append a dot as comma
@@ -967,7 +970,7 @@ var LCDisplay = function (CanvasName,Cat,CatNo) {
 					// append the number of wanted decimals
 					for ( i=1; i <= me.Decimals ; i++ ) {
 						WertString = WertString + '0';
-					}    
+					}
 				}
 
 				// wrong number of decimals, correct by appending zeros or truncating
@@ -987,19 +990,19 @@ var LCDisplay = function (CanvasName,Cat,CatNo) {
 						var too_much_decimals = CurrentDecimals - me.Decimals;
 						WertString = WertString.substring(0,WertString.length - too_much_decimals  );
 					}
-				}    
+				}
 				DebugLOG('WertString=' + WertString + ' CurrentDecimals=' + CurrentDecimals + ' 2muchDec=' + too_much_decimals);
-		  
+
 				// negative numbers !!
 				// think about what needs to be done
-		  
-		  
+
+
 				// if string is too long, show err!!
 				if ( WertString.length > me.DigitsNumber ) {
 					WertString = 'Err.';
 				}
-		  
-		
+
+
 				// if the string is too short prepend with blanks
 				if ( WertString.length < me.DigitsNumber ) {
 					//alert ('string too short');
@@ -1007,7 +1010,7 @@ var LCDisplay = function (CanvasName,Cat,CatNo) {
 						WertString = ' ' + WertString;
 					}
 				}
-		  
+
 				for ( i=0; i < me.DigitsNumber ; i++ ) {
 					//document.getElementById("Print").value = digit_number;
 					me.digit_string = me.CanvasName + i.toString();
@@ -1020,8 +1023,8 @@ var LCDisplay = function (CanvasName,Cat,CatNo) {
 							document.getElementById(me.digit_string).src = me.character(WertString[i]);
 						} else {
 							document.getElementById(me.digit_string).src = me.digit_name(digit_number);    // Yes, change the digits
-						}    
-					}    
+						}
+					}
 				}
 				DebugLOG('Display ' + Cat + ' ' + CatNo + ' ' + currentVal + ' finished' );
 			}
@@ -1070,21 +1073,21 @@ var Scope = canv.getContext("2d");
 // als Linie auf dem Canvas
 function PrintHi(SignalNr) {
 	  if ( SignalNr == 0 ) {
-	    // start with row = 0 and next column 
+	    // start with row = 0 and next column
 	    Xcor = Xcor+SignalBreite;
 	    if (Xcor > width) {
 	      // we reached the end of the canvas, so delete canvas and start from beginning
 	      canv.width = 400;
 	      Xcor = 0;
 	    }
-	  }  
-	  // just the next row in this column  
+	  }
+	  // just the next row in this column
 	  Ycor = SignalNr*10+Padding + Rand;
 	  Scope.beginPath();
 	  Scope.strokeStyle = "lightgreen";
 	  Scope.lineWidth = 1;
 	  if ( OldValue[SignalNr] == false ) {
-	      // Last value was low so we need a vertical line 
+	      // Last value was low so we need a vertical line
 	      Scope.moveTo(Xcor, Ycor);
 	      Scope.lineTo(Xcor,Ycor-SignalHoehe);
 	  }
@@ -1101,14 +1104,14 @@ function PrintHi(SignalNr) {
 // als Linie auf dem Canvas
 function PrintLo(SignalNr) {
 	  if ( SignalNr == 0 ) {
-	    // start with row = 0 and next column 
+	    // start with row = 0 and next column
 	    Xcor = Xcor+SignalBreite;
 	    if (Xcor > width) {
 	      // we reached the end of the canvas, so delete canvas and start from beginning
 	      canv.width = 400;
 	      Xcor = 0;
 	    }
-	  } 
+	  }
 	  // just the next row in this column
 	  Ycor = SignalNr*10+Padding + Rand;
 	  Scope.beginPath();
@@ -1131,4 +1134,3 @@ function PrintLo(SignalNr) {
 
 
 }
-

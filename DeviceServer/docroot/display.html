@@ -23,29 +23,38 @@ table td { border:none; vertical-align:top; text-align:left; }
 
 <body>
 
-<script type="text/javascript" src="js/openmsr-new-nov.js"></script>
+<script type="text/javascript" src="js/openmsr.js"></script>
 <script>
 <!--
         function init() {
 
             OpenMSRInit();
 
+            // generate a new display named MyLCD_Raum, listening on analog event 31
             var MyLCD_Raum = new LCDisplay('Raum','analog',31);
             MyLCD_Raum.Display_Type('HC1331C');
             MyLCD_Raum.No_of_Digits(6);
-	    MyLCD_Raum.Convert(0.01);
+            // every value read from  DeviceServer is multiplied by the convert factor
+	          MyLCD_Raum.Convert(0.01);
 
-	    var MyLCD_Aussen = new LCDisplay('Aussen','analog',32);
+            // and another Display named MyLCD_Aussen, listening on analog event 32
+	          var MyLCD_Aussen = new LCDisplay('Aussen','analog',32);
             MyLCD_Aussen.Display_Type('HC1331C');
             MyLCD_Aussen.No_of_Digits(6);
-	    MyLCD_Aussen.Convert(1);
+            // use the value as read, no conversion
+	          MyLCD_Aussen.Convert(1);
 
             // the analog reader to read the first 8 analog values
             var MyAnalogReader = new AnalogDataReader();
+            // read the DeviceServer every 480 ms
             MyAnalogReader.TimerVal(460);
+            // assign analog Signal 1 of DEviceServer to event 31
             MyAnalogReader.AssignEvent(1,31);
+            // assign analog Signal 2 of DEviceServer to event 32
             MyAnalogReader.AssignEvent(2,32);
+            // the DeviceServer to use
             MyAnalogReader.DeviceServerURL('http://localhost:10080/analog/read.html');
+            // the IO-Group
             MyAnalogReader.IOGroup(1);
 
         }
