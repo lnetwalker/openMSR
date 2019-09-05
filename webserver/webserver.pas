@@ -3,35 +3,35 @@
 {$MODE OBJFPC}{$H+}
 unit webserver;
 
-{ (c) 2006 by Hartmut Eilers < hartmut@eilers.net				}
-{ distributed  under the terms of the GNU GPL V 2				}
-{ see http://www.gnu.org/licenses/gpl.html for details				}
-{ derived from the original work of pswebserver (c) by 				}
-{ Vladimir Sibirov								}
+{ (c) 2006 by Hartmut Eilers < hartmut@eilers.net						}
+{ distributed  under the terms of the GNU GPL V 2						}
+{ see http://www.gnu.org/licenses/gpl.html for details					}
+{ derived from the original work of pswebserver (c) by 					}
+{ Vladimir Sibirov														}
 
 { simple embeddable HTTP server for FPC Pascal for Linux and			}
-{ Windows, using non-blocking socket I/O to easy fit and			}
-{ integrate in different programs 						}
-{ tested on Win 32  W2K Advanced Server and Debian Linux 			}
+{ Windows, using non-blocking socket I/O to easy fit and				}
+{ integrate in different programs 										}
+{ tested on Win 32  W2K Advanced Server and Debian Linux 				}
 { can serve static HTML Pages and Images and special dynamic			}
-{ content provided by the embedding program					}
+{ content provided by the embedding program								}
 { see example program pwserver.pas for information about usage			}
 
-{ History: 									}
-{ 15.03.2006 startet with Vladimirs Code 					}
-{ 17.03.2006 running non Block http server on linux 				}
-{ 20.03.2006 startet porting to win32 using winsock 				}
-{ 24.03.2006 WINSOCK code works including read of request 			}
-{ 27.03.2006 WINSOCK code works 						}
-{ 02.04.2006 serving of simple text pages work 					}
+{ History: 																}
+{ 15.03.2006 startet with Vladimirs Code 								}
+{ 17.03.2006 running non Block http server on linux 					}
+{ 20.03.2006 startet porting to win32 using winsock 					}
+{ 24.03.2006 WINSOCK code works including read of request 				}
+{ 27.03.2006 WINSOCK code works 										}
+{ 02.04.2006 serving of simple text pages work 							}
 { 03.04.2006 cleaned code, tested with firefox and konqueror -> ok 		}
-{   	     wget doesn't receive anything :( 					}
+{   	     wget doesn't receive anything :( 							}
 { 17.10.2006 started the unit webserver from pswebserver code			}
-{		     currently only GET requests are supported			}
+{		     currently only GET requests are supported					}
 { 12.11.2006 added registration of special URLs through callback		}
-{ 18.11.2006 added sending of variable data to the embedding process		}
-{ 29.09.2010 started to add thread support					}
-{ 07.02.2011 worked on thread support, added better IO Error checking		}
+{ 18.11.2006 added sending of variable data to the embedding process	}
+{ 29.09.2010 started to add thread support								}
+{ 07.02.2011 worked on thread support, added better IO Error checking	}
 
 {$ifdef LINUX}
   {$ifdef CPU64}
@@ -76,57 +76,57 @@ const
 var
 
 	// Listening socket
-	sock,reply_sock	: TTCPBlockSocket;
-	csock			: TSocket;
+	sock,reply_sock		: TTCPBlockSocket;
+	csock				: TSocket;
 
 	// Maximal queue length
-	max_connections	: integer;
+	max_connections		: integer;
 
-	binData			: byte;
+	binData				: byte;
 
-	Addr_len		: LongInt;
+	Addr_len			: LongInt;
 
 	// Buffers
-	buff			: String;
-	post			: array [1..65535] of string;
+	buff				: String;
+	post				: array [1..65535] of string;
 
 	// Counter
-	BufCnt			: Integer;
+	BufCnt				: Integer;
 
 	// DOCUMENT ROOT
-	DocRoot			: string;
+	DocRoot				: string;
 
 	{ the requested URL, the File to serve and the send data}
-	params,URL		: string;
-	SpecialURL		: array[1..MaxUrl] of String;
-	UrlPointer		: byte;
+	params,URL			: string;
+	SpecialURL			: array[1..MaxUrl] of String;
+	UrlPointer			: byte;
 
-	G			: file of byte;
+	G					: file of byte;
 
 	header,page,
-	CType			: AnsiString;
+	CType				: AnsiString;
 
-	PageSize		: LongInt;
+	PageSize			: LongInt;
 
 	TRespSize,
-	status			: string;
+	status				: string;
 
 	// Request size
 	reqSize,reqCnt		: word;
 
 	// LOG-Files
-	DBG,ERR,ACC		: text;
+	DBG,ERR,ACC			: text;
 
 	ServingRoutine		: array[1..MaxUrl] of tprocedure;
-	VariableHandler	: tprocedure;
+	VariableHandler		: tprocedure;
 
 	// this variable is just used to convert numerics to string
-	blubber			: string;
+	blubber				: string;
 
-	saveaccess		: Boolean;
+	saveaccess			: Boolean;
 
 	// Flag to show wether threads should be used or not
-	WithThreads		: Boolean;
+	WithThreads			: Boolean;
 
 	ThreadHandle		: array[1..MaxThreads] of TThreadId;
 {$ifndef LINUX64}
@@ -136,13 +136,13 @@ var
 	NumOfThreads		: Int64;
 {$endif}
 
-	DebugOutput		: TRTLCriticalSection;
+	DebugOutput			: TRTLCriticalSection;
 	ProtectAccessLog	: TRTLCriticalSection;
 	ProtectAccess		: TRTLCriticalSection;
-	ProtectDataSend	: TRTLCriticalSection;
-	ServeSpecialURL	: TRTLCriticalSection;
+	ProtectDataSend		: TRTLCriticalSection;
+	ServeSpecialURL		: TRTLCriticalSection;
 
-	debug			: boolean;
+	debug				: boolean;
 
 
 procedure writeLOG(MSG: string);
@@ -159,11 +159,11 @@ end;
 
 procedure errorLOG(MSG: string);
 var
-    jahr,mon,tag,wota 	: word;
-    std,min,sec,ms	: word;
-    TimeString		: string;
+    jahr,mon,tag,wota	: word;
+    std,min,sec,ms		: word;
+    TimeString			: string;
 {$ifdef Windows}
-    st 			: systemtime;
+    st 					: systemtime;
 {$endif}
 
 
@@ -356,10 +356,10 @@ var Paramstart,i	: word;
     TimeString,
     ClientIP		: string;
 {$ifdef Windows}
-    st 			: systemtime;
-    n			: word;
+    st 				: systemtime;
+    n				: word;
 {$endif}
-    IOError		: Boolean;
+    IOError			: Boolean;
     RequestURL		: string;
 
 begin
