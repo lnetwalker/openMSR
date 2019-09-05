@@ -40,7 +40,7 @@ unit webserver;
 {$endif}
 
 interface
-uses classes, sysutils;
+uses classes, sysutils, process;
 
 procedure start_server(address:string;port:word;BlockMode: Boolean;doc_root,logfile:string;ThreadMode : Boolean ;DebugMode : Boolean);
 procedure SetupSpecialURL(URL:string;proc : tprocedure);
@@ -321,7 +321,7 @@ begin
 	i:=0;
 	// get the User-Agent
 	// dont know why????
- 	
+
 	repeat
 		inc(i);
 	until (UpperCase(copy(post[i],1,10))='USER-AGENT') or ( i >= Length(post[i]) );
@@ -329,7 +329,7 @@ begin
 	  useragent:=copy(post[i],13,length(post[i])-13)
 	else
 	  useragent:='bonita-client';
-	
+
 	//EnterCriticalSection(ProtectDataSend);
 	if debug then writeLOG('SendPage '+IntToStr(WhoAmI)+': ' +useragent + ' -> sending header');
 	reply_sock.SendString(header);
@@ -438,11 +438,17 @@ begin
 
 		// it's a php file so spawn php interpreter
 		// capture the output in page var and deliver it
-		if (pos('php',URL)<>0) then begin 
-			page:=RunCommand('php'+' '+URL);
+		if (pos('.php',URL)<>0) then begin
+			RunCommand('php'+' '+URL,page);
+			if ( length(page) = 0 ) then begin
+				page:='<html><body>Error: 500 strange error, no output from PHP process</body></html>'
+				status:='500 Internal Server Error';
+				errorLOG('Error 500:  Error reading '+URL);
+				IOError:=true;
+			end;
 			SendPage(WhoAmI,page);
 		end
-		
+
 		// it's a file do open and read it
 		else begin
 			page:='';
