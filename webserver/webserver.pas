@@ -40,7 +40,7 @@ unit webserver;
 {$endif}
 
 interface
-uses classes, sysutils;
+uses classes, sysutils, process;
 
 procedure start_server(address:string;port:word;BlockMode: Boolean;doc_root,logfile:string;ThreadMode : Boolean ;DebugMode : Boolean);
 procedure SetupSpecialURL(URL:string;proc : tprocedure);
@@ -143,6 +143,67 @@ var
 	ServeSpecialURL		: TRTLCriticalSection;
 
 	debug				: boolean;
+
+
+
+procedure ExecCmd( cmd: String; params: String; stdout: String);
+
+const
+  BUF_SIZE = 2048; // Buffer size for reading the output in chunks
+
+var
+  AProcess     : TProcess;
+  OutputStream : TStream;
+  BytesRead    : longint;
+  Buffer       : array[1..BUF_SIZE] of byte;
+
+begin
+  // Set up the process; 
+  AProcess := TProcess.Create(nil);
+  AProcess.Executable := cmd;
+  AProcess.Parameters.Add(params);
+
+  // Process option poUsePipes has to be used so the output can be captured.
+  // Process option poWaitOnExit can not be used because that would block
+  // this program, preventing it from reading the output data of the process.
+  AProcess.Options := [poUsePipes];
+
+  // Start the process (run the command)
+  AProcess.Execute;
+
+  // Create a stream object to store the generated output in. This could
+  // also be a file stream to directly save the output to disk.
+  OutputStream := TMemoryStream.Create;
+
+  // All generated output from AProcess is read in a loop until no more data is available
+  //repeat
+  while ( AProcess.Output.NumBytesAvailable > 0 ) do begin
+    // Get the new data from the process to a maximum of the buffer size that was allocated.
+    // Note that all read(...) calls will block except for the last one, which returns 0 (zero).
+    BytesRead := AProcess.Output.Read(Buffer, BUF_SIZE);
+
+    // Add the bytes that were read to the stream for later usage
+    OutputStream.Write(Buffer, BytesRead)
+
+  //until BytesRead = 0;  // Stop if no more data is available
+  end;
+
+  // The process has finished so it can be cleaned up
+  AProcess.Free;
+
+  // Or the data can be shown on screen
+  with TStringList.Create do
+  begin
+    OutputStream.Position := 0; // Required to make sure all data is copied from the start
+    LoadFromStream(OutputStream);
+	stdout:=Text;
+	writeln(stdout);
+    Free
+  end;
+
+  // Clean up
+  OutputStream.Free;
+end;
 
 
 procedure writeLOG(MSG: string);
@@ -439,7 +500,8 @@ begin
 		// it's a php file so spawn php interpreter
 		// capture the output in page var and deliver it
 		if (pos('.php',URL)<>0) then begin
-			page:=RunCommand('php'+' '+URL);
+			//page:=RunCommand('php'+' '+URL);
+			ExecCmd( 'php', URL, page);
 			writeln(page);
 			if ( length(page) = 0 ) then begin
 				page:='<html><body>Error: 500 strange error, no output from PHP process</body></html>';
