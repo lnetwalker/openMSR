@@ -440,8 +440,9 @@ begin
 		// capture the output in page var and deliver it
 		if (pos('.php',URL)<>0) then begin
 			RunCommand('php'+' '+URL,page);
+			//writeln(page);
 			if ( length(page) = 0 ) then begin
-				page:='<html><body>Error: 500 strange error, no output from PHP process</body></html>'
+				page:='<html><body>Error: 500 strange error, no output from PHP process</body></html>';
 				status:='500 Internal Server Error';
 				errorLOG('Error 500:  Error reading '+URL);
 				IOError:=true;
