@@ -60,7 +60,7 @@ const
 implementation
 
 uses
-	CommonHelper,crt, blcksock, synautil, synaip, synacode, synsock,
+	crt, blcksock, synautil, synaip, synacode, synsock,
 {$ifdef LINUX}
 	BaseUnix,Unix, dos;
 {$endif}
