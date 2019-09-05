@@ -40,7 +40,7 @@ unit webserver;
 {$endif}
 
 interface
-uses classes, sysutils, process;
+uses classes, sysutils;
 
 procedure start_server(address:string;port:word;BlockMode: Boolean;doc_root,logfile:string;ThreadMode : Boolean ;DebugMode : Boolean);
 procedure SetupSpecialURL(URL:string;proc : tprocedure);
@@ -60,7 +60,7 @@ const
 implementation
 
 uses
-	crt, blcksock, synautil, synaip, synacode, synsock,
+	process,crt, blcksock, synautil, synaip, synacode, synsock,
 {$ifdef LINUX}
 	BaseUnix,Unix, dos;
 {$endif}
