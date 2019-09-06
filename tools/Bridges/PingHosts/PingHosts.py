@@ -50,11 +50,11 @@ def main(argv):
 	try:
 		opts, args = getopt.getopt(argv, "dhugf:",["url=","group=", "file="])
 	except getopt.GetoptError:
-		print ('PingHosts.py -u <URL> -g <iogroup>  -f <configfile>')
+		print ('PingHosts.py -d -u <URL> -g <iogroup>  -f <configfile>')
 		sys.exit(2)
 	for opt, arg in opts:
  		if opt == '-h':
-			print ('PlaySound.py -u <URL> -g <iogroup> -f <configfile>')
+			print ('PingHosts.py -d -u <URL> -g <iogroup> -f <configfile>')
 			sys.exit()
 		elif opt in ("-u", "--url"):
 			URL = arg
@@ -71,7 +71,7 @@ def main(argv):
   	# read the config file
 	if conf_file == '':
 		print ('Error: Config filename needed!')
-		print ('PlaySound.py -u <URL> -g <iogroup> -f <configfile>')
+		print ('PingHosts.py -d -u <URL> -g <iogroup> -f <configfile>')
 		sys.exit(2)
 
 	Config = ConfigParser.ConfigParser()
@@ -92,7 +92,7 @@ def main(argv):
 
   	# the url, the iogroup and file are mandatory so if one is missing stop
 	if ( not Found_url or not Found_group or not Found_file):
-		print ('PingHosts.py -u <URL> -g <iogroup> -f <configfile>')
+		print ('PingHosts.py -d -u <URL> -g <iogroup> -f <configfile>')
 		print ('Missing parameter, -f is mandantory, rest can be configured in file')
 		sys.exit(2)
 
@@ -127,10 +127,6 @@ def main(argv):
 			if Error:
 				print "Error write URL " + URL + '?' + iogroup
   		#/for current ...
-
-
-		# write the results to DeviceServer
-
 	#/while
 #/main
 
