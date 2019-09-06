@@ -186,7 +186,7 @@ begin
 
   // Or the data can be shown on screen
 	stdout:=CmdOutput;
-	writeln(stdout);
+	//writeln(stdout);
 
 end;
 
@@ -493,7 +493,7 @@ begin
 				errorLOG('Error 500:  Error reading '+URL);
 				IOError:=true;
 			end;
-			writeln(page);
+			//writeln(page);
 			SendPage(WhoAmI,page);
 		end
 
