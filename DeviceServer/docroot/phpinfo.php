@@ -1,9 +1,10 @@
 <html>
 	<head></head>
 	<body>
+		<pre>
 		<?php
 		phpinfo();
 		?>
-    </body>
+		</pre>
+  </body>
 </html>
-

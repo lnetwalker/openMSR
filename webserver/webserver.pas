@@ -146,63 +146,48 @@ var
 
 
 
-procedure ExecCmd( cmd: String; params: String; stdout: String);
-
-const
-  BUF_SIZE = 2048; // Buffer size for reading the output in chunks
+procedure ExecCmd( cmd: String; params: String;var stdout: String);
 
 var
-  AProcess     : TProcess;
-  OutputStream : TStream;
-  BytesRead    : longint;
-  Buffer       : array[1..BUF_SIZE] of byte;
+  AProcess     		: TProcess;
+  BytesRead    		: longint;
+	BytesAvailable	: DWord;
+  Buffer       		: String;
+	CmdOutput				: AnsiString;
 
 begin
-  // Set up the process; 
+  // Set up the process;
   AProcess := TProcess.Create(nil);
-  AProcess.Executable := cmd;
-  AProcess.Parameters.Add(params);
-
+  AProcess.CommandLine := cmd+' '+params;
+	writeln(cmd+' '+params);
   // Process option poUsePipes has to be used so the output can be captured.
   // Process option poWaitOnExit can not be used because that would block
   // this program, preventing it from reading the output data of the process.
-  AProcess.Options := [poUsePipes];
+  AProcess.Options := [poWaitOnExit,poUsePipes];
 
   // Start the process (run the command)
   AProcess.Execute;
 
-  // Create a stream object to store the generated output in. This could
-  // also be a file stream to directly save the output to disk.
-  OutputStream := TMemoryStream.Create;
-
-  // All generated output from AProcess is read in a loop until no more data is available
-  //repeat
-  while ( AProcess.Output.NumBytesAvailable > 0 ) do begin
-    // Get the new data from the process to a maximum of the buffer size that was allocated.
+	// All generated output from AProcess is read in a loop until no more data is available
+	BytesAvailable := AProcess.Output.NumBytesAvailable;
+	BytesRead := 0;
+	while BytesAvailable>0 do begin
+		// Get the new data from the process to a maximum of the buffer size that was allocated.
     // Note that all read(...) calls will block except for the last one, which returns 0 (zero).
-    BytesRead := AProcess.Output.Read(Buffer, BUF_SIZE);
-
-    // Add the bytes that were read to the stream for later usage
-    OutputStream.Write(Buffer, BytesRead)
-
-  //until BytesRead = 0;  // Stop if no more data is available
-  end;
+		SetLength(Buffer, BytesAvailable);
+		BytesRead := AProcess.Output.Read(Buffer[1], BytesAvailable);
+		// Add the bytes that were read to the stream for later usage
+		CmdOutput := CmdOutput + copy(Buffer,1, BytesRead);
+		BytesAvailable := AProcess.Output.NumBytesAvailable;
+	end;
 
   // The process has finished so it can be cleaned up
   AProcess.Free;
 
   // Or the data can be shown on screen
-  with TStringList.Create do
-  begin
-    OutputStream.Position := 0; // Required to make sure all data is copied from the start
-    LoadFromStream(OutputStream);
-	stdout:=Text;
+	stdout:=CmdOutput;
 	writeln(stdout);
-    Free
-  end;
 
-  // Clean up
-  OutputStream.Free;
 end;
 
 
@@ -502,13 +487,13 @@ begin
 		if (pos('.php',URL)<>0) then begin
 			//page:=RunCommand('php'+' '+URL);
 			ExecCmd( 'php', URL, page);
-			writeln(page);
 			if ( length(page) = 0 ) then begin
 				page:='<html><body>Error: 500 strange error, no output from PHP process</body></html>';
 				status:='500 Internal Server Error';
 				errorLOG('Error 500:  Error reading '+URL);
 				IOError:=true;
 			end;
+			writeln(page);
 			SendPage(WhoAmI,page);
 		end
 
