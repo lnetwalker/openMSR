@@ -56,7 +56,7 @@ const
 {$endif}
 {$endif}	
 	ProgNamVer  =' RUN_SPS  for'+Platform+version+' '+datum+' ';
-	Copyright   =' (c)  1989 - 2017 by Hartmut Eilers ';
+	Copyright   =' (c)  1989 - 2019 by Hartmut Eilers ';
 
 var
 	i					: integer;
