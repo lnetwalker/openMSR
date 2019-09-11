@@ -184,7 +184,7 @@ begin                              { SPS_SIMULATION           }
 	end;	
 	TimeRuns:=150;
 
-{$ifdef LINUX}
+{$ifdef DAEMON}
 	writeln('AWL wird im Hintergrund gestartet, send SIGTERM to quit ...');
 	
 	{ set a very nice priority }
