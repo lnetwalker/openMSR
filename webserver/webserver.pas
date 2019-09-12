@@ -300,7 +300,7 @@ begin
 	sock.CreateSocket;
 	if sock.LastError<>0 then
 	    writeLOG('start_server: Error creating socket');
-	//setLinger(true,10);
+	sock.setLinger(true,10);
 
 	if not(BlockMode) then begin
 		{ set socket to non blocking mode }
@@ -641,6 +641,7 @@ begin
 			process_request(0);
 			//LeaveCriticalSection(ProtectAccess);
 			if debug then WriteLOG('serve_request: free reply socket');
+			reply_sock.CloseSocket;
 			reply_sock.free;
 			if reply_sock.LastError<>0 then
 			    writeLOG('serve_request: Error freeing socket');

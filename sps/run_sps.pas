@@ -35,7 +35,7 @@ program runsps;
 
 { $Id$ }
 
-uses 	
+uses
 {$ifdef LINUX }
 	unix,linux,SysUtils,BaseUnix,
 {$endif}
@@ -45,7 +45,7 @@ uses
 {$i ./run_awl.h }
 {$i ./awl_interpreter.pas}
 
-const 
+const
 {$ifdef LINUX}
 	Platform = ' Linux ';
 {$else}
@@ -54,7 +54,7 @@ const
 {$else}
 	Platform = ' Unknown ';
 {$endif}
-{$endif}	
+{$endif}
 	ProgNamVer  =' RUN_SPS  for'+Platform+version+' '+datum+' ';
 	Copyright   =' (c)  1989 - 2019 by Hartmut Eilers ';
 
@@ -82,14 +82,14 @@ begin
       SIGTERM : bTerm := true;
    end;
 end;
-{$endif}	
+{$endif}
 
 procedure sps_laden;
 
-var	
+var
 	f				:text;
 	zeile		   		:string[48];
-	i,code  	   		:integer;   
+	i,code  	   		:integer;
 { code is currently a dummy, may be used for error detection }
 	name		   		:string;
 
@@ -181,12 +181,12 @@ begin                              { SPS_SIMULATION           }
 		for i:=1 to group_max do writeln(i:3,o_address[i]:6,o_devicetype[i]:6);
 		writeln (' Configured counter ports :');
 		for i:=1 to group_max do writeln(i:3,c_address[i]:6,c_devicetype[i]:6);
-	end;	
+	end;
 	TimeRuns:=150;
 
 {$ifdef DAEMON}
 	writeln('AWL wird im Hintergrund gestartet, send SIGTERM to quit ...');
-	
+
 	{ set a very nice priority }
 	//nice(20);
 
@@ -262,10 +262,10 @@ begin                              { SPS_SIMULATION           }
 	repeat
 		run_awl;
 		delay(15);
-	until keypressed or escape;	
-	if escape then writeln('Error: Watchdog error...!');	
+	until keypressed or escape;
+	if escape then writeln('Error: Watchdog error...!');
 {$endif}
 
 	PhysMachEnd;
-	 // if esc then writeln('Error: Watchdog error...!');	
+	 // if esc then writeln('Error: Watchdog error...!');
 end.                               { **** SPS_SIMULATION **** }

@@ -314,6 +314,8 @@ begin
 			end;
 		end;
 
+		//if (debugFlag ) then
+			writeln ('DeviceType=',DeviceType,' IOGroup=',IOGroup,' value=',Value,' Address=',Address);
 
 		case DeviceType of
 			'd'	: Value:=0;
