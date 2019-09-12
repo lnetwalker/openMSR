@@ -60,6 +60,11 @@ const
 
 var
 	i					: integer;
+	paramcnt 	: integer;
+	Configfile: String;
+	name		  : String;
+	Daemonize	: Boolean;
+
 {$ifdef LINUX}
 	{ vars for daemonizing }
 	bHup,
@@ -84,15 +89,6 @@ begin
 end;
 {$endif}
 
-procedure sps_laden;
-
-var
-	f				:text;
-	zeile		   		:string[48];
-	i,code  	   		:integer;
-{ code is currently a dummy, may be used for error detection }
-	name		   		:string;
-
 procedure get_file_name;           { namen des awl-files einlesen   }
 
 begin
@@ -102,14 +98,16 @@ begin
 end;                               { **** ENDE GET_FILE_NAME **** }
 
 
+procedure sps_laden(name:string);
+
+var
+	f				:text;
+	zeile		   		:string[48];
+	i,code  	   		:integer;
+{ code is currently a dummy, may be used for error detection }
 
 begin
 	i:=0;
-	if paramcount=0 then get_file_name  { keine Aufrufparameter }
-	else begin
-		name:=paramstr(1);
-		if pos('.',name)=0 then name:=name+'.sps';
-	end;
 	assign (f,name);
 	{$I-} reset (f); {$I+}
 	if ioresult <> 0 then
@@ -165,14 +163,28 @@ end;                               { **** ENDE RUN_AWL ****          }
 
 
 begin                              { SPS_SIMULATION           }
-	if paramcount < 2 then ConfFile:='.run_sps.cfg'
-	else ConfFile:= paramstr(2);
+	ConfFile:='';
+	Daemonize:=false;
+	if paramcount=0 then get_file_name  { keine Aufrufparameter }
+	else begin
+		for paramcnt:=1 to paramcount do begin
+			if (paramstr(paramcnt)='-c') then
+				ConfFile:= paramstr(paramcnt+1);
+			if (paramstr(paramcnt)='-f') then
+				name:= paramstr(paramcnt+1);
+			if (paramstr(paramcnt)='-d') then
+				Daemonize:=true;
+		end;
+		if pos('.',name)=0 then name:=name+'.sps';
+	end;
+	if (ConfFile = '') then
+		ConfFile:='.run_sps.cfg';
 	PhysMachInit;
 	PhysMachloadCfg(ConfFile);
 	write(ProgNamVer);
 	writeln(copyright);
 	writeln('detected Hardware: ',HWPlatform);
-	sps_laden;
+	sps_laden(name);
 	if (debug) then begin
 	 	//for i:=1 to awl_max do writeln (i:3,operation[i]:5, operand[i]:4,par[i]:4,comment[i]:22);
 		writeln (' Configured input ports :');
@@ -184,7 +196,8 @@ begin                              { SPS_SIMULATION           }
 	end;
 	TimeRuns:=150;
 
-{$ifdef DAEMON}
+{$ifdef LINUX}
+if (Daemonize) then begin
 	writeln('AWL wird im Hintergrund gestartet, send SIGTERM to quit ...');
 
 	{ set a very nice priority }
@@ -257,15 +270,18 @@ begin                              { SPS_SIMULATION           }
 	      delay(15);
 	Until bTerm;
 
-{$else}
+end
+else begin
+{$endif}
 	writeln('AWL gestartet, press any key to stop');
 	repeat
 		run_awl;
 		delay(15);
 	until keypressed or escape;
 	if escape then writeln('Error: Watchdog error...!');
+{$ifdef LINUX}
+end;
 {$endif}
-
 	PhysMachEnd;
 	 // if esc then writeln('Error: Watchdog error...!');
 end.                               { **** SPS_SIMULATION **** }
