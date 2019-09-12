@@ -106,6 +106,8 @@ var
 	MQTTThread 			: TMQTTThread;
 	FieldDeviceStorage : TFieldDeviceObject;
 	{$endif}
+	Configfile			: String;
+	paramcnt				: byte;
 
 procedure DSdebugLOG(msg:string);
 // This is a wrapper around debugLOG to ensure
@@ -1130,19 +1132,24 @@ end;
 // the Main program
 
 begin					{ Main program }
+	debug:=false;
+	Configfile:='';
+	// commandline parameters
+	if ( paramcount > 0 ) then
+		for paramcnt:=1 to paramcount do begin
+	    if (paramstr(paramcnt)='-d') then debug:=true;
+			if (paramstr(paramcnt)='-c') then begin
+				Configfile:= paramstr(paramcnt+1);
+			end;
+		end;
+	if (Configfile='') then Configfile:='DeviceServer.cfg';
 	// initialize Hardware
 	PhysMachInit;
-	PhysMachloadCfg('DeviceServer.cfg');
+	PhysMachloadCfg(Configfile);
 	writeln('detected Hardware: ',HWPlatform);
 	PhysMachWriteDigital;
 	// get list of installed devices
 	DeviceList:=PhysMachGetDevices;
-
-	debug:=false;
-	// commandline parameters
-	if ( paramcount > 0 ) then
-	    if (paramstr(1)='d') then debug:=true;
-
 
 	Counter:=0;
 	InitCriticalSection(ProtectParams);
