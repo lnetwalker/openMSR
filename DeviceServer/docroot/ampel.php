@@ -9,128 +9,148 @@
 
     <style type="text/css">
       #ObGr {
-	position: absolute;
-	left: 135px;
-	top: 140px;
-	width: 10px;
-	height: 10px;
+      	position: absolute;
+      	left: 135px;
+      	top: 140px;
+      	width: 10px;
+      	height: 10px;
       }
       #ObGe {
-	position: absolute;
-	left: 135px;
-	top: 152px;
-	width: 10px;
-	height: 10px;
+      	position: absolute;
+      	left: 135px;
+      	top: 152px;
+      	width: 10px;
+      	height: 10px;
       }
       #ObRt {
-	position: absolute;
-	left: 135px;
-	top: 165px;
-	width: 10px;
-	height: 10px;
+      	position: absolute;
+      	left: 135px;
+      	top: 165px;
+      	width: 10px;
+      	height: 10px;
       }
       #UnGr {
-	position: absolute;
-	left: 310px;
-	top: 335px;
-	width: 10px;
-	height: 10px;
+      	position: absolute;
+      	left: 310px;
+      	top: 335px;
+      	width: 10px;
+      	height: 10px;
       }
       #UnGe {
-	position: absolute;
-	left: 310px;
-	top: 322px;
-	width: 10px;
-	height: 10px;
+      	position: absolute;
+      	left: 310px;
+      	top: 322px;
+      	width: 10px;
+      	height: 10px;
       }
       #UnRt {
-	position: absolute;
-	left: 310px;
-	top: 310px;
-	width: 10px;
-	height: 10px;
+      	position: absolute;
+      	left: 310px;
+      	top: 310px;
+      	width: 10px;
+      	height: 10px;
       }
       #LiGr {
-	position: absolute;
-	left: 110px;
-	top: 310px;
-	width: 10px;
-	height: 10px;
+      	position: absolute;
+      	left: 110px;
+      	top: 310px;
+      	width: 10px;
+      	height: 10px;
       }
       #LiGe {
-	position: absolute;
-	left: 123px;
-	top: 310px;
-	width: 10px;
-	height: 10px;
+      	position: absolute;
+      	left: 123px;
+      	top: 310px;
+      	width: 10px;
+      	height: 10px;
       }
       #LiRt {
-	position: absolute;
-	left: 136px;
-	top: 310px;
-	width: 10px;
-	height: 10px;
+      	position: absolute;
+      	left: 136px;
+      	top: 310px;
+      	width: 10px;
+      	height: 10px;
       }
       #ReGr {
-	position: absolute;
-	left: 335px;
-	top: 162px;
-	width: 10px;
-	height: 10px;
+      	position: absolute;
+      	left: 335px;
+      	top: 162px;
+      	width: 10px;
+      	height: 10px;
       }
       #ReGe {
-	position: absolute;
-	left: 322px;
-	top: 162px;
-	width: 10px;
-	height: 10px;
+      	position: absolute;
+      	left: 322px;
+      	top: 162px;
+      	width: 10px;
+      	height: 10px;
       }
       #ReRt {
-	position: absolute;
-	left: 310px;
-	top: 162px;
-	width: 10px;
-	height: 10px;
+      	position: absolute;
+      	left: 310px;
+      	top: 162px;
+      	width: 10px;
+      	height: 10px;
       }
       #Switch1 {
-	background-color: white;
-	position: absolute;
-	left: 300px;
-	top: 360px;
+      	background-color: white;
+      	position: absolute;
+      	left: 300px;
+      	top: 360px;
       }
       #Switch2 {
-	background-color: white;
-	position: absolute;
-	left: 340px;
-	top: 360px;
+      	background-color: white;
+      	position: absolute;
+      	left: 340px;
+      	top: 360px;
       }
       #Ampel {
-	background:url(images/ampel.png);
-	position: absolute;
-	left: 50px;
-	top: 50px;
-	width: 370;
-	height: 358;
+	       background:url(images/ampel.png);
+	       position: absolute;
+	       left: 50px;
+	       top: 50px;
+	       width: 370;
+	       height: 358;
       }
       #debug {
-	position: absolute;
-	top: 420;
-	left: 50px;
+	       position: absolute;
+	       top: 450px;
+	       left: 50px;
+      }
+      #label1 {
+        position: absolute;
+        top:320px;
+        left:-210px;
+      }
+      #label2 {
+        position: absolute;
+        top:320px;
+        left:-170px;
+      }
+      #label3 {
+        position: absolute;
+        top:100px;
+        left:520px;
+      }
+      #Hostname{
+        position: absolute;
+        top:100px;
+        left:620px;
       }
 
     </style>
 
     <script type="text/javascript" src="js/openmsr.js"></script>
 	<?php
-		system("./run_sps ../sps/awls/strampel.sps",$return_value);
-		if ($return_value == 0) 
+		system("../sps/run_sps ../sps/awls/strampel.sps",$return_value);
+		if ($return_value == 0)
 			echo "run_sps startet<br>";
 		else
 			echo "check for running run_sps !!!";
 	?>
     <script>
       function init() {
-		  
+
 
 	OpenMSRInit();
 
@@ -260,9 +280,14 @@
 	<canvas id="ReGe"></canvas>
 	<canvas id="ReRt"></canvas>
 
-	<!--<textarea id=debug cols=120 rows=10></textarea>-->
+	<textarea id=debug cols=120 rows=10></textarea>
 	<script type="text/javascript">
 	  init();
 	</script>
+  <form>
+    <font color=black id="label3">Server:Port=<input type=text value='http://localhost:10080' id="Hostname" size=25>
+  </form>
+  <div id="label1">S1</div>
+  <div id="label2">S2</div>
   </body>
 </html>
