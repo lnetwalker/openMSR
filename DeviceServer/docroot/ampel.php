@@ -219,7 +219,7 @@
 
 	// second reader for iogroup 4
 	var MyIOReader = new DigitalDataReader();
-	MyIOReader.TimerVal(720);
+	MyIOReader.TimerVal(200);
 	MyIOReader.AssignEvent(1,21);
 	MyIOReader.AssignEvent(2,22);
 	MyIOReader.AssignEvent(3,23);
@@ -233,7 +233,7 @@
 
 	// the digital data feeder to send the switches to app iogroup
 	var SwitchIOSender = new DigitalDataSender();
-	SwitchIOSender.TimerVal(600);
+	SwitchIOSender.TimerVal(200);
 	SwitchIOSender.AssignEvent(1,1);
 	SwitchIOSender.AssignEvent(2,2);
 	SwitchIOSender.DeviceServerURL('http://localhost:10080/digital/WriteInputValues.html');
