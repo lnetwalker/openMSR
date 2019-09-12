@@ -226,7 +226,7 @@
 
 	// the digital data feeder to send the switches to app iogroup
 	var SwitchIOSender = new DigitalDataSender();
-	SwitchIOSender.TimerVal(200);
+	SwitchIOSender.TimerVal(220);
 	SwitchIOSender.AssignEvent(1,1);
 	SwitchIOSender.AssignEvent(2,2);
 	SwitchIOSender.DeviceServerURL('http://localhost:10080/digital/WriteInputValues.html');
