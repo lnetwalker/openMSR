@@ -114,41 +114,39 @@
       }
       #debug {
 	       position: absolute;
-	       top: 450px;
-	       left: 50px;
+	       top: 30px;
+	       left: 0px;
       }
       #label1 {
         position: absolute;
-        top:320px;
-        left:-210px;
+        top:370px;
+        left:-140px;
       }
       #label2 {
         position: absolute;
-        top:320px;
-        left:-170px;
+        top:370px;
+        left:-100px;
       }
       #label3 {
         position: absolute;
-        top:100px;
-        left:520px;
+        top:45px;
+        left:450px;
       }
       #Hostname{
         position: absolute;
-        top:100px;
-        left:620px;
+        top:45px;
+        left:450px;
+      }
+      #debugging{
+        position: absolute;
+        top:440px;
+        left:50px;
       }
 
     </style>
 
     <script type="text/javascript" src="js/openmsr.js"></script>
-	<?php
-		system("../sps/run_sps ../sps/awls/strampel.sps",$return_value);
-		if ($return_value == 0)
-			echo "run_sps startet<br>";
-		else
-			echo "check for running run_sps !!!";
-	?>
-    <script>
+   <script>
       function init() {
 
 
@@ -263,6 +261,14 @@
 
   </head>
   <body bgcolor=white >
+	<?php
+		exec("ps ax|grep strampel.sps|grep run_sps",$output,$return_value);
+		if ($return_value == 0)
+			echo "run_sps l&auml;uft<br>";
+		else
+			echo "starten Sie: run_sps -d -f awls/strampel.sps -c strampel.cfg im Verzeichnis sps<br>";
+	?>
+ 
 	Eine einfache Ampelanlage:<br>
 	<canvas id="Ampel"></canvas>
 	<canvas id="Switch1"></canvas>
@@ -280,12 +286,19 @@
 	<canvas id="ReGe"></canvas>
 	<canvas id="ReRt"></canvas>
 
+	<div id="debugging">
+	Debug Window:<br>
 	<textarea id=debug cols=120 rows=10></textarea>
+	</div>
 	<script type="text/javascript">
 	  init();
 	</script>
   <form>
-    <font color=black id="label3">Server:Port=<input type=text value='http://localhost:10080' id="Hostname" size=25>
+	  <div id="label3">
+		<font color=black>Server:Port=<input type=text value='http://localhost:10080' size=25><br>
+		<br>
+		S1 schaltet die Ampelanlage in Achtung d.h. alle Richtungen blinken Gelb<br>
+		S2 schaltet den regul&auml;ren Ampelbetrieb ein
   </form>
   <div id="label1">S1</div>
   <div id="label2">S2</div>
