@@ -262,13 +262,22 @@
   </head>
   <body bgcolor=white >
 	<?php
-		exec("ps ax|grep strampel.sps|grep run_sps",$output,$return_value);
-		if ($return_value == 0)
+		exec("ps ax|grep strampel.sps|grep run_sps|wc -l",$output,$return_value);
+    //print_r($return_value);
+		if ($output[0]== "2") {
+      //print_r ($output);
 			echo "run_sps l&auml;uft<br>";
+    }
 		else
 			echo "starten Sie: run_sps -d -f awls/strampel.sps -c strampel.cfg im Verzeichnis sps<br>";
+
 	?>
- 
+	<script type="text/javascript">
+    var ProcessOutput = " <?php echo str_replace("\"","",json_encode($output)) ?> ";
+    //alert(ProcessOutput);
+    DebugLOG(ProcessOutput);
+ </script>
+
 	Eine einfache Ampelanlage:<br>
 	<canvas id="Ampel"></canvas>
 	<canvas id="Switch1"></canvas>
@@ -286,10 +295,22 @@
 	<canvas id="ReGe"></canvas>
 	<canvas id="ReRt"></canvas>
 
+  <script type="text/javascript">
+    function DebugWindowToggle() {
+      var x = document.getElementById("debug");
+      if (x.style.display === "none") {
+        x.style.display = "block";
+      } else {
+        x.style.display = "none";
+      }
+    }
+  </script>
+
 	<div id="debugging">
-	Debug Window:<br>
+	Debug Window:<button onclick="DebugWindowToggle()">On/Off</button><br>
 	<textarea id=debug cols=120 rows=10></textarea>
 	</div>
+
 	<script type="text/javascript">
 	  init();
 	</script>
