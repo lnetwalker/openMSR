@@ -252,12 +252,22 @@ begin
 
 	// open logfiles
 	//error Log
+	{$ifdef Windows}
+	assign(ERR,'\temp\DevSrv_TelnetErr.log');
+	{$endif}
+	{$ifdef Linux}
 	assign(ERR,'/tmp/deviceserver_TelnetErr.log');
+	{$endif}
 	rewrite(ERR);
 
 	// debug Log
 	if debug then begin
+		{$ifdef Windows}
+		assign(ERR,'\temp\DevSrv_TelnetDbg.log');
+		{$endif}
+		{$ifdef Linux}
 		assign(DBG,'/tmp/deviceserver_TelnetDbg.log');
+		{$endif}
 		rewrite(DBG);
 	end;
 end.

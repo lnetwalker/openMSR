@@ -692,11 +692,21 @@ begin
 	InitCriticalSection(ServeSpecialURL);
 	// open logfiles
 	//error Log
+	{$ifdef Windows}
+ assign(ERR,'\temp\deviceserver_err.log');
+ {$endif}
+ {$ifdef Linux}
 	assign(ERR,'/tmp/deviceserver_err.log');
+ {$endif}
 	rewrite(ERR);
 
 	// debug Log
+	{$ifdef Windows}
+ assign(DBG,'\temp\deviceserver_dbg.log');
+ {$endif}
+ {$ifdef Linux}
 	assign(DBG,'/tmp/deviceserver_dbg.log');
+	{$endif}
 	rewrite(DBG);
 
 	UrlPointer:=1;
