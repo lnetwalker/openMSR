@@ -12,7 +12,21 @@
 
 </head>
 <body bgcolor=black onload="preload()" >
+  <font color=white>
+  <title>digital I/O monitor</title>
+  <h3> I/O Monitor</h3>
+  <br><br>display digital values of the DeviceServer<br><br>
 	<table border=0>
+    <tr>
+      <td align=center><font color=white>1</td>
+      <td align=center><font color=white>2</td>
+      <td align=center><font color=white>3</td>
+      <td align=center><font color=white>4</td>
+      <td align=center><font color=white>5</td>
+      <td align=center><font color=white>6</td>
+      <td align=center><font color=white>7</td>
+      <td align=center><font color=white>8</td>
+    </tr>
 	  <tr>
 		<td align=center><img id="led1" src="images/led-green-off.jpg"></td>
 		<td align=center><img id="led2" src="images/led-green-off.jpg"></td>
@@ -34,7 +48,12 @@
 		<td align=center><img id="sw8" src="images/switch-off.png" onclick="ToggleSwitch(8)"></td>
 	  </tr>
 	</table>
-	<canvas></canvas>
+  <table>
+    <tr>
+      <td><font color=white size=1>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8</td>
+      <td>	<canvas></canvas></td>
+    </tr>
+  </table>
 	<form>
 	<font color=white>Server:Port=<input type=text value='http://localhost:10080' id="Hostname" size=25>
 	<font color=white>IO Group: <input type=text  value=0 id="iogroup" size=2 ><br>
@@ -313,6 +332,13 @@ function ToggleSwitch(SwitchNr) {
 
 
 </script>
-
+<font color=white>
+  <br><br> Some comments about the IO-Group:<br><br>
+  IO Group 0 switch off everthing<br>
+  IO Group 1 display a nice Blinkenlight controlled of the random hardware configured in DeviceServer<br>
+  IO Group 2 switch the LEDs manually<br>
+  IO Group 4 the signals of the Traffic Light
+  <p> by changing the URL fields, according to the DeviceServer API, you can read/set Inputs and Outputs
+  </font>
 
 <html>
