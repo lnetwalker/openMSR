@@ -39,7 +39,7 @@ pipeline {
                 sh """#!/bin/bash
                   // .version includes the currently planned release version number
                   // Must be set in repository
-                  . ./version;
+                  ../version;
 
                   BRANCH_NAME=`echo $GIT_BRANCH | sed -e "s|/|-|g"`
 
