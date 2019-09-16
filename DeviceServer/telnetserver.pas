@@ -252,7 +252,7 @@ begin
 
 	// open logfiles
 	//error Log
-	{$ifdef Windows}
+	{$ifdef WIN32}
 	assign(ERR,'\temp\DevSrv_TelnetErr.log');
 	{$endif}
 	{$ifdef Linux}
@@ -266,7 +266,7 @@ begin
 	end;
 	// debug Log
 	if debug then begin
-		{$ifdef Windows}
+		{$ifdef WIN32}
 		assign(DBG,'\temp\DevSrv_TelnetDbg.log');
 		{$endif}
 		{$ifdef Linux}

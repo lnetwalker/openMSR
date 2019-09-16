@@ -178,14 +178,12 @@ end;
 
 
 begin
-	{$i-}
-	{$ifdef Windows}
+	{$ifdef WIN32}
   assign(LOG,'\temp\debug.log');
   {$endif}
   {$ifdef Linux}
 	assign(LOG,'/tmp/debug.log');
 	{$endif}
-	rewrite(LOG);
-	{$i+}
+	{$I-}rewrite(LOG);{$I+}
 	if (IOResult <> 0 ) then writeln('CommonHelper: Error open logfile');
 end.

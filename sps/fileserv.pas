@@ -358,13 +358,18 @@ begin                              { Menu Filehandling}
      menu_pkt[6]:='Change Dir';
      if debug then begin
        // debug Log
-       {$ifdef Windows}
-     	assign(DBG,'\temp\popmenu_dbg.log');
-     	{$endif}
-     	{$ifdef Linux}
-	    assign(DBG,'/tmp/popmenu_dbg.log');
-      {$endif}
-	   rewrite(DBG);
+       {$ifdef WIN32}
+     	 assign(DBG,'\temp\popmenu_dbg.log');
+     	 {$endif}
+     	 {$ifdef Linux}
+	      assign(DBG,'/tmp/popmenu_dbg.log');
+        {$endif}
+        {$I-}reset(DBG);{$I+}
+        if ioresult <> 0 then
+        begin
+          writeln ('Could not open DEBUG logfile');
+          halt(1);
+        end;
      end;
      repeat
           backGround:=lightgray;ForeGround:=Black;highlighted:=cyan;
