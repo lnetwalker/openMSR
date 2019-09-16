@@ -107,20 +107,13 @@ pipeline {
             build job: 'OpenMSR-ObjectRecognition-CROSS' , propagate:true, wait: true
             sh "rm -f artifactstore/*"
             unstash "artifactlist"
-            copyArtifacts (filter: 'ObjectRecognition/ObjectRecognition-*',fingerprintArtifacts: true, projectName: 'OpenMSR-ObjectRecognition-CROSS', selector: lastSuccessful())
-//            sh """#!/bin/bash
-//                echo 'Todo: improve this dirty stuff'
-//                cp ../OpenMSR-ObjectRecognition-CROSS/ObjectRecognition/ObjectRecognition-* artifactstore
-//                cp ../OpenMSR-ObjectRecognition-CROSS/ObjectRecognition/ObjectRecognition*.pdf artifactstore
-//                cp ../OpenMSR-ObjectRecognition-CROSS/ObjectRecognition/README artifactstore/README.ObjRec
-//                """
+            sh "rm ObjectRecognition/ObjectRecognition-*"
+            copyArtifacts (filter: 'ObjectRecognition/ObjectRecognition-*, ObjectRecognition/*.pdf, ObjectRecognition/README',fingerprintArtifacts: true, projectName: 'OpenMSR-ObjectRecognition-CROSS', selector: lastSuccessful())
+            sh "cp ObjectRecognition/ObjectRecognition-* artifactstore"
+            sh "cp ObjectRecognition/*.pdf artifactstore"
+            sh "cp ObjectRecognition/README artifactstore/README.ObjRec"
             stash name: "artifactlist", includes: "artifactstore/*"
           }
-//          post {
-//            success {
-//              copyArtifacts (filter: 'ObjectRecognition/ObjectRecognition-*',fingerprintArtifacts: true, projectName: 'OpenMSR-ObjectRecognition-CROSS', selector: lastSuccessful())
-//            }
-//          }
         }
         stage('Build MQTT-exec') {
           agent {
@@ -132,22 +125,13 @@ pipeline {
             build job: 'MQTT-exec' , propagate:true, wait: true
             sh "rm -f artifactstore/*"
             unstash "artifactlist"
-            copyArtifacts (filter: 'mqtt-exec-*',fingerprintArtifacts: true, projectName: 'MQTT-exec', selector: lastSuccessful())
-//            sh """#!/bin/bash
-//              ls -la
-//              echo 'Todo: improve this dirty stuff'
-//              cp ../MQTT-exec/LICENSE artifactstore/LICENSE.mqtt-exec
-//              cp ../MQTT-exec/README.md artifactstore/README.mqtt-exec
-//              cp ../MQTT-exec/mqtt-exec-*.* artifactstore
-//              """
+            sh "rm mqtt-exec*.*"
+            copyArtifacts (filter: '*',fingerprintArtifacts: true, projectName: 'MQTT-exec', selector: lastSuccessful())
+            sh "cp LICENSE artifactstore/LICENSE.mqtt-exec"
+            sh "cp README.md artifactstore/README.mqtt-exec"
+            sh "cp mqtt-exec-*.* artifactstore"
             stash name: "artifactlist", includes: "artifactstore/*"
           }
-//          post {
-//            success {
-//              copyArtifacts (filter: 'mqtt-exec-*',fingerprintArtifacts: true, projectName: 'MQTT-exec', selector: lastSuccessful())
-//            }
-//          }
-//      }
     }
 
     stage('collect Artifacts') {

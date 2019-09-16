@@ -18,3 +18,7 @@ PhysMach/test/gnublintest
 PhysMach/PhysMachTest
 
 *.odt#
+
+sps/run_sps
+
+sps/sps

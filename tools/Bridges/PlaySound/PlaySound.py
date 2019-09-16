@@ -94,6 +94,7 @@ def main(argv):
 
 		try:
 			Response = requests.get(URL + '?' + iogroup)
+			print("Request: " + URL + '?' + iogroup)
 		except:
 			print ("Error reading DeviceServer")
 			Error = True

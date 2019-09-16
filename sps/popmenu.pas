@@ -31,7 +31,7 @@ type string80=string[80];
      Popup_Choice = array [1..12] of string20;
      Balken_choice = array [1..6] of string9;
 
-const 
+const
 	p_up = #72;
 	p_dw = #80;
 	p_le = #75;
@@ -42,7 +42,7 @@ const
     bckspc =#8;
 	ErrorMaxX=109;
 	ErrorMaxY=29;
-      	
+
 var BackGround,ForeGround,Highlighted : byte;
     screen_buffer                     : array[0..3999] of byte;
     screenx,screeny                   : word;
@@ -71,7 +71,7 @@ function  ReadString:string80;
 
 IMPLEMENTATION
 
-type	
+type
 	doc_pointer = ^doc_record;	{ in this double linked list	}
 	doc_record = record		    { the text entries are stored }
 		entry    : string[255];
@@ -82,10 +82,10 @@ type
 	end;
 
 
-const 	
+const
 	debug = true;
 
-var 
+var
 	minScreenX 		    : word; { minimum window size x }
 	minScreenY		    : word; {  minimum screen size y }
     DBG                 : text;
@@ -101,7 +101,7 @@ begin
 end;
 
 
-    
+
 procedure writeLOG(MSG: string);
 begin
 	{$I-}
@@ -138,7 +138,7 @@ begin
 	for line_cnt:=1 to zeilen do begin
 		gotoxy(1,line_cnt);
 		write('                                       ');
-	end;	
+	end;
 	line_cnt:=0;
 	gotoxy(1,1);
 	repeat
@@ -184,13 +184,13 @@ begin
 end;
 
 function ReadString:string80;
-var 
+var
   Input     : string[80];
   KeyPress  : char;
   counter   : byte;
   baseX,
   baseY     : byte;
-  
+
 begin
   baseX:=wherex;
   baseY:=wherey;
@@ -211,7 +211,7 @@ begin
                { enter key }
                enter : begin
                        end;
-               { cancelled by escape key ?                             }   
+               { cancelled by escape key ?                             }
                esc  :  begin
                          KeyPress:=enter;
                          Input:='';
@@ -222,14 +222,14 @@ begin
                          gotoxy(baseX+counter,baseY);
                          write(' ');
                          Input:=copy(Input,1,counter-1);
-                      end;                         
-               else begin        
+                      end;
+               else begin
                  gotoxy(baseX+counter,baseY);
                  write(KeyPress);
                  Input:=Input+KeyPress;
                  inc(counter);
-               end;  
- 
+               end;
+
             end;
             if debug then writeLOG('Readstring key pressed, evaluated position '+IntToStr(counter-1));
             if debug then writeLOG(Input);
@@ -257,11 +257,11 @@ procedure cursor_on;               { cursor einschalten }
 
 begin
 	{$ifdef WIN32}
-	CursorOn;	
+	CursorOn;
 	{$endif}
 
 	{$ifdef LINUX}
-	fpsystem('/usr/bin/tput cnorm');	
+	fpsystem('/usr/bin/tput cnorm');
 	{$endif}
 end;                               { **** ENDE CURSOR_ON **** }
 
@@ -347,7 +347,7 @@ begin
 			gotoxy(j,k);
 			write(' ');
 		end;
-	
+
 	gotoxy(x1+1,y1+1); write(msg);
 	repeat
 	until keypressed;
@@ -431,7 +431,7 @@ begin
 {$IFDEF keyfix}
            if my_keypressed() then begin
              KeyPress:=my_readkey();
-{$ENDIF}             
+{$ENDIF}
              case KeyPress of
                p_dw : if zeile <> NrOfItems then zeile:=zeile+1
                       else zeile:=1;
@@ -442,15 +442,15 @@ begin
                         choice:=Help[1];
                       end;
                esc  : choice:=esc;
-                      
-               else begin      
+
+               else begin
                  for i:= 1 to NrOfItems do
-                 if copy(Items[i],1,1) = upcase(KeyPress) then 
+                 if copy(Items[i],1,1) = upcase(KeyPress) then
                    choice:=upcase(KeyPress);
                end;
              end;
           end;
-           
+
            if zeile <> altezeile then begin
               textbackground(backGround);textcolor(foreground);
 			  Highlighted:=red;
@@ -517,7 +517,7 @@ begin
             case KeyPress of
                { left and right arrow keys                             }
                p_le : begin
-                        if spalte > 1 then 
+                        if spalte > 1 then
                           spalte:=spalte-1
                         else spalte:=NrOfItems;
                       end;
@@ -526,19 +526,19 @@ begin
                         else begin
                           spalte:=1;
                         end;
-                      end;  
+                      end;
                { selection by pressing enter over one item             }
                enter : begin
                          help:=copy(Items[spalte],1,1);
                          choice:=help[1];
                        end;
-               { cancelled by escape key ?                             }   
+               { cancelled by escape key ?                             }
                esc  :  begin
                          KeyPress:=enter;
                          choice:=esc;
                        end;
 
-               else begin        
+               else begin
                  { check wether one of the Items was selected with the first }
                  { char of the Item                                          }
                  for i:= 1 to NrOfItems do
@@ -547,8 +547,8 @@ begin
                      choice:=upcase(KeyPress);
                       KeyPress:=enter; { enter to signal end of selection   }
                    end;
-                 end;  
- 
+                 end;
+
             end;
           end;
 
@@ -564,7 +564,7 @@ begin
           end;
 
           altespalte:=spalte;
-         
+
      until KeyPress=enter;  { loop until one selection is made            }
      cursor_on;
      if debug then writeLOG('balkenfinished');
@@ -598,17 +598,17 @@ begin
 	spalte:=3;
 	filename:='';
 	textbackground(lightgray);textcolor(black);
-	my_wwindow (trunc(GetScreenMaxX/2)-25,trunc(GetScreenMaxY/2)-10,trunc(GetScreenMaxX/2)+25,trunc(GetScreenMaxY/2)+10,titel,'<ESC/ENTER>',true);	
+	my_wwindow (trunc(GetScreenMaxX/2)-25,trunc(GetScreenMaxY/2)-10,trunc(GetScreenMaxX/2)+25,trunc(GetScreenMaxY/2)+10,titel,'<ESC/ENTER>',true);
 	screen_length:=(trunc(GetScreenMaxY/2)+10)-(trunc(GetScreenMaxY/2)-10)-3;
 	if (dialogtype='S') then begin
 		screen_length:=screen_length-2;
 		textcolor(black);
 		gotoxy(1,screen_length+1);
 		for c:=1 to 48 do write ('-');
-	end;	
+	end;
 	repeat
 		searchpath:=path+'/*';
-	    if debug then writeLOG('reading directory: '+searchpath);		
+	    if debug then writeLOG('reading directory: '+searchpath);
 		new(z1);
 		z1^.vor:=nil;				{ start setzten - nil zeigt Anfang }
 		d_start:=z1;
@@ -628,8 +628,8 @@ begin
 					z2^.vor:=z1;
 					z1^.nach:=z2;
 					z1^.selected:=false;
-					z1:=z2;				
-				end;	
+					z1:=z2;
+				end;
 			end;
 			{$I-}findnext (sr);{$I+}
 		end;
@@ -662,7 +662,7 @@ begin
 					z1^.selected:=true;
 		    	   end;
 				enter: ;
-				esc	 :   
+				esc	 :
 				else if (DialogType='S') then begin   // save Dialog
 					 filename:=filename+KeyPress;
 					 inc(spalte);
@@ -672,7 +672,7 @@ begin
 				end
 			  end;
 			  ShowTextList(z1,screen_length);
-			end;  
+			end;
 		until (KeyPress=enter) or (KeyPress=esc);
 		if (KeyPress=enter) then
 		  if (z1^.isDir)  then begin
@@ -680,17 +680,17 @@ begin
 		    path:=path+'/'+z1^.entry;
 		    selected:=false;
 		    filename:='';
-		  end  
+		  end
 		  else begin
 			selected:=true;
-		    if debug then writeLOG('File '+z1^.entry+' selected');			
+		    if debug then writeLOG('File '+z1^.entry+' selected');
 			if (DialogType='S') and (filename<>'') then filebrowser:=path+'/'+filename
 			else filebrowser:=path+'/'+z1^.entry;
 		  end;
 		if ( KeyPress=esc ) then begin
 			selected:=true;
 			filebrowser:='esc';
-		end;	
+		end;
 		KeyPress:=p_up;
 	until selected;
 	window(trunc(GetScreenMaxX/2)-25,trunc(GetScreenMaxY/2)-10,trunc(GetScreenMaxX/2)+25,trunc(GetScreenMaxY/2)+10);
@@ -702,7 +702,12 @@ begin
   Highlighted:=red;
   if debug then begin
     // debug Log
-	assign(DBG,'/tmp/popmenu_dbg.log');
-	rewrite(DBG);
+    {$ifdef Windows}
+  	assign(DBG,'\temp\popmenu_dbg.log');
+  	{$endif}
+  	{$ifdef Linux}
+	  assign(DBG,'/tmp/popmenu_dbg.log');
+    {$endif}
+	  rewrite(DBG);
   end;
 end.

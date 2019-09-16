@@ -71,41 +71,43 @@ type
 	    private
 	      MQTTClient    : TMQTTClient;
 	      pingCounter   : integer;
-		  pingTimer     : integer;
-          state         : MQTTStates;
-		  message       : ansistring;
+		  	pingTimer     : integer;
+        state         : MQTTStates;
+		  	message       : ansistring;
 	      pubTimer 	    : integer;
 	      connectTimer 	: integer;
 	    public
-          procedure setup (iniFile:string);
+        procedure setup (iniFile:string);
 	      procedure run ();
 	    end;
 {$endif}
 
 var
 	i		: LongInt;
-	ThreadHandle	: array[1..MaxThreads] of TThreadId;
+	ThreadHandle		: array[1..MaxThreads] of TThreadId;
 	ThreadName	    : array[1..MaxThreads] of string;
-	ThreadCnt	    : array[1..MaxThreads] of LongInt;
-	ThreadRPMs	: array[1..MaxThreads] of LongInt;
-	shutdown	: Boolean;
-	Counter		: LongInt;
-	IOGroup		: LongInt;
+	ThreadCnt	    	: array[1..MaxThreads] of LongInt;
+	ThreadRPMs			: array[1..MaxThreads] of LongInt;
+	shutdown				: Boolean;
+	Counter					: LongInt;
+	IOGroup					: LongInt;
 	ByteValue, BitVal	: Byte;
-	ProtectParams	: TRTLCriticalSection;
-	Power		: array [1..8] of byte =(1,2,4,8,16,32,64,128);
-	DeviceList	: DeviceTypeArray;
+	ProtectParams		: TRTLCriticalSection;
+	Power						: array [1..8] of byte =(1,2,4,8,16,32,64,128);
+	DeviceList			: DeviceTypeArray;
 	DeviceCnt,
-	NumOfThreads	: LongInt ;
+	NumOfThreads		: LongInt ;
 	connectionclose	: boolean;
-	DebugOutput	: TRTLCriticalSection;
-	SendAsync	: TRTLCriticalSection;
-	debug		: boolean;
-	Webparams	:	StringArray;
+	DebugOutput			: TRTLCriticalSection;
+	SendAsync				: TRTLCriticalSection;
+	debug						: boolean;
+	Webparams				:	StringArray;
 	{$IFDEF Linux}
-	MQTTThread : TMQTTThread;
+	MQTTThread 			: TMQTTThread;
 	FieldDeviceStorage : TFieldDeviceObject;
 	{$endif}
+	Configfile			: String;
+	paramcnt				: byte;
 
 procedure DSdebugLOG(msg:string);
 // This is a wrapper around debugLOG to ensure
@@ -400,12 +402,12 @@ Procedure TelnetInterpreter;
 { it's not possible to handover any data	}
 
 var
-	Line		: String;
-	cmd,hw		: Char;
-	pa,va		: LongInt;
+	Line				: String;
+	cmd,hw			: Char;
+	pa,va				: LongInt;
 	StrVal,RPMs	: String;
-	AddrStr		: String;
-	i		: Integer;
+	AddrStr			: String;
+	i						: Integer;
 
 begin
 	Line:=TelnetGetData;
@@ -1130,19 +1132,24 @@ end;
 // the Main program
 
 begin					{ Main program }
+	debug:=false;
+	Configfile:='';
+	// commandline parameters
+	if ( paramcount > 0 ) then
+		for paramcnt:=1 to paramcount do begin
+	    if (paramstr(paramcnt)='-d') then debug:=true;
+			if (paramstr(paramcnt)='-c') then begin
+				Configfile:= paramstr(paramcnt+1);
+			end;
+		end;
+	if (Configfile='') then Configfile:='DeviceServer.cfg';
 	// initialize Hardware
 	PhysMachInit;
-	PhysMachloadCfg('DeviceServer.cfg');
+	PhysMachloadCfg(Configfile);
 	writeln('detected Hardware: ',HWPlatform);
 	PhysMachWriteDigital;
 	// get list of installed devices
 	DeviceList:=PhysMachGetDevices;
-
-	debug:=false;
-	// commandline parameters
-	if ( paramcount > 0 ) then
-	    if (paramstr(1)='d') then debug:=true;
-
 
 	Counter:=0;
 	InitCriticalSection(ProtectParams);

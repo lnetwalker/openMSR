@@ -166,22 +166,22 @@ begin
      textbackground (lightgray); textcolor (Black); clrscr;
      write('Printing ...');
      delay (1000);
-	 
+
 	 {$ifdef LINUX}
 	 assignlst (printer,'|/usr/bin/lpr -m');
 	 rewrite(printer);
 	 {$else}
 	 printer:=lst;
 	 {$endif}
-     
-	 
+
+
 	 i := 0;
      z := 0;
      s := 1;
 
 	 gettime(std,min,sec,dum);
 	 getdate(jahr,mon,tag,wota);
-	
+
      {$I-}write (printer,chr(zeilenvorschub),chr(zeilenvorschub));{$I+}
      if ioresult <> 0 then begin
         sound(220);delay(200);nosound;
@@ -223,7 +223,7 @@ end;                               {**** ENDE DRUCKEN ****}
 
 procedure inhalt;                  { Directory lesen }
 
-var  
+var
      sr    : SearchRec;
      pfad  : string[60];
      fz    : datetime;
@@ -358,7 +358,12 @@ begin                              { Menu Filehandling}
      menu_pkt[6]:='Change Dir';
      if debug then begin
        // debug Log
-	   assign(DBG,'/tmp/popmenu_dbg.log');
+       {$ifdef Windows}
+     	assign(DBG,'\temp\popmenu_dbg.log');
+     	{$endif}
+     	{$ifdef Linux}
+	    assign(DBG,'/tmp/popmenu_dbg.log');
+      {$endif}
 	   rewrite(DBG);
      end;
      repeat
@@ -372,9 +377,9 @@ begin                              { Menu Filehandling}
                'P' : Ausdruck;
 	           'D' : inhalt;
                'C' : chngepfad;
-               
+
 	           esc : ;
-          	   
+
 	      else begin
                  sound(220); delay(200); nosound;
                end
@@ -385,27 +390,3 @@ begin                              { Menu Filehandling}
      window (1,2,15,13); textbackground (black); textcolor (black); clrscr;
 
 end;                               {**** ENDE FILEHANDLING ****}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

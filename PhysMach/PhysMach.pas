@@ -314,6 +314,8 @@ begin
 			end;
 		end;
 
+		if (debugFlag ) then
+			writeln ('DeviceType=',DeviceType,' IOGroup=',IOGroup,' value=',Value,' Address=',Address);
 
 		case DeviceType of
 			'd'	: Value:=0;
@@ -418,6 +420,7 @@ begin
 {$ifdef EXEC}
 			'E'	: exec_write_analog(a_address[IOGroup],analog_in[IOGroup]);
 {$endif}
+			'H' : http_write_analog(a_address[IOGroup],analog_in[IOGroup]);
 			'D' 	: dummy:=1;
 		end;
 	if (debugFlag) then writeln('Analog_in[',IOGroup,']=',analog_in[IOGroup]);

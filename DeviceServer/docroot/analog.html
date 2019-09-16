@@ -1,9 +1,10 @@
 <HTML>
 
 <!-- Lesen der analogen Signale vom openMSR DeviceServer-->
- 
+
 <Head>
 <Title>Test Analog Signals</Title>
+<link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
 
 <script language="Javascript">
 
@@ -92,12 +93,12 @@ function ReadAnalogData()  {
 </Head>
 
 <Body Background="" BGColor=#F0F0FF Text=#000000 Link=#0000FF VLink=#800080 ALink=#80FFFF onload="Init()">
-
- <center>
+<h3> monitor analog values</h3>
+<br>
   <FORM name="GETWERT" ACTION="" METHOD="GET">
    <TABLE border = 0>
     <TR>
-     <TD> 	
+     <TD>
 	  Host:<input type=text value='http://localhost:10080' id="Hostname" size=25 ><br>
 	  IO Group:<input type=text  value=0 id="iogroup" size=2 ><br>
 	  URL:<input type=text  value='/analog/read.html' id="ANALOGURL" size=40 ><br>
@@ -106,9 +107,8 @@ function ReadAnalogData()  {
     </TR>
    </TABLE>
   </FORM>
- </center>
  <BR><BR>
- 
+
 </Body>
 
 </HTML>

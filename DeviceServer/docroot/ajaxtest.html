@@ -1,6 +1,7 @@
 <html>
 <head>
 <title>IO Monitor Console</title>
+<link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
 
 
 <script type="text/javascript">
@@ -30,7 +31,7 @@ function getXMLHttpRequest() {
 
 
 // Startet den asynchronen read request
-function SendRequest(url, handler, param) {	
+function SendRequest(url, handler, param) {
 	req=getXMLHttpRequest();
 	if (req) {
 		//alert(url);
@@ -93,7 +94,7 @@ function IgnoreAnswer() {
 
 
 
-// Diese Funktion wird bei jeder Schalteränderung getriggert und stösst den 
+// Diese Funktion wird bei jeder Schalteränderung getriggert und stösst den
 // asynchronen request zum schreiben der Ausgänge an
 function WriteIOData() {
 	var IOGroup=document.getElementById("iogroup");
@@ -108,7 +109,7 @@ function WriteIOData() {
 		if (SwitchState[i]==1) {
 			digitalValue=digitalValue+power[i-1];
 		}
-		
+
 	}
 	//Compose the Params value
 	var Params=IOGroup.value+','+digitalValue;
