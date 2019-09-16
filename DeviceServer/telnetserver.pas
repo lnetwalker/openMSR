@@ -258,16 +258,25 @@ begin
 	{$ifdef Linux}
 	assign(ERR,'/tmp/deviceserver_TelnetErr.log');
 	{$endif}
-	rewrite(ERR);
-
+	{$I-}rewrite(ERR);{$I+}
+	if ioresult <> 0 then
+	begin
+		writeln ('Could not open ERROR logfile');
+		halt(1);
+	end;
 	// debug Log
 	if debug then begin
 		{$ifdef Windows}
-		assign(ERR,'\temp\DevSrv_TelnetDbg.log');
+		assign(DBG,'\temp\DevSrv_TelnetDbg.log');
 		{$endif}
 		{$ifdef Linux}
 		assign(DBG,'/tmp/deviceserver_TelnetDbg.log');
 		{$endif}
-		rewrite(DBG);
+		{$I-}rewrite(DBG);{$I+}
+		if ioresult <> 0 then
+		begin
+			writeln ('Could not open DEBUG logfile');
+			halt(1);
+		end;
 	end;
 end.
