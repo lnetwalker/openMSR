@@ -16,12 +16,17 @@ unit PhysMach;
 
 { the following defines are used in the code:				}
 
+{$ifdef CPU64}
+	{$define SOFTIO}
+{$endif}
+
 {$ifdef arm}
 	{$define LINUX}
 	{$define SOFTIO}
 	{$define USB8}
 	{$define ARMGENERIC}
-	{$undefine IOW}
+	{$undef IOW}
+	{$define  Gnublin}
 {$endif}
 
 {$ifdef MaxOSX}
@@ -66,7 +71,7 @@ unit PhysMach;
 {$ifdef Gnublin}
 	{$define LINUX}
 	{$define SOFTIO}
-	{$undefine IOW}
+	{$undef IOW}
 	{$define USB8}
 {$endif}
 
@@ -309,6 +314,8 @@ begin
 			end;
 		end;
 
+		if (debugFlag ) then
+			writeln ('DeviceType=',DeviceType,' IOGroup=',IOGroup,' value=',Value,' Address=',Address);
 
 		case DeviceType of
 			'd'	: Value:=0;
@@ -413,6 +420,9 @@ begin
 {$ifdef EXEC}
 			'E'	: exec_write_analog(a_address[IOGroup],analog_in[IOGroup]);
 {$endif}
+
+			'H' : http_write_analog(a_address[IOGroup],analog_in[IOGroup]);
+
 			'D' 	: dummy:=1;
 		end;
 	if (debugFlag) then writeln('Analog_in[',IOGroup,']=',analog_in[IOGroup]);
@@ -730,12 +740,14 @@ begin
 			end;
 		end
 		else if (ConfigTags[1] = 'ASSIGN') then begin
+			writeln(' ASSIGN Tag found: ',ConfigTags[2]);
 			{ for ARMgeneric and GHoma WLAN Power Plug this is needed to get additional config data }
-			{ Syntax: ASSIGN DEVICE ADDRESS BIT DATA 						}
+			{ Syntax: ASSIGN DEVICE ADDRESS BIT GPIO/DATA						}
 			case char(ConfigTags[2,1]) of
 {$IFDEF ARMGENERIC}
 			  'A' : begin
 				armgeneric_gpio(StrToInt(ConfigTags[3]),StrToInt(ConfigTags[4]),StrToInt(ConfigTags[5]));
+				writeln('Address=',StrToInt(ConfigTags[3]),' Bit=',StrToInt(ConfigTags[4]),' GPIO=',StrToInt(ConfigTags[5]));
 				armgeneric_exportGPIO(StrToInt(ConfigTags[3]),StrToInt(ConfigTags[4]),StrToInt(ConfigTags[5]));
 			      end;
 {$ENDIF}

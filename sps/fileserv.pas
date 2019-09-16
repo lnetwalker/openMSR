@@ -6,9 +6,18 @@ procedure fileservice;             { Filehandling }
 var  	auswahl		: char;
      	menu_pkt	: popup_choice;
 		akt_pfad	: string[255];
+        DBG         : text;
+        debug       : boolean;
 
 
-
+procedure writeLOG(MSG: string);
+begin
+	{$I-}
+	writeln(DBG,MSG);
+	flush(DBG);
+	{$I+}
+	if IOResult <>0 then writeln ('error writing debug file');
+end;
 
 
 procedure loeschen;                { loeschen einer awl im speicher }
@@ -21,8 +30,14 @@ begin
      textbackground (lightgray); textcolor (Black); clrscr;
      write('delete AWL (y/n)');
      repeat
+{$IFNDEF keyfix}
      until keypressed;
      answ:=readkey;
+{$endif}
+{$IFDEF keyfix}
+     until my_keypressed;
+     answ:=my_readkey;
+{$ENDIF}
      clrscr;
      if upcase(answ)='Y' then begin
         write('deleting AWL ...');
@@ -48,7 +63,7 @@ procedure SPS_Laden;               { Laden eines SPS_files }
 
 var  f              :text;
      zeile          :string;
-     i		    :integer;
+     i		        :integer;
      dummy_text     :string;
      dummy_zahl     :LongInt;
 
@@ -151,28 +166,22 @@ begin
      textbackground (lightgray); textcolor (Black); clrscr;
      write('Printing ...');
      delay (1000);
-	 
+
 	 {$ifdef LINUX}
 	 assignlst (printer,'|/usr/bin/lpr -m');
 	 rewrite(printer);
 	 {$else}
 	 printer:=lst;
 	 {$endif}
-     
-	 
+
+
 	 i := 0;
      z := 0;
      s := 1;
-	 {$ifdef LINUX}
-		{$ifndef ZAURUS}
-     		gettime(std,min,sec,dum);
-	 	getdate(jahr,mon,tag,wota);
-		{$endif}
-	 {$else}
+
 	 gettime(std,min,sec,dum);
 	 getdate(jahr,mon,tag,wota);
-	 {$endif}
-	
+
      {$I-}write (printer,chr(zeilenvorschub),chr(zeilenvorschub));{$I+}
      if ioresult <> 0 then begin
         sound(220);delay(200);nosound;
@@ -184,13 +193,13 @@ begin
         exit;
      end;
      writeln (printer,chr(grosschrift),'  SPS-Simulator (c) by Hartmut Eilers ');
-     write (printer,chr(zeilenvorschub));
-     write (printer,'     Date : ',tag:2,'.',mon:2,'.',jahr:4);
+     write   (printer,chr(zeilenvorschub));
+     write   (printer,'     Date : ',tag:2,'.',mon:2,'.',jahr:4);
      writeln (printer,'   Time  : ',std:2,'.',min:2);
      writeln (printer,'     Filename : ',name);
-     write (printer,'     Page : ');
-     writeln(printer,s);
-     write (printer,chr(zeilenvorschub));
+     write   (printer,'     Page : ');
+     writeln (printer,s);
+     write   (printer,chr(zeilenvorschub));
      repeat
           inc (i);
           write (printer,'       ',znr[i]:3,' ',operation[i]:3,' ',operand[i],' ');
@@ -214,7 +223,7 @@ end;                               {**** ENDE DRUCKEN ****}
 
 procedure inhalt;                  { Directory lesen }
 
-var  
+var
      sr    : SearchRec;
      pfad  : string[60];
      fz    : datetime;
@@ -223,7 +232,10 @@ begin
      window (20,15,80,15);
      textbackground (lightgray); textcolor(Black); clrscr;
      cursor_on;
-     write ('Pfad :'); readln (pfad);
+     if debug then writeLOG('inhalt 1');
+     write ('Pfad :'); if debug then writeLOG('inhalt 2');
+     pfad:=ReadString;
+     if debug then writeLOG('inhalt 3  '+pfad);
      cursor_off;
      window (20,15,80,15);
      textbackground (black); textcolor(black); clrscr;
@@ -237,7 +249,7 @@ begin
         if (pos('.',pfad))=0 then
            if pfad[length(pfad)] <> '/' then pfad:=pfad+'/*'
            else pfad:=pfad+'*';
-     findfirst (pfad,anyfile,sr);
+    findfirst (pfad,anyfile,sr);
     if doserror <> 0 then
      begin
           sound(220); delay(200); nosound;
@@ -251,7 +263,6 @@ begin
      end;
      textbackground (lightgray); textcolor (Black);gotoxy(1,1);
      my_wwindow (20,4,54,24,'[DIRECTORY]','<any key>',true);
-{     writeln(pfad);}
      while doserror=0 do
      begin
           while (doserror=0) and (wherey < 18) do
@@ -278,8 +289,14 @@ begin
           textcolor(blue+blink);
           gotoxy (1,22); write ('press any key to continue...');
           repeat
+{$IFNDEF keyfix}
           until keypressed;
           readkey;
+{$ENDIF}
+{$IFDEF keyfix}
+          until my_keypressed;
+          my_readkey;
+{$ENDIF}
           gotoxy (1,22); write ('                            ');
           textcolor(Black);clrscr; gotoxy (1,1);
      end;
@@ -296,18 +313,24 @@ begin                              { Pfad wechseln }
      getdir (0,aktpfad);
      write('New path : ');
      cursor_on;
-     readln(neupfad);
+     neupfad:=ReadString;
      cursor_off;
      {$I-}
      chdir(neupfad);
      {$I+}
      if ioresult<>0 then begin
         chdir(aktpfad);
-	clrscr;textcolor(red);
+	    clrscr;textcolor(red);
         write(#7,'  Directory not found ! press any key... ');
 	repeat
+{$IFNDEF keyfix}
     until keypressed;
     readkey;
+{$ENDIF}
+{$IFDEF keyfix}
+    until my_keypressed;
+    my_readkey;
+{$ENDIF}
 	textcolor(Black);
      end
      else begin
@@ -325,6 +348,7 @@ end;                               { **** ENDE CHNGEPFAD ****}
                                    { start Filehandling }
 
 begin                              { Menu Filehandling}
+     debug:=true;
      backGround:=15;ForeGround:=0;highlighted:=3;
      menu_pkt[1]:='New';
      menu_pkt[2]:='Load';
@@ -332,51 +356,37 @@ begin                              { Menu Filehandling}
      menu_pkt[4]:='Print';
      menu_pkt[5]:='Directory';
      menu_pkt[6]:='Change Dir';
+     if debug then begin
+       // debug Log
+       {$ifdef Windows}
+     	assign(DBG,'\temp\popmenu_dbg.log');
+     	{$endif}
+     	{$ifdef Linux}
+	    assign(DBG,'/tmp/popmenu_dbg.log');
+      {$endif}
+	   rewrite(DBG);
+     end;
      repeat
           backGround:=lightgray;ForeGround:=Black;highlighted:=cyan;
           dropdown(1,2,'[FILE]',Menu_Pkt,6,auswahl);
-	  getdir(0,akt_pfad);
+	      getdir(0,akt_pfad);
           case auswahl of
                'N' : loeschen;
                'L' : sps_laden;
                'S' : sps_sichern;
                'P' : Ausdruck;
-               (*'D' : filebrowser(akt_pfad);*)
-	       'D' : inhalt;
+	           'D' : inhalt;
                'C' : chngepfad;
-               
-	       #27 : ;
-          	   
-	  else begin
+
+	           esc : ;
+
+	      else begin
                  sound(220); delay(200); nosound;
                end
           end
-     until auswahl=#27;
+     until auswahl=esc;
+     write('1');
      cursor_off;
      window (1,2,15,13); textbackground (black); textcolor (black); clrscr;
 
 end;                               {**** ENDE FILEHANDLING ****}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

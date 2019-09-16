@@ -5,6 +5,10 @@ program DeviceServer;
 
 {$define enhStats}
 
+{$ifdef MIPS}
+  {$define Linux}
+{$endif}
+
 {$ifdef MacOSX}
 	{$define Linux}
 	{$undef enhStats}
@@ -14,13 +18,21 @@ program DeviceServer;
 	{$undef enhStats}
 {$endif}
 
-uses
-{$IFDEF Linux} cthreads,BaseUnix,
+{$ifdef CPU64}
+	{$define Linux64}
 {$endif}
-{$ifdef Windows}
+
+uses
+{$IFDEF Linux} cthreads,BaseUnix,MQTT, FieldDevice,
+{$endif}
+{$ifdef Win32}
 Windows,
 {$endif}
-PhysMach,webserver,telnetserver,classes,crt,CommonHelper,MQTT,StringCut;
+
+{$ifndef MIPS}
+telnetserver,
+{$endif}
+PhysMach,webserver,classes,crt,CommonHelper,StringCut,INIFiles,sysutils;
 
 
 {$ifdef MacOSX}
@@ -52,43 +64,51 @@ type MQTTStates = (
 	                           FAILING
 	                          );
 
+{$IFDEF Linux}
 type
-	  // Define class for the embedded application
+	  // Define class for the MQTT connection
 	  TMQTTThread = object
 	    strict
 	    private
-	      MQTTClient		: TMQTTClient;
-	      pingCounter 	: integer;
-		      pingTimer 	: integer;
-		      state 			: MQTTStates;
-		      message 		: ansistring;
-	      pubTimer 			: integer;
+	      MQTTClient    : TMQTTClient;
+	      pingCounter   : integer;
+		  	pingTimer     : integer;
+        state         : MQTTStates;
+		  	message       : ansistring;
+	      pubTimer 	    : integer;
 	      connectTimer 	: integer;
 	    public
+        procedure setup (iniFile:string);
 	      procedure run ();
 	    end;
+{$endif}
 
 var
 	i		: LongInt;
-	ThreadHandle	: array[1..MaxThreads] of TThreadId;
-	ThreadName	: array[1..MaxThreads] of string;
-	ThreadCnt	: array[1..MaxThreads] of LongInt;
-	ThreadRPMs	: array[1..MaxThreads] of LongInt;
-	shutdown	: Boolean;
-	Counter		: LongInt;
-	IOGroup		: LongInt;
+	ThreadHandle		: array[1..MaxThreads] of TThreadId;
+	ThreadName	    : array[1..MaxThreads] of string;
+	ThreadCnt	    	: array[1..MaxThreads] of LongInt;
+	ThreadRPMs			: array[1..MaxThreads] of LongInt;
+	shutdown				: Boolean;
+	Counter					: LongInt;
+	IOGroup					: LongInt;
 	ByteValue, BitVal	: Byte;
-	ProtectParams	: TRTLCriticalSection;
-	Power		: array [1..8] of byte =(1,2,4,8,16,32,64,128);
-	DeviceList	: DeviceTypeArray;
+	ProtectParams		: TRTLCriticalSection;
+	Power						: array [1..8] of byte =(1,2,4,8,16,32,64,128);
+	DeviceList			: DeviceTypeArray;
 	DeviceCnt,
-	NumOfThreads	: LongInt ;
+	NumOfThreads		: LongInt ;
 	connectionclose	: boolean;
-	DebugOutput	: TRTLCriticalSection;
-	SendAsync	: TRTLCriticalSection;
-	debug		: boolean;
-	Webparams	:	StringArray;
-
+	DebugOutput			: TRTLCriticalSection;
+	SendAsync				: TRTLCriticalSection;
+	debug						: boolean;
+	Webparams				:	StringArray;
+	{$IFDEF Linux}
+	MQTTThread 			: TMQTTThread;
+	FieldDeviceStorage : TFieldDeviceObject;
+	{$endif}
+	Configfile			: String;
+	paramcnt				: byte;
 
 procedure DSdebugLOG(msg:string);
 // This is a wrapper around debugLOG to ensure
@@ -100,8 +120,282 @@ begin
 	LeaveCriticalSection(DebugOutput);
 end;
 
-// telnet stuff
+{$IFDEF Linux}
+// MQTT client stuff
+procedure TMQTTThread.setup(iniFile:string);
+// setup the needed stuff eg server settings
+// see also http://wiki.freepascal.org/Using_INI_Files/de
+var
+	INI							: TINIFile;
+	PublishValues		: TStringList;
+	Hostname				:	String;
+	Port						: Word;
+	MQTTAction			: TMQTTAction;
+	MQTTIOType			: TDevTyp;
+	INIvars					: StringArray;
+	MQTTvars				: StringArray;
+	loop						: byte;
+	SectionLoop			: byte;
+	IOSections			: array[1..6] of string = ('PublishOutput','PublishInput','PublishAnalog','SubscribeInput','SubscribeOutput','SubscribeAnalog');
 
+begin
+	// get needed Parameters from ini file
+	INI := TINIFile.Create(iniFile);
+	// get the MQTT Host data
+	Hostname:=INI.ReadString('MQTT','Host','10.63.9.41');
+	Port:=StrToInt(INI.ReadString('MQTT','Port','1883'));
+	DSdebugLOG('MQTT Connecting to '+Hostname+' on Port '+IntToStr(Port));
+	// get the config data for the topics
+	PublishValues:= TStringList.Create;
+	// go through the sections of the INI file and setup publishing and subscriptions
+	DSdebugLOG('reading MQTT inifile');
+	for SectionLoop:=1 to length(IOSections) do begin
+		DSdebugLOG('reading Section: ' + IOSections[SectionLoop]);
+		// check what action to do
+		if ( Pos('Publish',IOSections[SectionLoop]) > 0 ) then
+			MQTTAction:=p
+		else
+			MQTTAction:=s;
+
+		// check the Devicetype
+		if ( Pos('Input',IOSections[SectionLoop]) > 0 ) then
+			MQTTIOType:=input
+		else if ( Pos('Output',IOSections[SectionLoop]) > 0 ) then
+				MQTTIOType:=output
+			else
+				MQTTIOType:=analog;
+
+		INI.ReadSectionValues(IOSections[SectionLoop],PublishValues);
+		// example of the output: 1=/openMSR/BinOut/1,2=/openMSR/BinOut/2
+		INIvars:=StringSplit(PublishValues.CommaText,',');
+		DSdebugLOG('L ' + IntToStr(GetNumberOfElements(PublishValues.CommaText,',')) + ' ');
+		for loop:=1 to GetNumberOfElements(PublishValues.CommaText,',') do begin
+				MQTTvars:=StringSplit(INIvars[loop],'=');
+				DSdebugLOG('Inistring: ' + INIvars[loop] );
+				FieldDeviceStorage.AddDevice(MQTTIOType,MQTTAction,MQTTvars[2],StrToInt(MQTTvars[1]));
+				DSdebugLOG('add topic: '+MQTTvars[2]);
+		end;
+	end;
+	// now the subscriptions
+	MQTTAction:=s;
+	state := CONNECT;
+	MQTTClient := TMQTTClient.Create(Hostname, Port);
+	DSdebugLOG('MQTT initialized ' + IntToStr(FieldDeviceStorage.GetDeviceCount()));
+end;
+
+
+procedure TMQTTThread.run();
+// publish and receive MQTT messages on the configured topics
+
+var
+	msg : TMQTTMessage;
+	ack : TMQTTMessageAck;
+	DeviceTyp		: TDevTyp;
+	Action			: TMQTTAction;
+	workingTopic	: String;
+	DeviceNumber	: Word;
+	TopicCounter	: Word;
+	TopicValue		: Integer;
+	LastRunIN		: array[1..io_max] of boolean;
+	LastRunOUT		: array[1..io_max] of boolean;
+	LastRunAnalog	: array[1..analog_max] of smallint;
+	publish			: boolean;
+	ConvertedNumber : integer;
+
+
+begin
+	//write ('run..');
+	//writeln(state);
+	message :='remove me';
+
+	case state of
+			CONNECT :
+									begin
+										// Connect to MQTT server
+										pingCounter := 0;
+										pingTimer := 0;
+										pubTimer := 0;
+										connectTimer := 0;
+										MQTTClient.Connect;
+//										if ( not (MQTTClient.isConnected)) then begin
+//											writeln (' error creating client connection ');
+//										end;
+										state := WAIT_CONNECT;
+									end;
+			WAIT_CONNECT :
+									begin
+										// Can only move to RUNNING state on recieving ConnAck
+										connectTimer := connectTimer + 1;
+										if connectTimer > 300 then begin
+											DSdebugLOG('DeviceServer MQTT Error: ConnAck time out.');
+											state := FAILING;
+										end;
+									end;
+			RUNNING :
+									begin
+										// MQTT Publish stuff
+										for TopicCounter:=1 to FieldDeviceStorage.GetDeviceCount() do begin
+											FieldDeviceStorage.GetDeviceInfo(TopicCounter,DeviceTyp,Action,workingTopic,DeviceNumber);
+											publish:=false;
+											case DeviceTyp of
+												input:
+													if  ( eingang[DeviceNumber] <> LastRunIN[DeviceNumber] ) then begin
+														if (eingang[DeviceNumber]) then TopicValue:=1
+														else TopicValue:=0;
+														publish:=true;
+													end;
+												output:
+													if  ( ausgang[DeviceNumber] <> LastRunOUT[DeviceNumber] ) then begin
+														if (ausgang[DeviceNumber]) then TopicValue:=1
+														else TopicValue:=0;
+														publish:=true;
+													end;
+												analog:
+												if  ( analog_in[DeviceNumber] <> LastRunAnalog[DeviceNumber] ) then begin
+													TopicValue:=analog_in[DeviceNumber];
+													publish:=true;
+												end;
+											end;
+											if pubTimer mod 1 = 0 then
+												if ( publish ) then
+													if not MQTTClient.Publish(workingTopic, IntToStr(TopicValue)) then begin
+														DSdebugLOG('DeviceServer MQTT Error: Publish Failed.');
+														state := FAILING;
+													end;
+										end;
+										LastRunIN:=eingang;
+										LastRunOUT:=ausgang;
+										LastRunAnalog:=analog_in;
+										pubTimer := pubTimer + 1;
+
+										// Ping the MQTT server occasionally
+										if (pingTimer mod 100) = 0 then
+											begin
+												// Time to PING !
+												//writeln('Ping..');
+												if not MQTTClient.PingReq then
+													begin
+														DSdebugLOG('DeviceServer MQTT Error: PingReq Failed.');
+														state := FAILING;
+													end;
+												pingCounter := pingCounter + 1;
+												// Check that pings are being answered
+												if pingCounter > 3 then
+													begin
+														DSdebugLOG('DeviceServer MQTT Error: Ping timeout.');
+														state := FAILING;
+													end;
+											end;
+										pingTimer := pingTimer + 1;
+									end;
+			FAILING :
+									begin
+										MQTTClient.ForceDisconnect;
+										state := CONNECT;
+									end;
+		end;
+
+		// Read incomming MQTT messages.
+		repeat
+			msg := MQTTClient.getMessage;
+			if Assigned(msg) then	begin
+				// check the topic and get the needed data to handle the subscription
+				writeln ('getMessage: ' + msg.topic + ' Payload: ' + msg.payload);
+				FieldDeviceStorage.GetTopicInfo(msg.topic,DeviceTyp ,Action ,DeviceNumber);
+				case DeviceTyp of
+					input		:
+									if ( msg.payload = '1') then
+										eingang[DeviceNumber]:=true
+									else
+										eingang[DeviceNumber]:=false;
+					output	:
+									if ( msg.payload = '1') then
+										ausgang[DeviceNumber]:=true
+									else
+										ausgang[DeviceNumber]:=false;
+					analog	: begin
+									writeln('DS-MQTT: received topic payload: ' ,IntegerInString(msg.payload));
+									analog_in[DeviceNumber]:=IntegerInString(msg.payload);
+									writeln('Saved as analog_in[',DeviceNumber,']');
+									end;
+
+				end;
+				// Important to free messages here.
+				msg.free;
+			end;
+		until not Assigned(msg);
+
+		// Read incomming MQTT message acknowledgments
+		repeat
+			ack := MQTTClient.getMessageAck;
+			if Assigned(ack) then begin
+				case ack.messageType of
+						CONNACK :
+											begin
+												if ack.returnCode = 0 then
+													begin
+														// loop over the configured MQTT devices and make MQTT subscriptions
+														for TopicCounter:=1 to FieldDeviceStorage.GetDeviceCount() do begin
+															FieldDeviceStorage.GetDeviceInfo(TopicCounter,DeviceTyp,Action,workingTopic,DeviceNumber);
+															if ( Action = s ) then
+																MQTTClient.Subscribe(workingTopic);
+														end;
+														// Enter the running state
+														state := RUNNING;
+													end
+												else
+													state := FAILING;
+											end;
+						PINGRESP :
+											 begin
+												 //writeln ('PING! PONG!');
+												 // Reset ping counter to indicate all is OK.
+												 pingCounter := 0;
+											 end;
+						SUBACK :
+											 begin
+												 //write   ('SUBACK: ');
+												 //write   (ack.messageId);
+												 //write   (', ');
+												 //writeln (ack.qos);
+											 end;
+						UNSUBACK :
+											 begin
+												 //write   ('UNSUBACK: ');
+												 //writeln (ack.messageId);
+											 end;
+					end;
+				end;
+			// Important to free messages here.
+			ack.free;
+		until not Assigned(ack);
+		sleep(100);
+end;
+
+
+{$ifdef linux64}
+function MQTTHandler(p: pointer):Int64;
+{$else}
+function MQTTHandler(p: pointer):LongInt;
+{$endif}
+var
+	MySelf		: LongInt;
+
+begin
+	MySelf:=longint(p);
+	DSdebugLOG('started MQTT Handler Thread..' + IntToStr(MySelf));
+	repeat
+		MQTTThread.run;
+		inc(ThreadCnt[MySelf]);
+	until shutdown=true;
+	DSdebugLOG('MQTT Handler going down..' + IntToStr(MySelf));
+	MQTTHandler:=0;
+end;
+
+{$endif}
+
+// telnet stuff
+{$ifndef MIPS}
 Procedure TelnetInterpreter;
 
 { callback procedure for the telnet interpreter }
@@ -109,12 +403,12 @@ Procedure TelnetInterpreter;
 { it's not possible to handover any data	}
 
 var
-	Line		: String;
-	cmd,hw		: Char;
-	pa,va		: LongInt;
+	Line				: String;
+	cmd,hw			: Char;
+	pa,va				: LongInt;
 	StrVal,RPMs	: String;
-	AddrStr		: String;
-	i		: Integer;
+	AddrStr			: String;
+	i						: Integer;
 
 begin
 	Line:=TelnetGetData;
@@ -226,11 +520,11 @@ begin
 
 end;
 
-{$ifdef linux64}
+ {$ifdef linux64}
 function TelnetThread(p: pointer):Int64;
-{$else}
+ {$else}
 function TelnetThread(p: pointer):LongInt;
-{$endif}
+ {$endif}
 { this is the telnet thread, setup the interpreter function }
 { and check for incomming requests }
 
@@ -254,7 +548,7 @@ begin
 	DSdebugLOG('Telnet Handler going down..' + IntToStr(MySelf));
 	TelnetThread:=0;
 end;
-
+{$endif} // MIPS
 
 // the devicehandler - for each configured device one thread to serve it is started
 {$ifdef linux64}
@@ -576,7 +870,7 @@ begin
 	SeitenStart:='<html><body>';
 	SeitenEnde:=' </body></html>';
 	Values:='';
-	DSdebugLOG(' DS:WriteOutputValues, got ' + IntToStr(ByteValue) + ' for Address ' + IntToStr(IOGroup) );
+	//DSdebugLOG(' DS:WriteOutputValues, got ' + IntToStr(ByteValue) + ' for Address ' + IntToStr(IOGroup) );
 	{ set the bits in the ausgang[n] array in respect of io_group}
 	AddressBase:=IOGroup*8-8;
 
@@ -757,7 +1051,9 @@ begin
 
 	DSdebugLOG('Webserver going down..');
 	WebserverThread:=0;
+	{$ifndef MIPS}
 	TelnetShutDown;
+	{$endif}
 end;					{ Webserver Thread end }
 
 
@@ -771,10 +1067,10 @@ function StatisticsThread(p: pointer):LongInt;
 var
 time1,time2,TimeDiff	: Cardinal;
 OldThreadCnt		: array[1..MaxThreads] of LongInt;
-i			: byte;
-MySelf			: LongInt;
+i								: byte;
+MySelf					: LongInt;
 {$ifdef Windows}
-      st 		: systemtime;
+      st 				: systemtime;
 {$endif}
 
 
@@ -837,19 +1133,24 @@ end;
 // the Main program
 
 begin					{ Main program }
+	debug:=false;
+	Configfile:='';
+	// commandline parameters
+	if ( paramcount > 0 ) then
+		for paramcnt:=1 to paramcount do begin
+	    if (paramstr(paramcnt)='-d') then debug:=true;
+			if (paramstr(paramcnt)='-c') then begin
+				Configfile:= paramstr(paramcnt+1);
+			end;
+		end;
+	if (Configfile='') then Configfile:='DeviceServer.cfg';
 	// initialize Hardware
 	PhysMachInit;
-	PhysMachloadCfg('DeviceServer.cfg');
+	PhysMachloadCfg(Configfile);
 	writeln('detected Hardware: ',HWPlatform);
 	PhysMachWriteDigital;
 	// get list of installed devices
 	DeviceList:=PhysMachGetDevices;
-
-	debug:=false;
-	// commandline parameters
-	if ( paramcount > 0 ) then
-	    if (paramstr(1)='d') then debug:=true;
-
 
 	Counter:=0;
 	InitCriticalSection(ProtectParams);
@@ -876,11 +1177,13 @@ begin					{ Main program }
 	ThreadName[NumOfThreads]:='Webserver';
 	ThreadHandle[NumOfThreads]:=BeginThread(@WebserverThread,pointer(NumOfThreads));
 
+{$ifndef MIPS}
 	// start the telnet thread
 	inc(NumOfThreads);
 	DSdebugLOG('Starting Telnet Thread...');
 	ThreadName[NumOfThreads]:='Telnet Thread';
 	ThreadHandle[NumOfThreads]:=BeginThread(@TelnetThread,pointer(NumOfThreads));
+{$endif}
 
 	// start the TimeControl thread
 	inc(NumOfThreads);
@@ -894,11 +1197,24 @@ begin					{ Main program }
 	ThreadName[NumOfThreads]:='Stats Thread';
 	ThreadHandle[NumOfThreads]:=BeginThread(@StatisticsThread,pointer(NumOfThreads));
 
+{$IFDEF Linux}
+	// start the MQTT thread
+	if ( FileExists('MQTT.ini') ) then begin
+		inc(NumOfThreads);
+		MQTTThread.setup('MQTT.ini');
+		DSdebugLOG('Starting MQTT Thread...');
+		ThreadName[NumOfThreads]:='MQTT Thread';
+		ThreadHandle[NumOfThreads]:=BeginThread(@MQTTHandler,pointer(NumOfThreads));
+	end;
+{$endif}
+
 	// fool around and wait for the end
 	repeat
 		repeat
 			delay(10*TimeOut);
 			if debug then DSdebugLOG('idleloop...');
+			// Main application loop must call this else we leak threads!
+			//CheckSynchronize;
 		until keypressed;
 	until readkey='e';
 

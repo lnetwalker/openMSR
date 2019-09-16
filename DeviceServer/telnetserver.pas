@@ -20,6 +20,11 @@ unit telnetserver;
 	{$define Linux}
 {$endif}
 
+
+{$ifdef CPU64}
+	{$define Linux64}
+{$endif}
+
 interface
 
 Procedure TelnetSetupInterpreter(proc : tprocedure);
@@ -47,14 +52,14 @@ const
 	debug			= true;
 
 var
-	lSock, uSock 		: LongInt;
+	lSock, uSock 	: LongInt;
 	sAddr 			: TInetSockAddr;
 	Line 			: String;
 	sin, sout 		: Text;
-	LOG			: Text;
-	InterpreterProc		: tprocedure;
+	LOG				: Text;
+	InterpreterProc	: tprocedure;
 	ListenPort 		: Word ;
-	ShutDownProc		: Boolean;
+	ShutDownProc	: Boolean;
 	// LOG-Files
 	DBG,ERR,ACC		: text;
 	saveaccess		: Boolean;
@@ -65,7 +70,7 @@ var
 	Result			: integer;
 	TimeVal 		: TTimeVal;
 	addr_len	 	: u_int;
-	cli_addr		: TSockAddr;	
+	cli_addr		: TSockAddr;
 	ConnSock		: TSocket;
 	RecBufSize		: integer;
 	FCharBuf		: array [1..32768] of char;
@@ -134,14 +139,17 @@ begin
 
 	lSock := fpSocket(af_inet, sock_stream, 0);
 	if lSock = -1 then Error(1,'Socket error: ',socketerror);
-	
+
 	if LPort=0 then LPort:=ListenPort;
 
+
+{$ifndef CPU64}
 	with sAddr do begin
 		Family := af_inet;
 		Port := htons(LPort);
 		Addr := 0;
 	end;
+{$endif}
 
 	if fpBind(lSock, @sAddr, sizeof(sAddr))<>0 then Error(1,'Bind error: ',socketerror);
 	if fpListen(lSock, MaxConn)<>0 then Error(1,'Listen error: ',socketerror);
@@ -163,10 +171,13 @@ begin
 		FpFcntl(usock,F_SetFd,MSG_DONTWAIT);
 	{$endif}
 
+{$ifndef CPU64}
 	if debug then
 		writeLOG('Accepted connection from ' + AddrToStr(sAddr.Addr));
+{$endif}
+
 	Sock2Text(uSock, sin, sout);
-	
+
 	Reset(sin);
 	Rewrite(sout);
 	Write(sout, WelcomeMSG);
@@ -174,7 +185,7 @@ begin
 	{$ifdef Linux}
 		if SelectText(sin,10000)>0 then begin
 			Readln(sin, Line);
-			if debug then 
+			if debug then
 				writeLOG('Heard: '+line);
 			if Line = 'close' then break;
 			if InterpreterProc <> nil then InterpreterProc;
@@ -206,7 +217,7 @@ begin
 	Close(sin);
 	Close(sout);
 	fpShutdown(uSock, 2);
-	if debug then 
+	if debug then
 		writeLOG('Connection closed.');
 end;
 
@@ -241,12 +252,22 @@ begin
 
 	// open logfiles
 	//error Log
+	{$ifdef Windows}
+	assign(ERR,'\temp\DevSrv_TelnetErr.log');
+	{$endif}
+	{$ifdef Linux}
 	assign(ERR,'/tmp/deviceserver_TelnetErr.log');
+	{$endif}
 	rewrite(ERR);
 
 	// debug Log
 	if debug then begin
+		{$ifdef Windows}
+		assign(ERR,'\temp\DevSrv_TelnetDbg.log');
+		{$endif}
+		{$ifdef Linux}
 		assign(DBG,'/tmp/deviceserver_TelnetDbg.log');
+		{$endif}
 		rewrite(DBG);
 	end;
 end.

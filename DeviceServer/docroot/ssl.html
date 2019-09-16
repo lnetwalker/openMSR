@@ -2,51 +2,56 @@
 
 <Head>
 <Title>Read Values over the Internet</Title>
+<link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
+<!--
+    this example is used be myself to display the temperatures
+    of our heating, it just shows how to use the LCD displays
+-->
 </Head>
 
 <Body Background="" BGColor=#F0F0FF Text=#000000 Link=#0000FF VLink=#800080 ALink=#80FFFF" onload="init()">
-<script type="text/javascript" src="js/openmsr-new.js"></script>
+<script type="text/javascript" src="js/openmsr.js"></script>
 <script>
 <!--
         function init() {
 
             OpenMSRInit();
-            
+
             Raum = new LCDisplay('Raum','analog',31);
             Raum.setImagePath('/homecontrol/images/');
             Raum.Display_Type('HC1331C');
             Raum.No_of_Digits(6,2);
-			Raum.Convert(0.01);
+			      Raum.Convert(0.01);
 
-			Aussen = new LCDisplay('Aussen','analog',32);
-			Aussen.setImagePath('/homecontrol/images/');
+			      Aussen = new LCDisplay('Aussen','analog',32);
+			      Aussen.setImagePath('/homecontrol/images/');
             Aussen.Display_Type('HC1331C');
             Aussen.No_of_Digits(6,2);
-			Aussen.Convert(0.01);
-            
+			      Aussen.Convert(0.01);
+
             Wasser = new LCDisplay('Wasser','analog',33);
             Wasser.setImagePath('/homecontrol/images/');
             Wasser.Display_Type('HC1331C');
             Wasser.No_of_Digits(6,2);
-			Wasser.Convert(-0.01);
+			      Wasser.Convert(-0.01);
 
-			Lampe = new LCDisplay('Lampe','analog',34);
-			Lampe.setImagePath('/homecontrol/images/');
+			      Lampe = new LCDisplay('Lampe','analog',34);
+			      Lampe.setImagePath('/homecontrol/images/');
             Lampe.Display_Type('HC1331C');
             Lampe.No_of_Digits(6,2);
-			Lampe.Convert(0.01);
+			      Lampe.Convert(0.01);
 
-			Vorlauf = new LCDisplay('Vorlauf','analog',35);
-			Vorlauf.setImagePath('/homecontrol/images/');
+			      Vorlauf = new LCDisplay('Vorlauf','analog',35);
+			      Vorlauf.setImagePath('/homecontrol/images/');
             Vorlauf.Display_Type('HC1331C');
             Vorlauf.No_of_Digits(6,2);
-			Vorlauf.Convert(0.01);
+			      Vorlauf.Convert(0.01);
 
-			Ruecklauf = new LCDisplay('Ruecklauf','analog',36);
-			Ruecklauf.setImagePath('/homecontrol/images/');
+			      Ruecklauf = new LCDisplay('Ruecklauf','analog',36);
+			      Ruecklauf.setImagePath('/homecontrol/images/');
             Ruecklauf.Display_Type('HC1331C');
             Ruecklauf.No_of_Digits(6,2);
-			Ruecklauf.Convert(0.01);
+			      Ruecklauf.Convert(0.01);
 
             // the analog reader to read the first 8 analog values
             var MyAnalogReader = new AnalogDataReader();
@@ -61,7 +66,7 @@
             MyAnalogReader.IOGroup(1);
 
         }
--->        
+-->
 </script>
 <center>
 <table>
@@ -115,7 +120,7 @@ R&uuml;cklauf
 </table>
 
  <FORM name="GETWERT" ACTION="" METHOD="GET">
- <TABLE border = 0> 
+ <TABLE border = 0>
  <TR>
   <TD> 	<input type=hidden value='https://dorffer.eilers.net' id="Hostname" size=25 >
 	<input type=hidden value=1 id="iogroup" size=2 >
@@ -136,8 +141,8 @@ R&uuml;cklauf
 	-->
  </TD>
  </TR>
- </TABLE> 
- </FORM> 
+ </TABLE>
+ </FORM>
 </center>
 <BR><BR>
 

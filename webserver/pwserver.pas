@@ -13,7 +13,7 @@ program pwserver;
 
 
 
-uses 
+uses
 {$ifdef LINUX}
 	cthreads,
 {$endif}
@@ -22,7 +22,8 @@ uses
 const 	BLOCKED=true;
 	nothreads=false;
 	usethreads=true;
-	
+	debug=true;
+
 var
 	Seite,
 	SeitenStart,
@@ -68,7 +69,7 @@ begin
 
 	cnt:=0;
 	Counter:='0';
-	
+
 	// Main loop doing the real stuff for the program
 	repeat
 		{ process the incomming requests }
@@ -80,7 +81,3 @@ begin
 	until keypressed;
 	stop_server; // stop the webserver
 end.
-
-
-
-

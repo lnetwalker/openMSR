@@ -4,7 +4,10 @@
 <head>
 <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
 <meta name="author" content="Iacopo Giangrandi" />
-<title>A JavaScript clock with vintage displays</title>
+<!-- http://www.giangrandi.ch/soft/jsclock/jsclock.shtml -->
+<title>vintage displays showing analog values</title>
+<link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
+
 <style type="text/css">
 body { background-color:#c0c0c0; color:#000000; }
 img { border:none; vertical-align:middle; }
@@ -21,48 +24,62 @@ table td { border:none; vertical-align:top; text-align:left; }
 
 <body>
 
-<script type="text/javascript" src="js/openmsr-new.js"></script>
+<script type="text/javascript" src="js/openmsr.js"></script>
 <script>
 <!--
         function init() {
 
             OpenMSRInit();
-            
-	    function DataConversion(value) {
-		value = value / 100;
-		return value;
-	    }
 
+            // generate a new display named MyLCD_Raum, listening on analog event 31
             var MyLCD_Raum = new LCDisplay('Raum','analog',31);
             MyLCD_Raum.Display_Type('HC1331C');
             MyLCD_Raum.No_of_Digits(6);
-	    MyLCD_Raum.ConvertData = "DataConversion";
+            // every value read from  DeviceServer is multiplied by the convert factor
+	          MyLCD_Raum.Convert(0.01);
 
-	    var MyLCD_Aussen = new LCDisplay('Aussen','analog',32);
+            // and another Display named MyLCD_Aussen, listening on analog event 32
+	          var MyLCD_Aussen = new LCDisplay('Aussen','analog',32);
             MyLCD_Aussen.Display_Type('HC1331C');
             MyLCD_Aussen.No_of_Digits(6);
-	    MyLCD_Aussen.ConvertData = "DataConversion";
-            
+            // use the value as read, no conversion
+	          MyLCD_Aussen.Convert(1);
+
             // the analog reader to read the first 8 analog values
             var MyAnalogReader = new AnalogDataReader();
+            // read the DeviceServer every 480 ms
             MyAnalogReader.TimerVal(460);
+            // assign analog Signal 1 of DEviceServer to event 31
             MyAnalogReader.AssignEvent(1,31);
+            // assign analog Signal 2 of DEviceServer to event 32
             MyAnalogReader.AssignEvent(2,32);
-            MyAnalogReader.DeviceServerURL('https://dorffer.eilers.net/homecontrol/analog/read.html');
+            // the DeviceServer to use
+            MyAnalogReader.DeviceServerURL('http://localhost:10080/analog/read.html');
+            // the IO-Group
             MyAnalogReader.IOGroup(1);
 
         }
--->        
+-->
 </script>
 
-    <span style="white-space:nowrap;"><img src="/homecontrol/images/ITT5870S.0.jpg" id="Raum0" alt="0" style=" visibility : hidden" /><img src="/homecontrol/images/ITT5870S.0.jpg" id="Raum1" alt="1" style=" visibility : hidden" /><img src="/homecontrol/images/ITT5870S.0.jpg" id="Raum2" alt="2" style=" visibility : hidden" /><img src="/homecontrol/images/ITT5870S.0.jpg" id="Raum3" alt="3" style=" visibility : hidden" /><img src="/homecontrol/images/ITT5870S.0.jpg" id="Raum4" alt="4" style=" visibility : hidden" /><img src="/homecontrol/images/ITT5870S.0.jpg" id="Raum5" alt="5"  style=" visibility : hidden"/><img src="/homecontrol/images/ITT5870S.0.jpg" id="Raum6" alt="6" style=" visibility : hidden" /><img src="/homecontrol/images/ITT5870S.0.jpg" id="Raum7" alt="7" style=" visibility : hidden" /><img src="/homecontrol/images/ITT5870S.0.jpg" id="Raum8" alt="8" style=" visibility : hidden" /><img src="/homecontrol/images/ITT5870S.0.jpg" id="Raum9" alt="9" style=" visibility : hidden" /><img src="/homecontrol/images/ITT5870S.0.jpg" id="Raum10" alt="10" style=" visibility : hidden"/></span>
+<h3>Hostdata in the DeviceServer</h3>
 
-    
-    <span style="white-space:nowrap;"><img src="/homecontrol/images/ITT5870S.0.jpg" id="Aussen0" alt="0" style=" visibility : hidden" /><img src="/homecontrol/images/ITT5870S.0.jpg" id="Aussen1" alt="1" style=" visibility : hidden" /><img src="/homecontrol/images/ITT5870S.0.jpg" id="Aussen2" alt="2" style=" visibility : hidden" /><img src="/homecontrol/images/ITT5870S.0.jpg" id="Aussen3" alt="3" style=" visibility : hidden" /><img src="/homecontrol/images/ITT5870S.0.jpg" id="Aussen4" alt="4" style=" visibility : hidden" /><img src="/homecontrol/images/ITT5870S.0.jpg" id="Aussen5" alt="5"  style=" visibility : hidden"/><img src="/homecontrol/images/ITT5870S.0.jpg" id="Aussen6" alt="6" style=" visibility : hidden" /><img src="/homecontrol/images/ITT5870S.0.jpg" id="Aussen7" alt="7" style=" visibility : hidden" /><img src="/homecontrol/images/ITT5870S.0.jpg" id="Aussen8" alt="8" style=" visibility : hidden" /><img src="/homecontrol/images/ITT5870S.0.jpg" id="Aussen9" alt="9" style=" visibility : hidden" /><img src="/homecontrol/images/ITT5870S.0.jpg" id="Aussen10" alt="10" style=" visibility : hidden"/></span>
- 
- 
+This example displays the Load and the percentual usage of the rootfile system. <br>
+<br>
+
+Load:    <span style="white-space:nowrap;"><img src="/images/ITT5870S.0.jpg" id="Raum0" alt="0" style=" visibility : hidden" /><img src="/images/ITT5870S.0.jpg" id="Raum1" alt="1" style=" visibility : hidden" /><img src="/images/ITT5870S.0.jpg" id="Raum2" alt="2" style=" visibility : hidden" /><img src="/images/ITT5870S.0.jpg" id="Raum3" alt="3" style=" visibility : hidden" /><img src="/images/ITT5870S.0.jpg" id="Raum4" alt="4" style=" visibility : hidden" /><img src="/images/ITT5870S.0.jpg" id="Raum5" alt="5"  style=" visibility : hidden"/><img src="/images/ITT5870S.0.jpg" id="Raum6" alt="6" style=" visibility : hidden" /><img src="/images/ITT5870S.0.jpg" id="Raum7" alt="7" style=" visibility : hidden" /><img src="/images/ITT5870S.0.jpg" id="Raum8" alt="8" style=" visibility : hidden" /><img src="/images/ITT5870S.0.jpg" id="Raum9" alt="9" style=" visibility : hidden" /><img src="/images/ITT5870S.0.jpg" id="Raum10" alt="10" style=" visibility : hidden"/></span>
+
+
+Disk used %    <span style="white-space:nowrap;"><img src="/images/ITT5870S.0.jpg" id="Aussen0" alt="0" style=" visibility : hidden" /><img src="/images/ITT5870S.0.jpg" id="Aussen1" alt="1" style=" visibility : hidden" /><img src="/images/ITT5870S.0.jpg" id="Aussen2" alt="2" style=" visibility : hidden" /><img src="/images/ITT5870S.0.jpg" id="Aussen3" alt="3" style=" visibility : hidden" /><img src="/images/ITT5870S.0.jpg" id="Aussen4" alt="4" style=" visibility : hidden" /><img src="/images/ITT5870S.0.jpg" id="Aussen5" alt="5"  style=" visibility : hidden"/><img src="/images/ITT5870S.0.jpg" id="Aussen6" alt="6" style=" visibility : hidden" /><img src="/images/ITT5870S.0.jpg" id="Aussen7" alt="7" style=" visibility : hidden" /><img src="/images/ITT5870S.0.jpg" id="Aussen8" alt="8" style=" visibility : hidden" /><img src="/images/ITT5870S.0.jpg" id="Aussen9" alt="9" style=" visibility : hidden" /><img src="/images/ITT5870S.0.jpg" id="Aussen10" alt="10" style=" visibility : hidden"/></span>
+<br><br>
+This example shows different things:<br>
+First of all displaying values from the DeviceServer with the 7 segment displays<br>
+and second it demonstrates how to get values into the DeviceServer which are natively not supported, by using Agents.<br>
+To fully understand the example check the source of this HTML file for the usage of the javascript display element,<br>
+and also have a look in the configuration file of the DeviceServer to understand the usage of the hostdata.sh agent and the usage of agents in general.<br>
+If the display shows 'Err' that means that the calculated value has to many digits to fit on the display.
     <!--<textarea id=debug cols=120 rows=50 style="visibility=hidden"></textarea>-->
- 
+
 
 <script type="text/javascript">
   init();
@@ -71,4 +88,3 @@ table td { border:none; vertical-align:top; text-align:left; }
 </body>
 
 </html>
-

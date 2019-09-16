@@ -1,6 +1,7 @@
 <html>
 <head>
 <title>IO Monitor Console</title>
+<link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
 
   <style type="text/css">
   canvas {
@@ -74,7 +75,7 @@ function getXMLHttpRequest() {
 
 
 // Start the asynchronous read request
-function SendRequest(url, handler, param) {	
+function SendRequest(url, handler, param) {
 	req=getXMLHttpRequest();
 	if (req) {
 		//alert(url);
@@ -105,7 +106,7 @@ function PrintState() {
 				PrintHi(i)  // print a high for this signal
 			} else {
 				Eingang[i].src = LED_off.src;
-				PrintLo(i); // print a low for this signal 
+				PrintLo(i); // print a low for this signal
 			}
 		}
 	}
@@ -116,21 +117,21 @@ function PrintState() {
 // als Linie auf dem Canvas
 function PrintHi(SignalNr) {
 	  if ( SignalNr == 0 ) {
-	    // start with row = 0 and next column 
+	    // start with row = 0 and next column
 	    Xcor = Xcor+SignalBreite;
 	    if (Xcor > width) {
 	      // we reached the end of the canvas, so delete canvas and start from beginning
 	      canv.width = 400;
 	      Xcor = 0;
 	    }
-	  }  
-	  // just the next row in this column  
+	  }
+	  // just the next row in this column
 	  Ycor = SignalNr*10+Padding + Rand;
 	  Scope.beginPath();
 	  Scope.strokeStyle = "lightgreen";
 	  Scope.lineWidth = 1;
 	  if ( OldValue[SignalNr] == false ) {
-	      // Last value was low so we need a vertical line 
+	      // Last value was low so we need a vertical line
 	      Scope.moveTo(Xcor, Ycor);
 	      Scope.lineTo(Xcor,Ycor-SignalHoehe);
 	  }
@@ -147,14 +148,14 @@ function PrintHi(SignalNr) {
 // als Linie auf dem Canvas
 function PrintLo(SignalNr) {
 	  if ( SignalNr == 0 ) {
-	    // start with row = 0 and next column 
+	    // start with row = 0 and next column
 	    Xcor = Xcor+SignalBreite;
 	    if (Xcor > width) {
 	      // we reached the end of the canvas, so delete canvas and start from beginning
 	      canv.width = 400;
 	      Xcor = 0;
 	    }
-	  } 
+	  }
 	  // just the next row in this column
 	  Ycor = SignalNr*10+Padding + Rand;
 	  Scope.beginPath();

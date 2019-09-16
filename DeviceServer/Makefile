@@ -16,7 +16,7 @@ include ../build/make_includes/unit-searchpath
 all: $(OBJECTS)
 
 # the physical Machine access layer
-DeviceServer: 	DeviceServer.pas
+DeviceServer: 	DeviceServer.pas FieldDevice.pas
 	$(FPC) $(FPC_FLAGS) -gl  $(UNITSEARCH) DeviceServer.pas 
 
 clear:
@@ -35,10 +35,14 @@ build:
 	-mkdir /tmp/$(USER)/build/DeviceServer/docroot
 	-mkdir /tmp/$(USER)/build/DeviceServer/docroot/images
 	-mkdir /tmp/$(USER)/build/DeviceServer/docroot/js
+	-mkdir /tmp/$(USER)/build/DeviceServer/Agents
+	-mkdir /tmp/$(USER)/build/DeviceServer/config-examples 
 	-cp docroot/images/*.jpg /tmp/$(USER)/build/DeviceServer/docroot/images/
 	-cp docroot/images/*.png /tmp/$(USER)/build/DeviceServer/docroot/images/
 	-cp docroot/js/* /tmp/$(USER)/build/DeviceServer/docroot/js/
 	-cp docroot/*.html  /tmp/$(USER)/build/DeviceServer/docroot/
+	-cp docroot/*.php /tmp/$(USER)/build/DeviceServer/docroot/
+	-cp docroot/*.ico /tmp/$(USER)/build/DeviceServer/docroot/
 	-cp docroot/Meter* /tmp/$(USER)/build/DeviceServer/docroot/
 ifeq ($(BLD_ARCH),win32)
 	-cp DeviceServer.exe /tmp/$(USER)/build/DeviceServer/
@@ -46,4 +50,5 @@ else
 	-cp DeviceServer /tmp/$(USER)/build/DeviceServer/
 endif
 	-cp DeviceServer.cfg /tmp/$(USER)/build/DeviceServer/
-	-cp digi*.sh /tmp/$(USER)/build/DeviceServer/
+	-cp Agents/*.sh /tmp/$(USER)/build/DeviceServer/Agents
+	-cp config-examples/* /tmp/$(USER)/build/DeviceServer/config-examples 

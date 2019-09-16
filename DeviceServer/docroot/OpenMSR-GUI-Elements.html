@@ -2,8 +2,9 @@
   <head>
     <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
     <META HTTP-EQUIV="Expires" CONTENT="-1">
-    
+
     <title>OpenMSR GUI Elements</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
 
     <style type="text/css">
       #TempMeterCanvas {
@@ -25,7 +26,7 @@
 	top: 300px;
       }
       #OtherMeter {
-	background-color: white;      
+	background-color: white;
 	position: absolute;
 	left: 0px;
 	top: 350px;
@@ -160,9 +161,10 @@
     </style>
 
     <form>
- 	  <font color=white>Url=<input type=text value='http://localhost:10080' id="Hostname" size=25 onChange="HostHasChanged(Hostname.value)">
+ 	  <font color=white>Url=<input type=text value='http://localhost:10080'
+ 	  id="Hostname" size=25 onChange="HostHasChanged(Hostname.value)">
     </form>
-    
+
     <script>
 	function HostHasChanged(Host) {
 		MyIOReader.DeviceServerURL(Host + '/digital/ReadInputValues.html');
@@ -194,7 +196,7 @@
 	MyTempMeter.maxPos(380,41);
 	MyTempMeter.color("red");
 	MyTempMeter.MeterWidth(6);
-	
+
 	// a second meter
 	var MyOtherMeter = new HorMeter('OtherMeter','analog',2);
 	MyOtherMeter.width(525);
@@ -207,29 +209,29 @@
 	MyOtherMeter.maxPos(380,41);
 	MyOtherMeter.color("blue");
 	MyOtherMeter.MeterWidth(6);
-	
+
 	// some switches
 	var MySwitch1 = new Switch('Switch1','digital',1);
 	//MySwitch1.offimg('images/button_off.jpg');
 	//MySwitch1.onimg('images/button_on.jpg');
 	MySwitch1.width(40);
 	MySwitch1.height(40);
-	
+
 	var MySwitch2 = new Switch('Switch2','digital',2);
 	MySwitch2.width(40);
 	MySwitch2.height(40);
-	
+
 	// some LED
 	var MyLED1 = new Lamp('LED1','digital',1);
 	MyLED1.width(20);
 	MyLED1.height(20);
-	
+
 	var MyLED2 = new Lamp('LED2','digital',2);
 	MyLED2.offimg('images/led-red-off.jpg');
 	MyLED2.onimg('images/led-red-on.jpg');
 	MyLED2.width(20);
 	MyLED2.height(20);
-	
+
 	// some knob controlers
 	var MyKnob1 = new Knob('knob1','analog',1);
 	MyKnob1.MinVal(34.2);
@@ -252,7 +254,7 @@
 	MyKnob2.MeterColor('black');
 	MyKnob2.floatingUpdate(0);
 	MyKnob2.pointerlength(20);
-	
+
 	// some LEDs to show a DeviceServer IOGroup
 	var MyLED11 = new Lamp('LED11','digital',11);
 	var MyLED12 = new Lamp('LED12','digital',12);

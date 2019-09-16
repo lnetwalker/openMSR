@@ -3,38 +3,44 @@
 {$MODE OBJFPC}{$H+}
 unit webserver;
 
-{ (c) 2006 by Hartmut Eilers < hartmut@eilers.net				}
-{ distributed  under the terms of the GNU GPL V 2				}
-{ see http://www.gnu.org/licenses/gpl.html for details				}
-{ derived from the original work of pswebserver (c) by 				}
-{ Vladimir Sibirov								}
+{ (c) 2006 by Hartmut Eilers < hartmut@eilers.net						}
+{ distributed  under the terms of the GNU GPL V 2						}
+{ see http://www.gnu.org/licenses/gpl.html for details					}
+{ derived from the original work of pswebserver (c) by 					}
+{ Vladimir Sibirov														}
 
 { simple embeddable HTTP server for FPC Pascal for Linux and			}
-{ Windows, using non-blocking socket I/O to easy fit and			}
-{ integrate in different programs 						}
-{ tested on Win 32  W2K Advanced Server and Debian Linux 			}
+{ Windows, using non-blocking socket I/O to easy fit and				}
+{ integrate in different programs 										}
+{ tested on Win 32  W2K Advanced Server and Debian Linux 				}
 { can serve static HTML Pages and Images and special dynamic			}
-{ content provided by the embedding program					}
+{ content provided by the embedding program								}
 { see example program pwserver.pas for information about usage			}
 
-{ History: 									}
-{ 15.03.2006 startet with Vladimirs Code 					}
-{ 17.03.2006 running non Block http server on linux 				}
-{ 20.03.2006 startet porting to win32 using winsock 				}
-{ 24.03.2006 WINSOCK code works including read of request 			}
-{ 27.03.2006 WINSOCK code works 						}
-{ 02.04.2006 serving of simple text pages work 					}
+{ History: 																}
+{ 15.03.2006 startet with Vladimirs Code 								}
+{ 17.03.2006 running non Block http server on linux 					}
+{ 20.03.2006 startet porting to win32 using winsock 					}
+{ 24.03.2006 WINSOCK code works including read of request 				}
+{ 27.03.2006 WINSOCK code works 										}
+{ 02.04.2006 serving of simple text pages work 							}
 { 03.04.2006 cleaned code, tested with firefox and konqueror -> ok 		}
-{   	     wget doesn't receive anything :( 					}
+{   	     wget doesn't receive anything :( 							}
 { 17.10.2006 started the unit webserver from pswebserver code			}
-{		     currently only GET requests are supported			}
+{		     currently only GET requests are supported					}
 { 12.11.2006 added registration of special URLs through callback		}
-{ 18.11.2006 added sending of variable data to the embedding process		}
-{ 29.09.2010 started to add thread support					}
-{ 07.02.2011 worked on thread support, added better IO Error checking		}
+{ 18.11.2006 added sending of variable data to the embedding process	}
+{ 29.09.2010 started to add thread support								}
+{ 07.02.2011 worked on thread support, added better IO Error checking	}
+
+{$ifdef LINUX}
+  {$ifdef CPU64}
+	{$define Linux64}
+  {$endif}
+{$endif}
 
 interface
-uses classes, sysutils;
+uses classes, sysutils, process;
 
 procedure start_server(address:string;port:word;BlockMode: Boolean;doc_root,logfile:string;ThreadMode : Boolean ;DebugMode : Boolean);
 procedure SetupSpecialURL(URL:string;proc : tprocedure);
@@ -50,10 +56,10 @@ const
 	NONBLOCKED=false;
 	Debug_ON=true;
 	Debug_OFF=false;
-	
+
 implementation
 
-uses 
+uses
 	CommonHelper,crt, blcksock, synautil, synaip, synacode, synsock,
 {$ifdef LINUX}
 	BaseUnix,Unix, dos;
@@ -62,82 +68,129 @@ uses
 	windows;
 {$endif}
 
-const 
+const
 	LocalAddress = '127.0.0.1';
 	MaxUrl = 25;
 	MaxThreads = 25;
-	
+
 var
 
 	// Listening socket
-	sock,reply_sock	: TTCPBlockSocket;
-	csock			: TSocket;
+	sock,reply_sock		: TTCPBlockSocket;
+	csock				: TSocket;
 
 	// Maximal queue length
-	max_connections	: integer;
+	max_connections		: integer;
 
-	binData			: byte;
+	binData				: byte;
 
-	Addr_len		: LongInt;
+	Addr_len			: LongInt;
 
 	// Buffers
-	buff			: String;
-	post			: array [1..65535] of string;
+	buff				: String;
+	post				: array [1..65535] of string;
 
 	// Counter
-	BufCnt			: Integer;
+	BufCnt				: Integer;
 
 	// DOCUMENT ROOT
-	DocRoot			: string;
+	DocRoot				: string;
 
 	{ the requested URL, the File to serve and the send data}
-	params,URL		: string;
-	SpecialURL		: array[1..MaxUrl] of String;
-	UrlPointer		: byte;
+	params,URL			: string;
+	SpecialURL			: array[1..MaxUrl] of String;
+	UrlPointer			: byte;
 
-	G			: file of byte;
+	G					: file of byte;
 
 	header,page,
-	CType			: AnsiString;
+	CType				: AnsiString;
 
-	PageSize		: LongInt;
+	PageSize			: LongInt;
 
 	TRespSize,
-	status			: string;
+	status				: string;
 
 	// Request size
 	reqSize,reqCnt		: word;
 
 	// LOG-Files
-	DBG,ERR,ACC		: text;
+	DBG,ERR,ACC			: text;
 
 	ServingRoutine		: array[1..MaxUrl] of tprocedure;
-	VariableHandler	: tprocedure;
+	VariableHandler		: tprocedure;
 
 	// this variable is just used to convert numerics to string
-	blubber			: string;
+	blubber				: string;
 
-	saveaccess		: Boolean;
-	
+	saveaccess			: Boolean;
+
 	// Flag to show wether threads should be used or not
-	WithThreads		: Boolean;
-	
+	WithThreads			: Boolean;
+
 	ThreadHandle		: array[1..MaxThreads] of TThreadId;
-{$ifndef LINUX64}	
+{$ifndef LINUX64}
 	NumOfThreads		: LongInt;
 {$endif}
 {$ifdef LINUX64}
 	NumOfThreads		: Int64;
 {$endif}
 
-	DebugOutput		: TRTLCriticalSection;
+	DebugOutput			: TRTLCriticalSection;
 	ProtectAccessLog	: TRTLCriticalSection;
 	ProtectAccess		: TRTLCriticalSection;
-	ProtectDataSend	: TRTLCriticalSection;
-	ServeSpecialURL	: TRTLCriticalSection;
+	ProtectDataSend		: TRTLCriticalSection;
+	ServeSpecialURL		: TRTLCriticalSection;
 
-	debug			: boolean;
-	
+	debug				: boolean;
+
+
+
+procedure ExecCmd( cmd: String; params: String;var stdout: String);
+
+var
+  AProcess     		: TProcess;
+  BytesRead    		: longint;
+	BytesAvailable	: DWord;
+  Buffer       		: String;
+	CmdOutput				: AnsiString;
+
+begin
+  // Set up the process;
+  AProcess := TProcess.Create(nil);
+  AProcess.CommandLine := cmd+' '+params;
+	writeln(cmd+' '+params);
+  // Process option poUsePipes has to be used so the output can be captured.
+  // Process option poWaitOnExit can not be used because that would block
+  // this program, preventing it from reading the output data of the process.
+  AProcess.Options := [poWaitOnExit,poUsePipes];
+
+  // Start the process (run the command)
+  AProcess.Execute;
+
+	// All generated output from AProcess is read in a loop until no more data is available
+	BytesAvailable := AProcess.Output.NumBytesAvailable;
+	BytesRead := 0;
+	while BytesAvailable>0 do begin
+		// Get the new data from the process to a maximum of the buffer size that was allocated.
+    // Note that all read(...) calls will block except for the last one, which returns 0 (zero).
+		SetLength(Buffer, BytesAvailable);
+		BytesRead := AProcess.Output.Read(Buffer[1], BytesAvailable);
+		// Add the bytes that were read to the stream for later usage
+		CmdOutput := CmdOutput + copy(Buffer,1, BytesRead);
+		BytesAvailable := AProcess.Output.NumBytesAvailable;
+	end;
+
+  // The process has finished so it can be cleaned up
+  AProcess.Free;
+
+  // Or the data can be shown on screen
+	stdout:=CmdOutput;
+	//writeln(stdout);
+
+end;
+
+
 procedure writeLOG(MSG: string);
 begin
 	EnterCriticalSection(DebugOutput);
@@ -152,17 +205,17 @@ end;
 
 procedure errorLOG(MSG: string);
 var
-    jahr,mon,tag,wota 	: word;
-    std,min,sec,ms	: word;
-    TimeString		: string;
+    jahr,mon,tag,wota	: word;
+    std,min,sec,ms		: word;
+    TimeString			: string;
 {$ifdef Windows}
-    st 			: systemtime;
-{$endif} 
+    st 					: systemtime;
+{$endif}
 
 
 begin
  {$ifdef linux} // LINUX
-	gettime(std,min,sec,ms); 
+	gettime(std,min,sec,ms);
 	getdate(jahr,mon,tag,wota);
  {$else}        // WINDOWS
 	getlocaltime( st );
@@ -174,7 +227,7 @@ begin
 	mon:= st.wmonth;
 	tag:= st.wday;
 
- {$endif} 
+ {$endif}
 	TimeString:='['+IntToStr(tag)+'/'+IntToStr(mon)+'/'+IntToStr(jahr)+':'+IntToStr(std)+':'+IntToStr(min)+':'+IntToStr(sec)+':'+IntToStr(ms)+']';
 
 	writeln(ERR,TimeString+' '+MSG);
@@ -203,7 +256,7 @@ begin
 	inc(UrlPointer);
 	if debug then writeLOG('registered special URL'+URL);
 end;
-	
+
 
 procedure SetupVariableHandler(proc : tprocedure);
 begin
@@ -219,7 +272,7 @@ begin
 	// set flags for threadusage
 	If ( ThreadMode ) then WithThreads:=true
 	else WithThreads:= False;
-	
+
 	// check Debug Flag
 	if (DebugMode) then debug:=true
 	else debug:=false;
@@ -230,7 +283,7 @@ begin
 	    rewrite(ACC);
 	    saveaccess:=true;
 	end;
-	
+
 	{ Initialization}
 	if debug then writeLOG('PWS Pascal Web Server - starting server...');
 	if (port=0) then port:=10080;
@@ -247,7 +300,7 @@ begin
 	sock.CreateSocket;
 	if sock.LastError<>0 then
 	    writeLOG('start_server: Error creating socket');
-	//setLinger(true,10);
+	sock.setLinger(true,10);
 
 	if not(BlockMode) then begin
 		{ set socket to non blocking mode }
@@ -286,7 +339,9 @@ begin
 	header:='HTTP/1.1 '+status+CRLF;
 	header:=header+'MIME-Version: 1.0'+CRLF;
 	header:=header+'Server: bonita'+CRLF;
-	if (WithThreads) then 
+	{ add CORS option to allow cross connections from everywhere }
+	header:=header+'Access-Control-Allow-Origin: *'+CRLF;
+	if (WithThreads) then
 		header:=header+'Connection: keep-alive'+CRLF
 	else
 		header:=header+'Connection: close'+CRLF;
@@ -294,7 +349,7 @@ begin
 	header:=header+CType;
 	header:=header+'Content-length: ';
 	{ the Content-length is the size of the served object }
-	{ without the size of the header } 
+	{ without the size of the header }
 	str(PageSize,TRespSize);
 	header:=header+TRespSize;
 	header:=header+CRLF+CRLF;
@@ -310,13 +365,17 @@ begin
 	str(BufCnt,blubber);
 	if debug then writeLOG('SendPage '+IntToStr(WhoAmI)+': BufCnt='+blubber);
 	i:=0;
+	// get the User-Agent
+	// dont know why????
+
 	repeat
 		inc(i);
-	until (UpperCase(copy(post[i],1,10))='USER-AGENT') or ( i = Length(post) );
+	until (UpperCase(copy(post[i],1,10))='USER-AGENT') or ( i >= Length(post[i]) );
 	if (UpperCase(copy(post[i],1,10))='USER-AGENT') then
-	  useragent:=copy(post[i],13,7)
+	  useragent:=copy(post[i],13,length(post[i])-13)
 	else
 	  useragent:='bonita-client';
+
 	//EnterCriticalSection(ProtectDataSend);
 	if debug then writeLOG('SendPage '+IntToStr(WhoAmI)+': ' +useragent + ' -> sending header');
 	reply_sock.SendString(header);
@@ -343,10 +402,10 @@ var Paramstart,i	: word;
     TimeString,
     ClientIP		: string;
 {$ifdef Windows}
-    st 			: systemtime;
-    n			: word;
+    st 				: systemtime;
+    n				: word;
 {$endif}
-    IOError		: Boolean;
+    IOError			: Boolean;
     RequestURL		: string;
 
 begin
@@ -359,7 +418,7 @@ begin
 		if reply_sock.LastError<>0 then begin
 		    writeLOG('process_request: Error reading request');
 		    IOError:=true;
-		end;    
+		end;
 		str(BufCnt,blubber);
 		if debug then writeLOG('process_request '+IntToStr(WhoAmI)+' : Req['+blubber+']='+buff);
 		post[BufCnt] := buff;
@@ -382,7 +441,7 @@ begin
 	{ e.g. "GET /path/to/a/non/existing/file.htm HTTP/1.1" }
 	{ request type is ignored it's always GET assumed }
 	URL:=copy(post[1],pos('/',post[1]),length(post[1]));
-	URL:=copy(URL,1,pos(' ',URL)-1);	
+	URL:=copy(URL,1,pos(' ',URL)-1);
 	Paramstart:=pos('?',URL);
 	RequestURL:=URL;
 
@@ -422,57 +481,75 @@ begin
 		{$ifdef Windows}
 		for n:=1 to length(URL) do if (URL[n]='/') then URL[n]:='\';
 		{$endif}
-		page:='';
-		{$i-}
-		assign(G,URL);
-		reset (G);
-		{$i+}
-		if (IoResult=0) then begin { the file exists }
-			status:='200 OK';
-			while not eof(G) do begin  { read the file }
-				{$i-}
-				read(G,BinData);
-				{$i+}
-				if ( IOResult <> 0 ) then begin
-					page:='<html><body>Error: There was an Error reading the required data</body></html>';
-					status:='500 Internal Server Error';
-					errorLOG('Error 500:  Error reading '+URL);
-					IOError:=true;
-					exit;
-				end;
-				page:=page+chr(BinData);
+
+		// it's a php file so spawn php interpreter
+		// capture the output in page var and deliver it
+		if (pos('.php',URL)<>0) then begin
+			//page:=RunCommand('php'+' '+URL);
+			ExecCmd( 'php', URL, page);
+			if ( length(page) = 0 ) then begin
+				page:='<html><body>Error: 500 strange error, no output from PHP process</body></html>';
+				status:='500 Internal Server Error';
+				errorLOG('Error 500:  Error reading '+URL);
+				IOError:=true;
 			end;
-			close (G);
+			//writeln(page);
+			SendPage(WhoAmI,page);
 		end
-		else begin  { file not found }
-			page:='<html><body>Error: 404 Document not found</body></html>';
-			status:='404 Not Found';
-			errorLOG('Error 404 doc '+URL+' not found');
-			IOError:=true
+
+		// it's a file do open and read it
+		else begin
+			page:='';
+			{$i-}
+			assign(G,URL);
+			reset (G);
+			{$i+}
+			if (IoResult=0) then begin { the file exists }
+				status:='200 OK';
+				while not eof(G) do begin  { read the file }
+					{$i-}
+					read(G,BinData);
+					{$i+}
+					if ( IOResult <> 0 ) then begin
+						page:='<html><body>Error: There was an Error reading the required data</body></html>';
+						status:='500 Internal Server Error';
+						errorLOG('Error 500:  Error reading '+URL);
+						IOError:=true;
+						exit;
+					end;
+					page:=page+chr(BinData);
+				end;
+				close (G);
+			end
+			else begin  { file not found }
+				page:='<html><body>Error: 404 Document not found</body></html>';
+				status:='404 Not Found';
+				errorLOG('Error 404 doc '+URL+' not found');
+				IOError:=true
+			end;
+
+			//EnterCriticalSection(ProtectDataSend);
+			if debug then writeLOG('process_request : send page data ->');
+			//if debug then writeLOG(page);
+			SendPage(WhoAmI,page);
+			//LeaveCriticalSection(ProtectDataSend);
 		end;
-
-		//EnterCriticalSection(ProtectDataSend);
-		if debug then writeLOG('process_request : send page data ->');
-		//if debug then writeLOG(page);
-		SendPage(WhoAmI,page);
-		//LeaveCriticalSection(ProtectDataSend);
-
 	end;
 	{ write access log in common logfile format, that looks like:
-		78.34.183.237 - - [16/Jun/2009:15:11:09 +0200] "GET /templates/eilers.net/images/mw_menu_cap_r.png HTTP/1.1" 404 8219 "http://www.eilers.net/templates/eilers.net/css/template.css" "Mozilla/5.0 (X11; U; Linux i686; de; rv:1.9.0.10) Gecko/2009042523 Ubuntu/9.04 (jaunty) Firefox/3.0.10"                                                                            
-		78.34.183.237 - - [16/Jun/2009:15:11:09 +0200] "GET /templates/eilers.net/images/mw_menu_normal_bg.png HTTP/1.1" 404 8219 "http://www.eilers.net/templates/eilers.net/css/template.css" "Mozilla/5.0 (X11; U; Linux i686; de; rv:1.9.0.10) Gecko/2009042523 Ubuntu/9.04 (jaunty) Firefox/3.0.10"                                                                        
-		74.6.22.178 - - [16/Jun/2009:15:14:37 +0200] "GET /robots.txt HTTP/1.0" 200 304 "-" "Mozilla/5.0 (compatible; Yahoo! Slurp; http://help.yahoo.com/help/us/ysearch/slurp)"           
-		74.6.22.178 - - [16/Jun/2009:15:14:37 +0200] "GET /vrml/ HTTP/1.0" 404 8219 "-" "Mozilla/5.0 (compatible; Yahoo! Slurp/3.0; http://help.yahoo.com/help/us/ysearch/slurp)"           
+		78.34.183.237 - - [16/Jun/2009:15:11:09 +0200] "GET /templates/eilers.net/images/mw_menu_cap_r.png HTTP/1.1" 404 8219 "http://www.eilers.net/templates/eilers.net/css/template.css" "Mozilla/5.0 (X11; U; Linux i686; de; rv:1.9.0.10) Gecko/2009042523 Ubuntu/9.04 (jaunty) Firefox/3.0.10"
+		78.34.183.237 - - [16/Jun/2009:15:11:09 +0200] "GET /templates/eilers.net/images/mw_menu_normal_bg.png HTTP/1.1" 404 8219 "http://www.eilers.net/templates/eilers.net/css/template.css" "Mozilla/5.0 (X11; U; Linux i686; de; rv:1.9.0.10) Gecko/2009042523 Ubuntu/9.04 (jaunty) Firefox/3.0.10"
+		74.6.22.178 - - [16/Jun/2009:15:14:37 +0200] "GET /robots.txt HTTP/1.0" 200 304 "-" "Mozilla/5.0 (compatible; Yahoo! Slurp; http://help.yahoo.com/help/us/ysearch/slurp)"
+		74.6.22.178 - - [16/Jun/2009:15:14:37 +0200] "GET /vrml/ HTTP/1.0" 404 8219 "-" "Mozilla/5.0 (compatible; Yahoo! Slurp/3.0; http://help.yahoo.com/help/us/ysearch/slurp)"
 		77.180.99.188 - - [16/Jun/2009:15:15:34 +0200] "GET / HTTP/1.0" 200 10503 "-" "check_http/v1944 (nagios-plugins 1.4.11)"
 		65.55.106.161 - - [16/Jun/2009:16:01:24 +0200] "GET /vrml/ HTTP/1.1" 404 8219 "-" "msnbot/2.0b (+http://search.msn.com/msnbot.htm)"
 		77.180.99.188 - - [16/Jun/2009:16:04:05 +0200] "GET / HTTP/1.0" 200 10503 "-" "check_http/v1944 (nagios-plugins 1.4.11)"
 		65.55.51.115 - - [16/Jun/2009:16:07:23 +0200] "GET /robots.txt HTTP/1.1" 200 304 "-" "msnbot/2.0b (+http://search.msn.com/msnbot.htm)"
-		
+
 		field description
 		host rfc931 username date:time request statuscode bytes referrer applinformation
 	}
  {$ifdef linux} // LINUX
-	gettime(std,min,sec,ms); 
+	gettime(std,min,sec,ms);
 	getdate(jahr,mon,tag,wota);
  {$else}        // WINDOWS
 	getlocaltime( st );
@@ -484,7 +561,7 @@ begin
 	mon:= st.wmonth;
 	tag:= st.wday;
 
- {$endif} 
+ {$endif}
 	TimeString:='['+IntToStr(tag)+'/'+IntToStr(mon)+'/'+IntToStr(jahr)+':'+IntToStr(std)+':'+IntToStr(min)+':'+IntToStr(sec)+':'+IntToStr(ms)+']';
 	ClientIP:=reply_sock.GetRemoteSinIP;
 	accessLog(ClientIP+' - - '+TimeString+' GET "'+RequestURL+'" '+copy(status,1,3)+' '+IntToStr(length(page))+' '+UserAgent);
@@ -494,7 +571,7 @@ end;
 
 
 { this thread serves a connection until any ioerrors }
-{$ifdef linux64} 
+{$ifdef linux64}
 function KeepAliveThread(p: pointer):Int64;
 {$else}
 function KeepAliveThread(p: pointer):LongInt;
@@ -502,7 +579,7 @@ function KeepAliveThread(p: pointer):LongInt;
 
 var
 	endThread		: Boolean;
-	
+
 begin
 	if debug then writeLOG('KeepAliveThread:started');
 	endThread:=false;
@@ -548,7 +625,7 @@ begin
 		if debug then WriteLOG('serve_request: Reading requests...');
 
 		if ( WithThreads ) then begin
-			// start a new thread which processes the initial and all 
+			// start a new thread which processes the initial and all
 			// following requests and closes sockets on IO Error reading requests,
 			// then end thread
 			inc(NumOfThreads);
@@ -564,9 +641,10 @@ begin
 			process_request(0);
 			//LeaveCriticalSection(ProtectAccess);
 			if debug then WriteLOG('serve_request: free reply socket');
+			reply_sock.CloseSocket;
 			reply_sock.free;
 			if reply_sock.LastError<>0 then
-			    writeLOG('server_request: Error freeing socket');
+			    writeLOG('serve_request: Error freeing socket');
 
 		end
 	end;
@@ -597,11 +675,11 @@ begin
 end;
 
 begin
-	// don't write access log
+	// dont write access log
 	saveaccess:=false;
 
 	// switch off debug by default
-	debug:=true;
+	debug:=false;
 	if (debug) then writeln('Debugging On!');
 
 	// switch off threads
@@ -614,11 +692,21 @@ begin
 	InitCriticalSection(ServeSpecialURL);
 	// open logfiles
 	//error Log
+	{$ifdef Windows}
+ assign(ERR,'\temp\deviceserver_err.log');
+ {$endif}
+ {$ifdef Linux}
 	assign(ERR,'/tmp/deviceserver_err.log');
+ {$endif}
 	rewrite(ERR);
 
 	// debug Log
+	{$ifdef Windows}
+ assign(DBG,'\temp\deviceserver_dbg.log');
+ {$endif}
+ {$ifdef Linux}
 	assign(DBG,'/tmp/deviceserver_dbg.log');
+	{$endif}
 	rewrite(DBG);
 
 	UrlPointer:=1;

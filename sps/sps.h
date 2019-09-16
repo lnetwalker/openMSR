@@ -1,15 +1,15 @@
 { global variables and constant definitions of the sps project 	}
-{ all global values should be defined here, if you see any		}
+{ all global values should be defined here, if you see any	}
 { ugly constant values in the code, please replace them with	}
-{ symbolic names and define the names in this file				}
+{ symbolic names and define the names in this file		}
 { and please remember: the project is running since the early	}
-{ 90's !It was first used in Dezember 1989						}
-{ there is code of all my Pascal programming states				}
+{ 90's !It was first used in Dezember 1989			}
+{ there is code of all my Pascal programming states		}
 { included beginner to "rebeginner" after years of no single	}
-{ line written in pascal! thanks for not blaming me ;)			}
+{ line written in pascal! thanks for not blaming me ;)		}
 
-{ copyright (c) 2006 by Hartmut Eilers <hartmut@eilers.net>				}
-{ distributed under the GNU General Public License V2 or any later	}
+{ copyright (c) 2006 by Hartmut Eilers <hartmut@eilers.net>	}
+{ distributed under the GNU General Public License V2 or any later}
 
 
 type  string3 =string[3];
@@ -22,18 +22,13 @@ type  string3 =string[3];
 const 
       	debug       = false;
       	awl_max     = 2000;
-      	anweismax   = 34;
-{$ifdef ZAURUS}
-      	minScreenX  = 50;
-      	minScreenY  = 20;
-{$else}
+      	anweismax   = 37;
       	minScreenX  = 80;
       	minScreenY  = 25;
-{$endif}
       	{ include the SPS Version and build date }
       	version     ={$I %SPSVERSION% };
       	datum       ={$I %DATE%};
-           { attention, it is important to keep the order of	}
+                   { attention, it is important to keep the order of	}
 		   { the sps commands, because the bytecode interpreter }	
 		   { relies on the order! (the editor formatter too!)	}
 		   { write new commands without blanks, they will be 	}
@@ -44,8 +39,16 @@ const
       	anweis      : array [1..anweismax] of string3 =(
                         'UN(','ON(','UN','ON','U(','O(','=N','JI','TE',
                         'ZR','EN','U','O',')','=','S','R','J','K','NOP',
-			  			'EQ','LT','GT','$','PE','JP','SP','SPB','JC','EP',
-						'AN(','AN','A(','A');
+			'EQ','LT','GT','$','PE','JP','SP','SPB','JC','EP',
+			'AN(','AN','A(','A','DEC','INC','LDD');
+
+	p_up = #72;
+	p_dw = #80;
+	p_le = #75;
+	p_re = #77;
+	esc  = #27;
+	enter= #13;
+	tab  = #9;
 
 
 
@@ -53,13 +56,9 @@ var
 {$IFDEF SPS}
 { these variables are only used from sps.pas }	 
      programm,sicher   : boolean;
-     graphdriver,
-     graphmode,
-     grapherror        : integer;
      taste             : char;
      i                 : Word;
      name              : string;
-     pio_use,pio       : boolean;
      zeilenvorschub,
      Grosschrift,
      seitenlaenge,
@@ -68,9 +67,7 @@ var
      copy_right        : string15;
      start_pfad        : string80;
      doc_start         : doc_pointer;
-     erfolg            : byte;
      dummy_string      : string;
-     screenx,screeny   : word;
 {$ENDIF}
 
 { these variables are used by sps.pas and run_sps.pas }

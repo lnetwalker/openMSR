@@ -67,6 +67,7 @@ begin
 			val(copy(formel,i+1,p-i),idx);
 			formel:=copy(formel,1,i-1)+val2str(analog_in[idx])+copy(formel,p+1,length(formel));
 			i:=p;
+			writeln('idx=',idx);
 			writeln('A[' + val2str(idx) + ']=' + val2str(analog_in[idx]));
 		end;
 		inc(i);
@@ -78,7 +79,7 @@ begin			// main program
 	PhysMachloadCfg('OpenLabCalc.cfg');
 
 	write('formel: ');readln(formel);
-	
+
 	repeat
 		{ should work in a loop with unlimited formulars }
 		PhysMachReadAnalog;
@@ -86,6 +87,7 @@ begin			// main program
 		ParseFormular(data,dest);
 		codier(data,funk,zahlen);
 		analog_in[dest]:=trunc(fx(1,funk,zahlen));
+		writeln('A[',dest ,']=',trunc(fx(1,funk,zahlen)));
 		PhysMachWriteAnalog;
 	until keypressed;
 end.

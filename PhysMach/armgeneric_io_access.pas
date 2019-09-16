@@ -30,7 +30,7 @@ function armgeneric_gpiodir(adr:byte;io_port:byte;dir:byte):byte;
 function armgeneric_exportGPIO(adr:byte;bit:byte;gpioline:byte):byte;
 IMPLEMENTATION
 uses
-  Classes, SysUtils, baseunix, StringCut;
+  Classes, SysUtils, baseunix, StringCut, Unix;
 
 type
   GPIO_TYPE 		= array[0..255,0..255] of byte;
@@ -51,23 +51,25 @@ var
 
 
 function armgeneric_close(initstring:string):boolean;
-var l			: byte;
-    fileDesc		: integer;
-    gReturnCode		: Byte;
+var l			        : byte;
+    fileDesc		  : integer;
+    gReturnCode		: Integer;
+    gpioline      : PChar;
+    gpiotemp      : String;
 
 begin
   // loop over the configured GPIOs and unexport them!
   for l:=1 to ListCnt do begin
-    try
       try
-	fileDesc := fpopen('/sys/class/gpio/unexport', O_WrOnly);
-	gReturnCode := fpwrite(fileDesc, Liste[l][0], 2);
+        fileDesc := fpopen('/sys/class/gpio/unexport', O_WrOnly);
+        gpioline := StrAlloc(length(Liste[l]));
+        StrPCopy(gpioline,Liste[l]);
+        gReturnCode := fpwrite(fileDesc, gpioline[0], 2);
+        if ( gReturnCode = -1 ) then writeln('error unexporting ',gpioline);
       finally
-	gReturnCode := fpclose(fileDesc);
+	      gReturnCode := fpclose(fileDesc);
       end;
-    except
-      writeln('Error unexporting GPIO ',Liste[l][0]);
-    end;
+      StrDispose(gpioline);
   end;
   armgeneric_close:=true;
 end;
@@ -75,11 +77,11 @@ end;
 
 function armgeneric_exportGPIO(adr:byte;bit:byte;gpioline:byte):byte;
 var
-    fileDesc		: integer;
-    gReturnCode		: Integer;
-    gCloseCode		: Byte;
+    fileDesc		      : integer;
+    gReturnCode		    : Integer;
+    gCloseCode		    : Byte;
     gpiodevicenumber 	: PChar;
-    //cmd			: String;
+    cmd, basefilename	: String;
 
 const
     OUT_DIRECTION: PChar = 'out';
@@ -92,32 +94,59 @@ begin
     gpiodevicenumber:=PChar(IntToStr(gpioline));
     { Prepare GPIO for access: }
     try
-	write ('GPIO[',gpioline,']=',gpiodevicenumber);
-	fileDesc := fpopen('/sys/class/gpio/export', O_WrOnly);
-	gReturnCode := fpwrite(fileDesc, gpiodevicenumber[0], 2);
-	//cmd:='echo "'+IntToStr(gpioline)+'" > /sys/class/gpio/export';
-        //gReturnCode := fpsystem(cmd);
-	writeln (' Result : ',gReturnCode);
+	     write ('GPIO[',gpioline,']=',gpiodevicenumber);
+	     fileDesc := fpopen('/sys/class/gpio/export', O_WrOnly);
+	     gReturnCode := fpwrite(fileDesc, gpiodevicenumber[0], 2);
+	     writeln (' Result : ',gReturnCode);
+       if gReturnCode = -1 then   begin
+         writeln('Error exporting GPIO ',gpioline);
+         writeln(SysErrorMessage(fpGetErrNo));
+         { try alternate way of programming GPIOs }
+         cmd:='echo "'+IntToStr(gpioline)+'" > /sys/class/gpio/export';
+         gReturnCode := fpsystem(cmd);
+         if gReturnCode = -1 then
+           writeln('alternate access to GPIO ports failed with ',gReturnCode);
+           writeln(SysErrorMessage(fpGetErrNo));
+       end;
+
     finally
-	gCloseCode := fpclose(fileDesc);
+	     gCloseCode := fpclose(fileDesc);
     end;
-    if gReturnCode = -1 then   writeln('Error exporting GPIO ',gpioline);
     { Set GPIO directions }
     try
-      fileDesc := fpopen('/sys/class/gpio/gpio' + IntToStr(ptruint(gpiodevicenumber)) + '/direction', O_WrOnly);
+      basefilename:='/sys/class/gpio/gpio' + IntToStr(gpioline) + '/direction';
+      writeln('try to configure port direction for '+basefilename);
+      fileDesc := fpopen(basefilename, O_WrOnly);
       write('GPIO ', gpioline ,' is ');
       if ( GPIO_DIR[adr] = 0 ) then begin
-	writeln('Input');
-	gReturnCode := fpwrite(fileDesc, IN_DIRECTION[0], 2)
-	end
+	       writeln('Input');
+         gReturnCode := fpwrite(fileDesc, IN_DIRECTION[0], 2);
+	    end
       else begin
-	writeln('Output');
-	gReturnCode := fpwrite(fileDesc, OUT_DIRECTION[0], 3);
+	       writeln('Output');
+	       gReturnCode := fpwrite(fileDesc, OUT_DIRECTION[0], 3);
       end;
     finally
       gCloseCode := fpclose(fileDesc);
     end;
-    if gReturnCode = -1 then writeln ('Error setting GPIO ',gpioline,' to ',GPIO_DIR[adr],' with code ',gReturnCode);
+    if gReturnCode = -1 then begin
+      writeln ('Error setting GPIO ',gpioline,' to ',GPIO_DIR[adr],' with code ',gReturnCode,', trying alternate method');
+      writeln(SysErrorMessage(fpGetErrNo));
+      { TRY ALTERNATE ACCESS OPTION }
+      basefilename:='/sys/class/gpio/gpio' + IntToStr(gpioline);
+      if ( GPIO_DIR[adr] = 0 ) then begin
+	       writeln('Input');
+         gReturnCode := fpsystem('echo "in">' + basefilename +'/direction');
+	    end
+      else begin
+	       writeln('Output');
+	       gReturnCode := fpsystem('echo "out">' + basefilename +'/direction');
+      end;
+      if gReturnCode < 0 then begin
+        writeln ('Error alternate setting GPIO ',gpioline,' to ',GPIO_DIR[adr],' with code ',gReturnCode,' failed also');
+        writeln(SysErrorMessage(fpGetErrNo));
+      end;
+    end;
 end;
 
 function armgeneric_read_ports(io_port:longint):byte;
@@ -127,21 +156,33 @@ var
   returnvalue		: byte;
   fileDesc		: INTEGER;
   gpiodevicenumber	: String;
-  gReturnCode		: Byte;
+  gReturnCode		: Integer;
 
 begin
   returnvalue:=0;
   for i:= 0 to 7 do begin
-  	gpiodevicenumber:=IntToStr(GPIO[GPIO_ADR[0,io_port],i]);
-
-	try
-	  fileDesc := fpopen('/sys/class/gpio/gpio' + gpiodevicenumber + '/value', O_RdOnly);
-	  gReturnCode := fpread(fileDesc, value[1], 1);
-	finally
-	  gReturnCode := fpclose(fileDesc);
-	end;
-	if ( value = '1' ) then
-	  returnvalue:=returnvalue+power[i-1];
+{
+	writeln('GPIO_ADR[0,',io_port,']=',GPIO_ADR[0,io_port]);
+	writeln('GPIO[adr,',i,']=',GPIO[1,i]);
+	writeln(' gpiodevicenumber=',GPIO[GPIO_ADR[0,io_port],i]);
+}
+    if ( GPIO[io_port,i] > 0 ) then begin
+	  	gpiodevicenumber:=IntToStr(GPIO[io_port,i]);
+		  // write('read gpio',gpiodevicenumber);
+		  try
+		    fileDesc := fpopen('/sys/class/gpio/gpio' + gpiodevicenumber + '/value', O_RdOnly);
+		    gReturnCode := fpread(fileDesc, value[1], 1);
+	      //if ( gReturnCode = -1 ) then write('r gpio'+gpiodevicenumber+' fail. ')
+		  finally
+		    gReturnCode := fpclose(fileDesc);
+		  end;
+	  end
+	  else value:='0';
+	  if ( value = '1' ) then begin
+      //writeln('1');
+	    returnvalue:=returnvalue+power[i];
+	  end
+	  //else writeln('0');
   end;
   armgeneric_read_ports:=returnvalue;
 end;
@@ -150,11 +191,11 @@ end;
 
 
 function armgeneric_write_ports(io_port:longint;byte_value:byte):byte;
-var i			: byte;
-    out 		: PChar;
-    fileDesc		: integer;
-    gpiodevicenumber	: String;
-    gReturnCode	: Byte;
+var i         			: byte;
+    out 		        : PChar;
+    fileDesc		    : integer;
+    gpiodevicenumber: String;
+    gReturnCode	    : Integer;
 
 const
     PIN_ON: PChar = '1';
@@ -170,13 +211,14 @@ begin
     else
       out:=PIN_OFF;
 
-    gpiodevicenumber:=IntToStr(GPIO[GPIO_ADR[1,io_port],i]);
+    gpiodevicenumber:=IntToStr(GPIO[io_port,i]);
 
     try
-	fileDesc := fpopen('/sys/class/gpio/gpio' + gpiodevicenumber + '/value', O_WrOnly);
-	gReturnCode := fpwrite(fileDesc, out[0], 1);
+	     fileDesc := fpopen('/sys/class/gpio/gpio' + gpiodevicenumber + '/value', O_WrOnly);
+	     gReturnCode := fpwrite(fileDesc, out[0], 1);
+       //if ( gReturnCode = -1 ) then writeln('writing gpio'+gpiodevicenumber+' failed.')
     finally
-	gReturnCode := fpclose(fileDesc);
+	     gReturnCode := fpclose(fileDesc);
     end;
   end;
   armgeneric_write_ports:=0;
@@ -184,19 +226,21 @@ end;
 
 
 function armgeneric_hwinit(initstring:string;DeviceNumber:byte):boolean;
-
+var i: byte;
 begin
   { initstring is a list of used GPIO Lines by this device }
   { Prepare GPIO for access: }
   Liste:=StringSplit(initstring,',');
   ListCnt:=GetNumberOfElements(initstring,',');
   Writeln('DEVICE has ',ListCnt,' GPIO lines');
+  for i:=1 to ListCnt do writeln ('Liste[',i,']=',Liste[i]);
 end;
 
 
 function armgeneric_gpio(adr:byte;bit:byte;gpiobit:byte):byte;
 
 begin
+	write('GPIO adr=',adr);write(' bit=',bit);writeln(' gpio=',gpiobit);
   GPIO[adr,bit]:=gpiobit;
 end;
 
@@ -204,6 +248,7 @@ end;
 function armgeneric_gpiodir(adr:byte;io_port:byte;dir:byte):byte;
 
 begin
+	write('GPIO adr=',adr);write(' io_port=',io_port);writeln(' gpio=',dir);
   GPIO_ADR[dir,io_port]:=adr;
   GPIO_DIR[adr]:=dir;
 end;

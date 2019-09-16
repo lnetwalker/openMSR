@@ -28,20 +28,6 @@ dos,crt,porting,printer,popmenu,browse,PhysMach;
 {$i ./run_awl.pas}
 {$i ./kop.pas}
 
-
-procedure checkScreenSize;
-
-begin
-     screenx:=GetScreenMaxX;
-     screeny:=GetScreenMaxY;
-     if ((screenx<minScreenX) or (screeny<minScreenY)) then
-     begin
-	write(#7);
-     	writeln('Screen is too small - minimum Screensize is',minScreenX,' x ',minScreenY);
-     	halt(2);
-     end;
-end;
-
 procedure configuration;
 
 var  
@@ -90,7 +76,6 @@ begin
            BackGround:=lightgray;ForeGround:=Black;
 		{ check wether screen size has changed }
            checkScreenSize;
-           Highlighted:=red;
            balken(balken_pkte,6,copy_right,auswahl);
 
            case Auswahl of
@@ -102,12 +87,13 @@ begin
                'Q' : ;
            else begin
                   sound(220); delay(200); nosound;
-              end;
+                end;
            end;
-	{ open a maximum sized window get get a blank screen after resizing window }
-	window(1,1,GetScreenMaxX,GetScreenMaxY);
-	clrscr;
+	       { open a maximum sized window get get a blank screen after resizing window }
+	       window(1,1,GetScreenMaxX,GetScreenMaxY);
+	       clrscr;
      until auswahl='Q';
+     
      if sicher then begin
         save_screen;
         textbackground(red);textcolor(lightgray);
@@ -162,18 +148,17 @@ begin                              { SPS_SIMULATION }
      textbackground(lightgray);textcolor(Black);
      my_wwindow(trunc(screenx/2-25),trunc(screeny/2-2),trunc(screenx/2+25),trunc(screeny/2+3),'','',true);
      writeln(' SPS SIMULATOR V ',version);
-     write(' Build on ',datum,' (c) 1989-2011 by H. Eilers ');
+     write(' Build on ',datum,' (c) 1989-2019 by H. Eilers ');
      getdir(0,start_pfad);
      start_pfad:='.';
      configuration;
      directvideo:=false;
-	 {graphmode:=m640x480;}
-     {graphdriver:=D8bit;}
      programm:=false;
      sicher:=false;
      name:='NONAME.SPS';
      delay(4000);
-     window(trunc(screenx/2-25),trunc(screeny/2-2),trunc(screenx/2+26),trunc(screeny/2+3));
+     //window(trunc(screenx/2-25),trunc(screeny/2-2),trunc(screenx/2+26),trunc(screeny/2+3));
+     window (1,1,GetScreenMaxX,GetScreenMaxY);
      textbackground(black);textcolor(black);clrscr;
      menu;
      {closegraph;}
@@ -182,6 +167,7 @@ begin                              { SPS_SIMULATION }
      normvideo;
      cursor_on;
      PhysMachEnd();
+     reset_keyboard;
 end. 
 
 

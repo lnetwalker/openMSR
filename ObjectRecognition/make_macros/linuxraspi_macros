@@ -1,0 +1,3 @@
+CFLAGS=
+CC=c++
+PLATFORM=raspi

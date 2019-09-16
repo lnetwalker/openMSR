@@ -18,7 +18,7 @@ all: $(OBJECTS)
 
 
 # the sps IDE
-sps: 	sps.pas edit.pas fileserv.pas info.pas popmenu.pas run_awl.pas sps.h awl_interpreter.pas run_awl.h
+sps: 	sps.pas edit.pas fileserv.pas  popmenu.pas run_awl.pas sps.h awl_interpreter.pas run_awl.h
 	$(FPC) $(FPC_FLAGS)  -gl $(UNITSEARCH) sps.pas
 
 # the SPS runtime module	

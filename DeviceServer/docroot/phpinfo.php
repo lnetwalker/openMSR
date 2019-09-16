@@ -1,0 +1,10 @@
+<html>
+	<head></head>
+	<body>
+		<pre>
+		<?php
+		phpinfo();
+		?>
+		</pre>
+  </body>
+</html>
