@@ -267,7 +267,7 @@ begin
 	// debug Log
 	if debug then begin
 		{$ifdef WIN32}
-		assign(DBG,'\temp\DevSrv_TelnetDbg.log');
+		assign(DBG,'\temp\DevSrv_TlntDbg.log');
 		{$endif}
 		{$ifdef Linux}
 		assign(DBG,'/tmp/deviceserver_TelnetDbg.log');
