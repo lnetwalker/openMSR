@@ -151,7 +151,7 @@ begin                              { SPS_SIMULATION }
      write(' Build on ',datum,' (c) 1989-2019 by H. Eilers ');
      getdir(0,start_pfad);
      start_pfad:='.';
-     configuration;
+     // configuration;
      directvideo:=false;
      programm:=false;
      sicher:=false;
