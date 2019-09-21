@@ -5,7 +5,7 @@ program sps_simulator;
 { $Id$ }
 
 {  $define newio }
-uses 	
+uses
 {$ifdef LINUX }
 		linux,unix,
 {$endif}
@@ -13,7 +13,7 @@ uses
 		windows,
 {$endif}
 dos,crt,porting,printer,popmenu,browse,PhysMach;
-{$M 16384,0,100000} 
+{$M 16384,0,100000}
 
 {$DEFINE SPS}
 
@@ -21,7 +21,7 @@ dos,crt,porting,printer,popmenu,browse,PhysMach;
 	{$linklib libad4.dylib}
 	{$linklib IOKit.dylib}
 {$endif}
-	
+
 {$i ./sps.h}
 {$i ./fileserv.pas}
 {$i ./edit.pas}
@@ -30,7 +30,7 @@ dos,crt,porting,printer,popmenu,browse,PhysMach;
 
 procedure configuration;
 
-var  
+var
      conf_path         : string80;
 
 begin
@@ -44,7 +44,7 @@ procedure SpsConfig;
 var
     befehl		: char;
     zahl		: byte;
-    
+
 begin
     //writeln(' Callback called with line: ', CfgLine);
     if length(CfgLine)>0 then befehl:=upcase(CfgLine[1])
@@ -69,21 +69,21 @@ begin
      balken_pkte[2]:='Edit';
      balken_pkte[3]:='Run';
      balken_pkte[4]:='Kop';
-     balken_pkte[5]:='Docu';
-     balken_pkte[6]:='Quit';
+     //balken_pkte[5]:='Docu';
+     balken_pkte[5]:='Quit';
      copy_right:='(c) H. Eilers';
      repeat
            BackGround:=lightgray;ForeGround:=Black;
 		{ check wether screen size has changed }
            checkScreenSize;
-           balken(balken_pkte,6,copy_right,auswahl);
+           balken(balken_pkte,5,copy_right,auswahl);
 
            case Auswahl of
                'F' : fileservice;
                'E' : edit;
                'R' : run_awl;
                'K' : kop;
-               'D' : browsetext('[Docu]',doc_start,1,2,GetScreenMaxX,GetScreenMaxY);
+               //'D' : browsetext('[Docu]',doc_start,1,2,GetScreenMaxX,GetScreenMaxY);
                'Q' : ;
            else begin
                   sound(220); delay(200); nosound;
@@ -93,7 +93,7 @@ begin
 	       window(1,1,GetScreenMaxX,GetScreenMaxY);
 	       clrscr;
      until auswahl='Q';
-     
+
      if sicher then begin
         save_screen;
         textbackground(red);textcolor(lightgray);
@@ -114,7 +114,7 @@ begin
 			window(1,2,GetScreenMaxX,GetScreenMaxY);
 			clrscr;
 			menu;
-		end;	
+		end;
      end;
 end;                               {**** ENDE  HAUPTMENU **** }
 
@@ -151,7 +151,7 @@ begin                              { SPS_SIMULATION }
      write(' Build on ',datum,' (c) 1989-2019 by H. Eilers ');
      getdir(0,start_pfad);
      start_pfad:='.';
-     configuration;
+     // configuration;
      directvideo:=false;
      programm:=false;
      sicher:=false;
@@ -168,13 +168,4 @@ begin                              { SPS_SIMULATION }
      cursor_on;
      PhysMachEnd();
      reset_keyboard;
-end. 
-
-
-
-
-
-
-
-
-
+end.

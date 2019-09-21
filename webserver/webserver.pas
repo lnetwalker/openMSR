@@ -280,7 +280,12 @@ begin
 	if logfile<>'' then begin
 	    // open logfile
 	    assign(ACC,logfile);
-	    rewrite(ACC);
+	    {$I-}rewrite(ACC);{$I+}
+			if ioresult <> 0 then
+	    begin
+	      writeln ('Could not open accessLOG logfile');
+	      halt(1);
+	    end;
 	    saveaccess:=true;
 	end;
 
@@ -692,22 +697,32 @@ begin
 	InitCriticalSection(ServeSpecialURL);
 	// open logfiles
 	//error Log
-	{$ifdef Windows}
+	{$ifdef WIN32}
  assign(ERR,'\temp\deviceserver_err.log');
  {$endif}
  {$ifdef Linux}
 	assign(ERR,'/tmp/deviceserver_err.log');
  {$endif}
-	rewrite(ERR);
+	{$I-}rewrite(ERR);{$I+}
+	if ioresult <> 0 then
+	begin
+		writeln ('Could not open ERROR logfile');
+		halt(1);
+	end;
 
 	// debug Log
-	{$ifdef Windows}
+	{$ifdef WIN32}
  assign(DBG,'\temp\deviceserver_dbg.log');
  {$endif}
  {$ifdef Linux}
 	assign(DBG,'/tmp/deviceserver_dbg.log');
 	{$endif}
-	rewrite(DBG);
+	{$I-}rewrite(DBG);{$I+}
+	if ioresult <> 0 then
+	begin
+		writeln ('Could not open DEBUG logfile');
+		halt(1);
+	end;
 
 	UrlPointer:=1;
 end.
