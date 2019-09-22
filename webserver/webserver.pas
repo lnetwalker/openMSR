@@ -165,25 +165,29 @@ begin
   // this program, preventing it from reading the output data of the process.
   AProcess.Options := [poWaitOnExit,poUsePipes];
 
-  // Start the process (run the command)
-  AProcess.Execute;
+	try
+  	// Start the process (run the command)
+  	AProcess.Execute;
 
-	// All generated output from AProcess is read in a loop until no more data is available
-	BytesAvailable := AProcess.Output.NumBytesAvailable;
-	BytesRead := 0;
-	while BytesAvailable>0 do begin
-		// Get the new data from the process to a maximum of the buffer size that was allocated.
-    // Note that all read(...) calls will block except for the last one, which returns 0 (zero).
-		SetLength(Buffer, BytesAvailable);
-		BytesRead := AProcess.Output.Read(Buffer[1], BytesAvailable);
-		// Add the bytes that were read to the stream for later usage
-		CmdOutput := CmdOutput + copy(Buffer,1, BytesRead);
+		// All generated output from AProcess is read in a loop until no more data is available
 		BytesAvailable := AProcess.Output.NumBytesAvailable;
-	end;
-
-  // The process has finished so it can be cleaned up
-  AProcess.Free;
-
+		BytesRead := 0;
+		while BytesAvailable>0 do begin
+			// Get the new data from the process to a maximum of the buffer size that was allocated.
+    	// Note that all read(...) calls will block except for the last one, which returns 0 (zero).
+			SetLength(Buffer, BytesAvailable);
+			BytesRead := AProcess.Output.Read(Buffer[1], BytesAvailable);
+			// Add the bytes that were read to the stream for later usage
+			CmdOutput := CmdOutput + copy(Buffer,1, BytesRead);
+			BytesAvailable := AProcess.Output.NumBytesAvailable;
+		end
+	except
+		CmdOutput:='Error executing cmd: '+cmd;
+		errorLOG('Error executing cmd: '+cmd);
+	finally
+  	// The process has finished so it can be cleaned up
+  	AProcess.Free;
+  end;
   // Or the data can be shown on screen
 	stdout:=CmdOutput;
 	//writeln(stdout);
