@@ -42,7 +42,7 @@ pipeline {
                   ls -al
                   pwd
                   source ./version;
-                  echo $SPSVERSION
+                  #echo $SPSVERSION
                   echo $VERSION
                   BRANCH_NAME=`echo $GIT_BRANCH | sed -e "s|/|-|g"`
 
