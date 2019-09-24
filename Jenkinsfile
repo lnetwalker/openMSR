@@ -42,8 +42,8 @@ pipeline {
                   ls -al
                   pwd
                   source ./version;
-                  //echo $SPSVERSION
-                  echo $VERSION
+                  echo \$SPSVERSION
+                  echo \$VERSION
                   BRANCH_NAME=`echo $GIT_BRANCH | sed -e "s|/|-|g"`
 
                   bash ./build/build.sh ${BUILD_ID} \$VERSION\$BRANCH_NAME ${item};
