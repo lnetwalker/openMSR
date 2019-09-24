@@ -950,7 +950,7 @@ var LCDisplay = function (CanvasName,Cat,CatNo) {
         currentVal = EventArray[2];
         //console.log(currentVal);
         //me.showLCD(currentVal);
-        debugLOG('running Display function! currentVal=' + currentVal);
+        DebugLOG('running Display function! currentVal=' + currentVal);
         var digit_string = '';
 				var Wert = 0;
 				var WertString = '';
