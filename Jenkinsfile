@@ -41,7 +41,7 @@ pipeline {
                   // Must be set in repository
                   ls -al
                   pwd
-                  . ./version;
+                  source ./version;
                   echo $SPSVERSION
                   echo $VERSION
                   BRANCH_NAME=`echo $GIT_BRANCH | sed -e "s|/|-|g"`
