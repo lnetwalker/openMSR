@@ -1215,7 +1215,7 @@ begin					{ Main program }
 			// Main application loop must call this else we leak threads!
 			//CheckSynchronize;
 		until keypressed;
-	until readkey='e';
+	until (( readkey='e' ) or ( readkey='q'));
 
 	// stop threads
 	shutdown:=true;
