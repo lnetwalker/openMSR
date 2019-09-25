@@ -9,6 +9,7 @@ unit CommonHelper;
 
 
 INTERFACE
+uses 	Classes, SysUtils, Process;
 
 function RunCommand(Command: AnsiString):String;
 function BinToInt(binval:string):Integer;
@@ -23,7 +24,7 @@ uses
 	baseunix,unix,
 {$endif}
 {$ifdef Windows}
-	Classes, SysUtils, Process,
+	Windows,
 {$endif}
 crt;
 
