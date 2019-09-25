@@ -53,10 +53,10 @@ const
 
 var
 	lSock, uSock 	: LongInt;
-	sAddr 			: TInetSockAddr;
-	Line 			: String;
+	sAddr 				: TInetSockAddr;
+	Line 					: String;
 	sin, sout 		: Text;
-	LOG				: Text;
+	LOG						: Text;
 	InterpreterProc	: tprocedure;
 	ListenPort 		: Word ;
 	ShutDownProc	: Boolean;
@@ -66,13 +66,13 @@ var
 
 {$ifdef Windows}
 	FDRead			: TFDSet;
-	sock			: TSocket;
+	sock				: TSocket;
 	Result			: integer;
 	TimeVal 		: TTimeVal;
 	addr_len	 	: u_int;
 	cli_addr		: TSockAddr;
 	ConnSock		: TSocket;
-	RecBufSize		: integer;
+	RecBufSize	: integer;
 	FCharBuf		: array [1..32768] of char;
 {$endif}
 
@@ -143,13 +143,11 @@ begin
 	if LPort=0 then LPort:=ListenPort;
 
 
-{$ifndef CPU64}
 	with sAddr do begin
 		Family := af_inet;
 		Port := htons(LPort);
 		Addr := 0;
 	end;
-{$endif}
 
 	if fpBind(lSock, @sAddr, sizeof(sAddr))<>0 then Error(1,'Bind error: ',socketerror);
 	if fpListen(lSock, MaxConn)<>0 then Error(1,'Listen error: ',socketerror);
@@ -245,7 +243,7 @@ end;
 
 begin
 	InterpreterProc:=nil;
-	ListenPort:= $AFFE;			// decimal 45054
+	ListenPort:= 45054; //$AFFE;			// decimal 45054
 
 	// don''t write access log
 	saveaccess:=false;
