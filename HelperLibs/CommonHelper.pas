@@ -1,3 +1,4 @@
+{$MODE OBJFPC}{$H+}
 unit CommonHelper;
 
 { $Id$ }
