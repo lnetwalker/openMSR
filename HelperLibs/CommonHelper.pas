@@ -77,24 +77,30 @@ begin
 	// dass wir die Ausgabe lesen wollen
 	AProcess.Options := AProcess.Options + [poWaitOnExit, poUsePipes];
 
-	// Startet den Prozess nachdem die Parameter entsprechend
-	// gesetzt sind
-	AProcess.Execute;
+	try
+		try
+			// Startet den Prozess nachdem die Parameter entsprechend
+			// gesetzt sind
+			AProcess.Execute;
 
-	// Folgendes wird erst nach Beendigung von AProcess ausgeführt
+			// Folgendes wird erst nach Beendigung von AProcess ausgeführt
 
-	// Die Ausgabe wird nun  gelesen
-	BytesAvailable := AProcess.Output.NumBytesAvailable;
-	BytesRead := 0;
-	while BytesAvailable>0 do begin
-		SetLength(Buffer, BytesAvailable);
-		BytesRead := AProcess.OutPut.Read(Buffer[1], BytesAvailable);
-		S := S + copy(Buffer,1, BytesRead);
-		BytesAvailable := AProcess.Output.NumBytesAvailable;
+			// Die Ausgabe wird nun  gelesen
+			BytesAvailable := AProcess.Output.NumBytesAvailable;
+			BytesRead := 0;
+			while BytesAvailable>0 do begin
+				SetLength(Buffer, BytesAvailable);
+				BytesRead := AProcess.OutPut.Read(Buffer[1], BytesAvailable);
+				S := S + copy(Buffer,1, BytesRead);
+				BytesAvailable := AProcess.Output.NumBytesAvailable;
+			end;
+		except
+			writeln('executing command failed: ',Command);
+		end;
+	finally
+		// TProcess freigeben.
+		AProcess.Free;
 	end;
-
-	// TProcess freigeben.
-	AProcess.Free;
 {$endif}
 
 {$ifdef Linux}
