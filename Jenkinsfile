@@ -39,7 +39,7 @@ pipeline {
                 sh """#!/bin/bash
                   // .version includes the currently planned release version number
                   // Must be set in repository
-                  source ./version;
+                  . ./version;
 
                   BRANCH_NAME=`echo $GIT_BRANCH | sed -e "s|/|-|g"`
 
@@ -55,12 +55,6 @@ pipeline {
 
             }
           }
-          post {
-            success {
-              deleteDir() /* clean up our workspace */
-            }
-          }
-
         }
         stage('Build Docu') {
           agent {
@@ -93,8 +87,10 @@ pipeline {
             build job: 'LogicSim' , propagate:true, wait: true
             sh "rm -f artifactstore/*"
             unstash "artifactlist"
-            copyArtifacts (filter:'LogicSim2.4/*.jar',fingerprintArtifacts: true, projectName: 'LogicSim', selector: lastSuccessful())
-            sh "cp LogicSim2.4/*.jar artifactstore"
+            copyArtifacts (filter:'LogicSim2.4/*.tgz',fingerprintArtifacts: true, projectName: 'LogicSim', selector: lastSuccessful())
+            sh "cp LogicSim2.4/*.tgz artifactstore"
+            sh "rm LogicSim2.4/*.tgz"
+            sh "rm -rf tmp"
             stash name: "artifactlist", includes: "artifactstore/*"
           }
 //          post {
