@@ -142,11 +142,10 @@ begin
 
 	if LPort=0 then LPort:=ListenPort;
 
-
 	with sAddr do begin
-		Family := af_inet;
-		Port := htons(LPort);
-		Addr := 0;
+		sin_family := af_inet;
+		sin_port := htons(LPort);
+		sin_addr.s_addr := 0;
 	end;
 
 	if fpBind(lSock, @sAddr, sizeof(sAddr))<>0 then Error(1,'Bind error: ',socketerror);
@@ -171,7 +170,7 @@ begin
 
 {$ifndef CPU64}
 	if debug then
-		writeLOG('Accepted connection from ' + AddrToStr(sAddr.Addr));
+		writeLOG('Accepted connection from ' + AddrToStr(sAddr.sin_addr.s_addr));
 {$endif}
 
 	Sock2Text(uSock, sin, sout);
