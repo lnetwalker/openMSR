@@ -199,7 +199,7 @@ uses
 		StringCut, sysutils;
 
 const
-	debugFlag 		= false;
+	debugFlag 		= true;
 	debug			= false;
 	power			: array [0..7] of byte =(1,2,4,8,16,32,64,128);
 
@@ -411,17 +411,17 @@ end;
 procedure PhysMachWriteAnalogDevice(IOGroup:LongInt);
 var dummy : byte;
 begin
-	if debugFlag then writeln('PhysMachWriteAnalogDevice: a_devicetype[',IOGroup,']=',a_devicetype[IOGroup]);
+	if debugFlag then writeln('PhysMachWriteAnalogDevice: u_devicetype[',IOGroup,']=',u_devicetype[IOGroup]);
 	if (u_devicetype[IOGroup] <> '-') then
 		case u_devicetype[IOGroup] of
 {$ifdef BMCM}
-			'B' 	: bmcm_write_analog(a_address[IOGroup],analog_in[IOGroup]);
+			'B'	: bmcm_write_analog(a_address[IOGroup],analog_in[IOGroup]);
 {$endif}
 {$ifdef EXEC}
 			'E'	: exec_write_analog(a_address[IOGroup],analog_in[IOGroup]);
 {$endif}
 			'H' : http_write_analog(a_address[IOGroup],analog_in[IOGroup]);
-			'D' 	: dummy:=1;
+			'D'	: dummy:=1;
 		end;
 	if (debugFlag) then writeln('Analog_in[',IOGroup,']=',analog_in[IOGroup]);
 end;
