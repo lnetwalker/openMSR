@@ -182,7 +182,7 @@
 
 	OpenMSRInit();
 
-	var Host=document.getElementById("Hostname");
+	var Host=document.getElementById("Hostname").value;
 
 	// show a customized horizontal meter as temp meter
 	var MyTempMeter = new HorMeter('TempMeterCanvas','analog',1);
@@ -299,7 +299,7 @@
 	MyIOReader4.AssignEvent(6,26);
 	MyIOReader4.AssignEvent(7,27);
 	MyIOReader4.AssignEvent(8,28);
-	MyIOReader4.DeviceServerURL(Host + '/digital/ReadOutputValues.html');
+	MyIOReader4.DeviceServerURL(Host + '/digital/ReadInputValues.html');
 	MyIOReader4.IOGroup(4);
 
 	// the digital data feeder to send the switches to app iogroup
