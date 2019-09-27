@@ -199,7 +199,7 @@ uses
 		StringCut, sysutils;
 
 const
-	debugFlag 		= true;
+	debugFlag 		= false;
 	debug			= false;
 	power			: array [0..7] of byte =(1,2,4,8,16,32,64,128);
 
