@@ -22,3 +22,7 @@ PhysMach/PhysMachTest
 sps/run_sps
 
 sps/sps
+
+*.exe
+
+*.a
