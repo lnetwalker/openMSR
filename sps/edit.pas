@@ -255,7 +255,6 @@ begin
     j:=length(saved_text);
     while (saved_text[j]=' ') do dec(j);
     comment[znum]:=copy(saved_text,c+1,j+1-(c+1));
-  except
     { print the formatted line }
     gotoxy(1,wherey);
     clreol;
@@ -265,6 +264,11 @@ begin
     if par[znum]=0 then write('     ') else write(par[znum]:5);
     write(' ',comment[znum]);
     saved_text:='';
+  except
+    dec(znum);
+    gotoxy(1,wherey);
+    clreol;
+    gotoxy(1,wherey);
   end;
 end;                               {**** ENDE FORMATIEREN****}
 

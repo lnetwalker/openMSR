@@ -25,7 +25,7 @@ uses
 	baseunix,unix,
 {$endif}
 {$ifdef Windows}
-	Windows,
+	Windows,strutils,
 {$endif}
 crt;
 
@@ -93,6 +93,7 @@ var
 
 begin
 {$ifdef Windows}
+	Command:=StringReplace(Command,'/','\',[rfReplaceAll]);
 	AProcess := TProcess.Create(nil);
 	// Gibt an, welcher Befehl vom Prozess ausgeführt werden soll
 	AProcess.CommandLine := Command;
