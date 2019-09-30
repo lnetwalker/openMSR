@@ -14,7 +14,8 @@ uses 	Classes, SysUtils, Process;
 function RunCommand(Command: AnsiString):String;
 function BinToInt(binval:string):Integer;
 function deHTML(page:AnsiString):AnsiString;
-procedure debugLOG(msg:string);
+procedure debugLOG(Facility: String; Target: byte; msg:string);
+function debugFilename(logfilename:String):integer;
 function IntToStr(value:LongInt):String;
 
 implementation
@@ -34,11 +35,35 @@ const
 var
 	LOG	: text;
 
-procedure debugLOG(msg:string);
+procedure debugLOG(Facility: String; Target: byte; msg:string);
 begin
-	gotoxy(1,WhereY);
-	writeln(msg);
-	writeln(LOG,msg);
+	case Target  of
+		1:	begin
+					gotoxy(1,WhereY);
+					writeln(Facility,' >>> ',msg);
+				end;
+		2:  begin
+					writeln(LOG,Facility,' >>> ',msg);
+				end;
+		3:	begin
+					gotoxy(1,WhereY);
+					writeln(Facility,' >>> ',msg);
+					writeln(LOG,Facility,' >>> ',msg);
+				end;
+	end;
+end;
+
+
+function debugFilename(logfilename:String):integer;
+begin
+	{$ifdef WIN32}
+  assign(LOG,'\temp\'+logfilename);
+  {$endif}
+  {$ifdef Linux}
+	assign(LOG,'/tmp/'+logfilename);
+	{$endif}
+	{$I-}rewrite(LOG);{$I+}
+	debugFilename:=IOResult;
 end;
 
 
@@ -186,12 +211,4 @@ end;
 
 
 begin
-	{$ifdef WIN32}
-  assign(LOG,'\temp\debug.log');
-  {$endif}
-  {$ifdef Linux}
-	assign(LOG,'/tmp/debug.log');
-	{$endif}
-	{$I-}rewrite(LOG);{$I+}
-	if (IOResult <> 0 ) then writeln('CommonHelper: Error open logfile');
 end.

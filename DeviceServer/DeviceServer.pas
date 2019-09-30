@@ -115,7 +115,7 @@ procedure DSdebugLOG(msg:string);
 // more threads spit out things at the same time
 begin
 	EnterCriticalSection(DebugOutput);
-	debugLOG(msg);
+	debugLOG('DevSrv',2,msg);
 	LeaveCriticalSection(DebugOutput);
 end;
 
@@ -382,12 +382,12 @@ var
 
 begin
 	MySelf:=longint(p);
-	DSdebugLOG('started MQTT Handler Thread..' + IntToStr(MySelf));
+	writeln('started MQTT Handler Thread..' + IntToStr(MySelf));
 	repeat
 		MQTTThread.run;
 		inc(ThreadCnt[MySelf]);
 	until shutdown=true;
-	DSdebugLOG('MQTT Handler going down..' + IntToStr(MySelf));
+	writeln('MQTT Handler going down..' + IntToStr(MySelf));
 	MQTTHandler:=0;
 end;
 
@@ -455,13 +455,13 @@ begin
 		'W' :	begin
 				case hw of
 					'O' :	begin
-							if debug then debugLOG ('O' + IntToStr(pa) + ' ' + IntToStr(va));
+							if debug then DSdebugLOG ('O' + IntToStr(pa) + ' ' + IntToStr(va));
 							if va=0 then ausgang[pa]:=false
 							else ausgang[pa]:=true;
 							TelnetWriteAnswer(chr(10)+'>');
 						end;
 					'I' :	begin
-							if debug then debugLOG ('I' + IntToStr(pa) + ' ' + IntToStr(va));
+							if debug then DSdebugLOG ('I' + IntToStr(pa) + ' ' + IntToStr(va));
 							if va=0 then eingang[pa]:=false
 							else eingang[pa]:=true;
 							TelnetWriteAnswer(chr(10)+'>');
@@ -532,7 +532,7 @@ var
 
 begin
 	MySelf:=longint(p);
-	DSdebugLOG('started Telnet Thread..' + IntToStr(MySelf));
+	writeln('started Telnet Thread..' + IntToStr(MySelf));
 	TelnetInit(0,'./telnet.log');
 	repeat
 		connectionclose:=false;
@@ -544,7 +544,7 @@ begin
 		until connectionclose;
 	until shutdown=true;
 	TelnetShutDown;
-	DSdebugLOG('Telnet Handler going down..' + IntToStr(MySelf));
+	Writeln('Telnet Handler going down..' + IntToStr(MySelf));
 	TelnetThread:=0;
 end;
 {$endif} // MIPS
@@ -560,12 +560,12 @@ var
 
 begin
 	MySelf:=longint(p);
-	DSdebugLOG('started Device Handler Thread..' + IntToStr(MySelf));
+	Writeln('started Device Handler Thread..' + IntToStr(MySelf));
 	repeat
 		PhysMachIOByDevice(DeviceList[MySelf]);
 		inc(ThreadCnt[MySelf]);
 	until shutdown=true;
-	DSdebugLOG('Device Handler going down..' + IntToStr(MySelf));
+	Writeln('Device Handler going down..' + IntToStr(MySelf));
 	DeviceHandler:=0;
 end;
 
@@ -1019,11 +1019,11 @@ var
 
 begin
 	MySelf:=longint(p);
-	DSdebugLOG('started Webserver Thread, going to start Server...');
+	Writeln('started Webserver Thread, going to start Server...');
 	{ start the webserver with IP, Port, Document Root and Logfile }
 	{ start on all available interfaces }
 	start_server('0.0.0.0',10080,BLOCKED,'docroot','./pwserver.log',NONBLOCKED,debug);
-	DSdebugLOG('Webserver started, ready to serve');
+	Writeln('Webserver started, ready to serve');
 
 	{ register the variable handler }
 	SetupVariableHandler(@embeddedWebReadParams);
@@ -1048,7 +1048,7 @@ begin
 //		delay(100);
 	until Shutdown=true;
 
-	DSdebugLOG('Webserver going down..');
+	writeln('Webserver going down..');
 	WebserverThread:=0;
 	{$ifndef MIPS}
 	TelnetShutDown;
@@ -1075,7 +1075,7 @@ MySelf					: LongInt;
 
 begin
 	MySelf:=longint(p);
-	DSdebugLOG('started Statistics Thread...' + IntToStr(MySelf));
+	writeln('started Statistics Thread...' + IntToStr(MySelf));
 	repeat
 		// get the current time in seconds and save the counter for each thread
 		{$ifdef Linux}
@@ -1102,7 +1102,7 @@ begin
 				ThreadRPMs[i]:=round((ThreadCnt[i]-OldThreadCnt[i])/TimeDiff);
 		inc(ThreadCnt[MySelf]);
 	until Shutdown=true;
-	DSdebugLOG('stopping Statistic Thread ');
+	writeln('stopping Statistic Thread ');
 	StatisticsThread:=0;
 end;
 
@@ -1118,12 +1118,12 @@ var
 
 begin
 	MySelf:=longint(p);
-	DSdebugLOG('started Time Control Thread...' + IntToStr(MySelf));
+	writeln('started Time Control Thread...' + IntToStr(MySelf));
 	repeat
 		delay(10000);
 		inc(ThreadCnt[MySelf]);
 	until Shutdown=true;
-	DSdebugLOG('stopping Thread Time Control');
+	Writeln('stopping Thread Time Control');
 	TimeControlThread:=0;
 end;
 
@@ -1141,6 +1141,11 @@ begin					{ Main program }
 			if (paramstr(paramcnt)='-c') then begin
 				Configfile:= paramstr(paramcnt+1);
 			end;
+		end;
+	if ( debug ) then
+		if (debugFilename('DevSrv.dbg')) <> 0 then begin
+			writeln('Error Couldnt open debuglogfile');
+			halt(1);
 		end;
 	if (Configfile='') then Configfile:='DeviceServer.cfg';
 	// initialize Hardware
@@ -1163,7 +1168,7 @@ begin					{ Main program }
 	NumOfThreads:=1;
 	for DeviceCnt:=1 to DeviceTypeMax do begin
 		if DeviceList[DeviceCnt]<>'-' then begin
-			DSdebugLOG('starting DeviceHandler for Device:' + DeviceList[DeviceCnt]);
+			Writeln('starting DeviceHandler for Device:' + DeviceList[DeviceCnt]);
 			ThreadName[NumOfThreads]:='DeviceHandler '+DeviceList[DeviceCnt];
 			ThreadHandle[NumOfThreads]:=BeginThread(@DeviceHandler,pointer(NumOfThreads));
 			ThreadCnt[NumOfThreads]:=0;
@@ -1172,27 +1177,27 @@ begin					{ Main program }
 	end;
 
 	// start the webserver thread
-	DSdebugLOG('Starting Webserver Thread...');
+	writeln('Starting Webserver Thread...');
 	ThreadName[NumOfThreads]:='Webserver';
 	ThreadHandle[NumOfThreads]:=BeginThread(@WebserverThread,pointer(NumOfThreads));
 
 {$ifndef MIPS}
 	// start the telnet thread
 	inc(NumOfThreads);
-	DSdebugLOG('Starting Telnet Thread...');
+	Writeln('Starting Telnet Thread...');
 	ThreadName[NumOfThreads]:='Telnet Thread';
 	ThreadHandle[NumOfThreads]:=BeginThread(@TelnetThread,pointer(NumOfThreads));
 {$endif}
 
 	// start the TimeControl thread
 	inc(NumOfThreads);
-	DSdebugLOG('Starting TimeControl Thread...');
+	writeln('Starting TimeControl Thread...');
 	ThreadName[NumOfThreads]:='TimeCtrl Thread';
 	ThreadHandle[NumOfThreads]:=BeginThread(@TimeControlThread,pointer(NumOfThreads));
 
 	// start the statistic thread
 	inc(NumOfThreads);
-	DSdebugLOG('Starting Statistics Thread...');
+	writeln('Starting Statistics Thread...');
 	ThreadName[NumOfThreads]:='Stats Thread';
 	ThreadHandle[NumOfThreads]:=BeginThread(@StatisticsThread,pointer(NumOfThreads));
 
@@ -1201,7 +1206,7 @@ begin					{ Main program }
 	if ( FileExists('MQTT.ini') ) then begin
 		inc(NumOfThreads);
 		MQTTThread.setup('MQTT.ini');
-		DSdebugLOG('Starting MQTT Thread...');
+		writeln('Starting MQTT Thread...');
 		ThreadName[NumOfThreads]:='MQTT Thread';
 		ThreadHandle[NumOfThreads]:=BeginThread(@MQTTHandler,pointer(NumOfThreads));
 	end;
@@ -1223,11 +1228,11 @@ begin					{ Main program }
 	PhysMachEnd;
 
 	// wait for threads to finish
-	DSdebugLOG('waiting for threads to finish...');
+	Writeln('waiting for threads to finish...');
 	for i:=1 to NumOfThreads do begin
-		DSdebugLOG(' Waiting for ' + ThreadName[i] + ' to finish');
+		writeln(' Waiting for ' + ThreadName[i] + ' to finish');
 		WaitForThreadTerminate(ThreadHandle[i],TimeOut);
-		DSdebugLOG( ThreadName[i] + ' ended');
+		writeln( ThreadName[i] + ' ended');
 	end;
 
 end.

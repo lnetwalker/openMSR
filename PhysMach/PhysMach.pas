@@ -196,16 +196,16 @@ uses
 {$ifdef ARMGENERIC}
 		armgeneric_io_access,
 {$endif}
-		StringCut, sysutils;
+		StringCut, sysutils,CommonHelper;
 
 const
 	debugFlag 		= true;
-	debug			= false;
 	power			: array [0..7] of byte =(1,2,4,8,16,32,64,128);
 
 var
 	x			: word;
 	CfgCallbackFunc		: TProcedure;
+	DebugMsg					: String;
 
 
 
@@ -219,7 +219,7 @@ var
 begin
 	DeviceType:=i_devicetype[IOGroup];
 	Address:=i_address[IOGroup];
-	if debug then writeln('PhysMachReadDevice IOGroup=',IOGroup,' DeviceType=',DeviceType,' Address=',Address);
+	if debugFlag  then debugLOG('PhysMach',2,'PhysMachReadDevice IOGroup='+IntToStr(IOGroup)+' DeviceType='+DeviceType+' Address='+IntToStr(Address));
 	case DeviceType of
 		'd'	: wert:=0;
 {$ifdef DILPC}
@@ -272,21 +272,23 @@ begin
 	end;
 
 	if (debugFlag) then
-		writeln	('PhysMach:PhysMachReadDigital   group ',IOGroup,' -> ',wert);
+		debugLOG	('PhysMach',2,'PhysMach:PhysMachReadDigital   group '+IntToStr(IOGroup)+' -> '+IntToStr(wert));
+	DebugMsg:='';
 	for i:=7 downto 0 do begin
 		if wert>=power[i] then begin
 			{ the adressing needs some explanation }
 			{ if IOGroup is 2 we calculate the base address (3-1)*8+1=17 the base of IOGroup 2 }
 			{ than we can add the loop counter to count down from 24 to 17 }
-	   		eingang[(IOGroup-1)*8+1+i]:=true;
+	   	eingang[(IOGroup-1)*8+1+i]:=true;
 			wert:=wert-power[i]
 		end
 		else
 			eingang[(IOGroup-1)*8+1+i]:=false;
-		if (debugFlag ) then begin
-			if ( i=7 ) then write('E group ',IOGroup,'   ');
-		   	write (eingang[(IOGroup-1)*8+1+i],' ');
-		   	if (i=0 ) then writeln;
+		if ( debugFlag ) then begin
+			if ( i=7 ) then DebugMsg:=DebugMsg+'E group '+IntToStr(IOGroup)+'   ';
+		  if (eingang[(IOGroup-1)*8+1+i]) then DebugMsg:=DebugMsg+'TRUE '
+			else  DebugMsg:=DebugMsg+'FALSE ';
+		  if (i=0 ) then debugLOG	('PhysMach',2,DebugMsg);
 		end
 	end;
 
@@ -305,17 +307,19 @@ begin
 	if (DeviceType <> '-') then begin
 		Address:=o_address[IOGroup];
 		Value:=0;
+		DebugMsg:='';
 		for  k:=7 downto 0 do begin
 			Value:=Value+power[k]*ord(ausgang[k+(IOGroup-1)*8+1]);
 			if (debugFlag ) then begin
-		 		if ( k=7 ) then write('A group ',IOGroup,'    ');
-		 		write (ausgang[k+(IOGroup-1)*8+1],' ');
-		 		if (k=0 ) then writeln;
-			end;
+				if ( k=7 ) then DebugMsg:=DebugMsg+'A group '+IntToStr(IOGroup)+'   ';
+			  if (ausgang[(IOGroup-1)*8+1+k]) then DebugMsg:=DebugMsg+'TRUE '
+				else  DebugMsg:=DebugMsg+'FALSE ';
+			  if ( k=0 ) then debugLOG	('PhysMach',2,DebugMsg);
+			end
 		end;
 
 		if (debugFlag ) then
-			writeln ('DeviceType=',DeviceType,' IOGroup=',IOGroup,' value=',Value,' Address=',Address);
+			debugLOG ('PhysMach',2,'DeviceType='+DeviceType+' IOGroup='+IntToStr(IOGroup)+' value='+IntToStr(Value)+' Address='+IntToStr(Address));
 
 		case DeviceType of
 			'd'	: Value:=0;
@@ -373,7 +377,7 @@ end;
 
 procedure PhysMachReadAnalogDevice(IOGroup:LongInt);
 begin
-	if debugFlag then writeln('PhysMachReadAnalogDevice: a_devicetype[',IOGroup,']=',a_devicetype[IOGroup]);
+	if debugFlag then debugLOG('PhysMach',2,'PhysMachReadAnalogDevice: a_devicetype['+IntToStr(IOGroup)+']='+a_devicetype[IOGroup]);
 	if (a_devicetype[IOGroup] <> '-') then
 		case a_devicetype[IOGroup] of
 			'd'	: analog_in[IOGroup]:=0;
@@ -403,7 +407,7 @@ begin
 {$endif}
 
 		end;
-	if (debugFlag) then writeln('Analog_in[',IOGroup,']=',analog_in[IOGroup]);
+	if (debugFlag) then debugLOG('PhysMach',2,'Analog_in['+IntToStr(IOGroup)+']='+IntToStr(analog_in[IOGroup]));
 end;
 
 
@@ -411,7 +415,7 @@ end;
 procedure PhysMachWriteAnalogDevice(IOGroup:LongInt);
 var dummy : byte;
 begin
-	if debugFlag then writeln('PhysMachWriteAnalogDevice: u_devicetype[',IOGroup,']=',u_devicetype[IOGroup]);
+	if debugFlag then debugLOG('PhysMach',2,'PhysMachWriteAnalogDevice: u_devicetype['+IntToStr(IOGroup)+']='+u_devicetype[IOGroup]);
 	if (u_devicetype[IOGroup] <> '-') then
 		case u_devicetype[IOGroup] of
 {$ifdef BMCM}
@@ -423,7 +427,7 @@ begin
 			'H' : http_write_analog(a_address[IOGroup],analog_in[IOGroup]);
 			'D'	: dummy:=1;
 		end;
-	if (debugFlag) then writeln('Analog_in[',IOGroup,']=',analog_in[IOGroup]);
+	if (debugFlag) then debugLOG('PhysMach',2,'Analog_out['+IntToStr(IOGroup)+']='+IntToStr(analog_in[IOGroup]));
 end;
 
 
@@ -436,7 +440,7 @@ var
 begin
 		if (c_devicetype[IOGroup] <> '-') then begin
 
-			if debug then writeln('reading Counter type ',c_devicetype[IOGroup],' Adresse ',c_address[IOGroup]);
+			debugLOG('PhysMach',2,'reading Counter type '+c_devicetype[IOGroup]+' Adresse '+IntToStr(c_address[IOGroup]));
 
 			{ ZAEHLEReingaenge lesen  }
 			case c_devicetype[IOGroup] of
@@ -487,10 +491,12 @@ begin
 		else
 			wert:=0;
 
-		if debug then begin
-			writeln('Countervalue=',wert);
-			for c:=1 to 8 do write(' ',zust[c]);
-			writeln;
+		if debugFlag  then begin
+			DebugMsg:='Countervalue='+IntToStr(wert);
+			for c:=1 to 8 do
+				if zust[c] then DebugMsg:=DebugMsg+' TRUE'
+				else DebugMsg:=DebugMsg+' FALSE';
+			debugLOG('PhysMach',2,DebugMsg);
 		end;
 
 		for c:=1 to 8 do begin
@@ -543,10 +549,10 @@ begin
 	while not(eof(f)) do begin
 		readln (f,zeile);
 		ConfigTags:=StringSplit(zeile,Trenner);
-		if debug then
+		if debugFlag  then
 			if ((ConfigTags[1]='DEVICE') or (ConfigTags[1]='PORT')) then
 				for i:=1 to 5 do
-					writeln(ConfigTags[i]);
+					if debugFlag then debugLOG('PhysMach',2,ConfigTags[i]);
 		if ( ConfigTags[1] = 'DEVICE' ) then begin
 
 			if ( GetNumberOfElements(zeile,Trenner) > 6 ) then begin
@@ -555,13 +561,13 @@ begin
 				halt (1);
 			end;
 
-			if ( debugFlag ) then writeln ('device detected');
+			if ( debugFlag ) then debugLOG ('PhysMach',2,'device detected');
 			{ device line looks like }
 			{ DEVICE!P!$307:$99 }
 			initdevice:=ConfigTags[2,1];
 			initstring:=ConfigTags[3];
 			{ call the initfunction of that device }
-			if (debugFlag) then writeln('device ',initdevice,'   ',initstring);
+			if (debugFlag) then debugLOG ('PhysMach',2,'device '+initdevice+'   '+initstring);
 			case initdevice of
 				'd'	: HWPlatform:=HWPlatform+',dummy ';
 {$ifdef DILPC}
@@ -617,7 +623,7 @@ begin
 {$ifdef HTTP}
 				'H' 	: begin
 						http_hwinit(initstring,DeviceNumber);
-						if debugFlag then writeln('http_hwinit initstring=',initstring,' DeviceNumber=',DeviceNumber);
+						if debugFlag then debugLOG('PhysMach',2,'http_hwinit initstring='+initstring+' DeviceNumber='+IntToStr(DeviceNumber));
 						HWPlatform:=HWPlatform+',HTTP ';
 					  end;
 {$endif}
@@ -687,7 +693,7 @@ begin
 			end;
 		end
 		else if (ConfigTags[1] = 'PORT') then begin
-			if ( debugFlag ) then writeln ('port detected');
+			if ( debugFlag ) then debugLOG ('PhysMach',2,'port detected');
 			{port line looks like }
 			{PORT!I!  1! $00!I}
 			dir:=ConfigTags[2];
@@ -701,7 +707,7 @@ begin
 			    if ( GetNumberOfElements(zeile,Trenner) < 5 ) then begin
 			    end;
 
-			if debugFlag then writeln('PhysMachLoadCfg: dir=',dir,' iogroup=',iogroup,' addr=',ConfigTags[4]);
+			if debugFlag then debugLOG('PhysMach',2,'PhysMachLoadCfg: dir='+dir+' iogroup='+IntToStr(iogroup)+' addr='+ConfigTags[4]);
 
 			if     ( dir = 'I' ) then begin
 				val(ConfigTags[4],i_address[iogroup]);
@@ -710,7 +716,7 @@ begin
 				if ( ConfigTags[5]='A' ) then     // ARMGENERIC Device
 				  armgeneric_gpiodir(i_address[iogroup],iogroup,0); //Dir=0 -> In dir
 {$ENDIF}
-				if (debugFlag) then writeln('Input Group ',iogroup,'devicetype=',i_devicetype[iogroup]);
+				if (debugFlag) then debugLOG ('PhysMach',2,'Input Group '+IntToStr(iogroup)+'devicetype='+i_devicetype[iogroup]);
 			end
 			else if( dir = 'O' ) then begin
 				val(ConfigTags[4],o_address[iogroup]);
@@ -719,33 +725,33 @@ begin
 				if ( ConfigTags[5]='A' ) then
 				  armgeneric_gpiodir(o_address[iogroup],iogroup,1); //Dir=1 -> out dir
 {$ENDIF}
-				if (debugFlag) then writeln('Output Group ',iogroup,'devicetype=',o_devicetype[iogroup]);
+				if (debugFlag) then debugLOG ('PhysMach',2,'Output Group '+IntToStr(iogroup)+'devicetype='+o_devicetype[iogroup]);
 			end
 			else if( dir = 'C' ) then begin
 				val(ConfigTags[4],c_address[iogroup]);
 				c_devicetype[iogroup]:=ConfigTags[5,1];
-				if (debugFlag) then writeln('Counter Group ',iogroup,'devicetype=',i_devicetype[iogroup]);
+				if (debugFlag) then debugLOG ('PhysMach',2,'Counter Group '+IntToStr(iogroup)+'devicetype='+i_devicetype[iogroup]);
 			end
 			else if( dir = 'A' ) then begin
 				val(ConfigTags[4],a_address[iogroup]);
 				a_devicetype[iogroup]:=ConfigTags[5,1];
-				if debugFlag then writeln('Analog InLine=',iogroup,' Address=',a_address[iogroup]);
+				if debugFlag then debugLOG('PhysMach',2,'Analog InLine='+IntToStr(iogroup)+' Address='+IntToStr(a_address[iogroup]));
 			end
 			else if( dir = 'U' ) then begin
 				val(ConfigTags[4],a_address[iogroup]);
 				u_devicetype[iogroup]:=ConfigTags[5,1];
-				if debugFlag then writeln('Analog OutLine=',iogroup,' Address=',a_address[iogroup]);
+				if debugFlag then debugLOG('PhysMach',2,'Analog OutLine='+IntToStr(iogroup)+' Address='+IntToStr(a_address[iogroup]));
 			end;
 		end
 		else if (ConfigTags[1] = 'ASSIGN') then begin
-			writeln(' ASSIGN Tag found: ',ConfigTags[2]);
+			if debugFlag then debugLOG('PhysMach',2,' ASSIGN Tag found: '+ConfigTags[2]);
 			{ for ARMgeneric and GHoma WLAN Power Plug this is needed to get additional config data }
 			{ Syntax: ASSIGN DEVICE ADDRESS BIT GPIO/DATA						}
 			case char(ConfigTags[2,1]) of
 {$IFDEF ARMGENERIC}
 			  'A' : begin
 				armgeneric_gpio(StrToInt(ConfigTags[3]),StrToInt(ConfigTags[4]),StrToInt(ConfigTags[5]));
-				writeln('Address=',StrToInt(ConfigTags[3]),' Bit=',StrToInt(ConfigTags[4]),' GPIO=',StrToInt(ConfigTags[5]));
+				if debugFlag then debugLOG('PhysMach',2,'Address='+ConfigTags[3]+' Bit='+(ConfigTags[4])+' GPIO='+ConfigTags[5]);
 				armgeneric_exportGPIO(StrToInt(ConfigTags[3]),StrToInt(ConfigTags[4]),StrToInt(ConfigTags[5]));
 			      end;
 {$ENDIF}
@@ -807,7 +813,7 @@ begin
 		a_devicetype[y]:='-';
 		u_devicetype[y]:='-';
 		analog_in[y]:=0;
-		if debugFlag then writeln ('PhysMachInit: x=',y,' a_devicetype[',y,']=',a_devicetype[y],' analog_in[',y,']=',analog_in[y]);
+		if debugFlag then debugLOG('PhysMach',2,'PhysMachInit: x='+IntToStr(y)+' a_devicetype['+IntToStr(y)+']='+a_devicetype[y]+' analog_in['+IntToStr(y)+']='+IntToStr(analog_in[y]));
 	end;
 
 	for x:=1 to DeviceTypeMax do
@@ -967,7 +973,7 @@ begin
 	i:=1;
 	repeat
 		PhysMachReadAnalogDevice(i);
-		if debugFlag then writeln('PhysMachReadAnalog i=',i);
+		if debugFlag then debugLOG('PhysMach',2,'PhysMachReadAnalog i='+IntToStr(i));
 		inc(i);
 	until ( i > analog_max );
 end;
@@ -981,7 +987,7 @@ begin
 	i:=1;
 	repeat
 		PhysMachWriteAnalogDevice(i);
-		if debugFlag then writeln('PhysMachReadAnalog i=',i);
+		if debugFlag then debugLOG('PhysMach',2,'PhysMachReadAnalog i='+IntToStr(i));
 		inc(i);
 	until ( i > analog_max );
 end;
@@ -1032,7 +1038,7 @@ var
 	i,wert			: Byte;
 
 begin
-	if debugFlag then writeln(' Reading IO-Device: ',DeviceType);
+	if debugFlag then debugLOG('PhysMach',2,' Reading IO-Device: '+DeviceType);
 	IOGroup:=1;
 	repeat
 		// handle input type
