@@ -43,12 +43,20 @@ begin
 					writeln(Facility,' >>> ',msg);
 				end;
 		2:  begin
-					writeln(LOG,Facility,' >>> ',msg);
+					try
+						writeln(LOG,Facility,' >>> ',msg);
+					except
+						Writeln('Error writing debugfile')
+					end;
 				end;
 		3:	begin
 					gotoxy(1,WhereY);
 					writeln(Facility,' >>> ',msg);
-					writeln(LOG,Facility,' >>> ',msg);
+					try
+						writeln(LOG,Facility,' >>> ',msg);
+					except
+						Writeln('Error writing debugfile');
+					end;
 				end;
 	end;
 end;
