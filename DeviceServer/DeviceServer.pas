@@ -108,6 +108,8 @@ var
 	{$endif}
 	Configfile			: String;
 	paramcnt				: byte;
+	DebugResult			: boolean;
+
 
 procedure DSdebugLOG(msg:string);
 // This is a wrapper around debugLOG to ensure
@@ -1146,7 +1148,11 @@ begin					{ Main program }
 		if (debugFilename('DevSrv.dbg')) <> 0 then begin
 			writeln('Error Couldnt open debuglogfile');
 			halt(1);
-		end;
+		end
+		else
+			begin
+				DebugResult:=PhysMachDebug(true);
+			end;
 	if (Configfile='') then Configfile:='DeviceServer.cfg';
 	// initialize Hardware
 	PhysMachInit;
@@ -1169,6 +1175,7 @@ begin					{ Main program }
 	for DeviceCnt:=1 to DeviceTypeMax do begin
 		if DeviceList[DeviceCnt]<>'-' then begin
 			Writeln('starting DeviceHandler for Device:' + DeviceList[DeviceCnt]);
+			delay(500);
 			ThreadName[NumOfThreads]:='DeviceHandler '+DeviceList[DeviceCnt];
 			ThreadHandle[NumOfThreads]:=BeginThread(@DeviceHandler,pointer(NumOfThreads));
 			ThreadCnt[NumOfThreads]:=0;
@@ -1178,6 +1185,7 @@ begin					{ Main program }
 
 	// start the webserver thread
 	writeln('Starting Webserver Thread...');
+	delay(500);
 	ThreadName[NumOfThreads]:='Webserver';
 	ThreadHandle[NumOfThreads]:=BeginThread(@WebserverThread,pointer(NumOfThreads));
 
@@ -1185,6 +1193,7 @@ begin					{ Main program }
 	// start the telnet thread
 	inc(NumOfThreads);
 	Writeln('Starting Telnet Thread...');
+	delay(500);
 	ThreadName[NumOfThreads]:='Telnet Thread';
 	ThreadHandle[NumOfThreads]:=BeginThread(@TelnetThread,pointer(NumOfThreads));
 {$endif}
@@ -1192,12 +1201,14 @@ begin					{ Main program }
 	// start the TimeControl thread
 	inc(NumOfThreads);
 	writeln('Starting TimeControl Thread...');
+	delay(500);
 	ThreadName[NumOfThreads]:='TimeCtrl Thread';
 	ThreadHandle[NumOfThreads]:=BeginThread(@TimeControlThread,pointer(NumOfThreads));
 
 	// start the statistic thread
 	inc(NumOfThreads);
 	writeln('Starting Statistics Thread...');
+	delay(500);
 	ThreadName[NumOfThreads]:='Stats Thread';
 	ThreadHandle[NumOfThreads]:=BeginThread(@StatisticsThread,pointer(NumOfThreads));
 
@@ -1207,6 +1218,7 @@ begin					{ Main program }
 		inc(NumOfThreads);
 		MQTTThread.setup('MQTT.ini');
 		writeln('Starting MQTT Thread...');
+		delay(500);
 		ThreadName[NumOfThreads]:='MQTT Thread';
 		ThreadHandle[NumOfThreads]:=BeginThread(@MQTTHandler,pointer(NumOfThreads));
 	end;

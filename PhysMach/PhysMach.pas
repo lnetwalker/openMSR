@@ -146,6 +146,7 @@ procedure PhysMachWriteAnalog;
 procedure PhysMachTimer;
 function  PhysMachGetDevices:DeviceTypeArray;
 procedure PhysMachIOByDevice(DeviceType:char);
+function  PhysMachDebug(debug:boolean):boolean;
 //procedure PhysMachRegCfg(proc : TProcedure);
 
 
@@ -199,17 +200,23 @@ uses
 		StringCut, sysutils,CommonHelper;
 
 const
-	debugFlag 		= true;
 	power			: array [0..7] of byte =(1,2,4,8,16,32,64,128);
 
 var
-	x			: word;
+	x									: word;
 	CfgCallbackFunc		: TProcedure;
 	DebugMsg					: String;
-
+	debugFlag 				: boolean;
 
 
 //Private functions
+function  PhysMachDebug(debug:boolean):boolean;
+begin
+	debugFlag:=debug;
+	PhysMachDebug:=true;
+end;
+
+
 procedure PhysMachReadDevice(IOGroup:LongInt);
 var
 	wert,i           	: byte;
@@ -1062,6 +1069,6 @@ begin
 end;
 
 
-
 begin
+	debugFlag:=false;
 end.
