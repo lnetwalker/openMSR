@@ -34,30 +34,36 @@ const
 
 var
 	LOG	: text;
+	DebugLogOutput			: TRTLCriticalSection;
 
 procedure debugLOG(Facility: String; Target: byte; msg:string);
 begin
-	case Target  of
-		1:	begin
-					gotoxy(1,WhereY);
-					writeln(Facility,' >>> ',msg);
-				end;
-		2:  begin
-					try
-						writeln(LOG,Facility,' >>> ',msg);
-					except
-						Writeln('Error writing debugfile')
+	EnterCriticalSection(DebugLogOutput);
+	try
+		case Target  of
+			1:	begin
+						gotoxy(1,WhereY);
+						writeln(Facility,' >>> ',msg);
+						end;
+			2:  begin
+						try
+							writeln(LOG,Facility,' >>> ',msg);
+						except
+							Writeln('Error writing debugfile')
+						end;
 					end;
-				end;
-		3:	begin
-					gotoxy(1,WhereY);
-					writeln(Facility,' >>> ',msg);
-					try
-						writeln(LOG,Facility,' >>> ',msg);
-					except
-						Writeln('Error writing debugfile');
+			3:	begin
+						gotoxy(1,WhereY);
+						writeln(Facility,' >>> ',msg);
+						try
+							writeln(LOG,Facility,' >>> ',msg);
+						except
+							Writeln('Error writing debugfile');
+						end;
 					end;
-				end;
+		end;
+	Finally
+		LeaveCriticalSection(DebugLogOutput);
 	end;
 end;
 
@@ -218,6 +224,6 @@ begin
 end;
 
 
-
 begin
+	InitCriticalSection(DebugLogOutput);
 end.
