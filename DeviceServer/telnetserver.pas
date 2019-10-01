@@ -33,11 +33,11 @@ procedure TelnetServeRequest(WelcomeMSG : String);
 Procedure TelnetWriteAnswer(Line : String);
 function  TelnetGetData:String;
 procedure TelnetShutDown;
-
+function  TelnetDebug(debugging:boolean):boolean;
 
 implementation
 
-uses crt,sockets,
+uses crt,sockets,CommonHelper,
 {$ifdef Linux}
 	BaseUnix,Unix,
 {$endif}
@@ -49,7 +49,6 @@ uses crt,sockets,
 const
 	MaxConn 		= 1;
 	Size_InetSockAddr	: longint = sizeof(TInetSockAddr);
-	debug			= true;
 
 var
 	lSock, uSock 	: LongInt;
@@ -63,6 +62,7 @@ var
 	// LOG-Files
 	DBG,ERR,ACC		: text;
 	saveaccess		: Boolean;
+	debug					: Boolean;
 
 {$ifdef Windows}
 	FDRead			: TFDSet;
@@ -77,20 +77,19 @@ var
 {$endif}
 
 
+function  TelnetDebug(debugging:boolean):boolean;
+begin
+	debug:=debugging;
+	TelnetDebug:=true;
+end;
+
+
 function IntToStr(value:LongInt):String;
 var dummy : string;
 
 begin
 	str(value,dummy);
 	IntToStr:=dummy;
-end;
-
-
-
-procedure writeLOG(MSG: string);
-begin
-	writeln(DBG,MSG);
-	flush(DBG);
 end;
 
 
@@ -116,7 +115,7 @@ var
 begin
 	str(number,NumStr);
 	str(level,LevelStr);
-	if debug then writeLOG('Error occured: Level='+LevelStr+' Number='+NumStr+' Msg='+msg);
+	if debug then debugLOG('telnetsrv',2,'Error occured: Level='+LevelStr+' Number='+NumStr+' Msg='+msg);
 	Writeln(msg,number);
 	halt(level);
 end;
@@ -126,7 +125,7 @@ Procedure TelnetSetupInterpreter(proc : tprocedure);
 begin
 	if proc <> nil then InterpreterProc:=proc;
 	if debug then
-		writeLOG('registered Telnet Interpreter');
+		debugLOG('telnetsrv',2,'registered Telnet Interpreter');
 end;
 
 
@@ -159,7 +158,7 @@ procedure TelnetServeRequest(WelcomeMSG : String);
 
 begin
 	if debug then
-		writeLOG('Waiting for connections...');
+		debugLOG('telnetsrv',2,'Waiting for connections...');
 	uSock := fpAccept(lSock, @sAddr, @Size_InetSockAddr);
 
 	if uSock = -1 then Error(1,'Telnet Accept error: ',socketerror);
@@ -170,7 +169,7 @@ begin
 
 {$ifndef CPU64}
 	if debug then
-		writeLOG('Accepted connection from ' + AddrToStr(sAddr.sin_addr.s_addr));
+		debugLOG('telnetsrv',2,'Accepted connection from ' + AddrToStr(sAddr.sin_addr.s_addr));
 {$endif}
 
 	Sock2Text(uSock, sin, sout);
@@ -183,7 +182,7 @@ begin
 		if SelectText(sin,10000)>0 then begin
 			Readln(sin, Line);
 			if debug then
-				writeLOG('Heard: '+line);
+				debugLOG('telnetsrv',2,'Heard: '+line);
 			if Line = 'close' then break;
 			if InterpreterProc <> nil then InterpreterProc;
 		end;
@@ -215,7 +214,7 @@ begin
 	Close(sout);
 	fpShutdown(uSock, 2);
 	if debug then
-		writeLOG('Connection closed.');
+		debugLOG('telnetsrv',2,'Connection closed.');
 end;
 
 
@@ -241,6 +240,7 @@ end;
 
 
 begin
+	debug:=false;
 	InterpreterProc:=nil;
 	ListenPort:= 45054; //$AFFE;			// decimal 45054
 
@@ -260,20 +260,5 @@ begin
 	begin
 		writeln ('Could not open ERROR logfile');
 		halt(1);
-	end;
-	// debug Log
-	if debug then begin
-		{$ifdef WIN32}
-		assign(DBG,'\temp\DevSrv_TlntDbg.log');
-		{$endif}
-		{$ifdef Linux}
-		assign(DBG,'/tmp/deviceserver_TelnetDbg.log');
-		{$endif}
-		{$I-}rewrite(DBG);{$I+}
-		if ioresult <> 0 then
-		begin
-			writeln ('Could not open DEBUG logfile');
-			halt(1);
-		end;
 	end;
 end.

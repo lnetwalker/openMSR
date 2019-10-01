@@ -33,13 +33,9 @@ telnetserver,
 {$endif}
 PhysMach,webserver,classes,crt,CommonHelper,StringCut,INIFiles,sysutils;
 
-
 {$ifdef MacOSX}
 	{$linklib libad4.dylib}
 {$endif}
-
-
-{ $Id$ }
 
 { This software is copyright (c) 2008 by Hartmut Eilers <hartmut@eilers.net> 	}
 { It is distributed under the terms of the GNU GPL V2 see http://www.gnu.org 	}
@@ -1152,6 +1148,7 @@ begin					{ Main program }
 		else
 			begin
 				DebugResult:=PhysMachDebug(true);
+				DebugResult:=TelnetDebug(true);
 			end;
 	if (Configfile='') then Configfile:='DeviceServer.cfg';
 	// initialize Hardware
@@ -1246,5 +1243,7 @@ begin					{ Main program }
 		WaitForThreadTerminate(ThreadHandle[i],TimeOut);
 		writeln( ThreadName[i] + ' ended');
 	end;
-
+	DoneCriticalSection(ProtectParams);
+	DoneCriticalSection(DebugOutput);
+	DoneCriticalSection(SendAsync);
 end.
