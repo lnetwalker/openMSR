@@ -20,7 +20,6 @@ type  string3 =string[3];
 
 
 const
-      	debug       = false;
       	awl_max     = 2000;
       	anweismax   = 37;
       	minScreenX  = 80;
@@ -71,10 +70,12 @@ var
 {$ENDIF}
 
 { these variables are used by sps.pas and run_sps.pas }
-     operand           : array[1..awl_max] of char;
-     par               : array[1..awl_max] of longint;
-     operation         : array[1..awl_max] of string3;
-     anweisung	       : array[1..anweismax] of string3;
-     znr               : array[1..awl_max] of integer;
-     comment           : array[1..awl_max] of string;
-     ConfFile	       : string;
+     operand            : array[1..awl_max] of char;
+     par                : array[1..awl_max] of longint;
+     operation          : array[1..awl_max] of string3;
+     anweisung	        : array[1..anweismax] of string3;
+     znr                : array[1..awl_max] of integer;
+     comment            : array[1..awl_max] of string;
+     ConfFile	          : string;
+     debug              : boolean;
+     DebugResult        : boolean;

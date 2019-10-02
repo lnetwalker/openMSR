@@ -39,7 +39,7 @@ uses
 {$ifdef LINUX }
 	unix,linux,SysUtils,BaseUnix,
 {$endif}
-	dos,crt,PhysMach;
+	dos,crt,PhysMach,CommonHelper;
 
 {$i ./sps.h}
 {$i ./run_awl.h }
@@ -157,7 +157,7 @@ begin                             		{ hp run_awl                      }
 	RPMs;
 	if (debug) then begin
 		delay (1000);
-    		writeln ('###########################################################################');
+    		debugLOG ('run_sps',2,'###########################################################################');
 	end;
 end;                               { **** ENDE RUN_AWL ****          }
 
@@ -165,6 +165,7 @@ end;                               { **** ENDE RUN_AWL ****          }
 begin                              { SPS_SIMULATION           }
 	ConfFile:='';
 	Daemonize:=false;
+	debug:=false;
 	if paramcount=0 then get_file_name  { keine Aufrufparameter }
 	else begin
 		for paramcnt:=1 to paramcount do begin
@@ -172,13 +173,22 @@ begin                              { SPS_SIMULATION           }
 				ConfFile:= paramstr(paramcnt+1);
 			if (paramstr(paramcnt)='-f') then
 				name:= paramstr(paramcnt+1);
-			if (paramstr(paramcnt)='-d') then
+			if (paramstr(paramcnt)='-b') then
 				Daemonize:=true;
+			if (paramstr(paramcnt)='-d') then
+				debug:=true;
 		end;
 		if pos('.',name)=0 then name:=name+'.sps';
 	end;
 	if (ConfFile = '') then
 		ConfFile:='.run_sps.cfg';
+	if ( debug ) then begin
+		if ( debugFilename('run_sps.dbg') <> 0 ) then begin
+			writeln('error open debugfile run_sps.dbg');
+			halt(1);
+		end;
+		DebugResult:=PhysMachDebug(true);
+	end;
 	PhysMachInit;
 	PhysMachloadCfg(ConfFile);
 	write(ProgNamVer);
@@ -187,12 +197,12 @@ begin                              { SPS_SIMULATION           }
 	sps_laden(name);
 	if (debug) then begin
 	 	//for i:=1 to awl_max do writeln (i:3,operation[i]:5, operand[i]:4,par[i]:4,comment[i]:22);
-		writeln (' Configured input ports :');
-		for i:=1 to group_max do writeln(i:3,i_address[i]:6,i_devicetype[i]:6);
-		writeln (' Configured output ports :');
-		for i:=1 to group_max do writeln(i:3,o_address[i]:6,o_devicetype[i]:6);
-		writeln (' Configured counter ports :');
-		for i:=1 to group_max do writeln(i:3,c_address[i]:6,c_devicetype[i]:6);
+		//writeln (' Configured input ports :');
+		//for i:=1 to group_max do writeln(i:3,i_address[i]:6,i_devicetype[i]:6);
+		//writeln (' Configured output ports :');
+		//for i:=1 to group_max do writeln(i:3,o_address[i]:6,o_devicetype[i]:6);
+		//writeln (' Configured counter ports :');
+		//for i:=1 to group_max do writeln(i:3,c_address[i]:6,c_devicetype[i]:6);
 	end;
 	TimeRuns:=150;
 
