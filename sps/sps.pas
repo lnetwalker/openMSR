@@ -117,7 +117,8 @@ begin                              { SPS_SIMULATION }
 			halt(1);
 		end;
 		DebugResult:=PhysMachDebug(true);
-	end;
+	end
+	else PhysMachDebug(false);
 	PhysMachInit;
 	//PhysMachRegCfg(@SpsConfig);
 	PhysMachLoadCfg(ConfFile);
