@@ -672,17 +672,17 @@ begin
 	i:=0;
 	{ Werte lesen und Ausgänge schreiben }
 	repeat
-	    Trenner:=pos(',',Params);
-	    if Trenner=0 then begin
-		val(copy(Params,1,Length(Params)),analog_in[AddressBase+i]);
-		if debug then DSdebugLOG('WriteAnalogValues->params: ' + Params + ' Trenner ' + IntToStr(Trenner) + ' written ' + IntToStr(analog_in[AddressBase+i]));
-	    end
-	    else begin
-	        val(copy(Params,1,Trenner-1),analog_in[AddressBase+i]);
-		Params:=copy(Params,Trenner+1,Length(Params));
-		if debug then DSdebugLOG('WriteAnalogValues->params: ' + Params + ' Trenner ' + IntToStr(Trenner) + ' written ' + IntToStr(analog_in[AddressBase+i]));
-	    end;
-	    inc(i);
+	  Trenner:=pos(',',Params);
+	  if Trenner=0 then begin
+			val(copy(Params,1,Length(Params)),analog_in[AddressBase+i]);
+			if debug then DSdebugLOG('WriteAnalogValues->params: ' + Params + ' Trenner ' + IntToStr(Trenner) + ' written ' + IntToStr(analog_in[AddressBase+i]));
+	  end
+	  else begin
+	    val(copy(Params,1,Trenner-1),analog_in[AddressBase+i]);
+			Params:=copy(Params,Trenner+1,Length(Params));
+			if debug then DSdebugLOG('WriteAnalogValues->params: ' + Params + ' Trenner ' + IntToStr(Trenner) + ' written ' + IntToStr(analog_in[AddressBase+i]));
+	  end;
+	  inc(i);
 	until ( Trenner=0 );
 
 	{ return something usefull }
