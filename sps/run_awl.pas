@@ -70,9 +70,9 @@ end;                              { **** ENDE PRINT_IN_OUT **** }
 
 
 function next_event:byte;
-var 	
+var
 	key		:byte;
-	
+
 begin
 	{ hier einfach: tasten:=ord(readkey); dann single step !! geil ;) }
      if keypressed then key:=ord(readkey)
@@ -117,7 +117,7 @@ begin
 	    182 : eingang[22]:=not(eingang[22]);
 	    183 : eingang[23]:=not(eingang[23]);
 	    184 : eingang[24]:=not(eingang[24]);
-		
+
      end;
 end;
 
@@ -129,7 +129,7 @@ begin
 	97  :begin
 	    	inc(analog_in[1]);
 		if ( analog_in[1] > 255 ) then analog_in[1]:=0;
-	      end;     
+	      end;
 	100 :begin
 	    	inc(analog_in[3]);
 		if ( analog_in[3] > 255 ) then analog_in[3]:=0;
@@ -137,11 +137,11 @@ begin
 	102:begin
 	    	inc(analog_in[4]);
 		if ( analog_in[4] > 255 ) then analog_in[4]:=0;
-	      end;     
+	      end;
 	115:begin
 	    	inc(analog_in[2]);
 		if ( analog_in[2] > 255 ) then analog_in[2]:=0;
-	      end;     
+	      end;
      end;
 end;                               {****  ENDE GET_INPUT ****}
 
@@ -151,7 +151,7 @@ end;                               {****  ENDE GET_INPUT ****}
 
 procedure chk_counters(key:byte);              { zaehlt timer und counter herunter }
 
-begin	
+begin
      case key of
          69 : dec(z[11]);      { shift und q-i fuer Zaehler Z9-Z16}
          73 : dec(z[16]);
@@ -171,7 +171,7 @@ begin
         119 : dec(z[2]);
         122 : dec(z[6]);
      end;
-					
+
 end;                               { **** ENDE COUNT_DOWN **** }
 
 
@@ -179,7 +179,7 @@ procedure chk_control(key:byte);
 begin
      case key of
 	 	 27 : escape:=true;
-	 end;	 
+	 end;
 end;
 
 
@@ -187,7 +187,7 @@ procedure check_keyboard;
 
 var taste : byte;
 begin
-	taste:=next_event;		
+	taste:=next_event;
 	if (taste<>ord('^')) then begin
 		if (taste=ord('c')) then extern:=not(extern);
 		if not(extern) then begin
@@ -202,9 +202,9 @@ end;
 
 procedure handle_counter;
 
-var 
+var
 	c      :byte;
-	
+
 begin
      for c:=1 to cnt_max do if z[c]=0 then zahler[c]:=true;
 end;
@@ -220,18 +220,18 @@ begin                              {hp run_awl}
 	repeat
 		check_keyboard;
 		if ( extern ) then begin
-	    		PhysMachReadDigital;               	{ INPUTS lesen                    }
-			PhysMachReadAnalog;			{ analoge inputs lesen		  }
-  			PhysMachCounter;                   	{ TIMER / ZAHLER aktualisieren    }
+	    PhysMachReadDigital;                { INPUTS lesen                    }
+			PhysMachReadAnalog;			            { analoge inputs lesen		  }
+  		PhysMachCounter;                    { TIMER / ZAHLER aktualisieren    }
 		end
-		else 
-			handle_counter;	
+		else
+			handle_counter;
 		PhysMachTimer;
 		interpret;
 		if ( extern ) then begin
-	   		PhysMachWriteDigital;                     { OUTPUTS ausgeben                }
-	   		PhysMachWriteAnalog;
-	   	end;
+	  	PhysMachWriteDigital;                     { OUTPUTS ausgeben                }
+	  	PhysMachWriteAnalog;
+	  end;
 		print_in_out;
 		toggle_internal_clock(marker[62],marker[63],marker[64]);
 		if watchdog > awl_max then escape:=true;
@@ -241,13 +241,13 @@ begin                              {hp run_awl}
 	//if escape then write(#7);
 
 	window (2,2,screenx,screeny);textcolor(black);textbackground(black);clrscr;
-	
+
 	if watchdog > awl_max then begin
 		textcolor(black);textbackground(white);
 		my_wwindow (10,10,40,15,'[WATCHDOG]','<bel.taste>',true);
 		sound(220);delay(200);nosound;
 		writeln ('  RUNTIME-ERROR IN AWL');
-		writeln ('  Zykluszeit �berschritten ');
+		writeln ('  Zykluszeit überschritten ');
 		write ('  weiter mit <bel. taste> !!!!');
 		repeat
 		until keypressed;
