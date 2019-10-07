@@ -196,7 +196,7 @@ function http_write_analog(io_port:longint;analog_value:integer):byte;
 		val(copy(TmpStrg,1,1),dev);
 		val(copy(TmpStrg,2,1),io_port);
 		str(io_port,TmpStrg);
-		AnalogURL:=R_URL[dev]+TmpStrg;
+		AnalogURL:=W_URL[dev]+TmpStrg;
 
 		str(analog_value,TmpStrg);
 		AnalogURL:=AnalogURL+','+TmpStrg;
