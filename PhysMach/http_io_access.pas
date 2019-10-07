@@ -31,7 +31,7 @@ httpsend
 ;
 
 const
-	debug		= false;
+	debug		= true;
 
 var
 	R_URL,W_URL		: array[1..4] of String;
@@ -145,7 +145,7 @@ begin
 	str(io_port,TmpStrg);
 	TmpStrg:=R_URL[dev]+TmpStrg;
 	if not HTTP.HTTPMethod('GET', TmpStrg) then begin
-		writeln('ERROR');
+		write('http_read_analog ERROR:');
 		writeln(Http.Resultcode);
 	end
 	else begin
@@ -190,7 +190,7 @@ function http_write_analog(io_port:longint;analog_value:integer):byte;
 		HTTP := THTTPSend.Create;
 		HTTP.UserAgent:='Mozilla/4.0 (' + AppName + ')';
 		response := TStringList.create;
-		if debug then writeln('http_io_access io_port=',io_port);
+		if debug then writeln('http_io_access->http_write_analog io_port=',io_port);
 		{ extract the device number as key to the device handle }
 		str(io_port,TmpStrg);
 		val(copy(TmpStrg,1,1),dev);
@@ -200,9 +200,9 @@ function http_write_analog(io_port:longint;analog_value:integer):byte;
 
 		str(analog_value,TmpStrg);
 		AnalogURL:=AnalogURL+','+TmpStrg;
-
+		if debug then writeln('http_io_access->http_write_analog AnalogURL=',AnalogURL);
 		if not HTTP.HTTPMethod('GET', AnalogURL) then begin
-			writeln('ERROR');
+			write('http_io_access->http_write_analog ERROR:');
 			writeln(Http.Resultcode);
 		end
 		else begin
