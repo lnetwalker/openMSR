@@ -212,6 +212,8 @@ function http_write_analog(io_port:longint;analog_value:integer):byte;
 			response.loadfromstream(Http.Document);
 			ReturnValue:=deHTML(response.text);
 		end;
+		HTTP.Free;
+		response.free;
 		http_write_analog:=1; // dummy return value
 	end;
 
