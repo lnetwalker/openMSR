@@ -994,7 +994,7 @@ begin
 	i:=1;
 	repeat
 		PhysMachWriteAnalogDevice(i);
-		if debugFlag then debugLOG('PhysMach',2,'PhysMachReadAnalog i='+IntToStr(i));
+		if debugFlag then debugLOG('PhysMach',2,'PhysMachWriteAnalog i='+IntToStr(i));
 		inc(i);
 	until ( i > analog_max );
 end;
