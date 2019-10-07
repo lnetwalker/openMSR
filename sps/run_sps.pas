@@ -144,13 +144,13 @@ end;                               {**** ENDE SPS_LADEN **** }
 procedure run_awl;
 {interrupt; }
 
-begin                             		{ hp run_awl                      }
-	PhysMachReadDigital;                   	{ INPUTS lesen                    }
-	PhysMachReadAnalog;			{ analoge inputs lesen			  }
-	PhysMachCounter;                     	{ TIMER / ZAHLER aktualisieren    }
+	begin 																	{ hp run_awl                      }
+	PhysMachReadDigital;										{ INPUTS lesen                    }
+	PhysMachReadAnalog;											{ analoge inputs lesen			  		}
+	PhysMachCounter;												{ TIMER / ZAHLER aktualisieren    }
 	PhysMachTimer;
-	interpret;                      	{ einen AWLdurchlauf abarbeiten   }
-	PhysMachWriteDigital;			{ OUTPUTS ausgeben                }
+	interpret;															{ einen AWLdurchlauf abarbeiten   }
+	PhysMachWriteDigital;										{ OUTPUTS ausgeben                }
 	PhysMachWriteAnalog;
 	toggle_internal_clock(marker[62],marker[63],marker[64]);{ interne TAKTE M62-M64 toggeln   }
 	if watchdog > awl_max then escape:=true;
@@ -206,49 +206,49 @@ begin                              { SPS_SIMULATION           }
 	end;
 	TimeRuns:=150;
 
-{$ifdef LINUX}
-if (Daemonize) then begin
-	writeln('AWL wird im Hintergrund gestartet, send SIGTERM to quit ...');
+	{$ifdef LINUX}
+	if (Daemonize) then begin
+		writeln('AWL wird im Hintergrund gestartet, send SIGTERM to quit ...');
 
-	{ set a very nice priority }
-	//nice(20);
+		{ set a very nice priority }
+		//nice(20);
 
-	{ signal handling is done here, also the program goes in background 	}
+		{ signal handling is done here, also the program goes in background 	}
 
-	fpsigemptyset(zerosigs);
+		fpsigemptyset(zerosigs);
 
-	{ set global daemon booleans }
-	bHup := true; { to open log file }
-	bTerm := false;
+		{ set global daemon booleans }
+		bHup := true; { to open log file }
+		bTerm := false;
 
-	{ block all signals except -HUP & -TERM }
-	sSet := $ffffbffe;
-	ps1 := @sSet;
-	fpsigprocmask(sig_block,ps1,nil);
+		{ block all signals except -HUP & -TERM }
+		sSet := $ffffbffe;
+		ps1 := @sSet;
+		fpsigprocmask(sig_block,ps1,nil);
 
-	{ setup the signal handlers }
-	new(aOld);
-	new(aHup);
-	new(aTerm);
-	aTerm^.sa_handler{.sh} := SigactionHandler(@DoSig);
+		{ setup the signal handlers }
+		new(aOld);
+		new(aHup);
+		new(aTerm);
+		aTerm^.sa_handler{.sh} := SigactionHandler(@DoSig);
 
-	aTerm^.sa_mask := zerosigs;
-	aTerm^.sa_flags := 0;
-	{$ifndef BSD}                {Linux'ism}
-	  aTerm^.sa_restorer := nil;
-	{$endif}
-	aHup^.sa_handler := SigactionHandler(@DoSig);
-	aHup^.sa_mask := zerosigs;
-	aHup^.sa_flags := 0;
-	{$ifndef BSD}                {Linux'ism}
-	  aHup^.sa_restorer := nil;
-	{$endif}
-	fpSigAction(SIGTERM,aTerm,aOld);
-	fpSigAction(SIGHUP,aHup,aOld);
+		aTerm^.sa_mask := zerosigs;
+		aTerm^.sa_flags := 0;
+		{$ifndef BSD}                {Linux'ism}
+	  	aTerm^.sa_restorer := nil;
+		{$endif}
+		aHup^.sa_handler := SigactionHandler(@DoSig);
+		aHup^.sa_mask := zerosigs;
+		aHup^.sa_flags := 0;
+		{$ifndef BSD}                {Linux'ism}
+	  	aHup^.sa_restorer := nil;
+		{$endif}
+		fpSigAction(SIGTERM,aTerm,aOld);
+		fpSigAction(SIGHUP,aHup,aOld);
 
-	{ daemonize }
-	pid := fpFork;
-	Case pid of
+		{ daemonize }
+		pid := fpFork;
+		Case pid of
 	    0 : Begin { we are in the child }
 	      Close(input);  { close standard in }
 	      Close(output); { close standard out }
@@ -260,38 +260,39 @@ if (Daemonize) then begin
 	    End;
 	    -1 : secs := 0;     { forking error, so run as non-daemon }
 	    Else Halt;          { successful fork, so parent dies }
-	End;
+		End;
 
-	{ begin processing loop }
-	Repeat
-	    If bHup Then Begin
-	      { do nothing at the moment }
-	      bHup := false;
-	    End;
-	    {----------------------}
-	    { Do your daemon stuff }
-		run_awl;
-		delay(15);
-	    {----------------------}
-	    If bTerm Then
-	      BREAK
-	    Else
-	      { wait a while }
-	      delay(15);
-	Until bTerm;
+		{ begin processing loop }
+		Repeat
+			If bHup Then Begin
+				{ do nothing at the moment }
+				bHup := false;
+			End;
+			{----------------------}
+			{ Do your daemon stuff }
+			run_awl;
+			{----------------------}
+			If bTerm Then
+				BREAK
+			Else
+				{ wait a while }
+				delay(5);
+		Until bTerm;
 
-end
-else begin
-{$endif}
-	writeln('AWL gestartet, press any key to stop');
-	repeat
-		run_awl;
-		delay(15);
-	until keypressed or escape;
-	if escape then writeln('Error: Watchdog error...!');
-{$ifdef LINUX}
-end;
-{$endif}
+	end
+	else begin
+	{$endif}
+		writeln('AWL gestartet, press any key to stop');
+		repeat
+			run_awl;
+			delay(5);
+		until keypressed or escape;
+		if escape then begin
+			writeln('Error: Watchdog error...!');
+			halt;
+		end;
+	{$ifdef LINUX}
+	end;
+	{$endif}
 	PhysMachEnd;
-	 // if esc then writeln('Error: Watchdog error...!');
 end.                               { **** SPS_SIMULATION **** }
