@@ -12,7 +12,7 @@ uses
 {$ifdef WIN32 }
 		windows,
 {$endif}
-dos,crt,porting,printer,popmenu,browse,PhysMach;
+dos,crt,porting,printer,popmenu,browse,CommonHelper,PhysMach;
 {$M 16384,0,100000}
 
 {$DEFINE SPS}
@@ -110,6 +110,14 @@ end;                               {**** ENDE  HAUPTMENU **** }
 begin                              { SPS_SIMULATION }
 	if ( paramcount > 0 ) then ConfFile:=paramstr(1)
 	else ConfFile:='.run_sps.cfg';
+	debug:=true;
+	if ( debug ) then begin
+		if ( debugFilename('sps.dbg') <> 0 ) then begin
+			writeln('error open debugfile sps.dbg');
+			halt(1);
+		end;
+		DebugResult:=PhysMachDebug(true);
+	end;
 	PhysMachInit;
 	//PhysMachRegCfg(@SpsConfig);
 	PhysMachLoadCfg(ConfFile);
