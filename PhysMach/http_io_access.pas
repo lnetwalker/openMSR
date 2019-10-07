@@ -138,12 +138,9 @@ begin
 	str(io_port,TmpStrg);
 	val(copy(TmpStrg,1,1),dev);
 
-	//dev:=round(io_port/10)-DeviceIndex;
 	{ extract the port }
 	val(copy(TmpStrg,2,1),io_port);
-	//io_port:=round(frac(io_port/10)*10);
-
-        val(copy(TmpStrg,3,1),idx);
+  val(copy(TmpStrg,3,1),idx);
 
 	str(io_port,TmpStrg);
 	TmpStrg:=R_URL[dev]+TmpStrg;
