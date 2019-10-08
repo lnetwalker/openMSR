@@ -31,7 +31,7 @@ httpsend
 ;
 
 const
-	debug		= true;
+	debug		= false;
 
 var
 	R_URL,W_URL		: array[1..4] of String;
