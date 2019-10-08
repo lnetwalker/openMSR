@@ -28,7 +28,7 @@ function val2str(zahl:real):string;
 
 var 	tmp		: string;
 begin
-	str(zahl:3,tmp);
+	str(zahl:5:0,tmp);
 	val2str:=tmp;
 end;
 
