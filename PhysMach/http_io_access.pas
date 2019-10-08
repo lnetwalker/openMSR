@@ -185,6 +185,7 @@ function http_write_analog(io_port:longint;analog_value:integer):byte;
 		HTTP									: THTTPSend;
 		response							: tstringlist;
 		AnalogURL							: String;
+		idx,AnalogIdx					: byte;
 
 	begin
 		HTTP := THTTPSend.Create;
@@ -195,7 +196,9 @@ function http_write_analog(io_port:longint;analog_value:integer):byte;
 		str(io_port,TmpStrg);
 		val(copy(TmpStrg,1,1),dev);
 		val(copy(TmpStrg,2,1),io_port);
-		str(io_port,TmpStrg);
+		val(copy(TmpStrg,3,1),idx);
+		AnalogIdx:=(io_port-1)*8+idx;
+		str(AnalogIdx,TmpStrg);
 		AnalogURL:=W_URL[dev]+TmpStrg;
 
 		str(analog_value,TmpStrg);
@@ -225,7 +228,7 @@ begin
 	if debug then writeln('http_hwinit: cnt=',cnt,' Initdata=',initdata);
 	delim:=pos('§',initdata);
 	R_URL[cnt]:=copy(initdata,1,delim-1);
-	W_URL[cnt]:=copy(initdata,delim+1,length(initdata));
+	W_URL[cnt]:=copy(initdata,delim+2,length(initdata));
 	if debug then writeln('http_hwinit: R_URL=',R_URL[cnt],' W_URL=',W_URL[cnt]);
 end;
 
