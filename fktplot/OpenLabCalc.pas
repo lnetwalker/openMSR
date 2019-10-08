@@ -53,12 +53,12 @@ begin
 		end;
 		inc(i);
 	end;
-	writeln('Data is stored in Variable A[' + val2str(destidx) + ']');
+	if debug then writeln('Data is stored in Variable A[' + val2str(destidx) + ']');
 	// replace all occurances of variables with their values
 	formel:=copy(formel,start+1,length(formel));
-	writeln('Using formular: ' + formel);
+	if debug then writeln('Using formular: ' + formel);
 	i:=1;
-	writeln('Found the following Variables in formular:');
+	if debug then writeln('Found the following Variables in formular:');
 	while i <= length(formel) do begin
 		if (formel[i] = 'A') or (formel[i] = 'a') then begin	// its a variable
 			p:=i+1;		// save position of variable
@@ -67,8 +67,8 @@ begin
 			val(copy(formel,i+1,p-i),idx);
 			formel:=copy(formel,1,i-1)+val2str(analog_in[idx])+copy(formel,p+1,length(formel));
 			i:=p;
-			writeln('idx=',idx);
-			writeln('A[' + val2str(idx) + ']=' + val2str(analog_in[idx]));
+			if debug then writeln('idx=',idx);
+			if debug then writeln('A[' + val2str(idx) + ']=' + val2str(analog_in[idx]));
 		end;
 		inc(i);
 	end;
@@ -87,7 +87,7 @@ begin			// main program
 		ParseFormular(data,dest);
 		codier(data,funk,zahlen);
 		analog_in[dest]:=trunc(fx(1,funk,zahlen));
-		writeln('A[',dest ,']=',trunc(fx(1,funk,zahlen)));
+		if debug then writeln('A[',dest ,']=',trunc(fx(1,funk,zahlen)));
 		PhysMachWriteAnalog;
 	until keypressed;
 end.
