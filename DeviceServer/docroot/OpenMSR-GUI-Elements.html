@@ -167,24 +167,19 @@
   height: 85px;
   width:525px;
       }
-      #hostname {
+      #enterhostname {
 	background-color: white;
 	position: absolute;
 	left: 138px;
 	top: 450px;
       }
+      #comments {
+        background-color: white;
+      	position: absolute;
+      	left: 800px;
+      	top: 50px;
+      }
 
-    </style>
-
-    <!-- STYLE FOR THE DISPLAY-->
-    <style type="text/css">
-    img { border:none; vertical-align:middle; }
-    table { border:none; }
-    table td { border:none; vertical-align:top; text-align:left; }
-    .table_with_border { border-style:outset; border-width:0px; border-spacing:0px; }
-    .table_with_border td { border-style:inset; border-width:0px; vertical-align:top; text-align:left; }
-    .table_footer { border:none; width:100%; text-align:center; }
-    .table_footer td { border:none; text-align:center; }
     </style>
 
 
@@ -354,14 +349,23 @@
 	MyAnalogReader.DeviceServerURL(Host + '/analog/read.html');
 	MyAnalogReader.IOGroup(1);
 
-  // analog writer to deliver values to DEviceServer
-  var MyAnalogWriter = new AnalogDataWriter();
-  MyAnalogWriter.TimerVal(300);
-  MyAnalogWriter.DeviceServerURL(Host + '/analog/write.html');
+  // analog writer to deliver values of Knob1 to DEviceServer
+  var MyAnalogWriterKnob1 = new AnalogDataWriter();
+  MyAnalogWriterKnob1.TimerVal(300);
+  MyAnalogWriterKnob1.DeviceServerURL(Host + '/analog/write.html');
   // adressing: IOGroup2 = Analog 9-16
-  MyAnalogWriter.IOGroup(2);
+  MyAnalogWriterKnob1.IOGroup(2);
+  // AssignEvent(x,y) X= index in IOGroup; Y= EventNumber -> (1,1) means third value = analog 11 ; event 1
+  MyAnalogWriterKnob1.AssignEvent(3,1);
+
+  // analog writer to deliver values of Knob to DEviceServer
+  var MyAnalogWriterKnob2 = new AnalogDataWriter();
+  MyAnalogWriterKnob2.TimerVal(300);
+  MyAnalogWriterKnob2.DeviceServerURL(Host + '/analog/write.html');
+  // adressing: IOGroup2 = Analog 9-16
+  MyAnalogWriterKnob2.IOGroup(2);
   // AssignEvent(x,y) X= index in IOGroup; Y= EventNumber -> (2,2) means second value = analog 10 ; event 2
-  MyAnalogWriter.AssignEvent(2,2);
+  MyAnalogWriterKnob2.AssignEvent(2,2);
       }
     </script>
 
@@ -401,11 +405,23 @@
 <!--
 	<textarea id=debug cols=120 rows=10></textarea>
 -->
-  <form>
-    <font color=white>Url=<input type=text value='http://localhost:10080'
+  <div id=enterhostname>
+    <form>
+      <font color=black>Url=<input type=text value='http://localhost:10080'
       id="Hostname" size=25 onChange="HostHasChanged(Hostname.value)">
-  </form>
+    </form>
+  </div>
 
+  <div id=comments>
+    Comments:<br>
+    The fiberthermometer shows the value of the upper knob. This value is stored in the DeviceServer as Analog[11]<br><br>
+    The switches on the left and the red and green LED above are mapped to Output 25 and 26 of the DeviceServer, These
+    are Bits 1 and 2 of IOGroup 4<br><br>
+    The upper 8 green LEDs are the Inputs E1-E8 of the DeviceServer and the lower 8 LEDs are Outputs A25-32.<br><br>
+    The Display shows the value of the lower knob. This value is stored in Analog[10] of the DeviceServer.<br><br>
+    And finally there is the BarGraph which shows the value of Analog[1] of the DeviceServer.
+
+  </div>
 	<script type="text/javascript">
 	  init();
 	</script>
