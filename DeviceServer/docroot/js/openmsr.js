@@ -115,7 +115,7 @@ var DigitalDataReader = function () {
   this.EventMapping = new Array();
   //var this.ReaderTimer=null;
   this.req = null;
-  OldVal = 0;
+  this.OldVal = 0;
 
   var me = this;
 
@@ -151,8 +151,8 @@ var DigitalDataReader = function () {
       // now loop over the result and fire the events
       for (var i=0;i<8;i++) {
         // send out events if the signal has changed since last run
-        DebugLOG('DigitalDataReader: i=' +i + 'inputs=' + inputs[i] + 'OldVal=' +OldVal[i] );
-        if ( inputs[i] != OldVal[i] ) {
+        DebugLOG('DigitalDataReader: i=' +i + 'inputs=' + inputs[i] + 'OldVal=' +me.OldVal[i] );
+        if ( inputs[i] != me.OldVal[i] ) {
           EventArgs = 'digital' + ' ' + me.EventMapping[i+1] + ' ' + inputs[i];
           //DebugLOG('DigitalDataReader: send Event = ' + EventArgs );
           // fire event
@@ -160,7 +160,7 @@ var DigitalDataReader = function () {
         }
       }
       // save values for next run
-      OldVal=inputs;
+      me.OldVal=inputs;
     }
   }
 
@@ -334,13 +334,6 @@ var AnalogDataReader = function () {
       str = str.replace(/^ /, "");
       me.inputs=str.split(" ");
       DebugLOG('AnalogReader.PrintState: received ' + me.inputs );
-      // now loop over the result and fire the events
-      //for (i=0;i<8;i++) {
-      //   EventArgs = 'analog' + ' ' + me.EventMapping[i] + ' ' + inputs[i];
-      //   // fire event
-      //   DebugLOG(' AnalogReader.PrintState fired event ->' + EventArgs );
-      //   OpenMSREvent.execute(EventArgs);
-      //}
       me.EventMapping.forEach(me.FireEvent);
     }
   }
@@ -369,6 +362,94 @@ var AnalogDataReader = function () {
     // establish our own timer to periodically read the signals
     me.ReaderTimer = setInterval(me.SendRequest,me.TimeIntervall);
   }
+
+}
+
+var AnalogDataWriter = function () {
+  /*
+  this function receives Events and writes the analog data to the DeviceServer
+  */
+
+  this.Adresse = 'http://localhost:10080/analog/write.html';
+  this.IOGroup = 0;
+  this.EventMapping = new Array();
+  this.ValArray = new Array();
+  this.req = null;
+  this.inputs = new Array();
+  var me = this;
+
+  me.TimeIntervall=480;
+
+  // Start the asynchronous write request
+  this.SendRequest = function () {
+    //alert('SendRequest ' + me.IOGroup );
+    me.req=getXMLHttpRequest();
+    if (me.req) {
+      DebugLOG('AnalogWriter.SendRequest send ' + me.Adresse + '?' + me.IOGroup );
+      var cnt=me.ValArray.length;
+      me.req.onreadystatechange = me.PrintState;
+      me.req.open("get", me.Adresse + "?" + ((me.IOGroup-1)*8+cnt-1) + "," + parseInt(me.ValArray[cnt-1],10).toString(), true);
+      me.req.send(null);
+    }
+  }
+
+
+  // this function reads the asynchronous response from the AJAX request
+  // and sends the values as events
+  this.PrintState = function () {
+    // readyState 4 gibt an dass der request beendet wurde
+    if ( me.req.readyState ==4 ) {
+      // in resonseText ist die Antwort des Servers
+      var str=me.req.responseText;
+      DebugLOG('AnalogDataWriter.PrintState: received ' + me.req.responseText );
+    }
+  }
+
+
+  this.ReceiveEvent = function(EventArgs) {
+    // split the event data in its elements
+    var EventArray = EventArgs.split(' ');
+    // check wether the current event is for me
+    // loop over the mapping and store value if mapping matches
+    if ( EventArray[0] == 'analog') {
+      for (var i=1;i<8;i++) {
+        if (me.EventMapping[i] == EventArray[1] ) {
+          //alert (EventArray[0] + ' ' + EventArray[1] + ' ' + EventArray[2]);
+          //alert(me + ' ' + EventArray[2] + ' i=' + i);
+          me.ValArray[i]=EventArray[2];
+        }
+      }
+    }
+  }
+
+
+  // this function read the timer value
+  this.TimerVal = function (xx) {
+    me.TimeIntervall = xx;
+  }
+
+  // this function builds the list of event to input mapping
+  this.AssignEvent = function (xx,yy) {
+    me.EventMapping[xx] = yy;
+    //alert(xx + ' ' + me.EventMapping[xx]);
+    DebugLOG(' AnalogWriter EventMapping '+ me.EventMapping[xx]);
+  }
+
+  // the URL to read the DeviceServer
+  this.DeviceServerURL = function (xx) {
+    me.Adresse = xx;
+  }
+
+  // the IOGroup to read
+  this.IOGroup = function (xx) {
+    me.IOGroup = xx;
+    //alert(me + ' ' + me.IOGroup);
+    // establish our own timer to periodically read the signals
+    me.WriterTimer = setInterval(me.SendRequest,me.TimeIntervall);
+  }
+
+  // install Event Handler
+  OpenMSREvent.addHandler(me.ReceiveEvent);
 
 }
 
