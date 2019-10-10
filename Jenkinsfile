@@ -134,6 +134,25 @@ pipeline {
             sh "cp mqtt-exec-*.* artifactstore"
             stash name: "artifactlist", includes: "artifactstore/*"
           }
+        }
+
+    stage('Build MQTT-exec-ARM') {
+      agent {
+        node {
+          label 'pi'
+        }
+      }
+      steps {
+        build job: 'MQTT-exec-ARM' , propagate:true, wait: true
+        sh "rm -f artifactstore/*"
+        unstash "artifactlist"
+        sh "rm mqtt-exec*.*"
+        copyArtifacts (filter: '*',fingerprintArtifacts: true, projectName: 'MQTT-exec', selector: lastSuccessful())
+        sh "cp LICENSE artifactstore/LICENSE.mqtt-exec"
+        sh "cp README.md artifactstore/README.mqtt-exec"
+        sh "cp mqtt-exec-*.* artifactstore"
+        stash name: "artifactlist", includes: "artifactstore/*"
+      }
     }
 
     stage('collect Artifacts') {
