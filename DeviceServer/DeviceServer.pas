@@ -585,12 +585,14 @@ begin
 	Params:=copy(GetParams,2,Length(GetParams));;
 	Webparams:=StringSplit(Params,',');
 	NumberOfWebparams:=GetNumberOfElements(Params,',');
+	if debug then DSdebugLOG('embeddedWeb: NumberOfWebparams='+IntToStr(NumberOfWebparams));
 
 	case NumberOfWebparams of
 			1: begin
 					val(Webparams[1],IOGroup);
 					ByteValue:=0;
 					BitVal:=0;
+					if debug then DSdebugLOG('embeddedWeb: NumberOfWebparams='+IntToStr(NumberOfWebparams)+' IOGroup='+Webparams[1]);
 				end;
 
 			2: begin
@@ -608,7 +610,7 @@ begin
 
 	if debug then begin
 		DSdebugLOG('embeddedWeb:> Got Parameters');
-		DSdebugLOG('URL=' + Url + ' Parameters=' + Params + ' ' + IntToStr(IOGroup) + ' ' + IntToStr(ByteValue)+ ' ' + IntToStr(BitVal));
+		DSdebugLOG('URL=' + Url + ' Parameters=' + Params + ' IOGroup=' + IntToStr(IOGroup) + ' ByteValue=' + IntToStr(ByteValue)+ ' BitVal=' + IntToStr(BitVal));
 	end;
 //	LeaveCriticalSection(SendAsync);
 end;
@@ -629,13 +631,16 @@ begin
 	SeitenEnde:=' </body></html>';
 	Values:='';
 
-	AddressBase:=IOGroup*8-8;
+	if debug then DSdebugLOG('embeddedWeb->read.html: IOGroup='+IntToStr(IOGroup));
 
+	AddressBase:=IOGroup*8-8;
+	if debug then DSdebugLOG('embeddedWeb->read.html: AddressBase='+IntToStr(AddressBase));
 	for i:=1 to 8 do begin
 		str(analog_in[AddressBase+i],ValueString);
 		Values:=Values+' '+ValueString;
+		if debug then DSdebugLOG('embeddedWeb->read.html: i='+IntToStr(i)+' Value='+ValueString);
 	end;
-
+	if debug then DSdebugLOG('embeddedWeb->read.html: Analog values='+Values);
 	Seite:=SeitenStart+Values+SeitenEnde;
 	if debug then DSdebugLOG('embeddedWeb:>Sending Page');
 
