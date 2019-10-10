@@ -105,6 +105,7 @@ var
 	Configfile			: String;
 	paramcnt				: byte;
 	DebugResult			: boolean;
+	access_log			: String;
 
 
 procedure DSdebugLOG(msg:string);
@@ -1020,7 +1021,7 @@ begin
 	Writeln('started Webserver Thread, going to start Server...');
 	{ start the webserver with IP, Port, Document Root and Logfile }
 	{ start on all available interfaces }
-	start_server('0.0.0.0',10080,BLOCKED,'docroot','./pwserver.log',NONBLOCKED,debug);
+	start_server('0.0.0.0',10080,BLOCKED,'docroot',access_log,NONBLOCKED,debug);
 	Writeln('Webserver started, ready to serve');
 
 	{ register the variable handler }
@@ -1131,6 +1132,7 @@ end;
 
 begin					{ Main program }
 	debug:=false;
+	access_log:='';
 	Configfile:='';
 	// commandline parameters
 	if ( paramcount > 0 ) then
@@ -1138,6 +1140,9 @@ begin					{ Main program }
 	    if (paramstr(paramcnt)='-d') then debug:=true;
 			if (paramstr(paramcnt)='-c') then begin
 				Configfile:= paramstr(paramcnt+1);
+			end;
+			if (paramstr(paramcnt)='-a') then begin
+				access_log:= paramstr(paramcnt+1);
 			end;
 		end;
 	if ( debug ) then
