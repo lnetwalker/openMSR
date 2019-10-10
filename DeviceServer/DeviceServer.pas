@@ -96,6 +96,7 @@ var
 	connectionclose	: boolean;
 	DebugOutput			: TRTLCriticalSection;
 	SendAsync				: TRTLCriticalSection;
+	ProtectOutput		: TRTLCriticalSection;
 	debug						: boolean;
 	Webparams				:	StringArray;
 	{$IFDEF Linux}
@@ -381,12 +382,16 @@ var
 
 begin
 	MySelf:=longint(p);
+	EnterCriticalSection(ProtectOutput);
 	writeln('started MQTT Handler Thread..' + IntToStr(MySelf));
+	LeaveCriticalSection(ProtectOutput);
 	repeat
 		MQTTThread.run;
 		inc(ThreadCnt[MySelf]);
 	until shutdown=true;
+	EnterCriticalSection(ProtectOutput);
 	writeln('MQTT Handler going down..' + IntToStr(MySelf));
+	LeaveCriticalSection(ProtectOutput);
 	MQTTHandler:=0;
 end;
 
@@ -531,7 +536,9 @@ var
 
 begin
 	MySelf:=longint(p);
+	EnterCriticalSection(ProtectOutput);
 	writeln('started Telnet Thread..' + IntToStr(MySelf));
+	LeaveCriticalSection(ProtectOutput);
 	TelnetInit(0,'./telnet.log');
 	repeat
 		connectionclose:=false;
@@ -543,7 +550,9 @@ begin
 		until connectionclose;
 	until shutdown=true;
 	TelnetShutDown;
+	EnterCriticalSection(ProtectOutput);
 	Writeln('Telnet Handler going down..' + IntToStr(MySelf));
+	LeaveCriticalSection(ProtectOutput);
 	TelnetThread:=0;
 end;
 {$endif} // MIPS
@@ -559,12 +568,16 @@ var
 
 begin
 	MySelf:=longint(p);
+	EnterCriticalSection(ProtectOutput);
 	Writeln('started Device Handler Thread..' + IntToStr(MySelf));
+	LeaveCriticalSection(ProtectOutput);
 	repeat
 		PhysMachIOByDevice(DeviceList[MySelf]);
 		inc(ThreadCnt[MySelf]);
 	until shutdown=true;
+	EnterCriticalSection(ProtectOutput);
 	Writeln('Device Handler going down..' + IntToStr(MySelf));
+	LeaveCriticalSection(ProtectOutput);
 	DeviceHandler:=0;
 end;
 
@@ -1023,12 +1036,13 @@ var
 
 begin
 	MySelf:=longint(p);
+	EnterCriticalSection(ProtectOutput);
 	Writeln('started Webserver Thread, going to start Server...');
 	{ start the webserver with IP, Port, Document Root and Logfile }
 	{ start on all available interfaces }
 	start_server('0.0.0.0',10080,BLOCKED,'docroot',access_log,NONBLOCKED,debug);
 	Writeln('Webserver started, ready to serve');
-
+	LeaveCriticalSection(ProtectOutput);
 	{ register the variable handler }
 	SetupVariableHandler(@embeddedWebReadParams);
 
@@ -1052,7 +1066,9 @@ begin
 //		delay(100);
 	until Shutdown=true;
 
+  EnterCriticalSection(ProtectOutput);
 	writeln('Webserver going down..');
+	LeaveCriticalSection(ProtectOutput);
 	WebserverThread:=0;
 	{$ifndef MIPS}
 	TelnetShutDown;
@@ -1079,7 +1095,9 @@ MySelf					: LongInt;
 
 begin
 	MySelf:=longint(p);
+	EnterCriticalSection(ProtectOutput);
 	writeln('started Statistics Thread...' + IntToStr(MySelf));
+	LeaveCriticalSection(ProtectOutput);
 	repeat
 		// get the current time in seconds and save the counter for each thread
 		{$ifdef Linux}
@@ -1106,7 +1124,9 @@ begin
 				ThreadRPMs[i]:=round((ThreadCnt[i]-OldThreadCnt[i])/TimeDiff);
 		inc(ThreadCnt[MySelf]);
 	until Shutdown=true;
+	EnterCriticalSection(ProtectOutput);
 	writeln('stopping Statistic Thread ');
+	LeaveCriticalSection(ProtectOutput);
 	StatisticsThread:=0;
 end;
 
@@ -1122,12 +1142,16 @@ var
 
 begin
 	MySelf:=longint(p);
+	EnterCriticalSection(ProtectOutput);
 	writeln('started Time Control Thread...' + IntToStr(MySelf));
+	LeaveCriticalSection(ProtectOutput);
 	repeat
 		delay(10000);
 		inc(ThreadCnt[MySelf]);
 	until Shutdown=true;
+	EnterCriticalSection(ProtectOutput);
 	Writeln('stopping Thread Time Control');
+	LeaveCriticalSection(ProtectOutput);
 	TimeControlThread:=0;
 end;
 
@@ -1173,6 +1197,7 @@ begin					{ Main program }
 	InitCriticalSection(ProtectParams);
 	InitCriticalSection(DebugOutput);
 	InitCriticalSection(SendAsync);
+	InitCriticalSection(ProtectOutput);
 
 	// start threads, for every configured device one thread
 	// the device servers need to be started as first threads,
@@ -1181,7 +1206,9 @@ begin					{ Main program }
 	NumOfThreads:=1;
 	for DeviceCnt:=1 to DeviceTypeMax do begin
 		if DeviceList[DeviceCnt]<>'-' then begin
+			EnterCriticalSection(ProtectOutput);
 			Writeln('starting DeviceHandler for Device:' + DeviceList[DeviceCnt]);
+			LeaveCriticalSection(ProtectOutput);
 			delay(500);
 			ThreadName[NumOfThreads]:='DeviceHandler '+DeviceList[DeviceCnt];
 			ThreadHandle[NumOfThreads]:=BeginThread(@DeviceHandler,pointer(NumOfThreads));
@@ -1191,7 +1218,9 @@ begin					{ Main program }
 	end;
 
 	// start the webserver thread
+	EnterCriticalSection(ProtectOutput);
 	writeln('Starting Webserver Thread...');
+	LeaveCriticalSection(ProtectOutput);
 	delay(500);
 	ThreadName[NumOfThreads]:='Webserver';
 	ThreadHandle[NumOfThreads]:=BeginThread(@WebserverThread,pointer(NumOfThreads));
@@ -1199,7 +1228,9 @@ begin					{ Main program }
 {$ifndef MIPS}
 	// start the telnet thread
 	inc(NumOfThreads);
+	EnterCriticalSection(ProtectOutput);
 	Writeln('Starting Telnet Thread...');
+	LeaveCriticalSection(ProtectOutput);
 	delay(500);
 	ThreadName[NumOfThreads]:='Telnet Thread';
 	ThreadHandle[NumOfThreads]:=BeginThread(@TelnetThread,pointer(NumOfThreads));
@@ -1207,14 +1238,18 @@ begin					{ Main program }
 
 	// start the TimeControl thread
 	inc(NumOfThreads);
+	EnterCriticalSection(ProtectOutput);
 	writeln('Starting TimeControl Thread...');
+	LeaveCriticalSection(ProtectOutput);
 	delay(500);
 	ThreadName[NumOfThreads]:='TimeCtrl Thread';
 	ThreadHandle[NumOfThreads]:=BeginThread(@TimeControlThread,pointer(NumOfThreads));
 
 	// start the statistic thread
 	inc(NumOfThreads);
+	EnterCriticalSection(ProtectOutput);
 	writeln('Starting Statistics Thread...');
+	LeaveCriticalSection(ProtectOutput);
 	delay(500);
 	ThreadName[NumOfThreads]:='Stats Thread';
 	ThreadHandle[NumOfThreads]:=BeginThread(@StatisticsThread,pointer(NumOfThreads));
@@ -1224,7 +1259,9 @@ begin					{ Main program }
 	if ( FileExists('MQTT.ini') ) then begin
 		inc(NumOfThreads);
 		MQTTThread.setup('MQTT.ini');
+		EnterCriticalSection(ProtectOutput);
 		writeln('Starting MQTT Thread...');
+		LeaveCriticalSection(ProtectOutput);
 		delay(500);
 		ThreadName[NumOfThreads]:='MQTT Thread';
 		ThreadHandle[NumOfThreads]:=BeginThread(@MQTTHandler,pointer(NumOfThreads));
@@ -1256,4 +1293,5 @@ begin					{ Main program }
 	DoneCriticalSection(ProtectParams);
 	DoneCriticalSection(DebugOutput);
 	DoneCriticalSection(SendAsync);
+	DoneCriticalSection(ProtectOutput);
 end.
