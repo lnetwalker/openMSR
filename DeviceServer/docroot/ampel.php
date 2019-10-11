@@ -105,7 +105,7 @@
       	top: 360px;
       }
       #Ampel {
-	       background:url(images/ampel.png);
+	       background:url(images/ampel-neu.png);
 	       position: absolute;
 	       left: 50px;
 	       top: 50px;
@@ -142,6 +142,20 @@
         top:440px;
         left:50px;
       }
+      #AutoBlau {
+      	position: absolute;
+      	left: -400px;
+      	top: 200px;
+      	width: 360px;
+      	height: 50px;
+      }
+      #AutoBlauDrives {
+      	position: absolute;
+      	left: -400px;
+      	top: 200px;
+      	width: 360px;
+      	height: 50px;
+      }
 
     </style>
 
@@ -152,7 +166,7 @@
 
 	OpenMSRInit();
 
-	var ObRt = new Lamp('ObRt','digital',21);
+  var ObRt = new Lamp('ObRt','digital',21);
 	ObRt.offimg('images/AmpelRotAus.png');
 	ObRt.onimg('images/AmpelRotAn.jpg');
 	ObRt.width(11);
@@ -256,6 +270,19 @@
 	SwitchIOSender.AssignEvent(2,2);
 	SwitchIOSender.DeviceServerURL('http://localhost:10080/digital/WriteInputValues.html');
 	SwitchIOSender.IOGroup(4);
+
+  var stateGreenBlue=function(){
+    if ( LiGr.BackgroundImg.src == 'http://localhost:10080/images/AmpelGruenAn.jpg' ) {
+      document.getElementById('AutoBlauDrives').style.display = "block"
+      document.getElementById('AutoBlau').style.display = "none"
+    }
+    else {
+      document.getElementById('AutoBlauDrives').style.display = "none"
+      document.getElementById('AutoBlau').style.display = "block"
+    }
+  }
+
+  stateGreenInterval=setInterval(stateGreenBlue,150);
 }
 </script>
 
@@ -264,7 +291,7 @@
 	<?php
 		exec("ps ax|grep strampel.sps|grep run_sps|wc -l",$output,$return_value);
     //print_r($return_value);
-		if ($output[0]== "2") {
+		if ($output[0] == "2") {
       //print_r ($output);
 			echo "run_sps l&auml;uft<br>";
     }
@@ -323,5 +350,9 @@
   </form>
   <div id="label1">S1</div>
   <div id="label2">S2</div>
+
+  <!-- show the blue car -->
+  <img id="AutoBlau" src="images/Blau01.png">
+  <img id="AutoBlauDrives" src="images/Blau-drives.png" style=”display:none” >
   </body>
 </html>
