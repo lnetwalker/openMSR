@@ -151,7 +151,7 @@
       }
       #AutoBlauDrives {
       	position: absolute;
-      	left: -400px;
+      	left: -390px;
       	top: 200px;
       	width: 360px;
       	height: 50px;
