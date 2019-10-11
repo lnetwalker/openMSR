@@ -136,7 +136,7 @@ pipeline {
           }
         }
 
-    stage('Build MQTT-exec-ARM') {
+/*    stage('Build MQTT-exec-ARM') {
       agent {
         node {
           label 'pi'
@@ -154,7 +154,7 @@ pipeline {
         stash name: "artifactlist", includes: "artifactstore/*"
       }
     }
-
+*/
     stage('collect Artifacts') {
       steps {
         sh "echo 'colletcting artifacts...'"
