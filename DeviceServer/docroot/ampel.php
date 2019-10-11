@@ -153,73 +153,73 @@
 	OpenMSRInit();
 
 	var ObRt = new Lamp('ObRt','digital',21);
-	ObRt.offimg('images/AmpelRotAus.jpg');
+	ObRt.offimg('images/AmpelRotAus.png');
 	ObRt.onimg('images/AmpelRotAn.jpg');
 	ObRt.width(11);
 	ObRt.height(9);
 
 	var ObGe = new Lamp('ObGe','digital',22);
-	ObGe.offimg('images/AmpelGelbAus.jpg');
+	ObGe.offimg('images/AmpelGelbAus.png');
 	ObGe.onimg('images/AmpelGelbAn.jpg');
 	ObGe.width(11);
 	ObGe.height(9);
 
 	var ObGr = new Lamp('ObGr','digital',23);
-	ObGr.offimg('images/AmpelGruenAus.jpg');
+	ObGr.offimg('images/AmpelGruenAus.png');
 	ObGr.onimg('images/AmpelGruenAn.jpg');
 	ObGr.width(11);
 	ObGr.height(9);
 
 	var UnRt = new Lamp('UnRt','digital',21);
-	UnRt.offimg('images/AmpelRotAus.jpg');
+	UnRt.offimg('images/AmpelRotAus.png');
 	UnRt.onimg('images/AmpelRotAn.jpg');
 	UnRt.width(11);
 	UnRt.height(9);
 
 	var UnGe = new Lamp('UnGe','digital',22);
-	UnGe.offimg('images/AmpelGelbAus.jpg');
+	UnGe.offimg('images/AmpelGelbAus.png');
 	UnGe.onimg('images/AmpelGelbAn.jpg');
 	UnGe.width(11);
 	UnGe.height(9);
 
 	var UnGr = new Lamp('UnGr','digital',23);
-	UnGr.offimg('images/AmpelGruenAus.jpg');
+	UnGr.offimg('images/AmpelGruenAus.png');
 	UnGr.onimg('images/AmpelGruenAn.jpg');
 	UnGr.width(11);
 	UnGr.height(9);
 
 	var LiRt = new Lamp('LiRt','digital',24);
-	LiRt.offimg('images/AmpelRotAus.jpg');
+	LiRt.offimg('images/AmpelRotAus.png');
 	LiRt.onimg('images/AmpelRotAn.jpg');
 	LiRt.width(11);
 	LiRt.height(9);
 
 	var LiGe = new Lamp('LiGe','digital',25);
-	LiGe.offimg('images/AmpelGelbAus.jpg');
+	LiGe.offimg('images/AmpelGelbAus.png');
 	LiGe.onimg('images/AmpelGelbAn.jpg');
 	LiGe.width(11);
 	LiGe.height(9);
 
 	var LiGr = new Lamp('LiGr','digital',26);
-	LiGr.offimg('images/AmpelGruenAus.jpg');
+	LiGr.offimg('images/AmpelGruenAus.png');
 	LiGr.onimg('images/AmpelGruenAn.jpg');
 	LiGr.width(11);
 	LiGr.height(9);
 
 	var ReRt = new Lamp('ReRt','digital',24);
-	ReRt.offimg('images/AmpelRotAus.jpg');
+	ReRt.offimg('images/AmpelRotAus.png');
 	ReRt.onimg('images/AmpelRotAn.jpg');
 	ReRt.width(11);
 	ReRt.height(9);
 
 	var ReGe = new Lamp('ReGe','digital',25);
-	ReGe.offimg('images/AmpelGelbAus.jpg');
+	ReGe.offimg('images/AmpelGelbAus.png');
 	ReGe.onimg('images/AmpelGelbAn.jpg');
 	ReGe.width(11);
 	ReGe.height(9);
 
 	var ReGr = new Lamp('ReGr','digital',26);
-	ReGr.offimg('images/AmpelGruenAus.jpg');
+	ReGr.offimg('images/AmpelGruenAus.png');
 	ReGr.onimg('images/AmpelGruenAn.jpg');
 	ReGr.width(11);
 	ReGr.height(9);
