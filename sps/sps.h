@@ -79,3 +79,4 @@ var
      ConfFile	          : string;
      debug              : boolean;
      DebugResult        : boolean;
+     DebugMSG           : String;
