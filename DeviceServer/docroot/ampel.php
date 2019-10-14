@@ -156,6 +156,20 @@
       	width: 360px;
       	height: 50px;
       }
+      #AutoRed {
+      	position: absolute;
+      	left: -400px;
+      	top: 200px;
+      	width: 360px;
+      	height: 50px;
+      }
+      #AutoRedDrives {
+      	position: absolute;
+      	left: -390px;
+      	top: 200px;
+      	width: 360px;
+      	height: 50px;
+      }
 
     </style>
 
@@ -283,13 +297,28 @@
   }
 
   stateGreenInterval=setInterval(stateGreenBlue,150);
+
+  var stateGreenRed=function(){
+    if ( UnGr.BackgroundImg.src == 'http://localhost:10080/images/AmpelGruenAn.jpg' ) {
+      document.getElementById('AutoRedDrives').style.display = "block"
+      document.getElementById('AutoRed').style.display = "none"
+    }
+    else {
+      document.getElementById('AutoRedDrives').style.display = "none"
+      document.getElementById('AutoRed').style.display = "block"
+    }
+  }
+
+  stateGreenInterval=setInterval(stateGreenRed,150);
 }
 </script>
 
   </head>
+
+
   <body bgcolor=white >
 	<?php
-		exec("ps ax|grep strampel.sps|grep run_sps|wc -l",$output,$return_value);
+		//exec("ps ax|grep strampel.sps|grep run_sps|wc -l",$output,$return_value);
     //print_r($return_value);
 		if ($output[0] == "2") {
       //print_r ($output);
@@ -354,5 +383,8 @@
   <!-- show the blue car -->
   <img id="AutoBlau" src="images/Blau01.png">
   <img id="AutoBlauDrives" src="images/Blau-drives.png" style=”display:none” >
+  <!-- show the red car -->
+  <img id="AutoRed" src="images/Rot01.png">
+  <img id="AutoRedDrives" src="images/Rot-drives.png" style=”display:none” >
   </body>
 </html>
