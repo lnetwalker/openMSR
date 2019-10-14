@@ -485,7 +485,12 @@ begin
 		// capture the output in page var and deliver it
 		if (pos('.php',URL)<>0) then begin
 			//page:=RunCommand('php'+' '+URL);
+			{$ifdef Windows}
+			ExecCmd( 'php.exe', URL, page);
+			{$else}
 			ExecCmd( 'php', URL, page);
+			{$endif}
+
 			if ( length(page) = 0 ) then begin
 				page:='<html><body>Error: 500 strange error, no output from PHP process</body></html>';
 				status:='500 Internal Server Error';
@@ -692,10 +697,10 @@ begin
 	// open logfiles
 	//error Log
 	{$ifdef WIN32}
- assign(ERR,'\temp\deviceserver_err.log');
+ assign(ERR,'\temp\webserver_err.log');
  {$endif}
  {$ifdef Linux}
-	assign(ERR,'/tmp/deviceserver_err.log');
+	assign(ERR,'/tmp/webserver_err.log');
  {$endif}
 	{$I-}rewrite(ERR);{$I+}
 	if ioresult <> 0 then
