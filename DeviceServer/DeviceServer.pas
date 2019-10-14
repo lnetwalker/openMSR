@@ -5,7 +5,7 @@ program DeviceServer;
 
 {$define enhStats}
 
-{ifdef Linuy}
+{$ifdef Linux}
 	{$ifdef CPU64}
 		{$define Linux64}
 	{$endif}
