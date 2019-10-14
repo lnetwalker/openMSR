@@ -1042,7 +1042,7 @@ begin
 	Writeln('started Webserver Thread, going to start Server...');
 	{ start the webserver with IP, Port, Document Root and Logfile }
 	{ start on all available interfaces }
-	start_server('0.0.0.0',10080,BLOCKED,'docroot',access_log,NONBLOCKED,debug);
+	start_server('0.0.0.0',10080,BLOCKED,'docroot',access_log,true,debug);
 	Writeln('Webserver started, ready to serve');
 	LeaveCriticalSection(ProtectOutput);
 	{ register the variable handler }

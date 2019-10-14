@@ -582,7 +582,8 @@ function KeepAliveThread(p: pointer):LongInt;
 {$endif}
 
 var
-	endThread		: Boolean;
+	endThread,result		: Boolean;
+
 
 begin
 	if debug then debugLOG('webserver',2,'KeepAliveThread:started');
@@ -590,7 +591,8 @@ begin
 	repeat
 		if debug then debugLOG('webserver',2,'KeepAliveThread'+IntToStr(NumOfThreads)+': process_request');
 		EnterCriticalSection(ProtectAccess);
-		endThread:=process_request(NumOfThreads);
+		result:=process_request(NumOfThreads);
+		if (not(result)) then endThread:=true;
 		LeaveCriticalSection(ProtectAccess);
 	until endThread;
 
@@ -598,7 +600,6 @@ begin
 	reply_sock.free;
 	if reply_sock.LastError<>0 then
 	    if debug then debugLOG('webserver',2,'Keep_Alive_Thread:'+IntToStr(NumOfThreads)+' Error freeing socket');
-
 
 	// just before end
 	dec(NumOfThreads);

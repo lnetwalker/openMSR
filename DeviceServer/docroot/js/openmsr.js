@@ -124,7 +124,10 @@ var DigitalDataReader = function () {
   // Start the asynchronous read request
   this.SendRequest = function () {
     //alert('SendRequest ' + me.IOGroup );
-    me.req=getXMLHttpRequest();
+    if (me.req == null) {
+      console.log('new request for ReadInputValues');
+      me.req=getXMLHttpRequest();
+    }
     if (me.req) {
       //alert ('SendRequest send ' + me.Adresse + '?' + me.IOGroup );
       me.req.onreadystatechange = me.PrintState;
@@ -211,7 +214,9 @@ var DigitalDataSender=function () {
   // Start the asynchronous write request
   this.SendRequest = function () {
     //alert('SendRequest ' + me.IOGroup );
-    me.req=getXMLHttpRequest();
+    if (me.req == null) {
+      me.req=getXMLHttpRequest();
+    }
     if (me.req) {
       // calculate the value from the ValArray
       me.value=0;
@@ -302,7 +307,9 @@ var AnalogDataReader = function () {
   // Start the asynchronous read request
   this.SendRequest = function () {
     //alert('SendRequest ' + me.IOGroup );
-    me.req = getXMLHttpRequest();
+    if (me.req == null) {
+      me.req=getXMLHttpRequest();
+    }
     if (me.req) {
       DebugLOG('AnalogReader.SendRequest send ' + me.Adresse + '?' + me.IOGroup );
       me.req.onreadystatechange = me.PrintState;
@@ -383,7 +390,9 @@ var AnalogDataWriter = function () {
   // Start the asynchronous write request
   this.SendRequest = function () {
     //alert('SendRequest ' + me.IOGroup );
-    me.req=getXMLHttpRequest();
+    if (me.req == null) {
+      me.req=getXMLHttpRequest();
+    }
     if (me.req) {
       DebugLOG('AnalogWriter.SendRequest send ' + me.Adresse + '?' + me.IOGroup );
       var cnt=me.ValArray.length;
