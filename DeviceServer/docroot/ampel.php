@@ -158,17 +158,17 @@
       }
       #AutoRed {
       	position: absolute;
-      	left: -400px;
-      	top: 200px;
-      	width: 360px;
-      	height: 50px;
+      	left: -215px;
+      	top: 10px;
+      	width: 60px;
+      	height: 360px;
       }
       #AutoRedDrives {
       	position: absolute;
-      	left: -390px;
-      	top: 200px;
-      	width: 360px;
-      	height: 50px;
+      	left: -215px;
+      	top: 10px;
+      	width: 60px;
+      	height: 360px;
       }
 
     </style>
