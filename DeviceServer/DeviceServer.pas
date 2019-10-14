@@ -5,6 +5,12 @@ program DeviceServer;
 
 {$define enhStats}
 
+{ifdef Linuy}
+	{$ifdef CPU64}
+		{$define Linux64}
+	{$endif}
+{$endif}
+
 {$ifdef MIPS}
   {$define Linux}
 {$endif}
@@ -16,10 +22,6 @@ program DeviceServer;
 
 {$ifdef Windows}
 	{$undef enhStats}
-{$endif}
-
-{$ifdef CPU64}
-	{$define Linux64}
 {$endif}
 
 uses
