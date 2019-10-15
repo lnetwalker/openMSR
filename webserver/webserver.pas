@@ -477,7 +477,7 @@ begin
 
 		{ now open the file, read and serve it }
 		{$ifdef Windows}
-		for n:=1 to length(URL) do if (URL[n]='/') then URL[n]:='\';
+		//for n:=1 to length(URL) do if (URL[n]='/') then URL[n]:='\';
 		{$endif}
 
 		// it's a php file so spawn php interpreter
@@ -485,7 +485,7 @@ begin
 		if (pos('.php',URL)<>0) then begin
 			//page:=RunCommand('php'+' '+URL);
 			{$ifdef Windows}
-			ExecCmd( 'php.exe', URL, page);
+			ExecCmd( 'php.exe -f ', URL, page);
 			{$else}
 			ExecCmd( 'php', URL, page);
 			{$endif}
