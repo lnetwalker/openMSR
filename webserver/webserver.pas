@@ -77,7 +77,6 @@ var
 
 	// Listening socket
 	sock,reply_sock		: TTCPBlockSocket;
-	csock				: TSocket;
 
 	// Maximal queue length
 	max_connections		: integer;
@@ -299,7 +298,7 @@ begin
 	sock.CreateSocket;
 	if sock.LastError<>0 then
 	    if debug then debugLOG('webserver',2,'start_server: Error creating socket');
-	sock.setLinger(true,10);
+	sock.setLinger(true,0);
 
 	if not(BlockMode) then begin
 		{ set socket to non blocking mode }
@@ -582,7 +581,7 @@ function KeepAliveThread(p: pointer):LongInt;
 {$endif}
 
 var
-	endThread,result		: Boolean;
+	endThread		: Boolean;
 
 
 begin
@@ -591,8 +590,7 @@ begin
 	repeat
 		if debug then debugLOG('webserver',2,'KeepAliveThread'+IntToStr(NumOfThreads)+': process_request');
 		EnterCriticalSection(ProtectAccess);
-		result:=process_request(NumOfThreads);
-		if (not(result)) then endThread:=true;
+		endThread:=process_request(NumOfThreads);
 		LeaveCriticalSection(ProtectAccess);
 	until endThread;
 
@@ -618,13 +616,13 @@ begin
 
 	if (sock.canread(1000)) then begin
 		if debug then debugLOG('webserver',2,'serve_request: noticed request');
-		csock:=sock.accept;
+		writeln('remote IP: ',sock.GetRemoteSinIP,':',sock.GetRemoteSinPort);
 		if debug then debugLOG('webserver',2,'serve_request: request accepted');
 		if sock.lastError=0 then begin
-			reply_sock:=TTCPBlockSocket.create;
 			if debug then debugLOG('webserver',2,'serve_request: creating answer socket');
-			reply_sock.CreateSocket;
-			reply_sock.socket:=csock;
+			reply_sock:=TTCPBlockSocket.create;
+			reply_sock.SetLinger(true,0);
+			reply_sock.socket:=sock.accept;
 		end;
 
 		if debug then debugLOG('webserver',2,'serve_request: Reading requests...');
@@ -674,6 +672,7 @@ end;
 procedure stop_server;
 begin
 	// Closing listening socket
+	sock.CloseSocket;
 	sock.free;
 	// Shutting down
 	if debug then debugLOG('webserver',2,'shuting down pwserver...');

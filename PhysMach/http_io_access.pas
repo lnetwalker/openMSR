@@ -61,14 +61,14 @@ var
 	dev							: byte;
 
 begin
-	if ( Conn_read_ports = false ) then begin
-		HTTPra := THTTPSend.Create;
-		HTTPra.UserAgent:='Mozilla/4.0 (' + AppName + ')';
-		HTTPra.Protocol:='1.1';
+	//if ( Conn_read_ports = false ) then begin
+		HTTPrp := THTTPSend.Create;
+		HTTPrp.UserAgent:='Mozilla/4.0 (' + AppName + ')';
+		HTTPrp.Protocol:='1.0';
 		resp_rp := TStringList.create;
 		Conn_read_ports:=true;
-		if debug then writeln('http_read_ports: opened new http connection')
-	end;
+		if debug then writeln('http_read_ports: opened new http connection');
+	//end;
  	{ extract the device number as key to the device handle }
 	dev:=round(io_port/10);
 	{ extract the port }
@@ -85,13 +85,15 @@ begin
 	end;
 	if debug then writeln('http_read_ports(',TmpStrg,') returned ',TmpVal);
 
-	if ( HTTPra.Resultcode <> 200 ) then begin
-		HTTPra.Free;
+	//if ( HTTPra.Resultcode <> 200 ) then begin
+	HTTPrp.Destroy;
+		HTTPrp.Free;
 		resp_rp.free;
 		Conn_read_ports:=false;
 		if debug then writeln('http_read_ports: closed http connection');
-	end;
+	//end;
 
+	Conn_read_ports:=false;
 	http_read_ports:=BinToInt(TmpVal);
 end;
 
@@ -104,14 +106,14 @@ var
 	dev										: byte;
 
 begin
-	if ( Conn_write_ports = false ) then begin
+	//if ( Conn_write_ports = false ) then begin
 		HTTPwp := THTTPSend.Create;
 		HTTPwp.UserAgent:='Mozilla/4.0 (' + AppName + ')';
 		resp_wp := TStringList.create;
-		HTTPwp.Protocol:='1.1';
+		HTTPwp.Protocol:='1.0';
 		Conn_write_ports:=true;
-		if debug then writeln('http_write_ports: opened new http connection')
-	end;
+		if debug then writeln('http_write_ports: opened new http connection');
+	//end;
 	{ extract the device number as key to the device handle }
 	dev:=round(io_port/10);
 	{ extract the port }
@@ -131,13 +133,13 @@ begin
 	end;
 	if debug then writeln('http_write_ports: URL=',W_URL[dev]+Params);
 
-	if ( HTTPwp.Resultcode <> 200 ) then begin
+	//if ( HTTPwp.Resultcode <> 200 ) then begin
+	HTTPwp.Destroy;
 		HTTPwp.Free;
 		resp_wp.free;
 		Conn_write_ports:=false;
 		if debug then writeln('http_write_ports: closed http connection');
-	end;
-
+	//end;
 	val(TmpVal,http_write_ports);
 end;
 

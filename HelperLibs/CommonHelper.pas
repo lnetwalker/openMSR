@@ -155,10 +155,12 @@ begin
 	if fpgeterrno<0 then
 		writeln ('error from POpen : errno : ', fpgeterrno);
 
-
-	while not eof (fin) do 			// only read the last line
-		readln (fin,S);
-
+	try
+		while not eof (fin) do 			// only read the last line
+			readln (fin,S);
+	except
+		writeln('error executing programm');
+	end;
 
 	pclose(fout);
 	pclose(fin);
