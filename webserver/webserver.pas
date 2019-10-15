@@ -192,13 +192,18 @@ end;
 
 
 procedure ExecCmd( cmd: String; params: String;var stdout: String);
+const
+	BUF_SIZE = 2048; // Buffer size for reading the output in chunks
 
 var
   AProcess     		: TProcess;
-  BytesRead    		: longint;
+{  BytesRead    		: longint;
 	BytesAvailable	: DWord;
   Buffer       		: String;
-	CmdOutput				: AnsiString;
+}	CmdOutput				: AnsiString;
+	OutputStream 		: TStream;
+  BytesRead    		: longint;
+  Buffer       		: array[1..BUF_SIZE] of byte;
 
 begin
   // Set up the process;
@@ -208,15 +213,43 @@ begin
   // Process option poUsePipes has to be used so the output can be captured.
   // Process option poWaitOnExit can not be used because that would block
   // this program, preventing it from reading the output data of the process.
-  AProcess.Options := [poWaitOnExit,poUsePipes];
+  AProcess.Options := [poUsePipes];
 
 	try
 		try
   		// Start the process (run the command)
+			if debug then debugLOG('webserver',2,'execute Program '+AProcess.CommandLine);
   		AProcess.Execute;
+			if debug then debugLOG('webserver',2,'executed Program, try to read output ');
+
+			OutputStream := TMemoryStream.Create;
 
 			// All generated output from AProcess is read in a loop until no more data is available
+			repeat
+			  // Get the new data from the process to a maximum of the buffer size that was allocated.
+			  // Note that all read(...) calls will block except for the last one, which returns 0 (zero).
+			  BytesRead := AProcess.Output.Read(Buffer, BUF_SIZE);
+
+			  // Add the bytes that were read to the stream for later usage
+			  OutputStream.Write(Buffer, BytesRead)
+
+			until BytesRead = 0;  // Stop if no more data is available
+			// Or the data can be shown on screen
+			with TStringList.Create do
+			begin
+			  OutputStream.Position := 0; // Required to make sure all data is copied from the start
+			  LoadFromStream(OutputStream);
+			  CmdOutput:=Text;
+			  Free
+			end;
+
+			// Clean up
+			OutputStream.Free;
+{
+			// All generated output from AProcess is read in a loop until no more data is available
 			BytesAvailable := AProcess.Output.NumBytesAvailable;
+			if debug then debugLOG('webserver',2,'Program output #bytes='+IntToStr(AProcess.Output.NumBytesAvailable));
+
 			BytesRead := 0;
 			while BytesAvailable>0 do begin
 				// Get the new data from the process to a maximum of the buffer size that was allocated.
@@ -225,12 +258,14 @@ begin
 				BytesRead := AProcess.Output.Read(Buffer[1], BytesAvailable);
 				// Add the bytes that were read to the stream for later usage
 				CmdOutput := CmdOutput + copy(Buffer,1, BytesRead);
+				if debug then debugLOG('webserver',2,'Program output so far:'+CmdOutput);
 				BytesAvailable := AProcess.Output.NumBytesAvailable;
 				end
-			except
-				CmdOutput:='Error executing cmd: '+cmd;
-				errorLOG('Error executing cmd: '+cmd);
-			end;
+}
+		except
+			CmdOutput:='Error executing cmd: '+cmd;
+			errorLOG('Error executing cmd: '+cmd);
+		end;
 	finally
   	// The process has finished so it can be cleaned up
   	AProcess.Free;
@@ -486,6 +521,7 @@ begin
 			//page:=RunCommand('php'+' '+URL);
 			{$ifdef Windows}
 			ExecCmd( 'php.exe -f ', URL, page);
+			//page:=RunCommand('php.exe -f '+URL);
 			{$else}
 			ExecCmd( 'php', URL, page);
 			{$endif}
@@ -616,7 +652,7 @@ begin
 
 	if (sock.canread(1000)) then begin
 		if debug then debugLOG('webserver',2,'serve_request: noticed request');
-		writeln('remote IP: ',sock.GetRemoteSinIP,':',sock.GetRemoteSinPort);
+		//if debug then debugLOG('webserver',2,'remote IP: '+IntToStr(sock.GetRemoteSinIP)+':'+IntToStr(sock.GetRemoteSinPort));
 		if debug then debugLOG('webserver',2,'serve_request: request accepted');
 		if sock.lastError=0 then begin
 			if debug then debugLOG('webserver',2,'serve_request: creating answer socket');
