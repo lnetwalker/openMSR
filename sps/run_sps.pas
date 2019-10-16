@@ -285,7 +285,7 @@ begin                              { SPS_SIMULATION           }
 		writeln('AWL gestartet, press any key to stop');
 		repeat
 			run_awl;
-			delay(5);
+			delay(25);
 		until keypressed or escape;
 		if escape then begin
 			writeln('Error: Watchdog error...!');
