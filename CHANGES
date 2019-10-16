@@ -1,4 +1,25 @@
-Changes for OpenMSR
+Changes for OpenMSR V 0.6
 
-11'2012		V0.4	first multiplatform release
+- Object Recognition update auf Video4Linux V2
+- support for generic ARM GPIO
+- webserver fixed bug SendPage "User_agent"
+- added AVR-NET-IO Hardware driver
+- added HTRONIC USB8 support
+- added hostdata Agent
+- added LCD display to Javascript HMI Lib
+- added Scope to Javascript HMI Lib
+- added SetInputBit.html and SetOutputBit.html 
+- added PingHost Bridge
+- added MQTT support for DeviceServer
+- added PHP support to DeviceServer
+- added mqtt-exxec
+- fixed OpenLabCalc
+- added PlaySound Bridge
+- added Daemon mode to run_sps
+- updated commandline switches for DeviceServer and run_sps
+- added analog Output to DeviceServer
+- added debugging to DeviceServer and run_sps
+- added enhanced error handling in all tools
+
+
 
