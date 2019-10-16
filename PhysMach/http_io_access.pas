@@ -31,7 +31,7 @@ httpsend
 ;
 
 const
-	debug		= true;
+	debug		= false;
 
 var
 	R_URL,W_URL		: array[1..4] of String;
@@ -75,21 +75,20 @@ begin
 	io_port:=round(frac(io_port/10)*10);
 	str(io_port,TmpStrg);
 	TmpStrg:=R_URL[dev]+TmpStrg;
-	if not HTTPra.HTTPMethod('GET', TmpStrg) then begin
+	if not HTTPrp.HTTPMethod('GET', TmpStrg) then begin
 		write('http_read_ports ERROR');
-		writeln(HTTPra.Resultcode);
+		writeln(HTTPrp.Resultcode);
 	end
 	else begin
-		resp_rp.loadfromstream(HTTPra.Document);
+		resp_rp.loadfromstream(HTTPrp.Document);
 		TmpVal:=deHTML(resp_rp.text);
 	end;
 	if debug then writeln('http_read_ports(',TmpStrg,') returned ',TmpVal);
 
 	//if ( HTTPra.Resultcode <> 200 ) then begin
-	HTTPrp.Destroy;
 		HTTPrp.Free;
 		resp_rp.free;
-		Conn_read_ports:=false;
+		//HTTPrp.Destroy;
 		if debug then writeln('http_read_ports: closed http connection');
 	//end;
 
@@ -134,7 +133,7 @@ begin
 	if debug then writeln('http_write_ports: URL=',W_URL[dev]+Params);
 
 	//if ( HTTPwp.Resultcode <> 200 ) then begin
-	HTTPwp.Destroy;
+	//HTTPwp.Destroy;
 		HTTPwp.Free;
 		resp_wp.free;
 		Conn_write_ports:=false;
