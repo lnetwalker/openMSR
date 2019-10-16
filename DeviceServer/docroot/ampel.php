@@ -375,7 +375,10 @@
 		<font color=black>Server:Port=<input type=text value='http://localhost:10080' size=25><br>
 		<br>
 		S1 schaltet die Ampelanlage in Achtung d.h. alle Richtungen blinken Gelb<br>
-		S2 schaltet den regul&auml;ren Ampelbetrieb ein
+		S2 schaltet den regul&auml;ren Ampelbetrieb ein<br><br>
+    Diese Bedienoberfl&auml;che wurde ausschliesslich mit den Instrumenten aus openmsr.js zusammengestellt.
+    Programmieren ist dazu nicht erforderlich, es reichen Grundkenntnisse in Javascript sowie HTML aus, um
+    eine solche Oberfl&auml;che zu gestalten.
   </form>
   <div id="label1">S1</div>
   <div id="label2">S2</div>
