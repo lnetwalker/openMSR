@@ -1135,6 +1135,9 @@ var LCDisplay = function (CanvasName,Cat,CatNo) {
 // Datalogger ( LogicAnalyzer ) Display
 var DataLogger = function ( CanvasName,Cat,CatNo) {
   // get handle for the canvas element
+  for (i=0; i<params.length; i++) {
+    this.EventList[i] = CatNo[i];
+  }
   this.canv = document.getElementsByTagName(CanvasName)[0];
   this.width = canv.width = 400;
   this.height = canv.height = 100;
@@ -1156,7 +1159,8 @@ var DataLogger = function ( CanvasName,Cat,CatNo) {
   me.Scope = canv.getContext("2d");
 
   //Diese Funktion zeichnet das High eines Signals
-  // als Linie auf dem Canvas
+  // als Linie auf dem Canvas SignalNr kann die Werte
+  // 1-8 annehmen und steht für die Zeile
   function PrintHi(SignalNr) {
     if ( me.SignalNr == 0 ) {
       // start with row = 0 and next column
@@ -1204,7 +1208,7 @@ var DataLogger = function ( CanvasName,Cat,CatNo) {
     me.Scope.strokeStyle = "green";
     me.Scope.lineWidth = 1;
     if ( me.OldValue[me.SignalNr] == true ) {
-      // Last value was low so we need a vertical line
+      // Last value was Hi so we need a vertical line
       me.Scope.moveTo(me.Xcor, me.Ycor);
       me.Scope.lineTo(me.Xcor,me.Ycor-me.SignalHoehe);
     }
@@ -1221,14 +1225,26 @@ var DataLogger = function ( CanvasName,Cat,CatNo) {
     EventArray = EventArgs.split(' ');
     // check wether the current event is for me
     if ( EventArray[0] == Cat) {
-      if ( EventArray[1] == CatNo ) {
-        // the event is for me, so display data
-        if ( EventArray[2] == 1 ) {
-          PrintHi(CatNo);
-          DebugLOG('Scope on ' + CatNo );
-        } else {
-          PrintLo(CatNo);
-          DebugLOG('Scope off ' + CatNo );
+      // this instrument can work with up to 8 signals.
+      // during creation of this instrument a list of
+      // Events was given to this scope, with the EventNumbers
+      // ( the inputs ) given for this scope. They are
+      // stored in EventList. Now a bit stupid I just Loop
+      // over all 8 Elements of the List and if there is a match
+      // I print the signal as hi or low. This is not efficient
+      // and must be improved
+      for (var I=0; I<me.ElementList;I++) {
+        // EventArray[1] ist die Eventnummer des aktuellen Events
+        if ( EventArray[1] == ElementList[I] ) {
+          // the event is for me, so display data
+          // In EventArray[2] the value is stored
+          if ( EventArray[2] == 1 ) {
+            PrintHi(I);
+            DebugLOG('Scope on ' + I );
+          } else {
+            PrintLo(I);
+            DebugLOG('Scope off ' + I );
+          }
         }
       }
     }
