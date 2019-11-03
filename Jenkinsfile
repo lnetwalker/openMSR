@@ -136,7 +136,7 @@ pipeline {
           }
         }
 
-/*    stage('Build MQTT-exec-ARM') {
+    stage('Build MQTT-exec-ARM') {
       agent {
         node {
           label 'pi'
@@ -147,14 +147,14 @@ pipeline {
         sh "rm -f artifactstore/*"
         unstash "artifactlist"
         //sh "rm mqtt-exec*.*"
-        copyArtifacts (filter: '*',fingerprintArtifacts: true, projectName: 'MQTT-exec', selector: lastSuccessful())
+        copyArtifacts (filter: '*',fingerprintArtifacts: true, projectName: 'MQTT-exec-ARM', selector: lastSuccessful())
         //sh "cp LICENSE artifactstore/LICENSE.mqtt-exec"
         //sh "cp README.md artifactstore/README.mqtt-exec"
         sh "cp mqtt-exec.arm artifactstore"
         stash name: "artifactlist", includes: "artifactstore/*"
       }
     }
-*/
+
     stage('collect Artifacts') {
       steps {
         sh "echo 'colletcting artifacts...'"
