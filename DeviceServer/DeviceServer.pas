@@ -145,13 +145,13 @@ begin
 	// get the MQTT Host data
 	Hostname:=INI.ReadString('MQTT','Host','10.63.9.41');
 	Port:=StrToInt(INI.ReadString('MQTT','Port','1883'));
-	DSdebugLOG('MQTT Connecting to '+Hostname+' on Port '+IntToStr(Port));
+	if debug then DSdebugLOG('MQTT Connecting to '+Hostname+' on Port '+IntToStr(Port));
 	// get the config data for the topics
 	PublishValues:= TStringList.Create;
 	// go through the sections of the INI file and setup publishing and subscriptions
-	DSdebugLOG('reading MQTT inifile');
+	if debug then DSdebugLOG('reading MQTT inifile');
 	for SectionLoop:=1 to length(IOSections) do begin
-		DSdebugLOG('reading Section: ' + IOSections[SectionLoop]);
+		if debug then DSdebugLOG('reading Section: ' + IOSections[SectionLoop]);
 		// check what action to do
 		if ( Pos('Publish',IOSections[SectionLoop]) > 0 ) then
 			MQTTAction:=p
@@ -169,19 +169,19 @@ begin
 		INI.ReadSectionValues(IOSections[SectionLoop],PublishValues);
 		// example of the output: 1=/openMSR/BinOut/1,2=/openMSR/BinOut/2
 		INIvars:=StringSplit(PublishValues.CommaText,',');
-		DSdebugLOG('L ' + IntToStr(GetNumberOfElements(PublishValues.CommaText,',')) + ' ');
+		if debug then DSdebugLOG('L ' + IntToStr(GetNumberOfElements(PublishValues.CommaText,',')) + ' ');
 		for loop:=1 to GetNumberOfElements(PublishValues.CommaText,',') do begin
 				MQTTvars:=StringSplit(INIvars[loop],'=');
-				DSdebugLOG('Inistring: ' + INIvars[loop] );
+				if debug then DSdebugLOG('Inistring: ' + INIvars[loop] );
 				FieldDeviceStorage.AddDevice(MQTTIOType,MQTTAction,MQTTvars[2],StrToInt(MQTTvars[1]));
-				DSdebugLOG('add topic: '+MQTTvars[2]);
+				if debug then DSdebugLOG('add topic: '+MQTTvars[2]);
 		end;
 	end;
 	// now the subscriptions
 	MQTTAction:=s;
 	state := CONNECT;
 	MQTTClient := TMQTTClient.Create(Hostname, Port);
-	DSdebugLOG('MQTT initialized ' + IntToStr(FieldDeviceStorage.GetDeviceCount()));
+	if debug then DSdebugLOG('MQTT initialized ' + IntToStr(FieldDeviceStorage.GetDeviceCount()));
 end;
 
 
@@ -228,7 +228,7 @@ begin
 										// Can only move to RUNNING state on recieving ConnAck
 										connectTimer := connectTimer + 1;
 										if connectTimer > 300 then begin
-											DSdebugLOG('DeviceServer MQTT Error: ConnAck time out.');
+											if debug then DSdebugLOG('DeviceServer MQTT Error: ConnAck time out.');
 											state := FAILING;
 										end;
 									end;
@@ -260,7 +260,7 @@ begin
 											if pubTimer mod 1 = 0 then
 												if ( publish ) then
 													if not MQTTClient.Publish(workingTopic, IntToStr(TopicValue)) then begin
-														DSdebugLOG('DeviceServer MQTT Error: Publish Failed.');
+														if debug then DSdebugLOG('DeviceServer MQTT Error: Publish Failed.');
 														state := FAILING;
 													end;
 										end;
@@ -276,14 +276,14 @@ begin
 												//writeln('Ping..');
 												if not MQTTClient.PingReq then
 													begin
-														DSdebugLOG('DeviceServer MQTT Error: PingReq Failed.');
+														if debug then DSdebugLOG('DeviceServer MQTT Error: PingReq Failed.');
 														state := FAILING;
 													end;
 												pingCounter := pingCounter + 1;
 												// Check that pings are being answered
 												if pingCounter > 3 then
 													begin
-														DSdebugLOG('DeviceServer MQTT Error: Ping timeout.');
+													if debug then 	DSdebugLOG('DeviceServer MQTT Error: Ping timeout.');
 														state := FAILING;
 													end;
 											end;
@@ -301,7 +301,7 @@ begin
 			msg := MQTTClient.getMessage;
 			if Assigned(msg) then	begin
 				// check the topic and get the needed data to handle the subscription
-				writeln ('getMessage: ' + msg.topic + ' Payload: ' + msg.payload);
+				if debug then writeln ('getMessage: ' + msg.topic + ' Payload: ' + msg.payload);
 				FieldDeviceStorage.GetTopicInfo(msg.topic,DeviceTyp ,Action ,DeviceNumber);
 				case DeviceTyp of
 					input		:
@@ -315,9 +315,9 @@ begin
 									else
 										ausgang[DeviceNumber]:=false;
 					analog	: begin
-									writeln('DS-MQTT: received topic payload: ' ,IntegerInString(msg.payload));
+									if debug then writeln('DS-MQTT: received topic payload: ' ,IntegerInString(msg.payload));
 									analog_in[DeviceNumber]:=IntegerInString(msg.payload);
-									writeln('Saved as analog_in[',DeviceNumber,']');
+									if debug then writeln('Saved as analog_in[',DeviceNumber,']');
 									end;
 
 				end;
