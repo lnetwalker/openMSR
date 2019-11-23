@@ -1,7 +1,7 @@
 # make DeviceServer
 #
 # Copyright (c) 1999-2010 by Hartmut Eilers
-# 
+#
 # to build linux x86 do: make BLD_ARCH="linux"
 # to build linux arm do: make BLD_ARCH="arm"
 # planned are the arch: Mac OS-X and Windows and perhaps BSD
@@ -17,11 +17,11 @@ all: $(OBJECTS)
 
 # the physical Machine access layer
 DeviceServer: 	DeviceServer.pas FieldDevice.pas
-	$(FPC) $(FPC_FLAGS) -gl  $(UNITSEARCH) DeviceServer.pas 
+	$(FPC) $(FPC_FLAGS) -gl  $(UNITSEARCH) DeviceServer.pas
 
 clear:
 	-rm *.ppu
-			
+
 clean :
 	-rm *.ppu
 	-rm *.a
@@ -36,7 +36,7 @@ build:
 	-mkdir /tmp/$(USER)/build/DeviceServer/docroot/images
 	-mkdir /tmp/$(USER)/build/DeviceServer/docroot/js
 	-mkdir /tmp/$(USER)/build/DeviceServer/Agents
-	-mkdir /tmp/$(USER)/build/DeviceServer/config-examples 
+	-mkdir /tmp/$(USER)/build/DeviceServer/config-examples
 	-cp docroot/images/*.jpg /tmp/$(USER)/build/DeviceServer/docroot/images/
 	-cp docroot/images/*.png /tmp/$(USER)/build/DeviceServer/docroot/images/
 	-cp docroot/js/* /tmp/$(USER)/build/DeviceServer/docroot/js/
@@ -51,4 +51,6 @@ else
 endif
 	-cp DeviceServer.cfg /tmp/$(USER)/build/DeviceServer/
 	-cp Agents/*.sh /tmp/$(USER)/build/DeviceServer/Agents
-	-cp config-examples/* /tmp/$(USER)/build/DeviceServer/config-examples 
+	-cp Agents/*.py /tmp/$(USER)/build/DeviceServer/Agents
+	-cp Agents/*.bat /tmp/$(USER)/build/DeviceServer/Agents
+	-cp config-examples/* /tmp/$(USER)/build/DeviceServer/config-examples
