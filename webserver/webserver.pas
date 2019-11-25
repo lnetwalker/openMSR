@@ -77,7 +77,6 @@ var
 
 	// Listening socket
 	sock,reply_sock		: TTCPBlockSocket;
-	csock				: TSocket;
 
 	// Maximal queue length
 	max_connections		: integer;
@@ -146,63 +145,6 @@ var
 
 
 
-procedure ExecCmd( cmd: String; params: String;var stdout: String);
-
-var
-  AProcess     		: TProcess;
-  BytesRead    		: longint;
-	BytesAvailable	: DWord;
-  Buffer       		: String;
-	CmdOutput				: AnsiString;
-
-begin
-  // Set up the process;
-  AProcess := TProcess.Create(nil);
-  AProcess.CommandLine := cmd+' '+params;
-	writeln(cmd+' '+params);
-  // Process option poUsePipes has to be used so the output can be captured.
-  // Process option poWaitOnExit can not be used because that would block
-  // this program, preventing it from reading the output data of the process.
-  AProcess.Options := [poWaitOnExit,poUsePipes];
-
-  // Start the process (run the command)
-  AProcess.Execute;
-
-	// All generated output from AProcess is read in a loop until no more data is available
-	BytesAvailable := AProcess.Output.NumBytesAvailable;
-	BytesRead := 0;
-	while BytesAvailable>0 do begin
-		// Get the new data from the process to a maximum of the buffer size that was allocated.
-    // Note that all read(...) calls will block except for the last one, which returns 0 (zero).
-		SetLength(Buffer, BytesAvailable);
-		BytesRead := AProcess.Output.Read(Buffer[1], BytesAvailable);
-		// Add the bytes that were read to the stream for later usage
-		CmdOutput := CmdOutput + copy(Buffer,1, BytesRead);
-		BytesAvailable := AProcess.Output.NumBytesAvailable;
-	end;
-
-  // The process has finished so it can be cleaned up
-  AProcess.Free;
-
-  // Or the data can be shown on screen
-	stdout:=CmdOutput;
-	//writeln(stdout);
-
-end;
-
-
-procedure writeLOG(MSG: string);
-begin
-	EnterCriticalSection(DebugOutput);
-	{$I-}
-	writeln(DBG,MSG);
-	flush(DBG);
-	{$I+}
-	if IOResult <>0 then writeln ('error writing debug file');
-	LeaveCriticalSection(DebugOutput);
-end;
-
-
 procedure errorLOG(MSG: string);
 var
     jahr,mon,tag,wota	: word;
@@ -249,19 +191,105 @@ begin
 end;
 
 
+procedure ExecCmd( cmd: String; params: String;var stdout: String);
+const
+	BUF_SIZE = 2048; // Buffer size for reading the output in chunks
+
+var
+  AProcess     		: TProcess;
+{  BytesRead    		: longint;
+	BytesAvailable	: DWord;
+  Buffer       		: String;
+}	CmdOutput				: AnsiString;
+	OutputStream 		: TStream;
+  BytesRead    		: longint;
+  Buffer       		: array[1..BUF_SIZE] of byte;
+
+begin
+  // Set up the process;
+  AProcess := TProcess.Create(nil);
+  AProcess.CommandLine := cmd+' '+params;
+	writeln(cmd+' '+params);
+  // Process option poUsePipes has to be used so the output can be captured.
+  // Process option poWaitOnExit can not be used because that would block
+  // this program, preventing it from reading the output data of the process.
+  AProcess.Options := [poUsePipes];
+
+	try
+		try
+  		// Start the process (run the command)
+			if debug then debugLOG('webserver',2,'execute Program '+AProcess.CommandLine);
+  		AProcess.Execute;
+			if debug then debugLOG('webserver',2,'executed Program, try to read output ');
+
+			OutputStream := TMemoryStream.Create;
+
+			// All generated output from AProcess is read in a loop until no more data is available
+			repeat
+			  // Get the new data from the process to a maximum of the buffer size that was allocated.
+			  // Note that all read(...) calls will block except for the last one, which returns 0 (zero).
+			  BytesRead := AProcess.Output.Read(Buffer, BUF_SIZE);
+
+			  // Add the bytes that were read to the stream for later usage
+			  OutputStream.Write(Buffer, BytesRead)
+
+			until BytesRead = 0;  // Stop if no more data is available
+			// Or the data can be shown on screen
+			with TStringList.Create do
+			begin
+			  OutputStream.Position := 0; // Required to make sure all data is copied from the start
+			  LoadFromStream(OutputStream);
+			  CmdOutput:=Text;
+			  Free
+			end;
+
+			// Clean up
+			OutputStream.Free;
+{
+			// All generated output from AProcess is read in a loop until no more data is available
+			BytesAvailable := AProcess.Output.NumBytesAvailable;
+			if debug then debugLOG('webserver',2,'Program output #bytes='+IntToStr(AProcess.Output.NumBytesAvailable));
+
+			BytesRead := 0;
+			while BytesAvailable>0 do begin
+				// Get the new data from the process to a maximum of the buffer size that was allocated.
+    		// Note that all read(...) calls will block except for the last one, which returns 0 (zero).
+				SetLength(Buffer, BytesAvailable);
+				BytesRead := AProcess.Output.Read(Buffer[1], BytesAvailable);
+				// Add the bytes that were read to the stream for later usage
+				CmdOutput := CmdOutput + copy(Buffer,1, BytesRead);
+				if debug then debugLOG('webserver',2,'Program output so far:'+CmdOutput);
+				BytesAvailable := AProcess.Output.NumBytesAvailable;
+				end
+}
+		except
+			CmdOutput:='Error executing cmd: '+cmd;
+			errorLOG('Error executing cmd: '+cmd);
+		end;
+	finally
+  	// The process has finished so it can be cleaned up
+  	AProcess.Free;
+  end;
+  // Or the data can be shown on screen
+	stdout:=CmdOutput;
+	//writeln(stdout);
+
+end;
+
+
 procedure SetupSpecialURL(URL:string;proc : tprocedure);
 begin
 	if proc <> nil then ServingRoutine[UrlPointer]:=proc;
 	if URL <> '' then SpecialURL[UrlPointer]:=URL;
 	inc(UrlPointer);
-	if debug then writeLOG('registered special URL'+URL);
+	if debug then debugLOG('webserver',2,'registered special URL'+URL);
 end;
 
 
 procedure SetupVariableHandler(proc : tprocedure);
 begin
 	if proc <> nil then VariableHandler:=proc;
-	if debug then writeLOG('registered Variable Handler');
+	if debug then debugLOG('webserver',2,'registered Variable Handler');
 end;
 
 
@@ -290,11 +318,11 @@ begin
 	end;
 
 	{ Initialization}
-	if debug then writeLOG('PWS Pascal Web Server - starting server...');
+	if debug then debugLOG('webserver',2,'PWS Pascal Web Server - starting server...');
 	if (port=0) then port:=10080;
 	if (address='') then address:='127.0.0.1';
 	str(port,port_str);
-	if debug then writeLOG('using port='+port_str+' address='+address);
+	if debug then debugLOG('webserver',2,'using port='+port_str+' address='+address);
 	DocRoot:=doc_root;
 	BufCnt:=1;
 	reqCnt:=0;
@@ -304,8 +332,8 @@ begin
 	sock:=TTCPBlockSocket.create;
 	sock.CreateSocket;
 	if sock.LastError<>0 then
-	    writeLOG('start_server: Error creating socket');
-	sock.setLinger(true,10);
+	    if debug then debugLOG('webserver',2,'start_server: Error creating socket');
+	sock.setLinger(true,0);
 
 	if not(BlockMode) then begin
 		{ set socket to non blocking mode }
@@ -318,15 +346,15 @@ begin
 	end;
 
 	// Binding the server
-	if debug then writeLOG('Binding port..');
+	if debug then debugLOG('webserver',2,'Binding port..');
 	sock.bind(address,port_str);
 	if sock.LastError<>0 then
-	    writeLOG('start_server: Error binding socket');
+	    if debug then debugLOG('webserver',2,'start_server: Error binding socket');
 	// Listening on port
-	if debug then writeLOG('listen..');
+	if debug then debugLOG('webserver',2,'listen..');
 	sock.listen;
 	if sock.LastError<>0 then
-	    writeLOG('start_server: Error listen socket');
+	    if debug then debugLOG('webserver',2,'start_server: Error listen socket');
 end;
 
 
@@ -337,7 +365,7 @@ var
 
 begin
 	PageSize:=length(myPage);
-	//if debug then writeLOG(myPage);
+	//if debug then debugLOG('webserver',2,myPage);
 	if status='' then status:='200 ok';
 
 	{ generate the header }
@@ -360,15 +388,15 @@ begin
 	header:=header+CRLF+CRLF;
 	str(PageSize,blubber);
 	if debug then begin
-		writeLOG('SendPage '+IntToStr(WhoAmI)+': DocSize: '+blubber);
-		writeLOG('SendPage '+IntToStr(WhoAmI)+': Header: '+header);
-		writeLOG('SendPage '+IntToStr(WhoAmI)+': /Header');
+		debugLOG('webserver',2,'SendPage '+IntToStr(WhoAmI)+': DocSize: '+blubber);
+		debugLOG('webserver',2,'SendPage '+IntToStr(WhoAmI)+': Header: '+header);
+		debugLOG('webserver',2,'SendPage '+IntToStr(WhoAmI)+': /Header');
 
 		// Sending response
-		writeLOG('serving data...');
+		debugLOG('webserver',2,'serving data...');
 	end;
 	str(BufCnt,blubber);
-	if debug then writeLOG('SendPage '+IntToStr(WhoAmI)+': BufCnt='+blubber);
+	if debug then debugLOG('webserver',2,'SendPage '+IntToStr(WhoAmI)+': BufCnt='+blubber);
 	i:=0;
 	// get the User-Agent
 	// dont know why????
@@ -382,18 +410,18 @@ begin
 	  useragent:='bonita-client';
 
 	//EnterCriticalSection(ProtectDataSend);
-	if debug then writeLOG('SendPage '+IntToStr(WhoAmI)+': ' +useragent + ' -> sending header');
+	if debug then debugLOG('webserver',2,'SendPage '+IntToStr(WhoAmI)+': ' +useragent + ' -> sending header');
 	reply_sock.SendString(header);
 	if reply_sock.LastError<>0 then
-	    writeLOG('SendPage: Error sending header');
-	if debug then writeLOG('SendPage '+IntToStr(WhoAmI)+': ' +useragent + ' -> sending page ');
+	    if debug then debugLOG('webserver',2,'SendPage: Error sending header');
+	if debug then debugLOG('webserver',2,'SendPage '+IntToStr(WhoAmI)+': ' +useragent + ' -> sending page ');
 	reply_sock.SendString(myPage);
 	if reply_sock.LastError<>0 then
-	    writeLOG('SendPage: Error sending page');
-	if debug then writeLOG('SendPage '+IntToStr(WhoAmI)+': page send');
+	    if debug then debugLOG('webserver',2,'SendPage: Error sending page');
+	if debug then debugLOG('webserver',2,'SendPage '+IntToStr(WhoAmI)+': page send');
 	//LeaveCriticalSection(ProtectDataSend);
 
-	if debug then writeLOG('finished request...');
+	if debug then debugLOG('webserver',2,'finished request...');
 	BufCnt:=1;
 end;
 
@@ -417,15 +445,15 @@ begin
 	IOError:=false;
 	reqSize:=0;
 	BufCnt:=1;
-	if debug then writeLOG('reading request data');
+	if debug then debugLOG('webserver',2,'reading request data');
 	repeat
 		buff:=reply_sock.RecvString(120);
 		if reply_sock.LastError<>0 then begin
-		    writeLOG('process_request: Error reading request');
+		    if debug then debugLOG('webserver',2,'process_request: Error reading request');
 		    IOError:=true;
 		end;
 		str(BufCnt,blubber);
-		if debug then writeLOG('process_request '+IntToStr(WhoAmI)+' : Req['+blubber+']='+buff);
+		if debug then debugLOG('webserver',2,'process_request '+IntToStr(WhoAmI)+' : Req['+blubber+']='+buff);
 		post[BufCnt] := buff;
 		if copy(buff,1,11)='User-Agent:' then UserAgent:=copy(buff,12,length(buff));
 		reqSize:=reqSize+length(post[BufCnt]);
@@ -435,9 +463,9 @@ begin
 	BufCnt:=BufCnt-2;
 	inc(reqCnt);
 	str(reqCnt,blubber);
-	if debug then writeLOG('process_request '+IntToStr(WhoAmI)+': # of Requests : '+blubber);
+	if debug then debugLOG('webserver',2,'process_request '+IntToStr(WhoAmI)+': # of Requests : '+blubber);
 	str(reqSize,blubber);
-	if debug then writeLOG('process_request '+IntToStr(WhoAmI)+': requestSize: '+blubber);
+	if debug then debugLOG('webserver',2,'process_request '+IntToStr(WhoAmI)+': requestSize: '+blubber);
 
 	{ processing the request }
 
@@ -473,25 +501,31 @@ begin
 			//EnterCriticalSection(ServeSpecialURL);
 			status:='200 OK';
 			str(i,blubber);
-			if debug then writeLOG('process_request '+IntToStr(WhoAmI)+': special URL['+blubber+'] detected: '+URL);
+			if debug then debugLOG('webserver',2,'process_request '+IntToStr(WhoAmI)+': special URL['+blubber+'] detected: '+URL);
 			if ServingRoutine[i] <> nil then ServingRoutine[i];
 			//LeaveCriticalSection(ServeSpecialURL);
 		end;
 	until (i=MaxUrl) or (URL=SpecialURL[i]);
 	if not(URL=SpecialURL[i]) then begin
 		URL:=DocRoot+URL;			// add current dir as Document root
-		if debug then writeLOG('process_request '+IntToStr(WhoAmI)+': requested URL='+URL);
+		if debug then debugLOG('webserver',2,'process_request '+IntToStr(WhoAmI)+': requested URL='+URL);
 
 		{ now open the file, read and serve it }
 		{$ifdef Windows}
-		for n:=1 to length(URL) do if (URL[n]='/') then URL[n]:='\';
+		//for n:=1 to length(URL) do if (URL[n]='/') then URL[n]:='\';
 		{$endif}
 
 		// it's a php file so spawn php interpreter
 		// capture the output in page var and deliver it
 		if (pos('.php',URL)<>0) then begin
 			//page:=RunCommand('php'+' '+URL);
+			{$ifdef Windows}
+			ExecCmd( 'php.exe -f ', URL, page);
+			//page:=RunCommand('php.exe -f '+URL);
+			{$else}
 			ExecCmd( 'php', URL, page);
+			{$endif}
+
 			if ( length(page) = 0 ) then begin
 				page:='<html><body>Error: 500 strange error, no output from PHP process</body></html>';
 				status:='500 Internal Server Error';
@@ -534,8 +568,8 @@ begin
 			end;
 
 			//EnterCriticalSection(ProtectDataSend);
-			if debug then writeLOG('process_request : send page data ->');
-			//if debug then writeLOG(page);
+			if debug then debugLOG('webserver',2,'process_request : send page data ->');
+			//if debug then debugLOG('webserver',2,page);
 			SendPage(WhoAmI,page);
 			//LeaveCriticalSection(ProtectDataSend);
 		end;
@@ -585,25 +619,25 @@ function KeepAliveThread(p: pointer):LongInt;
 var
 	endThread		: Boolean;
 
+
 begin
-	if debug then writeLOG('KeepAliveThread:started');
+	if debug then debugLOG('webserver',2,'KeepAliveThread:started');
 	endThread:=false;
 	repeat
-		if debug then writeLOG('KeepAliveThread'+IntToStr(NumOfThreads)+': process_request');
+		if debug then debugLOG('webserver',2,'KeepAliveThread'+IntToStr(NumOfThreads)+': process_request');
 		EnterCriticalSection(ProtectAccess);
 		endThread:=process_request(NumOfThreads);
 		LeaveCriticalSection(ProtectAccess);
 	until endThread;
 
-	if debug then WriteLOG('KeepAliveThread'+IntToStr(NumOfThreads)+': Closing Client Socket');
+	if debug then debugLOG('webserver',2,'KeepAliveThread'+IntToStr(NumOfThreads)+': Closing Client Socket');
 	reply_sock.free;
 	if reply_sock.LastError<>0 then
-	    writeLOG('Keep_Alive_Thread:'+IntToStr(NumOfThreads)+' Error freeing socket');
-
+	    if debug then debugLOG('webserver',2,'Keep_Alive_Thread:'+IntToStr(NumOfThreads)+' Error freeing socket');
 
 	// just before end
 	dec(NumOfThreads);
-	if debug then writeLOG('KeepAliveThread'+IntToStr(NumOfThreads)+':ended');
+	if debug then debugLOG('webserver',2,'KeepAliveThread'+IntToStr(NumOfThreads)+':ended');
 end;
 
 
@@ -614,20 +648,20 @@ begin
 	// Opening socket descriptors
 	// Reading whole request -> accept on socket, then read requested data
 
-	if debug then writeLOG('serve_request: accept connection');
+	if debug then debugLOG('webserver',2,'serve_request: accept connection');
 
 	if (sock.canread(1000)) then begin
-		if debug then writeLOG('serve_request: noticed request');
-		csock:=sock.accept;
-		if debug then writeLOG('serve_request: request accepted');
+		if debug then debugLOG('webserver',2,'serve_request: noticed request');
+		//if debug then debugLOG('webserver',2,'remote IP: '+IntToStr(sock.GetRemoteSinIP)+':'+IntToStr(sock.GetRemoteSinPort));
+		if debug then debugLOG('webserver',2,'serve_request: request accepted');
 		if sock.lastError=0 then begin
+			if debug then debugLOG('webserver',2,'serve_request: creating answer socket');
 			reply_sock:=TTCPBlockSocket.create;
-			if debug then writeLOG('serve_request: creating answer socket');
-			reply_sock.CreateSocket;
-			reply_sock.socket:=csock;
+			reply_sock.SetLinger(true,0);
+			reply_sock.socket:=sock.accept;
 		end;
 
-		if debug then WriteLOG('serve_request: Reading requests...');
+		if debug then debugLOG('webserver',2,'serve_request: Reading requests...');
 
 		if ( WithThreads ) then begin
 			// start a new thread which processes the initial and all
@@ -635,7 +669,7 @@ begin
 			// then end thread
 			inc(NumOfThreads);
 			if (NumOfThreads <= MaxThreads) then begin
-				if debug then writeLOG('serve_request: starting a KeepAliveThread');
+				if debug then debugLOG('webserver',2,'serve_request: starting a KeepAliveThread');
 				ThreadHandle[NumOfThreads]:=BeginThread(@KeepAliveThread,pointer(NumOfThreads));
 			end
 			else
@@ -645,18 +679,18 @@ begin
 			//EnterCriticalSection(ProtectAccess);
 			process_request(0);
 			//LeaveCriticalSection(ProtectAccess);
-			if debug then WriteLOG('serve_request: free reply socket');
+			if debug then debugLOG('webserver',2,'serve_request: free reply socket');
 			reply_sock.CloseSocket;
 			reply_sock.free;
 			if reply_sock.LastError<>0 then
-			    writeLOG('serve_request: Error freeing socket');
+			    if debug then debugLOG('webserver',2,'serve_request: Error freeing socket');
 
 		end
 	end;
 
-	if debug then WriteLOG('Reading requests...done');
+	if debug then debugLOG('webserver',2,'Reading requests...done');
 
-	if debug then WriteLOG('serve_request done');
+	if debug then debugLOG('webserver',2,'serve_request done');
 end;
 
 function GetURL:string;
@@ -674,9 +708,10 @@ end;
 procedure stop_server;
 begin
 	// Closing listening socket
+	sock.CloseSocket;
 	sock.free;
 	// Shutting down
-	if debug then writeLOG('shuting down pwserver...');
+	if debug then debugLOG('webserver',2,'shuting down pwserver...');
 end;
 
 begin
@@ -698,29 +733,15 @@ begin
 	// open logfiles
 	//error Log
 	{$ifdef WIN32}
- assign(ERR,'\temp\deviceserver_err.log');
+ assign(ERR,'\temp\webserver_err.log');
  {$endif}
  {$ifdef Linux}
-	assign(ERR,'/tmp/deviceserver_err.log');
+	assign(ERR,'/tmp/webserver_err.log');
  {$endif}
 	{$I-}rewrite(ERR);{$I+}
 	if ioresult <> 0 then
 	begin
 		writeln ('Could not open ERROR logfile');
-		halt(1);
-	end;
-
-	// debug Log
-	{$ifdef WIN32}
- assign(DBG,'\temp\deviceserver_dbg.log');
- {$endif}
- {$ifdef Linux}
-	assign(DBG,'/tmp/deviceserver_dbg.log');
-	{$endif}
-	{$I-}rewrite(DBG);{$I+}
-	if ioresult <> 0 then
-	begin
-		writeln ('Could not open DEBUG logfile');
 		halt(1);
 	end;
 

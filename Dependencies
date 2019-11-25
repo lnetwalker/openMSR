@@ -1,14 +1,12 @@
 openmsr tools have the following dependencies
 
 ObjectRecognition
-libv4l-dev
-libx11-dev
+  libv4l-dev
+  libx11-dev
 
 datalogger/oszi
-  742  sudo apt-get install libglib2.0-dev
-  745  sudo apt-get install libgdk-pixbuf2.0-dev
-  751  sudo apt-get install libpango1.0-dev
-  754  sudo apt-get install libatk1.0-dev
-  763  sudo apt-get install libgtk2.0-dev
-
-
+  sudo apt-get install libglib2.0-dev
+  sudo apt-get install libgdk-pixbuf2.0-dev
+  sudo apt-get install libpango1.0-dev
+  sudo apt-get install libatk1.0-dev
+  sudo apt-get install libgtk2.0-dev

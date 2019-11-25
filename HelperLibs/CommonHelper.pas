@@ -1,3 +1,4 @@
+{$MODE OBJFPC}{$H+}
 unit CommonHelper;
 
 { $Id$ }
@@ -8,11 +9,13 @@ unit CommonHelper;
 
 
 INTERFACE
+uses 	Classes, SysUtils, Process;
 
 function RunCommand(Command: AnsiString):String;
 function BinToInt(binval:string):Integer;
 function deHTML(page:AnsiString):AnsiString;
-procedure debugLOG(msg:string);
+procedure debugLOG(Facility: String; Target: byte; msg:string);
+function debugFilename(logfilename:String):integer;
 function IntToStr(value:LongInt):String;
 
 implementation
@@ -22,7 +25,7 @@ uses
 	baseunix,unix,
 {$endif}
 {$ifdef Windows}
-	Classes, SysUtils, Process,
+	Windows,strutils,
 {$endif}
 crt;
 
@@ -31,12 +34,50 @@ const
 
 var
 	LOG	: text;
+	DebugLogOutput			: TRTLCriticalSection;
 
-procedure debugLOG(msg:string);
+procedure debugLOG(Facility: String; Target: byte; msg:string);
 begin
-	gotoxy(1,WhereY);
-	writeln(msg);
-	writeln(LOG,msg);
+	EnterCriticalSection(DebugLogOutput);
+	try
+		case Target  of
+			1:	begin
+						gotoxy(1,WhereY);
+						writeln(Facility,' >>> ',msg);
+						end;
+			2:  begin
+						try
+							writeln(LOG,Facility,' >>> ',msg);
+						except
+							Writeln('Error writing debugfile')
+						end;
+					end;
+			3:	begin
+						gotoxy(1,WhereY);
+						writeln(Facility,' >>> ',msg);
+						try
+							writeln(LOG,Facility,' >>> ',msg);
+						except
+							Writeln('Error writing debugfile');
+						end;
+					end;
+		end;
+	Finally
+		LeaveCriticalSection(DebugLogOutput);
+	end;
+end;
+
+
+function debugFilename(logfilename:String):integer;
+begin
+	{$ifdef WIN32}
+  assign(LOG,'\temp\'+logfilename);
+  {$endif}
+  {$ifdef Linux}
+	assign(LOG,'/tmp/'+logfilename);
+	{$endif}
+	{$I-}rewrite(LOG);{$I+}
+	debugFilename:=IOResult;
 end;
 
 
@@ -66,6 +107,7 @@ var
 
 begin
 {$ifdef Windows}
+	Command:=StringReplace(Command,'/','\',[rfReplaceAll]);
 	AProcess := TProcess.Create(nil);
 	// Gibt an, welcher Befehl vom Prozess ausgeführt werden soll
 	AProcess.CommandLine := Command;
@@ -77,24 +119,30 @@ begin
 	// dass wir die Ausgabe lesen wollen
 	AProcess.Options := AProcess.Options + [poWaitOnExit, poUsePipes];
 
-	// Startet den Prozess nachdem die Parameter entsprechend
-	// gesetzt sind
-	AProcess.Execute;
+	try
+		try
+			// Startet den Prozess nachdem die Parameter entsprechend
+			// gesetzt sind
+			AProcess.Execute;
 
-	// Folgendes wird erst nach Beendigung von AProcess ausgeführt
+			// Folgendes wird erst nach Beendigung von AProcess ausgeführt
 
-	// Die Ausgabe wird nun  gelesen
-	BytesAvailable := AProcess.Output.NumBytesAvailable;
-	BytesRead := 0;
-	while BytesAvailable>0 do begin
-		SetLength(Buffer, BytesAvailable);
-		BytesRead := AProcess.OutPut.Read(Buffer[1], BytesAvailable);
-		S := S + copy(Buffer,1, BytesRead);
-		BytesAvailable := AProcess.Output.NumBytesAvailable;
+			// Die Ausgabe wird nun  gelesen
+			BytesAvailable := AProcess.Output.NumBytesAvailable;
+			BytesRead := 0;
+			while BytesAvailable>0 do begin
+				SetLength(Buffer, BytesAvailable);
+				BytesRead := AProcess.OutPut.Read(Buffer[1], BytesAvailable);
+				S := S + copy(Buffer,1, BytesRead);
+				BytesAvailable := AProcess.Output.NumBytesAvailable;
+			end;
+		except
+			writeln('executing command failed: ',Command);
+		end;
+	finally
+		// TProcess freigeben.
+		AProcess.Free;
 	end;
-
-	// TProcess freigeben.
-	AProcess.Free;
 {$endif}
 
 {$ifdef Linux}
@@ -107,10 +155,12 @@ begin
 	if fpgeterrno<0 then
 		writeln ('error from POpen : errno : ', fpgeterrno);
 
-
-	while not eof (fin) do 			// only read the last line
-		readln (fin,S);
-
+	try
+		while not eof (fin) do 			// only read the last line
+			readln (fin,S);
+	except
+		writeln('error executing programm');
+	end;
 
 	pclose(fout);
 	pclose(fin);
@@ -176,14 +226,6 @@ begin
 end;
 
 
-
 begin
-	{$ifdef WIN32}
-  assign(LOG,'\temp\debug.log');
-  {$endif}
-  {$ifdef Linux}
-	assign(LOG,'/tmp/debug.log');
-	{$endif}
-	{$I-}rewrite(LOG);{$I+}
-	if (IOResult <> 0 ) then writeln('CommonHelper: Error open logfile');
+	InitCriticalSection(DebugLogOutput);
 end.

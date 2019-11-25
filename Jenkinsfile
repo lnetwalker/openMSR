@@ -39,7 +39,7 @@ pipeline {
                 sh """#!/bin/bash
                   // .version includes the currently planned release version number
                   // Must be set in repository
-                  . version;
+                  . ./version;
 
                   BRANCH_NAME=`echo $GIT_BRANCH | sed -e "s|/|-|g"`
 
@@ -87,8 +87,10 @@ pipeline {
             build job: 'LogicSim' , propagate:true, wait: true
             sh "rm -f artifactstore/*"
             unstash "artifactlist"
-            copyArtifacts (filter:'LogicSim2.4/*.jar',fingerprintArtifacts: true, projectName: 'LogicSim', selector: lastSuccessful())
-            sh "cp LogicSim2.4/*.jar artifactstore"
+            copyArtifacts (filter:'LogicSim2.4/*.tgz',fingerprintArtifacts: true, projectName: 'LogicSim', selector: lastSuccessful())
+            sh "cp LogicSim2.4/*.tgz artifactstore"
+            sh "rm LogicSim2.4/*.tgz"
+            sh "rm -rf tmp"
             stash name: "artifactlist", includes: "artifactstore/*"
           }
 //          post {
@@ -132,6 +134,25 @@ pipeline {
             sh "cp mqtt-exec-*.* artifactstore"
             stash name: "artifactlist", includes: "artifactstore/*"
           }
+        }
+
+    stage('Build MQTT-exec-ARM') {
+      agent {
+        node {
+          label 'pi'
+        }
+      }
+      steps {
+        build job: 'MQTT-exec-ARM' , propagate:true, wait: true
+        sh "rm -f artifactstore/*"
+        unstash "artifactlist"
+        //sh "rm mqtt-exec*.*"
+        copyArtifacts (filter: '*',fingerprintArtifacts: true, projectName: 'MQTT-exec-ARM', selector: lastSuccessful())
+        //sh "cp LICENSE artifactstore/LICENSE.mqtt-exec"
+        //sh "cp README.md artifactstore/README.mqtt-exec"
+        sh "cp mqtt-exec.arm artifactstore"
+        stash name: "artifactlist", includes: "artifactstore/*"
+      }
     }
 
     stage('collect Artifacts') {

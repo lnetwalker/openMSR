@@ -22,3 +22,23 @@ PhysMach/PhysMachTest
 sps/run_sps
 
 sps/sps
+
+*.exe
+
+*.a
+
+OpenLabDocs/LabTools-UserGuide-full.pdf
+
+LogicSim2.4/LogicSim.jar
+
+LogicSim2.4/LogicSim.java11.jar
+
+fktplot/OpenLabCalc
+
+fktplot/fktplot
+
+datalogger/datalogger
+
+DeviceServer/stats.html
+
+LogicSim2.4/circuits/Wuerfel.glc

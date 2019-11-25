@@ -8,7 +8,6 @@ Zum Test der Objekt Erkennung starten Sie den DeviceServer mit der Standard Conf
 Rufen Sie im Browser die Adresse: http://localhost:10080/analog.html
 Setzen Sie jetzt die IO-Group auf 2 und im Eingabefeld: Values read from Device:
 erscheinen die Koordinaten der der Objekte als 0,0,x1,y1,x2,y2,x3,y3
-Wenn Java erlaubt ist, zeigen die Applets die Koordinaten.
 
 Zur Bedienung des Programmes bitte die PDF Datei beachten.
 
