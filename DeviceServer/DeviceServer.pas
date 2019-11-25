@@ -5,6 +5,12 @@ program DeviceServer;
 
 {$define enhStats}
 
+{$ifdef Linux}
+	{$ifdef CPU64}
+		{$define Linux64}
+	{$endif}
+{$endif}
+
 {$ifdef MIPS}
   {$define Linux}
 {$endif}
@@ -16,10 +22,6 @@ program DeviceServer;
 
 {$ifdef Windows}
 	{$undef enhStats}
-{$endif}
-
-{$ifdef CPU64}
-	{$define Linux64}
 {$endif}
 
 uses
@@ -34,13 +36,9 @@ telnetserver,
 {$endif}
 PhysMach,webserver,classes,crt,CommonHelper,StringCut,INIFiles,sysutils;
 
-
 {$ifdef MacOSX}
 	{$linklib libad4.dylib}
 {$endif}
-
-
-{ $Id$ }
 
 { This software is copyright (c) 2008 by Hartmut Eilers <hartmut@eilers.net> 	}
 { It is distributed under the terms of the GNU GPL V2 see http://www.gnu.org 	}
@@ -101,6 +99,7 @@ var
 	connectionclose	: boolean;
 	DebugOutput			: TRTLCriticalSection;
 	SendAsync				: TRTLCriticalSection;
+	ProtectOutput		: TRTLCriticalSection;
 	debug						: boolean;
 	Webparams				:	StringArray;
 	{$IFDEF Linux}
@@ -109,6 +108,9 @@ var
 	{$endif}
 	Configfile			: String;
 	paramcnt				: byte;
+	DebugResult			: boolean;
+	access_log			: String;
+
 
 procedure DSdebugLOG(msg:string);
 // This is a wrapper around debugLOG to ensure
@@ -116,7 +118,7 @@ procedure DSdebugLOG(msg:string);
 // more threads spit out things at the same time
 begin
 	EnterCriticalSection(DebugOutput);
-	debugLOG(msg);
+	debugLOG('DevSrv',2,msg);
 	LeaveCriticalSection(DebugOutput);
 end;
 
@@ -144,13 +146,13 @@ begin
 	// get the MQTT Host data
 	Hostname:=INI.ReadString('MQTT','Host','10.63.9.41');
 	Port:=StrToInt(INI.ReadString('MQTT','Port','1883'));
-	DSdebugLOG('MQTT Connecting to '+Hostname+' on Port '+IntToStr(Port));
+	if debug then DSdebugLOG('MQTT Connecting to '+Hostname+' on Port '+IntToStr(Port));
 	// get the config data for the topics
 	PublishValues:= TStringList.Create;
 	// go through the sections of the INI file and setup publishing and subscriptions
-	DSdebugLOG('reading MQTT inifile');
+	if debug then DSdebugLOG('reading MQTT inifile');
 	for SectionLoop:=1 to length(IOSections) do begin
-		DSdebugLOG('reading Section: ' + IOSections[SectionLoop]);
+		if debug then DSdebugLOG('reading Section: ' + IOSections[SectionLoop]);
 		// check what action to do
 		if ( Pos('Publish',IOSections[SectionLoop]) > 0 ) then
 			MQTTAction:=p
@@ -168,19 +170,19 @@ begin
 		INI.ReadSectionValues(IOSections[SectionLoop],PublishValues);
 		// example of the output: 1=/openMSR/BinOut/1,2=/openMSR/BinOut/2
 		INIvars:=StringSplit(PublishValues.CommaText,',');
-		DSdebugLOG('L ' + IntToStr(GetNumberOfElements(PublishValues.CommaText,',')) + ' ');
+		if debug then DSdebugLOG('L ' + IntToStr(GetNumberOfElements(PublishValues.CommaText,',')) + ' ');
 		for loop:=1 to GetNumberOfElements(PublishValues.CommaText,',') do begin
 				MQTTvars:=StringSplit(INIvars[loop],'=');
-				DSdebugLOG('Inistring: ' + INIvars[loop] );
+				if debug then DSdebugLOG('Inistring: ' + INIvars[loop] );
 				FieldDeviceStorage.AddDevice(MQTTIOType,MQTTAction,MQTTvars[2],StrToInt(MQTTvars[1]));
-				DSdebugLOG('add topic: '+MQTTvars[2]);
+				if debug then DSdebugLOG('add topic: '+MQTTvars[2]);
 		end;
 	end;
 	// now the subscriptions
 	MQTTAction:=s;
 	state := CONNECT;
 	MQTTClient := TMQTTClient.Create(Hostname, Port);
-	DSdebugLOG('MQTT initialized ' + IntToStr(FieldDeviceStorage.GetDeviceCount()));
+	if debug then DSdebugLOG('MQTT initialized ' + IntToStr(FieldDeviceStorage.GetDeviceCount()));
 end;
 
 
@@ -227,7 +229,7 @@ begin
 										// Can only move to RUNNING state on recieving ConnAck
 										connectTimer := connectTimer + 1;
 										if connectTimer > 300 then begin
-											DSdebugLOG('DeviceServer MQTT Error: ConnAck time out.');
+											if debug then DSdebugLOG('DeviceServer MQTT Error: ConnAck time out.');
 											state := FAILING;
 										end;
 									end;
@@ -259,7 +261,7 @@ begin
 											if pubTimer mod 1 = 0 then
 												if ( publish ) then
 													if not MQTTClient.Publish(workingTopic, IntToStr(TopicValue)) then begin
-														DSdebugLOG('DeviceServer MQTT Error: Publish Failed.');
+														if debug then DSdebugLOG('DeviceServer MQTT Error: Publish Failed.');
 														state := FAILING;
 													end;
 										end;
@@ -275,14 +277,14 @@ begin
 												//writeln('Ping..');
 												if not MQTTClient.PingReq then
 													begin
-														DSdebugLOG('DeviceServer MQTT Error: PingReq Failed.');
+														if debug then DSdebugLOG('DeviceServer MQTT Error: PingReq Failed.');
 														state := FAILING;
 													end;
 												pingCounter := pingCounter + 1;
 												// Check that pings are being answered
 												if pingCounter > 3 then
 													begin
-														DSdebugLOG('DeviceServer MQTT Error: Ping timeout.');
+													if debug then 	DSdebugLOG('DeviceServer MQTT Error: Ping timeout.');
 														state := FAILING;
 													end;
 											end;
@@ -300,7 +302,7 @@ begin
 			msg := MQTTClient.getMessage;
 			if Assigned(msg) then	begin
 				// check the topic and get the needed data to handle the subscription
-				writeln ('getMessage: ' + msg.topic + ' Payload: ' + msg.payload);
+				if debug then writeln ('getMessage: ' + msg.topic + ' Payload: ' + msg.payload);
 				FieldDeviceStorage.GetTopicInfo(msg.topic,DeviceTyp ,Action ,DeviceNumber);
 				case DeviceTyp of
 					input		:
@@ -314,9 +316,9 @@ begin
 									else
 										ausgang[DeviceNumber]:=false;
 					analog	: begin
-									writeln('DS-MQTT: received topic payload: ' ,IntegerInString(msg.payload));
+									if debug then writeln('DS-MQTT: received topic payload: ' ,IntegerInString(msg.payload));
 									analog_in[DeviceNumber]:=IntegerInString(msg.payload);
-									writeln('Saved as analog_in[',DeviceNumber,']');
+									if debug then writeln('Saved as analog_in[',DeviceNumber,']');
 									end;
 
 				end;
@@ -383,12 +385,16 @@ var
 
 begin
 	MySelf:=longint(p);
-	DSdebugLOG('started MQTT Handler Thread..' + IntToStr(MySelf));
+	EnterCriticalSection(ProtectOutput);
+	writeln('started MQTT Handler Thread..' + IntToStr(MySelf));
+	LeaveCriticalSection(ProtectOutput);
 	repeat
 		MQTTThread.run;
 		inc(ThreadCnt[MySelf]);
 	until shutdown=true;
-	DSdebugLOG('MQTT Handler going down..' + IntToStr(MySelf));
+	EnterCriticalSection(ProtectOutput);
+	writeln('MQTT Handler going down..' + IntToStr(MySelf));
+	LeaveCriticalSection(ProtectOutput);
 	MQTTHandler:=0;
 end;
 
@@ -456,13 +462,13 @@ begin
 		'W' :	begin
 				case hw of
 					'O' :	begin
-							if debug then debugLOG ('O' + IntToStr(pa) + ' ' + IntToStr(va));
+							if debug then DSdebugLOG ('O' + IntToStr(pa) + ' ' + IntToStr(va));
 							if va=0 then ausgang[pa]:=false
 							else ausgang[pa]:=true;
 							TelnetWriteAnswer(chr(10)+'>');
 						end;
 					'I' :	begin
-							if debug then debugLOG ('I' + IntToStr(pa) + ' ' + IntToStr(va));
+							if debug then DSdebugLOG ('I' + IntToStr(pa) + ' ' + IntToStr(va));
 							if va=0 then eingang[pa]:=false
 							else eingang[pa]:=true;
 							TelnetWriteAnswer(chr(10)+'>');
@@ -533,7 +539,9 @@ var
 
 begin
 	MySelf:=longint(p);
-	DSdebugLOG('started Telnet Thread..' + IntToStr(MySelf));
+	EnterCriticalSection(ProtectOutput);
+	writeln('started Telnet Thread..' + IntToStr(MySelf));
+	LeaveCriticalSection(ProtectOutput);
 	TelnetInit(0,'./telnet.log');
 	repeat
 		connectionclose:=false;
@@ -545,7 +553,9 @@ begin
 		until connectionclose;
 	until shutdown=true;
 	TelnetShutDown;
-	DSdebugLOG('Telnet Handler going down..' + IntToStr(MySelf));
+	EnterCriticalSection(ProtectOutput);
+	Writeln('Telnet Handler going down..' + IntToStr(MySelf));
+	LeaveCriticalSection(ProtectOutput);
 	TelnetThread:=0;
 end;
 {$endif} // MIPS
@@ -561,12 +571,16 @@ var
 
 begin
 	MySelf:=longint(p);
-	DSdebugLOG('started Device Handler Thread..' + IntToStr(MySelf));
+	EnterCriticalSection(ProtectOutput);
+	Writeln('started Device Handler Thread..' + IntToStr(MySelf));
+	LeaveCriticalSection(ProtectOutput);
 	repeat
 		PhysMachIOByDevice(DeviceList[MySelf]);
 		inc(ThreadCnt[MySelf]);
 	until shutdown=true;
-	DSdebugLOG('Device Handler going down..' + IntToStr(MySelf));
+	EnterCriticalSection(ProtectOutput);
+	Writeln('Device Handler going down..' + IntToStr(MySelf));
+	LeaveCriticalSection(ProtectOutput);
 	DeviceHandler:=0;
 end;
 
@@ -587,12 +601,14 @@ begin
 	Params:=copy(GetParams,2,Length(GetParams));;
 	Webparams:=StringSplit(Params,',');
 	NumberOfWebparams:=GetNumberOfElements(Params,',');
+	if debug then DSdebugLOG('embeddedWeb: NumberOfWebparams='+IntToStr(NumberOfWebparams));
 
 	case NumberOfWebparams of
 			1: begin
 					val(Webparams[1],IOGroup);
 					ByteValue:=0;
 					BitVal:=0;
+					if debug then DSdebugLOG('embeddedWeb: NumberOfWebparams='+IntToStr(NumberOfWebparams)+' IOGroup='+Webparams[1]);
 				end;
 
 			2: begin
@@ -610,7 +626,7 @@ begin
 
 	if debug then begin
 		DSdebugLOG('embeddedWeb:> Got Parameters');
-		DSdebugLOG('URL=' + Url + ' Parameters=' + Params + ' ' + IntToStr(IOGroup) + ' ' + IntToStr(ByteValue)+ ' ' + IntToStr(BitVal));
+		DSdebugLOG('URL=' + Url + ' Parameters=' + Params + ' IOGroup=' + IntToStr(IOGroup) + ' ByteValue=' + IntToStr(ByteValue)+ ' BitVal=' + IntToStr(BitVal));
 	end;
 //	LeaveCriticalSection(SendAsync);
 end;
@@ -631,13 +647,16 @@ begin
 	SeitenEnde:=' </body></html>';
 	Values:='';
 
-	AddressBase:=IOGroup*8-8;
+	if debug then DSdebugLOG('embeddedWeb->read.html: IOGroup='+IntToStr(IOGroup));
 
+	AddressBase:=IOGroup*8-8;
+	if debug then DSdebugLOG('embeddedWeb->read.html: AddressBase='+IntToStr(AddressBase));
 	for i:=1 to 8 do begin
 		str(analog_in[AddressBase+i],ValueString);
 		Values:=Values+' '+ValueString;
+		if debug then DSdebugLOG('embeddedWeb->read.html: i='+IntToStr(i)+' Value='+ValueString);
 	end;
-
+	if debug then DSdebugLOG('embeddedWeb->read.html: Analog values='+Values);
 	Seite:=SeitenStart+Values+SeitenEnde;
 	if debug then DSdebugLOG('embeddedWeb:>Sending Page');
 
@@ -675,17 +694,17 @@ begin
 	i:=0;
 	{ Werte lesen und Ausgänge schreiben }
 	repeat
-	    Trenner:=pos(',',Params);
-	    if Trenner=0 then begin
-		val(copy(Params,1,Length(Params)),analog_in[AddressBase+i]);
-		if debug then DSdebugLOG('WriteAnalogValues->params: ' + Params + ' Trenner ' + IntToStr(Trenner) + ' written ' + IntToStr(analog_in[AddressBase+i]));
-	    end
-	    else begin
-	        val(copy(Params,1,Trenner-1),analog_in[AddressBase+i]);
-		Params:=copy(Params,Trenner+1,Length(Params));
-		if debug then DSdebugLOG('WriteAnalogValues->params: ' + Params + ' Trenner ' + IntToStr(Trenner) + ' written ' + IntToStr(analog_in[AddressBase+i]));
-	    end;
-	    inc(i);
+	  Trenner:=pos(',',Params);
+	  if Trenner=0 then begin
+			val(copy(Params,1,Length(Params)),analog_in[AddressBase+i]);
+			if debug then DSdebugLOG('WriteAnalogValues->params: ' + Params + ' Trenner ' + IntToStr(Trenner) + ' written ' + IntToStr(analog_in[AddressBase+i]));
+	  end
+	  else begin
+	    val(copy(Params,1,Trenner-1),analog_in[AddressBase+i]);
+			Params:=copy(Params,Trenner+1,Length(Params));
+			if debug then DSdebugLOG('WriteAnalogValues->params: ' + Params + ' Trenner ' + IntToStr(Trenner) + ' written ' + IntToStr(analog_in[AddressBase+i]));
+	  end;
+	  inc(i);
 	until ( Trenner=0 );
 
 	{ return something usefull }
@@ -1020,12 +1039,13 @@ var
 
 begin
 	MySelf:=longint(p);
-	DSdebugLOG('started Webserver Thread, going to start Server...');
+	EnterCriticalSection(ProtectOutput);
+	Writeln('started Webserver Thread, going to start Server...');
 	{ start the webserver with IP, Port, Document Root and Logfile }
 	{ start on all available interfaces }
-	start_server('0.0.0.0',10080,BLOCKED,'docroot','./pwserver.log',NONBLOCKED,debug);
-	DSdebugLOG('Webserver started, ready to serve');
-
+	start_server('0.0.0.0',10080,BLOCKED,'docroot',access_log,false,debug);
+	Writeln('Webserver started, ready to serve');
+	LeaveCriticalSection(ProtectOutput);
 	{ register the variable handler }
 	SetupVariableHandler(@embeddedWebReadParams);
 
@@ -1049,7 +1069,9 @@ begin
 //		delay(100);
 	until Shutdown=true;
 
-	DSdebugLOG('Webserver going down..');
+  EnterCriticalSection(ProtectOutput);
+	writeln('Webserver going down..');
+	LeaveCriticalSection(ProtectOutput);
 	WebserverThread:=0;
 	{$ifndef MIPS}
 	TelnetShutDown;
@@ -1076,7 +1098,9 @@ MySelf					: LongInt;
 
 begin
 	MySelf:=longint(p);
-	DSdebugLOG('started Statistics Thread...' + IntToStr(MySelf));
+	EnterCriticalSection(ProtectOutput);
+	writeln('started Statistics Thread...' + IntToStr(MySelf));
+	LeaveCriticalSection(ProtectOutput);
 	repeat
 		// get the current time in seconds and save the counter for each thread
 		{$ifdef Linux}
@@ -1103,7 +1127,9 @@ begin
 				ThreadRPMs[i]:=round((ThreadCnt[i]-OldThreadCnt[i])/TimeDiff);
 		inc(ThreadCnt[MySelf]);
 	until Shutdown=true;
-	DSdebugLOG('stopping Statistic Thread ');
+	EnterCriticalSection(ProtectOutput);
+	writeln('stopping Statistic Thread ');
+	LeaveCriticalSection(ProtectOutput);
 	StatisticsThread:=0;
 end;
 
@@ -1119,12 +1145,16 @@ var
 
 begin
 	MySelf:=longint(p);
-	DSdebugLOG('started Time Control Thread...' + IntToStr(MySelf));
+	EnterCriticalSection(ProtectOutput);
+	writeln('started Time Control Thread...' + IntToStr(MySelf));
+	LeaveCriticalSection(ProtectOutput);
 	repeat
 		delay(10000);
 		inc(ThreadCnt[MySelf]);
 	until Shutdown=true;
-	DSdebugLOG('stopping Thread Time Control');
+	EnterCriticalSection(ProtectOutput);
+	Writeln('stopping Thread Time Control');
+	LeaveCriticalSection(ProtectOutput);
 	TimeControlThread:=0;
 end;
 
@@ -1134,6 +1164,7 @@ end;
 
 begin					{ Main program }
 	debug:=false;
+	access_log:='';
 	Configfile:='';
 	// commandline parameters
 	if ( paramcount > 0 ) then
@@ -1142,7 +1173,20 @@ begin					{ Main program }
 			if (paramstr(paramcnt)='-c') then begin
 				Configfile:= paramstr(paramcnt+1);
 			end;
+			if (paramstr(paramcnt)='-a') then begin
+				access_log:= paramstr(paramcnt+1);
+			end;
 		end;
+	if ( debug ) then
+		if (debugFilename('DevSrv.dbg')) <> 0 then begin
+			writeln('Error Couldnt open debuglogfile');
+			halt(1);
+		end
+		else
+			begin
+				DebugResult:=PhysMachDebug(true);
+				DebugResult:=TelnetDebug(true);
+			end;
 	if (Configfile='') then Configfile:='DeviceServer.cfg';
 	// initialize Hardware
 	PhysMachInit;
@@ -1156,6 +1200,7 @@ begin					{ Main program }
 	InitCriticalSection(ProtectParams);
 	InitCriticalSection(DebugOutput);
 	InitCriticalSection(SendAsync);
+	InitCriticalSection(ProtectOutput);
 
 	// start threads, for every configured device one thread
 	// the device servers need to be started as first threads,
@@ -1164,7 +1209,10 @@ begin					{ Main program }
 	NumOfThreads:=1;
 	for DeviceCnt:=1 to DeviceTypeMax do begin
 		if DeviceList[DeviceCnt]<>'-' then begin
-			DSdebugLOG('starting DeviceHandler for Device:' + DeviceList[DeviceCnt]);
+			EnterCriticalSection(ProtectOutput);
+			Writeln('starting DeviceHandler for Device:' + DeviceList[DeviceCnt]);
+			LeaveCriticalSection(ProtectOutput);
+			delay(500);
 			ThreadName[NumOfThreads]:='DeviceHandler '+DeviceList[DeviceCnt];
 			ThreadHandle[NumOfThreads]:=BeginThread(@DeviceHandler,pointer(NumOfThreads));
 			ThreadCnt[NumOfThreads]:=0;
@@ -1173,27 +1221,39 @@ begin					{ Main program }
 	end;
 
 	// start the webserver thread
-	DSdebugLOG('Starting Webserver Thread...');
+	EnterCriticalSection(ProtectOutput);
+	writeln('Starting Webserver Thread...');
+	LeaveCriticalSection(ProtectOutput);
+	delay(500);
 	ThreadName[NumOfThreads]:='Webserver';
 	ThreadHandle[NumOfThreads]:=BeginThread(@WebserverThread,pointer(NumOfThreads));
 
 {$ifndef MIPS}
 	// start the telnet thread
 	inc(NumOfThreads);
-	DSdebugLOG('Starting Telnet Thread...');
+	EnterCriticalSection(ProtectOutput);
+	Writeln('Starting Telnet Thread...');
+	LeaveCriticalSection(ProtectOutput);
+	delay(500);
 	ThreadName[NumOfThreads]:='Telnet Thread';
 	ThreadHandle[NumOfThreads]:=BeginThread(@TelnetThread,pointer(NumOfThreads));
 {$endif}
 
 	// start the TimeControl thread
 	inc(NumOfThreads);
-	DSdebugLOG('Starting TimeControl Thread...');
+	EnterCriticalSection(ProtectOutput);
+	writeln('Starting TimeControl Thread...');
+	LeaveCriticalSection(ProtectOutput);
+	delay(500);
 	ThreadName[NumOfThreads]:='TimeCtrl Thread';
 	ThreadHandle[NumOfThreads]:=BeginThread(@TimeControlThread,pointer(NumOfThreads));
 
 	// start the statistic thread
 	inc(NumOfThreads);
-	DSdebugLOG('Starting Statistics Thread...');
+	EnterCriticalSection(ProtectOutput);
+	writeln('Starting Statistics Thread...');
+	LeaveCriticalSection(ProtectOutput);
+	delay(500);
 	ThreadName[NumOfThreads]:='Stats Thread';
 	ThreadHandle[NumOfThreads]:=BeginThread(@StatisticsThread,pointer(NumOfThreads));
 
@@ -1202,7 +1262,10 @@ begin					{ Main program }
 	if ( FileExists('MQTT.ini') ) then begin
 		inc(NumOfThreads);
 		MQTTThread.setup('MQTT.ini');
-		DSdebugLOG('Starting MQTT Thread...');
+		EnterCriticalSection(ProtectOutput);
+		writeln('Starting MQTT Thread...');
+		LeaveCriticalSection(ProtectOutput);
+		delay(500);
 		ThreadName[NumOfThreads]:='MQTT Thread';
 		ThreadHandle[NumOfThreads]:=BeginThread(@MQTTHandler,pointer(NumOfThreads));
 	end;
@@ -1216,7 +1279,7 @@ begin					{ Main program }
 			// Main application loop must call this else we leak threads!
 			//CheckSynchronize;
 		until keypressed;
-	until readkey='e';
+	until (( readkey='e' ) or ( readkey='q'));
 
 	// stop threads
 	shutdown:=true;
@@ -1224,11 +1287,14 @@ begin					{ Main program }
 	PhysMachEnd;
 
 	// wait for threads to finish
-	DSdebugLOG('waiting for threads to finish...');
+	Writeln('waiting for threads to finish...');
 	for i:=1 to NumOfThreads do begin
-		DSdebugLOG(' Waiting for ' + ThreadName[i] + ' to finish');
+		writeln(' Waiting for ' + ThreadName[i] + ' to finish');
 		WaitForThreadTerminate(ThreadHandle[i],TimeOut);
-		DSdebugLOG( ThreadName[i] + ' ended');
+		writeln( ThreadName[i] + ' ended');
 	end;
-
+	DoneCriticalSection(ProtectParams);
+	DoneCriticalSection(DebugOutput);
+	DoneCriticalSection(SendAsync);
+	DoneCriticalSection(ProtectOutput);
 end.

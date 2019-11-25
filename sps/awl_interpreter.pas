@@ -28,7 +28,7 @@ begin
 		clreol;
 		write('Cycletime Tz=',(time2/1000):5:2,' ms =',DurchlaufeProSec:5,' CPS ');
 {$endif}
-	end;	
+	end;
 end;
 
 
@@ -143,7 +143,7 @@ begin
 		3: 	akku:=akku and help;			{ UN	}
 		4:	akku:=akku or help;		      	{ ON	}
 		12:	if (operand[k]='J') then		{ U	}
-			 	analog_akku:=analog_in[par[k]]			
+			 	analog_akku:=analog_in[par[k]]
 			else
 				akku:=akku and help;
 		13:	akku:=akku or help;			{ O	}
@@ -196,7 +196,7 @@ begin
 end;                               { **** ENDE RUCKSETZEN **** }
 
 procedure klammer_zu;              { beendet letzte klammer und verkn�pft }
-var 
+var
 	helper			: boolean ;
 begin
 	{ ON( bzw UN(  bzw AN(}
@@ -211,7 +211,7 @@ begin
 end;                               { **** ENDE KLAMMER_ZU **** }
 
 procedure set_timer;               {timer auf startwert setzen}
-var 
+var
 	dummy	: integer;
 
 begin
@@ -219,7 +219,7 @@ begin
 		{ negative parameter means that a analog input value should be used as parameter }
 		if ( par[k+1] > 0 ) then
         		t[par[k]]:=par[k+1]
-		else begin	
+		else begin
 			write(#7);
 			dummy:=par[k+1]*-1;
 			t[par[k]]:=analog_in[dummy];
@@ -256,7 +256,7 @@ procedure analog_equal;			{ check for anaologig equal  	}
 
 begin
 	akku:=false;
-	if (par[k] = analog_akku) then akku:=true;	
+	if (par[k] = analog_akku) then akku:=true;
 end;					{ **** ENDE ANALOG_EQUAL	}
 
 procedure analog_less;			{ check for anaologig less than }
@@ -303,11 +303,11 @@ begin
 		k:=par[k]-1;
 		akku:=true
 	end
-	else 
+	else
 		akku:=true;
 end;
 
-	
+
 procedure decrement;
 begin
 end;
@@ -322,7 +322,7 @@ procedure loadconst;
 begin
 end;
 
-	
+
 begin
 	k:=0;
 	watchdog:=0;
@@ -378,17 +378,19 @@ begin
 	Str((time2/1000):5:2,timestring);
 	if (aktuell='EN ') or (aktuell='PE ')  or (aktuell='EP ') then comment[k]:='Zykluszeit Tz='+timestring+' ms';
 	if ( debug ) then begin
+		DebugMSG:='interpreter: E 8-1 ';
 		for k:=8 downto 1 do
-			if (k=8) then
-				write ('interpreter: E 8-1 ',eingang[k],' ')
+			if ( eingang[k] ) then
+				DebugMSG:=DebugMSG+'TRUE '
 			else
-				write (eingang[k],' ');
-		writeln;
-		for k:=8 downto 1 do 
-			if (k=8) then
-				write ('interpreter: A 8-1 ',ausgang[k],' ')
-			else   
-				write (ausgang[k],' ');
-		writeln
-	end;		
+				DebugMSG:=DebugMSG+'FALSE ';
+		debugLOG('awl_interpreter',2,DebugMSG);
+		DebugMSG:='interpreter: A 8-1 ';
+		for k:=8 downto 1 do
+			if ( ausgang[k] ) then
+				DebugMSG:=DebugMSG+'TRUE '
+			else
+				DebugMSG:=DebugMSG+'FALSE ';
+		debugLOG('awl_interpreter',2,DebugMSG);
+	end;
 end;                               { **** ENDE INTERPRET **** }

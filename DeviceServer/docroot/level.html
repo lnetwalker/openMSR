@@ -1,0 +1,26 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN">
+<html>
+<head>
+  <title>Level Meter Test</title>
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
+
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+</head>
+<body>
+  <center>
+	   <h1>Level Meter Test</h1>
+     <style>
+      .rotated {
+        transform: rotate(270deg);
+        position: absolute;
+        top: 160px;
+        left:300px;
+        background-image: URL("images/tank.png");
+      }
+     </style>
+     <div class=rotated>
+       <meter id="TestMeter" style="width: 80px; height: 180px; margin: 15px;" max="100" low="25" high="75" optimum="65" value="15"></meter>
+     </div>
+  </center>
+</body>
+</html>

@@ -1,7 +1,0 @@
-testplan for a release build of openMSR
-
-1. check CHANGES against scm log to ensure that all changes are recorded
-
-2. check that documentation is uptodate and includes everything from CHANGES
-
-3. check DeviceServer with random input 

@@ -25,11 +25,13 @@
 	left: 600px;
 	top: 300px;
       }
-      #OtherMeter {
+      #lcd {
 	background-color: white;
 	position: absolute;
-	left: 0px;
-	top: 350px;
+	left: 550px;
+	top: 220px;
+  height: 64;
+  width: 260;
       }
       #Switch1 {
 	background-color: white;
@@ -157,13 +159,29 @@
 	left: 100px;
 	top: 450px;
       }
+      #OtherMeter {
+	background-color: white;
+	position: absolute;
+	left: 0px;
+	top: 380px;
+  height: 85px;
+  width:525px;
+      }
+      #enterhostname {
+	background-color: white;
+	position: absolute;
+	left: 138px;
+	top: 450px;
+      }
+      #comments {
+        background-color: white;
+      	position: absolute;
+      	left: 800px;
+      	top: 50px;
+      }
 
     </style>
 
-    <form>
- 	  <font color=white>Url=<input type=text value='http://localhost:10080'
- 	  id="Hostname" size=25 onChange="HostHasChanged(Hostname.value)">
-    </form>
 
     <script>
 	function HostHasChanged(Host) {
@@ -182,7 +200,7 @@
 
 	OpenMSRInit();
 
-	var Host=document.getElementById("Hostname");
+	var Host=document.getElementById("Hostname").value;
 
 	// show a customized horizontal meter as temp meter
 	var MyTempMeter = new HorMeter('TempMeterCanvas','analog',1);
@@ -198,13 +216,13 @@
 	MyTempMeter.MeterWidth(6);
 
 	// a second meter
-	var MyOtherMeter = new HorMeter('OtherMeter','analog',2);
+	var MyOtherMeter = new HorMeter('OtherMeter','analog',31);
 	MyOtherMeter.width(525);
 	MyOtherMeter.height(84);
-	MyOtherMeter.canvbgimg('images/fieberthermometer.png');
+	MyOtherMeter.canvbgimg('images/hormeterbg.png');
 	MyOtherMeter.Resolution(10);
-	MyOtherMeter.maxVal(42.0);
-	MyOtherMeter.minVal(34.2);
+	MyOtherMeter.maxVal(500);
+	MyOtherMeter.minVal(0);
 	MyOtherMeter.minPos(140,41);
 	MyOtherMeter.maxPos(380,41);
 	MyOtherMeter.color("blue");
@@ -255,6 +273,13 @@
 	MyKnob2.floatingUpdate(0);
 	MyKnob2.pointerlength(20);
 
+  // add Display named MyLCD, listening on analog event 2 ( second knob )
+  var MyLCD = new LCDisplay('lcd','analog',2);
+  MyLCD.Display_Type('HC1331C');
+  MyLCD.No_of_Digits(6,2);
+  // use the value as read, no conversion
+  MyLCD.Convert(1);
+
 	// some LEDs to show a DeviceServer IOGroup
 	var MyLED11 = new Lamp('LED11','digital',11);
 	var MyLED12 = new Lamp('LED12','digital',12);
@@ -299,7 +324,7 @@
 	MyIOReader4.AssignEvent(6,26);
 	MyIOReader4.AssignEvent(7,27);
 	MyIOReader4.AssignEvent(8,28);
-	MyIOReader4.DeviceServerURL(Host + '/digital/ReadOutputValues.html');
+	MyIOReader4.DeviceServerURL(Host + '/digital/ReadInputValues.html');
 	MyIOReader4.IOGroup(4);
 
 	// the digital data feeder to send the switches to app iogroup
@@ -324,13 +349,31 @@
 	MyAnalogReader.DeviceServerURL(Host + '/analog/read.html');
 	MyAnalogReader.IOGroup(1);
 
+  // analog writer to deliver values of Knob1 to DEviceServer
+  var MyAnalogWriterKnob1 = new AnalogDataWriter();
+  MyAnalogWriterKnob1.TimerVal(300);
+  MyAnalogWriterKnob1.DeviceServerURL(Host + '/analog/write.html');
+  // adressing: IOGroup2 = Analog 9-16
+  MyAnalogWriterKnob1.IOGroup(2);
+  // AssignEvent(x,y) X= index in IOGroup; Y= EventNumber -> (1,1) means third value = analog 11 ; event 1
+  MyAnalogWriterKnob1.AssignEvent(3,1);
+
+  // analog writer to deliver values of Knob to DEviceServer
+  var MyAnalogWriterKnob2 = new AnalogDataWriter();
+  MyAnalogWriterKnob2.TimerVal(300);
+  MyAnalogWriterKnob2.DeviceServerURL(Host + '/analog/write.html');
+  // adressing: IOGroup2 = Analog 9-16
+  MyAnalogWriterKnob2.IOGroup(2);
+  // AssignEvent(x,y) X= index in IOGroup; Y= EventNumber -> (2,2) means second value = analog 10 ; event 2
+  MyAnalogWriterKnob2.AssignEvent(2,2);
       }
     </script>
 
   </head>
 
   <body bgcolor=white >
-	These are examples of the OpenMSR GUI elements:<br>
+	These are examples of the OpenMSR GUI elements:
+
 	<canvas id="TempMeterCanvas"></canvas>
 	<canvas id="OtherMeter"></canvas>
 	<canvas id="Switch1"></canvas>
@@ -355,9 +398,30 @@
 	<canvas id="LED28"></canvas>
 	<canvas id="knob1"></canvas>
 	<canvas id="knob2"></canvas>
-	<!--
+  <span style="white-space:nowrap;" id="lcd">
+    <img src="/images/ITT5870S.0.jpg" id="lcd0" alt="0" style=" visibility : visible"><img src="/images/ITT5870S.0.jpg" id="lcd1" alt="1" style=" visibility : visible" /><img src="/images/ITT5870S.0.jpg" id="lcd2" alt="2" style=" visibility : visible" /><img src="/images/ITT5870S.0.jpg" id="lcd3" alt="3" style=" visibility : visible" /><img src="/images/ITT5870S.0.jpg" id="lcd4" alt="4" style=" visibility : visible" /><img src="/images/ITT5870S.0.jpg" id="lcd5" alt="5" style=" visibility: visible" />
+  </span>
+
+<!--
 	<textarea id=debug cols=120 rows=10></textarea>
-	-->
+-->
+  <div id=enterhostname>
+    <form>
+      <font color=black>Url=<input type=text value='http://localhost:10080'
+      id="Hostname" size=25 onChange="HostHasChanged(Hostname.value)">
+    </form>
+  </div>
+
+  <div id=comments>
+    Comments:<br>
+    The fiberthermometer shows the value of the upper knob. This value is stored in the DeviceServer as Analog[11]<br><br>
+    The switches on the left and the red and green LED above are mapped to Output 25 and 26 of the DeviceServer, These
+    are Bits 1 and 2 of IOGroup 4<br><br>
+    The upper 8 green LEDs are the Inputs E1-E8 of the DeviceServer and the lower 8 LEDs are Outputs A25-32.<br><br>
+    The Display shows the value of the lower knob. This value is stored in Analog[10] of the DeviceServer.<br><br>
+    And finally there is the BarGraph which shows the value of Analog[1] of the DeviceServer.
+
+  </div>
 	<script type="text/javascript">
 	  init();
 	</script>

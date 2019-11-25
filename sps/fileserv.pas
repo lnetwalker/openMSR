@@ -5,9 +5,9 @@ procedure fileservice;             { Filehandling }
 
 var  	auswahl		: char;
      	menu_pkt	: popup_choice;
-		akt_pfad	: string[255];
-        DBG         : text;
-        debug       : boolean;
+		  akt_pfad	: string[255];
+      DBG       : text;
+      debug     : boolean;
 
 
 procedure writeLOG(MSG: string);
@@ -63,7 +63,7 @@ procedure SPS_Laden;               { Laden eines SPS_files }
 
 var  f              :text;
      zeile          :string;
-     i		        :integer;
+     i		          :integer;
      dummy_text     :string;
      dummy_zahl     :LongInt;
 
@@ -158,7 +158,7 @@ procedure ausdruck;                { Drucken eines SPS-Files }
 var   i,z,s             : byte;
       std,min,sec,dum,
       jahr,mon,tag,wota : word;
-	  printer			: text;
+	    printer			: text;
 
 begin
      if not(programm) then exit;
@@ -168,19 +168,19 @@ begin
      delay (1000);
 
 	 {$ifdef LINUX}
-	 assignlst (printer,'|/usr/bin/lpr -m');
-	 rewrite(printer);
+	   assignlst (printer,'|/usr/bin/lpr -m');
+	   rewrite(printer);
 	 {$else}
-	 printer:=lst;
+	   printer:=lst;
 	 {$endif}
 
 
-	 i := 0;
+	   i := 0;
      z := 0;
      s := 1;
 
-	 gettime(std,min,sec,dum);
-	 getdate(jahr,mon,tag,wota);
+	   gettime(std,min,sec,dum);
+	   getdate(jahr,mon,tag,wota);
 
      {$I-}write (printer,chr(zeilenvorschub),chr(zeilenvorschub));{$I+}
      if ioresult <> 0 then begin
@@ -216,7 +216,7 @@ begin
           end;
      until (upcase(operation[i,1]) = 'E') and (upcase(operation[i,2]) = 'N');
      write (printer,chr(formfeed));
-	 close(printer);
+	   close(printer);
      window (20,15,60,15);
      textbackground (black); textcolor (black); clrscr;
 end;                               {**** ENDE DRUCKEN ****}
@@ -320,18 +320,18 @@ begin                              { Pfad wechseln }
      {$I+}
      if ioresult<>0 then begin
         chdir(aktpfad);
-	    clrscr;textcolor(red);
+	      clrscr;textcolor(red);
         write(#7,'  Directory not found ! press any key... ');
-	repeat
+	      repeat
 {$IFNDEF keyfix}
-    until keypressed;
-    readkey;
+        until keypressed;
+        readkey;
 {$ENDIF}
 {$IFDEF keyfix}
-    until my_keypressed;
-    my_readkey;
+        until my_keypressed;
+        my_readkey;
 {$ENDIF}
-	textcolor(Black);
+	     textcolor(Black);
      end
      else begin
          getdir(0,neupfad);
@@ -348,7 +348,7 @@ end;                               { **** ENDE CHNGEPFAD ****}
                                    { start Filehandling }
 
 begin                              { Menu Filehandling}
-     debug:=true;
+     debug:=false;
      backGround:=15;ForeGround:=0;highlighted:=3;
      menu_pkt[1]:='New';
      menu_pkt[2]:='Load';
@@ -358,31 +358,36 @@ begin                              { Menu Filehandling}
      menu_pkt[6]:='Change Dir';
      if debug then begin
        // debug Log
-       {$ifdef Windows}
-     	assign(DBG,'\temp\popmenu_dbg.log');
-     	{$endif}
-     	{$ifdef Linux}
-	    assign(DBG,'/tmp/popmenu_dbg.log');
-      {$endif}
-	   rewrite(DBG);
+       {$ifdef WIN32}
+     	 assign(DBG,'\temp\fileserv_dbg.log');
+     	 {$endif}
+     	 {$ifdef Linux}
+	      assign(DBG,'/tmp/fileserv_dbg.log');
+        {$endif}
+        {$I-}reset(DBG);{$I+}
+        if ioresult <> 0 then
+        begin
+          writeln ('Could not open DEBUG logfile');
+          //halt(1);
+        end;
      end;
      repeat
           backGround:=lightgray;ForeGround:=Black;highlighted:=cyan;
           dropdown(1,2,'[FILE]',Menu_Pkt,6,auswahl);
-	      getdir(0,akt_pfad);
+	        getdir(0,akt_pfad);
           case auswahl of
                'N' : loeschen;
                'L' : sps_laden;
                'S' : sps_sichern;
                'P' : Ausdruck;
-	           'D' : inhalt;
+	             'D' : inhalt;
                'C' : chngepfad;
 
 	           esc : ;
 
-	      else begin
+	           else begin
                  sound(220); delay(200); nosound;
-               end
+             end
           end
      until auswahl=esc;
      write('1');

@@ -39,7 +39,7 @@ uses
 {$ifdef LINUX }
 	unix,linux,SysUtils,BaseUnix,
 {$endif}
-	dos,crt,PhysMach;
+	dos,crt,PhysMach,CommonHelper;
 
 {$i ./sps.h}
 {$i ./run_awl.h }
@@ -144,20 +144,20 @@ end;                               {**** ENDE SPS_LADEN **** }
 procedure run_awl;
 {interrupt; }
 
-begin                             		{ hp run_awl                      }
-	PhysMachReadDigital;                   	{ INPUTS lesen                    }
-	PhysMachReadAnalog;			{ analoge inputs lesen			  }
-	PhysMachCounter;                     	{ TIMER / ZAHLER aktualisieren    }
+	begin 																	{ hp run_awl                      }
+	PhysMachReadDigital;										{ INPUTS lesen                    }
+	PhysMachReadAnalog;											{ analoge inputs lesen			  		}
+	PhysMachCounter;												{ TIMER / ZAHLER aktualisieren    }
 	PhysMachTimer;
-	interpret;                      	{ einen AWLdurchlauf abarbeiten   }
-	PhysMachWriteDigital;			{ OUTPUTS ausgeben                }
+	interpret;															{ einen AWLdurchlauf abarbeiten   }
+	PhysMachWriteDigital;										{ OUTPUTS ausgeben                }
 	PhysMachWriteAnalog;
 	toggle_internal_clock(marker[62],marker[63],marker[64]);{ interne TAKTE M62-M64 toggeln   }
 	if watchdog > awl_max then escape:=true;
 	RPMs;
 	if (debug) then begin
 		delay (1000);
-    		writeln ('###########################################################################');
+    		debugLOG ('run_sps',2,'###########################################################################');
 	end;
 end;                               { **** ENDE RUN_AWL ****          }
 
@@ -165,6 +165,7 @@ end;                               { **** ENDE RUN_AWL ****          }
 begin                              { SPS_SIMULATION           }
 	ConfFile:='';
 	Daemonize:=false;
+	debug:=false;
 	if paramcount=0 then get_file_name  { keine Aufrufparameter }
 	else begin
 		for paramcnt:=1 to paramcount do begin
@@ -172,13 +173,22 @@ begin                              { SPS_SIMULATION           }
 				ConfFile:= paramstr(paramcnt+1);
 			if (paramstr(paramcnt)='-f') then
 				name:= paramstr(paramcnt+1);
-			if (paramstr(paramcnt)='-d') then
+			if (paramstr(paramcnt)='-b') then
 				Daemonize:=true;
+			if (paramstr(paramcnt)='-d') then
+				debug:=true;
 		end;
 		if pos('.',name)=0 then name:=name+'.sps';
 	end;
 	if (ConfFile = '') then
 		ConfFile:='.run_sps.cfg';
+	if ( debug ) then begin
+		if ( debugFilename('run_sps.dbg') <> 0 ) then begin
+			writeln('error open debugfile run_sps.dbg');
+			halt(1);
+		end;
+		DebugResult:=PhysMachDebug(true);
+	end;
 	PhysMachInit;
 	PhysMachloadCfg(ConfFile);
 	write(ProgNamVer);
@@ -187,58 +197,58 @@ begin                              { SPS_SIMULATION           }
 	sps_laden(name);
 	if (debug) then begin
 	 	//for i:=1 to awl_max do writeln (i:3,operation[i]:5, operand[i]:4,par[i]:4,comment[i]:22);
-		writeln (' Configured input ports :');
-		for i:=1 to group_max do writeln(i:3,i_address[i]:6,i_devicetype[i]:6);
-		writeln (' Configured output ports :');
-		for i:=1 to group_max do writeln(i:3,o_address[i]:6,o_devicetype[i]:6);
-		writeln (' Configured counter ports :');
-		for i:=1 to group_max do writeln(i:3,c_address[i]:6,c_devicetype[i]:6);
+		//writeln (' Configured input ports :');
+		//for i:=1 to group_max do writeln(i:3,i_address[i]:6,i_devicetype[i]:6);
+		//writeln (' Configured output ports :');
+		//for i:=1 to group_max do writeln(i:3,o_address[i]:6,o_devicetype[i]:6);
+		//writeln (' Configured counter ports :');
+		//for i:=1 to group_max do writeln(i:3,c_address[i]:6,c_devicetype[i]:6);
 	end;
 	TimeRuns:=150;
 
-{$ifdef LINUX}
-if (Daemonize) then begin
-	writeln('AWL wird im Hintergrund gestartet, send SIGTERM to quit ...');
+	{$ifdef LINUX}
+	if (Daemonize) then begin
+		writeln('AWL wird im Hintergrund gestartet, send SIGTERM to quit ...');
 
-	{ set a very nice priority }
-	//nice(20);
+		{ set a very nice priority }
+		//nice(20);
 
-	{ signal handling is done here, also the program goes in background 	}
+		{ signal handling is done here, also the program goes in background 	}
 
-	fpsigemptyset(zerosigs);
+		fpsigemptyset(zerosigs);
 
-	{ set global daemon booleans }
-	bHup := true; { to open log file }
-	bTerm := false;
+		{ set global daemon booleans }
+		bHup := true; { to open log file }
+		bTerm := false;
 
-	{ block all signals except -HUP & -TERM }
-	sSet := $ffffbffe;
-	ps1 := @sSet;
-	fpsigprocmask(sig_block,ps1,nil);
+		{ block all signals except -HUP & -TERM }
+		sSet := $ffffbffe;
+		ps1 := @sSet;
+		fpsigprocmask(sig_block,ps1,nil);
 
-	{ setup the signal handlers }
-	new(aOld);
-	new(aHup);
-	new(aTerm);
-	aTerm^.sa_handler{.sh} := SigactionHandler(@DoSig);
+		{ setup the signal handlers }
+		new(aOld);
+		new(aHup);
+		new(aTerm);
+		aTerm^.sa_handler{.sh} := SigactionHandler(@DoSig);
 
-	aTerm^.sa_mask := zerosigs;
-	aTerm^.sa_flags := 0;
-	{$ifndef BSD}                {Linux'ism}
-	  aTerm^.sa_restorer := nil;
-	{$endif}
-	aHup^.sa_handler := SigactionHandler(@DoSig);
-	aHup^.sa_mask := zerosigs;
-	aHup^.sa_flags := 0;
-	{$ifndef BSD}                {Linux'ism}
-	  aHup^.sa_restorer := nil;
-	{$endif}
-	fpSigAction(SIGTERM,aTerm,aOld);
-	fpSigAction(SIGHUP,aHup,aOld);
+		aTerm^.sa_mask := zerosigs;
+		aTerm^.sa_flags := 0;
+		{$ifndef BSD}                {Linux'ism}
+	  	aTerm^.sa_restorer := nil;
+		{$endif}
+		aHup^.sa_handler := SigactionHandler(@DoSig);
+		aHup^.sa_mask := zerosigs;
+		aHup^.sa_flags := 0;
+		{$ifndef BSD}                {Linux'ism}
+	  	aHup^.sa_restorer := nil;
+		{$endif}
+		fpSigAction(SIGTERM,aTerm,aOld);
+		fpSigAction(SIGHUP,aHup,aOld);
 
-	{ daemonize }
-	pid := fpFork;
-	Case pid of
+		{ daemonize }
+		pid := fpFork;
+		Case pid of
 	    0 : Begin { we are in the child }
 	      Close(input);  { close standard in }
 	      Close(output); { close standard out }
@@ -250,38 +260,39 @@ if (Daemonize) then begin
 	    End;
 	    -1 : secs := 0;     { forking error, so run as non-daemon }
 	    Else Halt;          { successful fork, so parent dies }
-	End;
+		End;
 
-	{ begin processing loop }
-	Repeat
-	    If bHup Then Begin
-	      { do nothing at the moment }
-	      bHup := false;
-	    End;
-	    {----------------------}
-	    { Do your daemon stuff }
-		run_awl;
-		delay(15);
-	    {----------------------}
-	    If bTerm Then
-	      BREAK
-	    Else
-	      { wait a while }
-	      delay(15);
-	Until bTerm;
+		{ begin processing loop }
+		Repeat
+			If bHup Then Begin
+				{ do nothing at the moment }
+				bHup := false;
+			End;
+			{----------------------}
+			{ Do your daemon stuff }
+			run_awl;
+			{----------------------}
+			If bTerm Then
+				BREAK
+			Else
+				{ wait a while }
+				delay(5);
+		Until bTerm;
 
-end
-else begin
-{$endif}
-	writeln('AWL gestartet, press any key to stop');
-	repeat
-		run_awl;
-		delay(15);
-	until keypressed or escape;
-	if escape then writeln('Error: Watchdog error...!');
-{$ifdef LINUX}
-end;
-{$endif}
+	end
+	else begin
+	{$endif}
+		writeln('AWL gestartet, press any key to stop');
+		repeat
+			run_awl;
+			delay(25);
+		until keypressed or escape;
+		if escape then begin
+			writeln('Error: Watchdog error...!');
+			halt;
+		end;
+	{$ifdef LINUX}
+	end;
+	{$endif}
 	PhysMachEnd;
-	 // if esc then writeln('Error: Watchdog error...!');
 end.                               { **** SPS_SIMULATION **** }

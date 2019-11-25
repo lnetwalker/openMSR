@@ -24,7 +24,7 @@ public class DSOUT extends Gate{
   String DSOUT_URL = "";
 
   transient Image digits;
-  // here we need to set display to hex  
+  // here we need to set display to hex
   int displayType=0;  // 0=HEX  1=DEC
 
   public DSOUT() {
@@ -51,30 +51,30 @@ public class DSOUT extends Gate{
     }
 
     String res="";
-    
-    try {
-    URL u = new URL(DSOUT_URL + Integer.toString(value));
-    URLConnection uc = u.openConnection();
-    uc.setDoOutput(true);
-    uc.setRequestProperty("Content-Type","application/x-www-form-urlencoded");
-    uc.addRequestProperty("User-Agent", "Mozilla LogicSim");
-    // add the query string
-    // For example: String query = "username=joe&pw=secret";
-    
-    // append the value to the URL
-    String query = "";
-    PrintWriter pw = new PrintWriter(uc.getOutputStream());
-    pw.println(query);
-    pw.close();
 
-    // get the input from the request
-    BufferedReader in = new BufferedReader(
-    new InputStreamReader(uc.getInputStream()));
-    String line;
-    while ( (line = in.readLine()) != null) {
-      res = res + line;
-    }
-    in.close();
+    try {
+      URL u = new URL(DSOUT_URL + Integer.toString(value));
+      URLConnection uc = u.openConnection();
+      uc.setDoOutput(true);
+      uc.setRequestProperty("Content-Type","application/x-www-form-urlencoded");
+      uc.addRequestProperty("User-Agent", "Mozilla LogicSim");
+      // add the query string
+      // For example: String query = "username=joe&pw=secret";
+
+      // append the value to the URL
+      String query = "";
+      PrintWriter pw = new PrintWriter(uc.getOutputStream());
+      pw.println(query);
+      pw.close();
+
+      // get the input from the request
+      BufferedReader in = new BufferedReader(
+      new InputStreamReader(uc.getInputStream()));
+      String line;
+      while ( (line = in.readLine()) != null) {
+        res = res + line;
+      }
+      in.close();
     } catch ( IOException uc ) {
       System.err.println("Error writing DeviceServer");
     }
@@ -139,7 +139,7 @@ public class DSOUT extends Gate{
   public boolean hasProperties() {
       return true;
   }
-  
+
   public boolean showProperties(Component frame) {
     // fetch the URL of the deviceserver
     if ( DSOUT_URL.length()==0 )

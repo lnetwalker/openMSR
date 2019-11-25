@@ -702,12 +702,18 @@ begin
   Highlighted:=red;
   if debug then begin
     // debug Log
-    {$ifdef Windows}
+    {$ifdef WIN32}
   	assign(DBG,'\temp\popmenu_dbg.log');
   	{$endif}
   	{$ifdef Linux}
 	  assign(DBG,'/tmp/popmenu_dbg.log');
     {$endif}
-	  rewrite(DBG);
+	  {$I-}rewrite(DBG);{$I+}
+    if ioresult <> 0 then
+    begin
+      writeln ('Could not open DEBUG logfile');
+      halt(1);
+    end;
+
   end;
 end.

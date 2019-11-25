@@ -105,7 +105,7 @@
       	top: 360px;
       }
       #Ampel {
-	       background:url(images/ampel.png);
+	       background:url(images/ampel-neu.png);
 	       position: absolute;
 	       left: 50px;
 	       top: 50px;
@@ -142,6 +142,34 @@
         top:440px;
         left:50px;
       }
+      #AutoBlau {
+      	position: absolute;
+      	left: -400px;
+      	top: 200px;
+      	width: 360px;
+      	height: 50px;
+      }
+      #AutoBlauDrives {
+      	position: absolute;
+      	left: -390px;
+      	top: 200px;
+      	width: 360px;
+      	height: 50px;
+      }
+      #AutoRed {
+      	position: absolute;
+      	left: -215px;
+      	top: 10px;
+      	width: 60px;
+      	height: 360px;
+      }
+      #AutoRedDrives {
+      	position: absolute;
+      	left: -215px;
+      	top: 10px;
+      	width: 60px;
+      	height: 360px;
+      }
 
     </style>
 
@@ -152,74 +180,74 @@
 
 	OpenMSRInit();
 
-	var ObRt = new Lamp('ObRt','digital',21);
-	ObRt.offimg('images/AmpelRotAus.jpg');
+  var ObRt = new Lamp('ObRt','digital',21);
+	ObRt.offimg('images/AmpelRotAus.png');
 	ObRt.onimg('images/AmpelRotAn.jpg');
 	ObRt.width(11);
 	ObRt.height(9);
 
 	var ObGe = new Lamp('ObGe','digital',22);
-	ObGe.offimg('images/AmpelGelbAus.jpg');
+	ObGe.offimg('images/AmpelGelbAus.png');
 	ObGe.onimg('images/AmpelGelbAn.jpg');
 	ObGe.width(11);
 	ObGe.height(9);
 
 	var ObGr = new Lamp('ObGr','digital',23);
-	ObGr.offimg('images/AmpelGruenAus.jpg');
+	ObGr.offimg('images/AmpelGruenAus.png');
 	ObGr.onimg('images/AmpelGruenAn.jpg');
 	ObGr.width(11);
 	ObGr.height(9);
 
 	var UnRt = new Lamp('UnRt','digital',21);
-	UnRt.offimg('images/AmpelRotAus.jpg');
+	UnRt.offimg('images/AmpelRotAus.png');
 	UnRt.onimg('images/AmpelRotAn.jpg');
 	UnRt.width(11);
 	UnRt.height(9);
 
 	var UnGe = new Lamp('UnGe','digital',22);
-	UnGe.offimg('images/AmpelGelbAus.jpg');
+	UnGe.offimg('images/AmpelGelbAus.png');
 	UnGe.onimg('images/AmpelGelbAn.jpg');
 	UnGe.width(11);
 	UnGe.height(9);
 
 	var UnGr = new Lamp('UnGr','digital',23);
-	UnGr.offimg('images/AmpelGruenAus.jpg');
+	UnGr.offimg('images/AmpelGruenAus.png');
 	UnGr.onimg('images/AmpelGruenAn.jpg');
 	UnGr.width(11);
 	UnGr.height(9);
 
 	var LiRt = new Lamp('LiRt','digital',24);
-	LiRt.offimg('images/AmpelRotAus.jpg');
+	LiRt.offimg('images/AmpelRotAus.png');
 	LiRt.onimg('images/AmpelRotAn.jpg');
 	LiRt.width(11);
 	LiRt.height(9);
 
 	var LiGe = new Lamp('LiGe','digital',25);
-	LiGe.offimg('images/AmpelGelbAus.jpg');
+	LiGe.offimg('images/AmpelGelbAus.png');
 	LiGe.onimg('images/AmpelGelbAn.jpg');
 	LiGe.width(11);
 	LiGe.height(9);
 
 	var LiGr = new Lamp('LiGr','digital',26);
-	LiGr.offimg('images/AmpelGruenAus.jpg');
+	LiGr.offimg('images/AmpelGruenAus.png');
 	LiGr.onimg('images/AmpelGruenAn.jpg');
 	LiGr.width(11);
 	LiGr.height(9);
 
 	var ReRt = new Lamp('ReRt','digital',24);
-	ReRt.offimg('images/AmpelRotAus.jpg');
+	ReRt.offimg('images/AmpelRotAus.png');
 	ReRt.onimg('images/AmpelRotAn.jpg');
 	ReRt.width(11);
 	ReRt.height(9);
 
 	var ReGe = new Lamp('ReGe','digital',25);
-	ReGe.offimg('images/AmpelGelbAus.jpg');
+	ReGe.offimg('images/AmpelGelbAus.png');
 	ReGe.onimg('images/AmpelGelbAn.jpg');
 	ReGe.width(11);
 	ReGe.height(9);
 
 	var ReGr = new Lamp('ReGr','digital',26);
-	ReGr.offimg('images/AmpelGruenAus.jpg');
+	ReGr.offimg('images/AmpelGruenAus.png');
 	ReGr.onimg('images/AmpelGruenAn.jpg');
 	ReGr.width(11);
 	ReGr.height(9);
@@ -256,15 +284,43 @@
 	SwitchIOSender.AssignEvent(2,2);
 	SwitchIOSender.DeviceServerURL('http://localhost:10080/digital/WriteInputValues.html');
 	SwitchIOSender.IOGroup(4);
+
+  var stateGreenBlue=function(){
+    if ( LiGr.BackgroundImg.src == 'http://localhost:10080/images/AmpelGruenAn.jpg' ) {
+      document.getElementById('AutoBlauDrives').style.display = "block"
+      document.getElementById('AutoBlau').style.display = "none"
+    }
+    else {
+      document.getElementById('AutoBlauDrives').style.display = "none"
+      document.getElementById('AutoBlau').style.display = "block"
+    }
+  }
+
+  stateGreenInterval=setInterval(stateGreenBlue,150);
+
+  var stateGreenRed=function(){
+    if ( UnGr.BackgroundImg.src == 'http://localhost:10080/images/AmpelGruenAn.jpg' ) {
+      document.getElementById('AutoRedDrives').style.display = "block"
+      document.getElementById('AutoRed').style.display = "none"
+    }
+    else {
+      document.getElementById('AutoRedDrives').style.display = "none"
+      document.getElementById('AutoRed').style.display = "block"
+    }
+  }
+
+  stateGreenInterval=setInterval(stateGreenRed,150);
 }
 </script>
 
   </head>
+
+
   <body bgcolor=white >
 	<?php
-		exec("ps ax|grep strampel.sps|grep run_sps|wc -l",$output,$return_value);
+		//exec("ps ax|grep strampel.sps|grep run_sps|wc -l",$output,$return_value);
     //print_r($return_value);
-		if ($output[0]== "2") {
+		if ($output[0] == "2") {
       //print_r ($output);
 			echo "run_sps l&auml;uft<br>";
     }
@@ -319,9 +375,19 @@
 		<font color=black>Server:Port=<input type=text value='http://localhost:10080' size=25><br>
 		<br>
 		S1 schaltet die Ampelanlage in Achtung d.h. alle Richtungen blinken Gelb<br>
-		S2 schaltet den regul&auml;ren Ampelbetrieb ein
+		S2 schaltet den regul&auml;ren Ampelbetrieb ein<br><br>
+    Diese Bedienoberfl&auml;che wurde ausschliesslich mit den Instrumenten aus openmsr.js zusammengestellt.
+    Programmieren ist dazu nicht erforderlich, es reichen Grundkenntnisse in Javascript sowie HTML aus, um
+    eine solche Oberfl&auml;che zu gestalten.
   </form>
   <div id="label1">S1</div>
   <div id="label2">S2</div>
+
+  <!-- show the blue car -->
+  <img id="AutoBlau" src="images/Blau01.png">
+  <img id="AutoBlauDrives" src="images/Blau-drives.png" style=”display:none” >
+  <!-- show the red car -->
+  <img id="AutoRed" src="images/Rot01.png">
+  <img id="AutoRedDrives" src="images/Rot-drives.png" style=”display:none” >
   </body>
 </html>

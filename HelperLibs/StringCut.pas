@@ -66,18 +66,22 @@ begin
       TrennPos[y]:=i;
       inc(y);
     end;
-  { now all Trenner positions are known }
-  { loop over the array of positions and split the string }
-  for i:=1 to y do
-    if i=1 then
-      { start splitting at position 1 }
-      Result[i]:=copy(Line,1,TrennPos[i]-1)
-    else if i<y then
-	{ start splitting at last position+1 }
-	Result[i]:=copy(Line,TrennPos[i-1]+1,TrennPos[i]-TrennPos[i-1]-1)
+  if (pos(Trenner,Line) > 0 ) then begin
+    { now all Trenner positions are known }
+    { loop over the array of positions and split the string }
+    for i:=1 to y do
+      if i=1 then
+        { start splitting at position 1 }
+        Result[i]:=copy(Line,1,TrennPos[i]-1)
+      else if i<y then
+	      { start splitting at last position+1 }
+	      Result[i]:=copy(Line,TrennPos[i-1]+1,TrennPos[i]-TrennPos[i-1]-1)
       else
-	{ the last element split to end of string }
-	Result[i]:=copy(Line,TrennPos[i-1]+1,Length(Line));
+	     { the last element split to end of string }
+	     Result[i]:=copy(Line,TrennPos[i-1]+1,Length(Line));
+  end
+  else Result[1]:=Line;
+
   { splitting is done return result }
   StringSplit:=Result;
 end;

@@ -19,17 +19,16 @@ type  string3 =string[3];
 
 
 
-const 
-      	debug       = false;
+const
       	awl_max     = 2000;
       	anweismax   = 37;
       	minScreenX  = 80;
       	minScreenY  = 25;
       	{ include the SPS Version and build date }
-      	version     ={$I %SPSVERSION% };
+      	version     ={$I %VERSION% };
       	datum       ={$I %DATE%};
                    { attention, it is important to keep the order of	}
-		   { the sps commands, because the bytecode interpreter }	
+		   { the sps commands, because the bytecode interpreter }
 		   { relies on the order! (the editor formatter too!)	}
 		   { write new commands without blanks, they will be 	}
 		   { added where needed	     							}
@@ -52,9 +51,9 @@ const
 
 
 
-var  
+var
 {$IFDEF SPS}
-{ these variables are only used from sps.pas }	 
+{ these variables are only used from sps.pas }
      programm,sicher   : boolean;
      taste             : char;
      i                 : Word;
@@ -71,11 +70,13 @@ var
 {$ENDIF}
 
 { these variables are used by sps.pas and run_sps.pas }
-     operand           : array[1..awl_max] of char;
-     par               : array[1..awl_max] of longint;
-     operation         : array[1..awl_max] of string3;
-     anweisung	       : array[1..anweismax] of string3;
-     znr               : array[1..awl_max] of integer;
-     comment           : array[1..awl_max] of string;
-     ConfFile	       : string;
-     
+     operand            : array[1..awl_max] of char;
+     par                : array[1..awl_max] of longint;
+     operation          : array[1..awl_max] of string3;
+     anweisung	        : array[1..anweismax] of string3;
+     znr                : array[1..awl_max] of integer;
+     comment            : array[1..awl_max] of string;
+     ConfFile	          : string;
+     debug              : boolean;
+     DebugResult        : boolean;
+     DebugMSG           : String;
