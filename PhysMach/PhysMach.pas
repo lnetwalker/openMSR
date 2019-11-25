@@ -431,8 +431,11 @@ begin
 {$ifdef EXEC}
 			'E'	: exec_write_analog(a_address[IOGroup],analog_in[IOGroup]);
 {$endif}
+
 			'H' : http_write_analog(a_address[IOGroup],analog_in[IOGroup]);
-			'D'	: dummy:=1;
+
+			'D' 	: dummy:=1;
+
 		end;
 	if (debugFlag) then debugLOG('PhysMach',2,'Analog_out['+IntToStr(IOGroup)+']='+IntToStr(analog_in[IOGroup]));
 end;
