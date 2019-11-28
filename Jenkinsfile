@@ -15,9 +15,9 @@ pipeline {
     timestamps()
   }
 
-  triggers {
-    pollSCM('H */5 * * 1-5')
-  }
+//  triggers {
+//    pollSCM('H */5 * * 1-5')
+//  }
 
   stages {
 //    stage('Build') {
