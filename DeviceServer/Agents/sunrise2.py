@@ -146,6 +146,7 @@ def main(argv):
         if opt in ("-d","--debug"):
             Debug = True
 
+    # now everything is prepared, calculate the sunrise/sunset times
     import datetime
 
     pi=3.14159265359
