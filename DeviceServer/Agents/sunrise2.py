@@ -11,6 +11,11 @@
 # I compiled this from the following sources and would like to thank the
 # people who shared their work and knowledge with the rest of us:
 
+# Dependencies:
+# install the following libs:
+# pip install pytz
+# pip install timezonefinder
+
 # I combined some tools:
 
 # first, you need to know where you are on earth to calculate sunset/sunrise.
