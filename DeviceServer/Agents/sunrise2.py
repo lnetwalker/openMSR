@@ -15,6 +15,8 @@
 # install the following libs:
 # pip install pytz
 # pip install timezonefinder
+# pip install requests
+# pip install ip2geotools
 
 # I combined some tools:
 
