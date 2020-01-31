@@ -38,40 +38,28 @@
 # **************************************************************************
 import time
 import math
-import datetime
 import math
-# *****************************************
-# Some sample locations
-# Toronto Ontario Canada
-latitude_deg =43.65
-longitude_deg = -79.38
-timezone = -4.0 #Daylight Savings Time is in effect, this would be -5 for winter time
 
-#Uhldingen-Mühlhofen, Germany, Lake of Constance
-latitude_deg =47.7348464
-longitude_deg = 9.2425718
-timezone = 1
+# from: https://github.com/MrMinimal64/timezonefinder/blob/master/example.py
+# Getting a location's time zone offset from UTC in minutes:
+# adapted solution from https://github.com/communikein and `phineas-pta <https://github.com/phineas-pta>`__
+from datetime import datetime
+from pytz import timezone, utc
+from timezonefinder import TimezoneFinder
 
-#Whitehorse Yukon Territories Canada
-#latitude_deg =60.7
-#longitude_deg = -135.1
-#timezone = -7.0 #Daylight Savings Time is in effect, this would be -8 for winter time
+def get_offset(*, lat, lng):
+    """
+    returns a location's time zone offset from UTC in minutes.
+    """
 
-#Paris France
-#latitude_deg =48.85
-#longitude_deg = 2.35
-#timezone = 2.0
-
-#Hong Kong PRC
-#latitude_deg =22.32
-#longitude_deg =114.1
-#timezone = 8.0
-
-#Perth Australia
-#latitude_deg =-31.9
-#longitude_deg =115.9
-#timezone = 8.0
-# *****************************************
+    tf = TimezoneFinder()
+    today = datetime.now()
+    tz_target = timezone(tf.certain_timezone_at(lng=lng, lat=lat))
+    # ATTENTION: tz_target could be None! handle error case
+    today_target = tz_target.localize(today)
+    today_utc = utc.localize(today)
+    return (today_utc - today_target).total_seconds() / 3600
+# EOF get_offset
 
 def date_to_jd(year,month,day):
     # Convert a date to Julian Day.
@@ -130,7 +118,14 @@ longitude_deg = response.longitude
 # now we need to find the time difference to UTC for our current location:
 # still open, configure variable timezone above !
 
+# from: https://github.com/MrMinimal64/timezonefinder/blob/master/example.py
+# Getting a location's time zone offset from UTC in minutes:
+
+mylocation = {'lat': latitude_deg, 'lng': longitude_deg}
+timezone = get_offset(**mylocation)
+
 # end of mods for autodetection
+import datetime
 
 pi=3.14159265359
 
