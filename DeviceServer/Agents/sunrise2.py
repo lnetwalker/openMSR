@@ -19,10 +19,6 @@
 # with your IP address you can query different services to find latitude and longitude
 # https://pypi.org/project/ip2geotools/
 
-# currently missing is the difference to UTC time for your location.
-# I need to search for that, but this should also be a no brainer....
-# so for now you need to set the timezone variable manually below
-
 # everything put together you have a nifty tool which automatically calculates
 # the sunrise / sunset
 
@@ -103,7 +99,6 @@ def date_to_jd(year,month,day):
 from requests import get
 
 ip = get('https://api.ipify.org').text
-print ('My public IP address is:', ip)
 
 # EOF get ip
 
@@ -116,7 +111,6 @@ longitude_deg = response.longitude
 
 # EOF geolication on ip
 # now we need to find the time difference to UTC for our current location:
-# still open, configure variable timezone above !
 
 # from: https://github.com/MrMinimal64/timezonefinder/blob/master/example.py
 # Getting a location's time zone offset from UTC in minutes:
@@ -125,6 +119,7 @@ mylocation = {'lat': latitude_deg, 'lng': longitude_deg}
 timezone = get_offset(**mylocation)
 
 # end of mods for autodetection
+
 import datetime
 
 pi=3.14159265359
@@ -176,6 +171,7 @@ print("------------------------------")
 print("Today's date is " + currentDT.strftime("%Y-%m-%d"))
 print("------------------------------")
 #("%Y-%m-%d %H:%M")
+print ('My public IP address is:', ip)
 
 print("Latitude =  " + str(latitude_deg))
 print("Longitude = " + str(longitude_deg))
