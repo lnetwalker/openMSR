@@ -83,23 +83,25 @@ begin
 	i:=1;			{ marker for positions }
 	k:=1;			{ counter for the values }
 	wert:=0;
-	repeat			{ übergehe alle werte bis zum gewünschten }
-		i:=pos(' ',ReturnValue);
-		if (i=0) then ReturnArray[k]:=copy(ReturnValue,1,length(ReturnValue))
-		else          ReturnArray[k]:=copy(ReturnValue,1,i-1);
-		ReturnValue:=copy(ReturnValue,i+1,length(ReturnValue));
-		if debug then writeln('ReturnValue=',ReturnValue,' ReturnArray[',k,']=',ReturnArray[k]);
-		inc(k);
-	until (k>io_port);// or (i>ReturnValueLength);
-	if ReturnArray[io_port][1]='-' then begin
-		ReturnArray[io_port]:=copy(ReturnArray[io_port],2,length(ReturnArray[io_port]));
-		if debug then writeln('ReturnArray[io_port]=',ReturnArray[io_port]);
-		val (ReturnArray[io_port],wert);
-		wert:=wert*-1;
-		if debug then writeln('wert=',wert);
-	end
-	else
-		val (ReturnArray[io_port],wert);
+	if ( ReturnValueLength > 0 ) then begin
+		repeat			{ übergehe alle werte bis zum gewünschten }
+			i:=pos(' ',ReturnValue);
+			if (i=0) then ReturnArray[k]:=copy(ReturnValue,1,length(ReturnValue))
+			else          ReturnArray[k]:=copy(ReturnValue,1,i-1);
+			ReturnValue:=copy(ReturnValue,i+1,length(ReturnValue));
+			if debug then writeln('ReturnValue=',ReturnValue,' ReturnArray[',k,']=',ReturnArray[k]);
+			inc(k);
+		until (k>io_port) or (i>ReturnValueLength);
+		if ReturnArray[io_port][1]='-' then begin
+			ReturnArray[io_port]:=copy(ReturnArray[io_port],2,length(ReturnArray[io_port]));
+			if debug then writeln('ReturnArray[io_port]=',ReturnArray[io_port]);
+			val (ReturnArray[io_port],wert);
+			wert:=wert*-1;
+			if debug then writeln('wert=',wert);
+		end
+		else
+			val (ReturnArray[io_port],wert);
+	end		
 
 	exec_read_analog:=wert;
 
